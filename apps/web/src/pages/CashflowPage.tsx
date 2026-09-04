@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Wallet, Activity, Download } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
 
 interface CashflowTransaction {
   id: string;
@@ -25,6 +26,15 @@ export default function CashflowPage() {
   const totalInflow = transactions.filter(t => t.category === 'Inflow').reduce((acc, curr) => acc + curr.amount, 0);
   const totalOutflow = transactions.filter(t => t.category === 'Outflow').reduce((acc, curr) => acc + curr.amount, 0);
   const netCashflow = totalInflow - totalOutflow;
+
+  const waterfallItems: WaterfallItem[] = [
+    { id: 'inflow-sewa', label: 'Sewa Tenant', amount: 350000000 },
+    { id: 'inflow-sales', label: 'Sales Harian', amount: 145000000 },
+    { id: 'outflow-gaji', label: 'Gaji Karyawan', amount: -210000000 },
+    { id: 'outflow-pos', label: 'Perangkat POS', amount: -45000000 },
+    { id: 'outflow-util', label: 'Listrik & Utilitas', amount: -35000000 },
+    { id: 'net', label: 'Net Cashflow', amount: netCashflow, isTotal: true },
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in-up">
@@ -92,6 +102,13 @@ export default function CashflowPage() {
           <p className="mt-1 text-xs text-slate-500">Rasio Kas 2.4x</p>
         </article>
       </section>
+
+      {/* Waterfall Chart Arus Kas */}
+      <WaterfallChart
+        title="Waterfall Chart Arus Kas Operasional"
+        subtitle="Dinamika penerimaan sewa & penjualan terhadap pengeluaran operasional ritel"
+        items={waterfallItems}
+      />
 
       {/* Cashflow Table */}
       <section className="rounded-card-lg border border-line/40 bg-white/80 backdrop-blur-md p-6 shadow-sm">

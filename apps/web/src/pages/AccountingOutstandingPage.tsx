@@ -3,6 +3,7 @@ import { Plus, Clock, ArrowUpRight, Search, X, Check, XCircle } from 'lucide-rea
 import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 import { useToast } from '../components/ui/Toast';
 import { useAccountingOutstandings, useOutstandingMutations } from '../hooks/useAccounting';
+import { AgingBucketBar, type AgingBucketId, getItemBucket } from '../components/accounting/AgingBucketBar';
 
 interface OutstandingItem {
   id: string;
@@ -27,6 +28,7 @@ export default function AccountingOutstandingPage() {
   const [payAmount, setPayAmount] = useState('');
   const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedBank, setSelectedBank] = useState('155-00-1485895-8 (MANDIRI PIONER)');
+  const [selectedAgingBucket, setSelectedAgingBucket] = useState<AgingBucketId | null>(null);
 
   // Form tambah outstanding
   const [newDesc, setNewDesc] = useState('');
@@ -138,7 +140,8 @@ export default function AccountingOutstandingPage() {
   const filteredItems = items.filter((item) => {
     const matchStatus = filterStatus === 'all' || item.status === filterStatus;
     const matchSearch = item.description.toLowerCase().includes(search.toLowerCase()) || item.code.toLowerCase().includes(search.toLowerCase());
-    return matchStatus && matchSearch;
+    const matchBucket = !selectedAgingBucket || getItemBucket(item) === selectedAgingBucket;
+    return matchStatus && matchSearch && matchBucket;
   });
 
   return (
@@ -188,6 +191,13 @@ export default function AccountingOutstandingPage() {
           <p className="mt-1 text-xs text-rose-600/80">Saldo Kas - Total Outstanding</p>
         </div>
       </div>
+
+      {/* Aging Bucket Distribution Bar */}
+      <AgingBucketBar
+        items={items}
+        selectedBucket={selectedAgingBucket}
+        onSelectBucket={setSelectedAgingBucket}
+      />
 
       {/* Filter & Table */}
       <div className="rounded-card-lg border border-line bg-white shadow-glass">

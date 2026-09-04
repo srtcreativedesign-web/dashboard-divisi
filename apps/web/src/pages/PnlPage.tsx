@@ -3,6 +3,7 @@ import { PieChart, TrendingUp, DollarSign, Award, ArrowUpRight, CheckCircle2, Pr
 import { Button } from '../components/ui/Button';
 import { PnlComparisonChart } from '../components/pnl/PnlComparisonChart';
 import { useAuth } from '../session/AuthContext';
+import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
 
 interface PnlItem {
   id: string;
@@ -34,6 +35,14 @@ export default function PnlPage() {
   const totalOpex = pnlItems.filter(i => i.section === 'Opex').reduce((a, b) => a + b.amount, 0);
   const netProfit = grossProfit - totalOpex;
   const netMargin = Math.round((netProfit / totalRevenue) * 100);
+
+  const pnlWaterfall: WaterfallItem[] = [
+    { id: 'rev', label: 'Pendapatan', amount: totalRevenue },
+    { id: 'cogs', label: 'HPP (COGS)', amount: -totalCogs },
+    { id: 'gross', label: 'Laba Kotor', amount: grossProfit, isTotal: true },
+    { id: 'opex', label: 'Beban Operasional', amount: -totalOpex },
+    { id: 'net', label: 'Laba Bersih', amount: netProfit, isTotal: true },
+  ];
 
   const handlePrint = () => {
     window.print();
@@ -118,6 +127,13 @@ export default function PnlPage() {
 
       {/* Comparison Chart (BOD Only) */}
       {isBod && <PnlComparisonChart />}
+
+      {/* Waterfall Chart Margin P&L */}
+      <WaterfallChart
+        title="Waterfall Chart: Formasi Laba Rugi (P&L Margin)"
+        subtitle="Visualisasi pembentukan laba bersih dari pendapatan kotor, pemotongan HPP, dan beban operasional"
+        items={pnlWaterfall}
+      />
 
       {/* PnL Statement Table */}
       <section className="rounded-card-lg border border-line/40 bg-white/80 backdrop-blur-md p-6 shadow-sm print:border-none print:p-0">

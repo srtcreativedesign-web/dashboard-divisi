@@ -4,6 +4,7 @@ import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 import { useAuth } from '../session/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import { useAccountingReconciliations, useReconciliationMutations } from '../hooks/useAccounting';
+import { ReconciliationMatchGauge } from '../components/accounting/ReconciliationMatchGauge';
 
 const rupiah = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
@@ -105,6 +106,15 @@ export default function AccountingReconciliationPage() {
           </p>
         </div>
       </header>
+
+      {/* Reconciliation Match Gauge */}
+      <ReconciliationMatchGauge
+        totalBank={summary.total_bank_aug}
+        totalCashflow={summary.cashflow_ending_balance}
+        variance={summary.variance}
+        isMatched={summary.is_matched}
+        totalAccounts={summary.total_bank_accounts}
+      />
 
       {/* Reconciliation Comparison Cards */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

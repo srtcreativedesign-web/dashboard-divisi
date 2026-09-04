@@ -3,6 +3,7 @@ import { Download, Search, TrendingUp, ShieldCheck, FileText, Loader2 } from 'lu
 import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 import { useAccountingPeriods, useAccountingCashflowReport } from '../hooks/useAccounting';
 import { useToast } from '../components/ui/Toast';
+import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
 
 const rupiah = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
@@ -45,6 +46,14 @@ export default function AccountingCashflowReportPage() {
     const matchSearch = item.name.toLowerCase().includes(searchCategory.toLowerCase()) || item.code.toLowerCase().includes(searchCategory.toLowerCase());
     return matchGroup && matchSearch;
   });
+
+  const cashflowWaterfallItems: WaterfallItem[] = [
+    { id: 'initial', label: 'Saldo Awal', amount: cf.initialBalance, isTotal: true },
+    { id: 'rev', label: 'Penerimaan/Sales', amount: cf.totalRevenue },
+    { id: 'ops', label: 'Beban Operasional', amount: -cf.totalOperational },
+    { id: 'backoffice', label: 'Beban Backoffice', amount: -cf.totalBackoffice },
+    { id: 'ending', label: 'Saldo Kas Akhir', amount: cf.totalEndingBalance, isTotal: true },
+  ];
 
   return (
     <section className="space-y-6">
@@ -127,6 +136,13 @@ export default function AccountingCashflowReportPage() {
               </p>
             </article>
           </div>
+
+          {/* Waterfall Chart Arus Kas */}
+          <WaterfallChart
+            title="Waterfall Chart: Jembatan Aliran Arus Kas"
+            subtitle="Pemetaan pembentukan saldo kas dari saldo awal, penerimaan penjualan, beban toko, hingga saldo akhir"
+            items={cashflowWaterfallItems}
+          />
 
           {/* Statement Hierarchy Table */}
           <div className="rounded-card border border-line bg-white shadow-card overflow-hidden">
