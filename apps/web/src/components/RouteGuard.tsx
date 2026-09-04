@@ -18,7 +18,7 @@ export function RouteGuard({ children, capability, divisionCode, fallback }: Rou
   if (authLoading) return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
   if (!user) return <Navigate to="/login" replace />;
 
-  if (capability && !hasCapability(user.role as never, capability)) {
+  if (capability && !hasCapability(user.role as never, capability, user.divisionCode)) {
     return fallback ?? <NoAccessState description={`Role ${user.role} tidak memiliki izin ${capability}.`} />;
   }
 

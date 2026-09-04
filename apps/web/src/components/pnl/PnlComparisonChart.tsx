@@ -1,10 +1,16 @@
 import { useState, useMemo } from 'react';
 import { usePnlComparison, useDivisions, useOutlets } from '../../hooks/useBod';
 import { Activity, Filter } from 'lucide-react';
-import { Button } from '../ui/Button';
+import type { PnlComparisonData } from '../../api/bod';
+import type { Division, Outlet } from '../../api/org';
+
+interface Entity {
+  id: string;
+  name: string;
+}
 
 // A custom SVG Line Chart for Time Series Data
-function LineChart({ data, entities, colors }: { data: any[]; entities: { id: string; name: string }[]; colors: string[] }) {
+function LineChart({ data, entities, colors }: { data: PnlComparisonData[]; entities: Entity[]; colors: string[] }) {
   if (!data || data.length === 0) return <div className="h-64 flex items-center justify-center text-slate-500">No data available</div>;
 
   const width = 800;
@@ -16,7 +22,7 @@ function LineChart({ data, entities, colors }: { data: any[]; entities: { id: st
   let minVal = Infinity;
 
   data.forEach((month) => {
-    month.entities.forEach((e: any) => {
+    month.entities.forEach((e) => {
       if (e.netProfit > maxVal) maxVal = e.netProfit;
       if (e.netProfit < minVal) minVal = e.netProfit;
     });
@@ -61,7 +67,7 @@ function LineChart({ data, entities, colors }: { data: any[]; entities: { id: st
         {entities.map((entity, entityIdx) => {
           const color = colors[entityIdx % colors.length];
           const points = data.map((month, i) => {
-            const val = month.entities.find((e: any) => e.id === entity.id)?.netProfit ?? 0;
+            const val = month.entities.find((e) => e.id === entity.id)?.netProfit ?? 0;
             return `${scaleX(i)},${scaleY(val)}`;
           }).join(' ');
 
@@ -81,7 +87,7 @@ function LineChart({ data, entities, colors }: { data: any[]; entities: { id: st
         {entities.map((entity, entityIdx) => {
           const color = colors[entityIdx % colors.length];
           return data.map((month, i) => {
-            const val = month.entities.find((e: any) => e.id === entity.id)?.netProfit ?? 0;
+            const val = month.entities.find((e) => e.id === entity.id)?.netProfit ?? 0;
             return (
               <circle
                 key={`${entity.id}-${i}`}
@@ -109,7 +115,6 @@ export function PnlComparisonChart() {
   const [selectedOutlets, setSelectedOutlets] = useState<string[]>([]);
   
   // By default, if selectedDivisions has only 1 division, we can fetch its outlets.
-  const isComparingOutlets = selectedOutlets.length > 0 || (selectedDivisions.length === 1);
   const divisionForOutlets = selectedDivisions.length === 1 ? selectedDivisions[0] : undefined;
 
   const { data: divisionsList } = useDivisions();
@@ -142,13 +147,13 @@ export function PnlComparisonChart() {
 
   const colors = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
 
-  const entities = useMemo(() => {
+  const entities = useMemo((): Entity[] => {
     if (!comparisonData || comparisonData.length === 0) return [];
     // Extract unique entities from the first month data that has them
-    const monthWithData = comparisonData.find((m: any) => m.entities.length > 0);
+    const monthWithData = comparisonData.find((m) => m.entities.length > 0);
     if (!monthWithData) return [];
     
-    return monthWithData.entities.map((e: any) => ({ id: e.id, name: e.name }));
+    return monthWithData.entities.map((e) => ({ id: e.id, name: e.name }));
   }, [comparisonData]);
 
   const months = [
@@ -211,7 +216,7 @@ export function PnlComparisonChart() {
               <Filter className="w-4 h-4" /> Filter Divisi
             </h4>
             <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-              {divisionsList?.map((d: any) => (
+              {divisionsList?.map((d: Division) => (
                 <label key={d.code} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-white/50 p-1 rounded">
                   <input 
                     type="checkbox" 
@@ -232,7 +237,7 @@ export function PnlComparisonChart() {
               </h4>
               <p className="text-xs text-slate-500 mb-2">Pilih outlet untuk membandingkan performa dalam divisi yang sama.</p>
               <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                {outletsList.map((o: any) => (
+                {outletsList.map((o: Outlet) => (
                   <label key={o.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-white/50 p-1 rounded">
                     <input 
                       type="checkbox" 
@@ -258,7 +263,7 @@ export function PnlComparisonChart() {
               <LineChart data={comparisonData ?? []} entities={entities} colors={colors} />
               
               <div className="mt-4 flex flex-wrap gap-4 justify-center text-xs font-semibold">
-                {entities.map((entity: any, i: number) => (
+                {entities.map((entity: Entity, i: number) => (
                   <div key={entity.id} className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: colors[i % colors.length] }}></span>
                     <span className="text-slate-600">{entity.name}</span>

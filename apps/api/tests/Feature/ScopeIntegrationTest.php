@@ -18,13 +18,14 @@ class ScopeIntegrationTest extends TestCase
         $this->assertTrue($policy->canAccessDivision($bod, 'CELL'));
         $this->assertTrue($policy->canAccessDivision($bod, 'MINI'));
         $this->assertTrue($policy->canAccessDivision($bod, 'MC'));
+        $this->assertTrue($policy->canAccessDivision($bod, 'ACC'));
 
-        // BOD can query outlets across all divisions
+        // BOD can query outlets across all divisions (8 outlets after ACC added)
         $response = $this->authenticated('bod1@dashboard.test')
             ->getJson('/api/v1/org/outlets');
 
         $response->assertStatus(200);
-        $this->assertCount(7, $response->json('data'));
+        $this->assertCount(8, $response->json('data'));
     }
 
     public function test_manager_and_admin_strict_1_to_1_division_scope(): void

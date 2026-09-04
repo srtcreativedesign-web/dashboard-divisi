@@ -2,9 +2,9 @@ name: CI — quality gate + migration dry-run
 
 on:
   push:
-    branches: [main]
+    branches: [main, development]
   pull_request:
-    branches: [main]
+    branches: [main, development]
 
 jobs:
   quality-gate:

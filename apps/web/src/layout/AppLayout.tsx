@@ -61,7 +61,7 @@ export function AppLayout() {
 
   const visibleMenu = MENU_ITEMS.filter((item) => {
     if (!item.roles.includes(user.role as never)) return false;
-    if (item.capability && !hasCapability(user.role as never, item.capability)) return false;
+    if (item.capability && !hasCapability(user.role as never, item.capability, user.divisionCode)) return false;
     return true;
   });
 
