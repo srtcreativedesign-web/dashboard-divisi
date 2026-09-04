@@ -24,6 +24,8 @@ import {
   PanelLeft,
   FileSpreadsheet,
   Bell,
+  AlertOctagon,
+  Sliders,
 } from 'lucide-react';
 
 export interface CommandItem {
@@ -260,6 +262,24 @@ export function CommandPalette({ isOpen, onClose, onSelectAction }: CommandPalet
         category: 'Aksi Cepat',
         icon: ShieldCheck,
         keywords: ['audit', 'trail', 'log', 'keamanan', 'riwayat', 'trace', 'aktivitas'],
+      },
+      {
+        id: 'act-open-incident-hub',
+        title: 'Pusat Manajemen Insiden Finansial',
+        description: 'Pantau status resolusi anomali piutang, mutasi bank, dan selisih kasir',
+        category: 'Aksi Cepat',
+        path: '/konfigurasi?tab=incidents',
+        icon: AlertOctagon,
+        keywords: ['insiden', 'anomali', 'resolusi', 'incident', 'investigasi', 'mitigasi'],
+      },
+      {
+        id: 'act-configure-alert-rules',
+        title: 'Konfigurasi Aturan & Ambang Batas Peringatan',
+        description: 'Atur batas kritis piutang, toleransi target ritel, dan kanal notifikasi',
+        category: 'Aksi Cepat',
+        path: '/konfigurasi?tab=rules',
+        icon: Sliders,
+        keywords: ['aturan', 'ambang batas', 'threshold', 'rules', 'peringatan', 'alert'],
       },
     ],
     [],
