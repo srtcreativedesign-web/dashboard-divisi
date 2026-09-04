@@ -92,6 +92,16 @@ export function AppLayout() {
   }, []);
 
   useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'dashboard-divisi.sidebar-collapsed' && e.newValue !== null) {
+        setSidebarCollapsed(e.newValue === 'true');
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  useEffect(() => {
     if (!drawerOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setDrawerOpen(false);
