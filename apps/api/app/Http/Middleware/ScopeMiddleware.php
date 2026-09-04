@@ -26,6 +26,10 @@ class ScopeMiddleware
             ?? $request->input('divisionCode')
             ?? $request->input('division_code');
 
+        if (! $divisionCode && $request->is('api/v1/accounting*')) {
+            $divisionCode = 'ACC';
+        }
+
         if ($divisionCode) {
             $this->policy->assertDivisionScope($user, (string) $divisionCode);
         }

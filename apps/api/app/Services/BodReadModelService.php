@@ -21,7 +21,8 @@ class BodReadModelService
 
     public function getExecutiveReadModel(array $user): array
     {
-        $divisions = Division::orderBy('sort_order', 'asc')->get()
+        // SOP: KPI compatibility read model adalah model perbandingan lintas 7 divisi operasional existing.
+        $divisions = Division::where('code', '!=', 'ACC')->orderBy('sort_order', 'asc')->get()
             ->filter(fn ($d) => $this->canAccessDivision($user, (string) $d->code));
         $divs = $divisions->map(fn ($d) => ['code' => $d->code, 'name' => $d->name])->toArray();
 

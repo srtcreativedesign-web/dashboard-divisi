@@ -83,4 +83,40 @@ describe('ORG-06 RouteGuard per capability & division — 7 divisi', () => {
     expect(screen.getByTestId('ok')).toBeDefined();
     localStorage.clear();
   });
+
+  it('ACC Capability & Division Scope: BOD read-only, Manager & Admin segregated, cross-division blocked', () => {
+    // 1. BOD Accounting capability
+    expect(hasCapability('BOD', 'view:acc_report')).toBe(true);
+    expect(hasCapability('BOD', 'write:acc_transaction')).toBe(false);
+    expect(hasCapability('BOD', 'approve:acc_period')).toBe(false);
+    expect(hasCapability('BOD', 'manage:acc_master')).toBe(false);
+
+    // 2. Manager ACC capability
+    expect(hasCapability('MANAGER', 'view:acc_report', 'ACC')).toBe(true);
+    expect(hasCapability('MANAGER', 'approve:acc_period', 'ACC')).toBe(true);
+    expect(hasCapability('MANAGER', 'manage:acc_master', 'ACC')).toBe(true);
+    expect(hasCapability('MANAGER', 'write:acc_transaction', 'ACC')).toBe(false); // Segregation of duties
+
+    // 3. Admin ACC capability
+    expect(hasCapability('ADMIN', 'view:acc_report', 'ACC')).toBe(true);
+    expect(hasCapability('ADMIN', 'write:acc_transaction', 'ACC')).toBe(true);
+    expect(hasCapability('ADMIN', 'import:acc_transaction', 'ACC')).toBe(true);
+    expect(hasCapability('ADMIN', 'submit:acc_period', 'ACC')).toBe(true);
+    expect(hasCapability('ADMIN', 'approve:acc_period', 'ACC')).toBe(false); // Segregation of duties
+
+    // 4. Divisi lain (non-ACC) tidak memiliki capability ACC
+    expect(hasCapability('ADMIN', 'write:acc_transaction', 'WRAP')).toBe(false);
+    expect(hasCapability('MANAGER', 'approve:acc_period', 'CELL')).toBe(false);
+
+    // 5. canAccessDivision untuk ACC
+    const bod = { role: 'BOD' as Role, divisionCode: null };
+    expect(canAccessDivision(bod, 'ACC')).toBe(true);
+
+    const mgrAcc = { role: 'MANAGER' as Role, divisionCode: 'ACC' };
+    expect(canAccessDivision(mgrAcc, 'ACC')).toBe(true);
+    expect(canAccessDivision(mgrAcc, 'WRAP')).toBe(false);
+
+    const mgrWrap = { role: 'MANAGER' as Role, divisionCode: 'WRAP' };
+    expect(canAccessDivision(mgrWrap, 'ACC')).toBe(false);
+  });
 });

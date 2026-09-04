@@ -12,6 +12,7 @@ export const DIVISIONS = [
   { code: 'FNB', name: 'FnB' },
   { code: 'FIN', name: 'Finance' },
   { code: 'MC', name: 'Money Changer' },
+  { code: 'ACC', name: 'Accounting' },
 ] as const;
 
 export type DivisionCode = (typeof DIVISIONS)[number]['code'];

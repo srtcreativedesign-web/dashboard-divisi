@@ -1,7 +1,7 @@
 import type { Role } from '../mocks/session';
 
 const ROLE_CAPABILITIES: Record<string, string[]> = {
-  BOD: ['view:division', 'view:report', 'view:workforce'],
+  BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report'],
   MANAGER: ['view:division', 'manage:division', 'view:report', 'write:target', 'write:assessment', 'write:revenue'],
   ADMIN: ['view:division', 'write:revenue', 'write:target', 'view:report'],
   SUPERADMIN: ['*', 'manage:config'],
@@ -10,7 +10,40 @@ const ROLE_CAPABILITIES: Record<string, string[]> = {
   USER: ['view:own'],
 };
 
-export function hasCapability(role: Role, capability: string): boolean {
+const ACC_MANAGER_CAPABILITIES = [
+  'view:division',
+  'manage:division',
+  'view:acc_report',
+  'view:acc_journal',
+  'view:acc_master',
+  'manage:acc_master',
+  'manage:acc_period',
+  'approve:acc_period',
+];
+
+const ACC_ADMIN_CAPABILITIES = [
+  'view:division',
+  'view:acc_report',
+  'view:acc_journal',
+  'view:acc_master',
+  'write:acc_transaction',
+  'import:acc_transaction',
+  'write:acc_outstanding',
+  'write:acc_bank',
+  'submit:acc_period',
+];
+
+export function hasCapability(role: Role, capability: string, divisionCode?: string | null): boolean {
+  if (capability.startsWith('acc:') || capability.includes(':acc_')) {
+    if (role === 'BOD') {
+      return capability === 'view:acc_report';
+    }
+    if (divisionCode === 'ACC') {
+      if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
+      if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
+    }
+    return false;
+  }
   const caps = ROLE_CAPABILITIES[role] ?? [];
   return caps.includes('*') || caps.includes(capability);
 }

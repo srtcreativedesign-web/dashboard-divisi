@@ -21,7 +21,8 @@ class BodOverviewService
 
     public function getOverview(array $user, ?string $periodFrom = null, ?string $periodTo = null): array
     {
-        $divisions = Division::orderBy('sort_order', 'asc')->get()
+        // SOP: BOD Overview adalah ringkasan operasional retail 7 divisi existing (ACC memiliki domain laporan khusus).
+        $divisions = Division::where('code', '!=', 'ACC')->orderBy('sort_order', 'asc')->get()
             ->filter(fn ($d) => $this->canAccessDivision($user, (string) $d->code));
         $divs = $divisions->map(fn ($d) => [
             'code' => $d->code,

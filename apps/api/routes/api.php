@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccountingController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\BudgetingController;
@@ -90,6 +91,27 @@ Route::prefix('v1')->group(function () {
             Route::middleware(['capability:approve:target'])->group(function () {
                 Route::post('targets/{id}/approve', [TargetController::class, 'approve']);
                 Route::post('targets/{id}/return', [TargetController::class, 'returnTarget']);
+            });
+        });
+
+        // Accounting domain foundation (ISSUE-5)
+        Route::prefix('accounting')->middleware(['scope'])->group(function () {
+            // Status fondasi ACC
+            Route::get('status', [AccountingController::class, 'status']);
+
+            // Baca laporan ACC (Disetujui/Ditutup) — BOD, Manager ACC, Admin ACC
+            Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::get('reports', [AccountingController::class, 'reports']);
+            });
+
+            // Mutasi transaksi jurnal aktual ACC — hanya Admin ACC
+            Route::middleware(['capability:write:acc_transaction'])->group(function () {
+                Route::post('transactions', [AccountingController::class, 'storeTransaction']);
+            });
+
+            // Persetujuan / kontrol periode ACC — hanya Manager ACC
+            Route::middleware(['capability:approve:acc_period'])->group(function () {
+                Route::post('periods/approve', [AccountingController::class, 'approvePeriod']);
             });
         });
     });
