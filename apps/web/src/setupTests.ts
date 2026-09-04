@@ -10,17 +10,22 @@ const mockBodOverview = [
   { divisionCode: 'FIN', divisionName: 'Finance', revenue: { gross: 200, source: 'revenue.daily', freshness: new Date().toISOString() }, target: { value: 200, achievement: 100, source: 'target.monthly' }, performance: { score: 88, level: 'B', source: 'performance.score' }, workforce: { count: 10, risk: 'low', source: 'workforce.count' }, period: { from: '2026-09-01', to: '2026-09-30' }, drillDown: { href: '/dashboard?divisionCode=FIN' } },
   { divisionCode: 'MC', divisionName: 'Money Changer', revenue: { gross: null, source: 'forex.volume', freshness: new Date().toISOString() }, target: { value: 0, achievement: 0, source: 'target.monthly' }, performance: { score: 0, level: 'C', source: 'performance.score' }, workforce: { count: 5, risk: 'low', source: 'workforce.count' }, period: { from: '2026-09-01', to: '2026-09-30' }, drillDown: { href: '/dashboard?divisionCode=MC' } },
 ];
+
 const originalFetch = globalThis.fetch;
 globalThis.fetch = async (input: RequestInfo | URL, _init?: RequestInit) => {
   const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : (input as Request).url;
+
   // Auth me — fallback ke 401 jika tidak ada role di localStorage, biar AuthContext fallback ke mock
   if (url.includes('/auth/me')) {
     const role = (globalThis as unknown as { localStorage: Storage }).localStorage?.getItem('dashboard-divisi.role-demo');
+    const div = (globalThis as unknown as { localStorage: Storage }).localStorage?.getItem('dashboard-divisi.division-demo');
     if (role) {
-      return new Response(JSON.stringify({ data: { id: 'test', email: `${role.toLowerCase()}@dashboard.test`, name: `${role} Test`, role, divisionCode: role === 'BOD' ? null : 'WRAP' }, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json', 'X-Trace-Id': 'test-trace' } });
+      const divisionCode = role === 'BOD' ? null : (div ?? 'WRAP');
+      return new Response(JSON.stringify({ data: { id: 'test', email: `${role.toLowerCase()}@dashboard.test`, name: `${role} Test`, role, divisionCode }, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json', 'X-Trace-Id': 'test-trace' } });
     }
     return new Response(JSON.stringify({ error: { code: 'AUTH_REQUIRED', message: 'Unauthorized', trace_id: 'test-trace' } }), { status: 401, headers: { 'Content-Type': 'application/json', 'X-Trace-Id': 'test-trace' } });
   }
+
   if (url.includes('/bod/overview')) {
     return new Response(JSON.stringify({ data: mockBodOverview, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json', 'X-Trace-Id': 'test-trace' } });
   }
@@ -88,6 +93,54 @@ globalThis.fetch = async (input: RequestInfo | URL, _init?: RequestInit) => {
       meta: { trace_id: 'test-trace' },
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
+
+  // Accounting Endpoints Mock
+  if (url.includes('/accounting/outstandings')) {
+    return new Response(JSON.stringify({
+      data: {
+        kpis: { total_active_outstanding: 1546704169, total_paid: 0, total_items_count: 9, active_items_count: 9, actual_cash_balance: 1411157668, projected_ending_balance: -135546501 },
+        items: [{ id: 'ots-1', code: 'OTS-2026-08-01', description: 'GAJI LAPANGAN', amount: 500000000, paid_amount: 0, remaining_amount: 500000000, due_date: '2026-08-25', status: 'unpaid' }],
+      },
+      meta: { trace_id: 'test-trace' },
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/accounting/reconciliations')) {
+    return new Response(JSON.stringify({
+      data: {
+        period: { id: 'p1', period_month: '2026-08', status: 'draft' },
+        summary: { total_bank_accounts: 31, total_bank_jul: 941786678.76, total_bank_aug: 1411157667, total_mutation: 469370988.24, cashflow_ending_balance: 1411157667.88, variance: 0.88, is_matched: true, unattached_transactions_count: 484 },
+        items: [{ id: 'b1', number: 1, account_number: '155-00-1485895-8', account_name: 'MANDIRI PIONER', bank_name: 'MANDIRI', outlet_name: 'PIONER', jul_balance: 1000000, aug_balance: 2505042, mutation: 1505042, is_verified: true }],
+      },
+      meta: { trace_id: 'test-trace' },
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/accounting/cashflow/report')) {
+    return new Response(JSON.stringify({
+      data: {
+        period: { period_month: '2026-08', status: 'draft' },
+        kpis: { initial_cash_balance: 941786678.76, total_revenue: 5050891572.12, total_available: 5992678250.88, total_operational_expenses: 3735973049, total_backoffice_expenses: 845547534, total_expenses: 4581520583, ending_cash_balance: 1411157667.88, total_bank_ending_balance: 1411157667, reconciliation_variance: 0.88, is_reconciled: true, total_active_outstanding: 1546704169, projected_ending_balance: -135546501.12 },
+        breakdown: {
+          revenue: [{ code: 'B1', name: 'Sales Store Harian', amount: 4760786093 }],
+          operational: [{ code: 'C1', name: 'Tagihan PT Angkasa Pura Indonesia', amount: 1720636274 }],
+          backoffice: [{ code: 'D1', name: 'Gaji Back Office', amount: 114510000 }],
+        },
+      },
+      meta: { trace_id: 'test-trace' },
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/accounting/periods')) {
+    return new Response(JSON.stringify({ data: [{ id: 'p1', periodMonth: '2026-08', status: 'draft', version: 1 }], meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/accounting/categories')) {
+    return new Response(JSON.stringify({ data: [{ id: 'c1', code: 'C1', name: 'Tagihan PT Angkasa Pura Indonesia', isActive: true, requiresOutlet: false }], meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/accounting/accounts')) {
+    return new Response(JSON.stringify({ data: [{ id: 'a1', code: '1110', displayName: 'MANDIRI PIONER', type: 'bank', isActive: true }], meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/accounting/transactions')) {
+    return new Response(JSON.stringify({ data: [], meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+
   // fallback ke fetch asli jika ada
   if (originalFetch) return originalFetch(input as RequestInfo, _init);
   return new Response(JSON.stringify({ data: null, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -122,3 +175,5 @@ Object.defineProperty(globalThis, 'localStorage', {
   value: storageMock,
   writable: true,
 });
+
+window.HTMLElement.prototype.scrollIntoView = () => {};

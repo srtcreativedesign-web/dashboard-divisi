@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, X, Calendar, Store, Calculator, DollarSign, PieChart } from 'lucide-react';
-import { MENU_ITEMS, roleDisplay } from '../mocks/session';
+import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, X, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, Clock, ShieldCheck } from 'lucide-react';
+import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, roleDisplay } from '../mocks/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
 import { hasCapability } from '../session/capability';
+import { EmptyState } from '../components/states';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
@@ -20,6 +21,14 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/budgeting': Calculator,
   '/cashflow': DollarSign,
   '/pnl': PieChart,
+  '/accounting': LayoutDashboard,
+  '/accounting/jurnal': BookOpenText,
+  '/accounting/impor': UploadCloud,
+  '/accounting/outstanding': Clock,
+  '/accounting/cashflow': DollarSign,
+  '/accounting/rekonsiliasi': ShieldCheck,
+  '/accounting/periode': Calendar,
+  '/accounting/master': Database,
 };
 
 export function AppLayout() {
@@ -32,7 +41,7 @@ export function AppLayout() {
     document.body.style.overflow = 'hidden';
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
   }, [drawerOpen]);
-  const { user, login: authLogin, logout: authLogout } = useAuth();
+  const { user, loading: authLoading, logout: authLogout } = useAuth();
   const logout = async () => {
     await authLogout();
     localStorage.removeItem('access_token');
@@ -41,25 +50,25 @@ export function AppLayout() {
     window.location.href = '/login';
   };
 
-  const handleQuickSwitch = async (email: string) => {
-    try {
-      await authLogin(email, 'Password123!');
-    } catch {
-      alert('Gagal switch role instan. Pastikan backend berjalan.');
-    }
-  };
+
 
   const location = useLocation();
+
+  if (authLoading) {
+    return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  const activeMenu = MENU_ITEMS.find((item) => item.path === location.pathname);
+  const isAccounting = user.divisionCode === 'ACC';
+  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : MENU_ITEMS;
+  const activeMenu = menuItems.find((item) => item.path === location.pathname);
   const roleLabel = roleDisplay(user.role);
   const scopeLabel = user.divisionCode ?? 'Semua divisi';
 
-  const visibleMenu = MENU_ITEMS.filter((item) => {
+  const visibleMenu = menuItems.filter((item) => {
     if (!item.roles.includes(user.role as never)) return false;
     if (item.capability && !hasCapability(user.role as never, item.capability, user.divisionCode)) return false;
     return true;
@@ -98,7 +107,7 @@ export function AppLayout() {
           <div className="absolute inset-0 bg-navy/40 backdrop-blur-md" onClick={() => setDrawerOpen(false)} aria-hidden="true" />
           <aside className="absolute left-0 top-0 h-full w-64 bg-gradient-to-b from-navy via-navy to-[#0b1221] px-4 py-6 text-slate-200 shadow-2xl ring-1 ring-white/10">
             <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-card-lg bg-white/15 text-white font-bold text-sm">DD</div><p className="text-sm font-semibold text-white">Dashboard Divisi</p></div>
+            <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-card-lg bg-white/15 text-white font-bold text-sm">{isAccounting ? 'AC' : 'DD'}</div><p className="text-sm font-semibold text-white">{isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}</p></div>
               <button type="button" aria-label="Tutup menu" onClick={() => setDrawerOpen(false)} className="rounded-input p-1 text-slate-300 hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
             </div>
             <nav className="flex flex-col gap-1.5" aria-label="Navigasi drawer">
@@ -116,8 +125,8 @@ export function AppLayout() {
         <div className="mb-8 flex items-center gap-3 px-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-card bg-gradient-to-br from-primary to-info text-white font-bold text-sm shadow-md ring-1 ring-white/20">DD</div>
           <div>
-            <p className="text-sm font-bold text-white leading-none tracking-tight">Dashboard Divisi</p>
-            <p className="text-xs text-slate-400 mt-1">7 divisi · Real BE</p>
+            <p className="text-sm font-bold text-white leading-none tracking-tight">{isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}</p>
+            <p className="text-xs text-slate-400 mt-1">{isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}</p>
           </div>
         </div>
         {renderMenu('sidebar')}
@@ -146,19 +155,7 @@ export function AppLayout() {
               <span className="text-sm font-medium lg:hidden">{user.name}</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="hidden lg:flex items-center gap-2 rounded-full border border-line bg-white/90 px-3 py-1.5 text-xs shadow-sm">
-                <span className="text-slate-500 font-semibold">⚡ Quick Role:</span>
-                <select
-                  value={user.email}
-                  onChange={(e) => { if (e.target.value && e.target.value !== user.email) void handleQuickSwitch(e.target.value); }}
-                  className="bg-transparent font-bold text-navy focus:outline-none cursor-pointer"
-                >
-                  <option value="bod1@dashboard.test">👔 Executive (BOD)</option>
-                  <option value="manager.wrap@dashboard.test">⚡ Superadmin (Manager)</option>
-                  <option value="admin.wrap@dashboard.test">📝 Admin Divisi</option>
-                  <option value="pic@dashboard.test">🔒 PIC (View Only)</option>
-                </select>
-              </div>
+
               <div className="hidden lg:flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs">
                 <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
                 <span className="font-medium text-navy">{roleLabel}</span>

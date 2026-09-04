@@ -46,6 +46,17 @@ export const MENU_ITEMS: MenuItem[] = [
   { path: '/pnl', label: 'PNL', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
 ];
 
+export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
+  { path: '/accounting', label: 'Dashboard Accounting', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_report' },
+  { path: '/accounting/jurnal', label: 'Jurnal Aktual', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_journal' },
+  { path: '/accounting/impor', label: 'Impor Transaksi', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_report' },
+  { path: '/accounting/outstanding', label: 'Outstanding', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_report' },
+  { path: '/accounting/cashflow', label: 'Laporan Cashflow', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_report' },
+  { path: '/accounting/rekonsiliasi', label: 'Rekonsiliasi Bank', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_report' },
+  { path: '/accounting/periode', label: 'Periode', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_report' },
+  { path: '/accounting/master', label: 'Master Data', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_master' },
+];
+
 export function homePathForRole(role: Role): string {
   return role === 'USER' ? '/profil' : '/dashboard';
 }

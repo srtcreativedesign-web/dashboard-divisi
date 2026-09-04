@@ -74,6 +74,16 @@ export const api = {
     return request<T>(`${path}${clean}`);
   },
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
+  put: <T>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
+  patch: <T>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
+  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
   upload: <T>(path: string, form: FormData) =>
     request<T>(path, { method: 'POST', body: form, headers: {} as Record<string, string> }), // browser set multipart boundary
 };
+
+export async function downloadFile(path: string): Promise<Blob> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const response = await fetch(`${API_BASE}${path}`, { credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  if (!response.ok) throw new Error('Bukti transaksi gagal diunduh');
+  return response.blob();
+}

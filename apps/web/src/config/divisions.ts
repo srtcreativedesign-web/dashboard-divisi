@@ -1,6 +1,6 @@
 /**
  * SOP 1B: Single Source of Truth untuk 7 Divisi
- * Digunakan oleh OrgFilters, RoleSwitcher, SessionContext, API hooks.
+ * Digunakan oleh OrgFilters, SessionContext, API hooks.
  * Sumber: SOP Internal IT §1 + Roadmap 7 divisi (WRAP, CELL, REFL, MINI, FNB, FIN, MC)
  */
 
