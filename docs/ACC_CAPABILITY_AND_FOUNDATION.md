@@ -63,15 +63,10 @@ Kewenangan Accounting dibedakan melalui division scope (`ACC`) dan capability kh
   - Email: `admin.acc@dashboard.test`
   - Nama: `Admin Accounting`
   - Role: `ADMIN`
-  - Divisi: `ACC`
-- **PIC ACC (View Only):**
-  - Email: `pic.acc@dashboard.test`
-  - Nama: `PIC Accounting (View Only)`
-  - Role: `USER`
-  - Divisi: `ACC`
 - **Outlet Anonim:**
   - Kode: `ACC-001`
   - Nama: `Accounting Pusat (Anonim)`
+  - *Catatan:* Dibuat secara otomatis mengikuti generator seeder iterasi seluruh divisi untuk fixture default outlet, bukan master data cabang baru.
 
 ### Aturan Keamanan Zero Secrets
 - Password seed menggunakan environment variable `SEED_DEFAULT_PASSWORD` (default testing: `Password123!`). Tidak ada password plaintext atau credential produksi yang tertanam di source code.

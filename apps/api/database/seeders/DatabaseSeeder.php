@@ -65,7 +65,6 @@ class DatabaseSeeder extends Seeder
         ['email' => 'pic.fnb@dashboard.test', 'name' => 'PIC FnB (View Only)', 'role' => 'USER', 'division_code' => 'FNB'],
         ['email' => 'pic.fin@dashboard.test', 'name' => 'PIC Finance (View Only)', 'role' => 'USER', 'division_code' => 'FIN'],
         ['email' => 'pic.mc@dashboard.test', 'name' => 'PIC Money Changer (View Only)', 'role' => 'USER', 'division_code' => 'MC'],
-        ['email' => 'pic.acc@dashboard.test', 'name' => 'PIC Accounting (View Only)', 'role' => 'USER', 'division_code' => 'ACC'],
         ['email' => 'pic@dashboard.test', 'name' => 'PIC View Only', 'role' => 'USER', 'division_code' => null],
     ];
 
