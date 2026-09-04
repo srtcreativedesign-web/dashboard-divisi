@@ -16,15 +16,15 @@ Route::prefix('v1')->group(function () {
     // Health check (public)
     Route::get('health', [HealthController::class, 'check']);
 
-    // Auth public — rate limit 6/menit/IP (anti brute-force)
-    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:6,1');
+    // Auth public — rate limit 10/menit per email+IP (anti brute-force, lihat AppServiceProvider)
+    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
     // Protected routes requiring JWT authentication
     Route::middleware(['jwt.auth'])->group(function () {
         // Auth session
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
-        Route::post('auth/reset', [AuthController::class, 'reset'])->middleware('throttle:6,1');
+        Route::post('auth/reset', [AuthController::class, 'reset'])->middleware('throttle:reset');
 
         // Sobat API Integration (protected by capability & scope)
         Route::middleware(['capability:view:report'])->group(function () {

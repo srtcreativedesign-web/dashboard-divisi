@@ -140,8 +140,8 @@ class AuthTest extends TestCase
 
     public function test_login_is_rate_limited_after_exceeding_attempts(): void
     {
-        // throttle:6,1 — setelah 6 percobaan, percobaan ke-7 ditolak 429 (anti brute-force)
-        for ($i = 0; $i < 6; $i++) {
+        // throttle:login — 10/menit per email+IP, percobaan ke-11 ditolak 429 (anti brute-force)
+        for ($i = 0; $i < 10; $i++) {
             $this->postJson('/api/v1/auth/login', [
                 'email' => 'bod1@dashboard.test',
                 'password' => 'WrongPassword',
@@ -154,6 +154,13 @@ class AuthTest extends TestCase
         ]);
 
         $blocked->assertStatus(429);
+
+        // Akun lain dari IP yang sama tidak ikut terblokir (kantor di balik satu IP/NAT)
+        $other = $this->postJson('/api/v1/auth/login', [
+            'email' => 'bod2@dashboard.test',
+            'password' => 'WrongPassword',
+        ]);
+        $other->assertStatus(401);
     }
 
     public function test_revoked_token_is_persisted_and_survives_cache_clear(): void

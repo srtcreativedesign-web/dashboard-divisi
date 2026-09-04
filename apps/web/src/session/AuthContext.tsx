@@ -105,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authApi.logout().catch(() => {});
     localStorage.removeItem('access_token');
     setUser(null);
+    setError(null); // jangan bawa pesan error sesi lama ke halaman login
   }, []);
 
   const value = useMemo(() => ({ user, loading, error, login, logout, refresh }), [user, loading, error, login, logout, refresh]);
