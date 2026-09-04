@@ -111,8 +111,8 @@ export const colors = {
     secondary: '#6b7280',
     tertiary: '#9ca3af',
     inverse: '#ffffff',
-    link: '#0284c7',
-    linkHover: '#0369a1',
+    link: '#0369a1',
+    linkHover: '#075985',
   },
 } as const;
 
