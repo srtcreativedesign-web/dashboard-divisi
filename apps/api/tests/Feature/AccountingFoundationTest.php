@@ -268,21 +268,32 @@ class AccountingFoundationTest extends TestCase
         $anonReports->assertStatus(401);
         $this->assertEquals('AUTH_REQUIRED', $anonReports->json('error.code'));
 
-        // 2. User tanpa capability (role USER / PIC) ditolak 403 FORBIDDEN_CAPABILITY
-        $picReports = $this->authenticated('pic.acc@dashboard.test')
-            ->getJson('/api/v1/accounting/reports');
-        $picReports->assertStatus(403);
-        $this->assertEquals('FORBIDDEN_CAPABILITY', $picReports->json('error.code'));
+        // 2. User tanpa capability (role USER) dalam divisi ACC ditolak 403 FORBIDDEN_CAPABILITY
+        $acc = Division::where('code', 'ACC')->first();
+        $userNoCap = User::create([
+            'email' => 'user.nocap@dashboard.test',
+            'name' => 'User No Cap',
+            'role' => 'USER',
+            'division_code' => 'ACC',
+            'password_hash' => 'hash',
+            'is_active' => true,
+        ]);
+        UserScope::create(['user_id' => $userNoCap->id, 'division_id' => $acc->id]);
 
-        $picTx = $this->authenticated('pic.acc@dashboard.test')
+        $noCapReports = $this->authenticated('user.nocap@dashboard.test')
+            ->getJson('/api/v1/accounting/reports');
+        $noCapReports->assertStatus(403);
+        $this->assertEquals('FORBIDDEN_CAPABILITY', $noCapReports->json('error.code'));
+
+        $noCapTx = $this->authenticated('user.nocap@dashboard.test')
             ->postJson('/api/v1/accounting/transactions', [
                 'date' => '2026-09-04',
                 'amount' => 10000,
                 'type' => 'DEBIT',
-                'description' => 'PIC transaction attempt',
+                'description' => 'Unauthorized transaction attempt',
             ]);
-        $picTx->assertStatus(403);
-        $this->assertEquals('FORBIDDEN_CAPABILITY', $picTx->json('error.code'));
+        $noCapTx->assertStatus(403);
+        $this->assertEquals('FORBIDDEN_CAPABILITY', $noCapTx->json('error.code'));
     }
 
     public function test_api_contract_envelope_and_sanitization(): void
