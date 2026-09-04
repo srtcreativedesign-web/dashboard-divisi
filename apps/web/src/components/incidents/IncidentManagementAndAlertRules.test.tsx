@@ -120,6 +120,10 @@ describe('Fase 7: Enterprise Incident Management & Alert Rules Tests', () => {
       // 4. Test negative decimal: -12.5 should clamp to 0
       fireEvent.change(targetInput, { target: { value: '-12.5' } });
       expect(targetInput.value).toBe('0');
+
+      // 5. Test Number.isFinite protection against Infinity / non-finite values: falls back to 0
+      fireEvent.change(targetInput, { target: { value: 'Infinity' } });
+      expect(targetInput.value).toBe('0');
     });
 
     it('toggles notification channels on rule', () => {

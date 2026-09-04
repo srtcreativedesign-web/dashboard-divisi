@@ -34,7 +34,7 @@ export function AlertRuleConfigurator({
       prev.map((r) => {
         if (r.id !== id) return r;
         const num = typeof rawVal === 'string' ? parseFloat(rawVal) : rawVal;
-        const safeValue = Number.isNaN(num) ? 0 : Math.max(0, num);
+        const safeValue = Number.isFinite(num) ? Math.max(0, num) : 0;
         return { ...r, thresholdValue: safeValue };
       }),
     );
