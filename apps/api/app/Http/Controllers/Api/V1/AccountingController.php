@@ -156,12 +156,13 @@ class AccountingController extends Controller
             'actorId' => $user['sub'] ?? $user['id'] ?? null,
             'actorEmail' => $user['email'] ?? null,
             'actorRole' => $user['role'] ?? 'UNKNOWN',
-            'action' => 'accounting.period_'.$validated['action'],
+            'action' => 'accounting.period_action_locked',
             'entity' => 'AccountingPeriod',
             'divisionCode' => 'ACC',
             'metadata' => [
                 'period' => $validated['period'],
-                'action' => $validated['action'],
+                'requestedAction' => $validated['action'],
+                'status' => 'STAGE_LOCKED',
                 'notes' => $validated['notes'] ?? null,
             ],
         ]);

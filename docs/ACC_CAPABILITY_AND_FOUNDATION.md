@@ -76,23 +76,41 @@ Kewenangan Accounting dibedakan melalui division scope (`ACC`) dan capability kh
 
 ## 4. Kontrak Respons API
 
-### Respons Sukses (HTTP 200 / 201)
+### Respons Sukses Query (HTTP 200)
+Contoh respon query status/laporan (`GET /api/v1/accounting/status`):
 ```json
 {
   "data": {
     "divisionCode": "ACC",
-    "status": "RECORDED"
+    "divisionName": "Accounting",
+    "status": "ACTIVE",
+    "phase": "PHASE_1_FOUNDATION",
+    "enabledModules": ["dashboard", "accounting"],
+    "enabledKpis": ["accounting.balance"]
   },
   "meta": {
     "trace_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
   },
   "links": {
-    "self": "/api/v1/accounting/transactions"
+    "self": "/api/v1/accounting/status"
   }
 }
 ```
 
-### Respons Error (HTTP 400 / 401 / 403 / 404 / 422 / 500)
+### Respons Mutasi Terkunci Tahap 1 (HTTP 422 `STAGE_LOCKED`)
+Pada Tahap 1 (Fondasi), endpoint mutasi (`POST /api/v1/accounting/transactions`, `POST /api/v1/accounting/periods/approve`) telah dilengkapi validasi input dan policy middleware, namun belum melakukan persistensi data dan mengembalikan respon fail-closed `STAGE_LOCKED`:
+```json
+{
+  "error": {
+    "code": "STAGE_LOCKED",
+    "message": "Persistensi transaksi jurnal Accounting terkunci pada Tahap 1 Fondasi (tersedia pada tahap implementasi jurnal berikutnya).",
+    "trace_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+  }
+}
+```
+
+### Respons Error Standar (HTTP 400 / 401 / 403 / 404 / 422 / 500)
+Format envelope error standar:
 ```json
 {
   "error": {
