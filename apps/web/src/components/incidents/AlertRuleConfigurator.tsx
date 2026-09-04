@@ -197,6 +197,7 @@ export function AlertRuleConfigurator({
                   <input
                     id={`input-${rule.id}`}
                     type="number"
+                    min="0"
                     value={rule.thresholdValue}
                     onChange={(e) => handleThresholdChange(rule.id, Number(e.target.value))}
                     disabled={!rule.isActive}

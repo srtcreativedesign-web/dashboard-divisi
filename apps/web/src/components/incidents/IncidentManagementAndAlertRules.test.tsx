@@ -71,6 +71,34 @@ describe('Fase 7: Enterprise Incident Management & Alert Rules Tests', () => {
       expect(toggle).not.toBeChecked();
     });
 
+    it('clamps negative input values to 0 using Math.max(0, value) and enforces min="0"', () => {
+      renderWithToast(<AlertRuleConfigurator />);
+
+      const arInput = screen.getByTestId('rule-threshold-input-rule-01') as HTMLInputElement;
+      expect(arInput).toHaveAttribute('min', '0');
+
+      // Test negative input: -30 should clamp to 0
+      fireEvent.change(arInput, { target: { value: '-30' } });
+      expect(arInput.value).toBe('0');
+
+      // Test large negative input: -99999 should clamp to 0
+      fireEvent.change(arInput, { target: { value: '-99999' } });
+      expect(arInput.value).toBe('0');
+
+      // Test 0: valid zero threshold
+      fireEvent.change(arInput, { target: { value: '0' } });
+      expect(arInput.value).toBe('0');
+
+      // Test valid positive number: 90 days
+      fireEvent.change(arInput, { target: { value: '90' } });
+      expect(arInput.value).toBe('90');
+
+      // Test cashier variance negative input: -500000 should clamp to 0
+      const cashierInput = screen.getByTestId('rule-threshold-input-rule-04') as HTMLInputElement;
+      fireEvent.change(cashierInput, { target: { value: '-500000' } });
+      expect(cashierInput.value).toBe('0');
+    });
+
     it('toggles notification channels on rule', () => {
       renderWithToast(<AlertRuleConfigurator />);
 
