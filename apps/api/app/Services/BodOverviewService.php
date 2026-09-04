@@ -43,30 +43,30 @@ class BodOverviewService
                 'WRAP' => 2200000000,
                 'CELL' => 1800000000,
                 'MINI' => 3500000000,
-                'FNB'  => 1200000000,
+                'FNB' => 1200000000,
                 'REFL' => 450000000,
-                'MC'   => 5000000000,
-                'FIN'  => 800000000,
+                'MC' => 5000000000,
+                'FIN' => 800000000,
             ];
-            
+
             $baseTargets = [
                 'WRAP' => 2500000000,
                 'CELL' => 1600000000,
                 'MINI' => 3400000000,
-                'FNB'  => 1500000000,
+                'FNB' => 1500000000,
                 'REFL' => 400000000,
-                'MC'   => 5000000000,
-                'FIN'  => 750000000,
+                'MC' => 5000000000,
+                'FIN' => 750000000,
             ];
 
             $baseRevenue = $baseRevenues[$div['code']] ?? 1000000000;
             $targetValue = $baseTargets[$div['code']] ?? 1000000000;
-            
+
             // Tambahkan sedikit variasi acak +- 5% agar terlihat dinamis tiap request
             $variance = rand(-5, 5) / 100;
             $revenue = $baseRevenue + ($baseRevenue * $variance);
             $achievement = round(($revenue / $targetValue) * 100, 1);
-            
+
             $score = min(100, round($achievement));
             $level = $score >= 100 ? 'A' : ($score >= 80 ? 'B' : 'C');
             $workforceCounts = ['WRAP' => 45, 'CELL' => 20, 'MINI' => 30, 'FNB' => 60, 'REFL' => 15, 'MC' => 8, 'FIN' => 5];

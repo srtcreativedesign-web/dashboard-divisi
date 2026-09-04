@@ -97,8 +97,7 @@ class AccountingFoundationTest extends TestCase
         // Admin ACC tidak memiliki akses modul revenue retail
         $this->assertFalse($policy->hasCapability($adminAcc, 'write:revenue'));
 
-        // Uji HTTP: Admin ACC mencoba membuat transaksi di tahap 1.
-        // Fail-closed: tidak mengembalikan 201 palsu karena persistensi baru aktif di tahap berikutnya.
+        // Payload legacy tahap 1 tetap fail-closed setelah endpoint transaksi ISSUE-7 aktif.
         $response = $this->authenticated('admin.acc@dashboard.test')
             ->postJson('/api/v1/accounting/transactions', [
                 'date' => '2026-09-04',
@@ -108,8 +107,8 @@ class AccountingFoundationTest extends TestCase
                 'referenceNo' => 'REF-20260904-001',
             ]);
 
-        $response->assertStatus(422);
-        $this->assertEquals('STAGE_LOCKED', $response->json('error.code'));
+        $response->assertStatus(400);
+        $this->assertEquals('VALIDATION_ERROR', $response->json('error.code'));
 
         // Uji HTTP: Admin ACC ditolak saat mencoba approve periode (403 FORBIDDEN_CAPABILITY)
         $denyRes = $this->authenticated('admin.acc@dashboard.test')

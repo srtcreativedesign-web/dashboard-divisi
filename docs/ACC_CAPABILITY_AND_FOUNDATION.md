@@ -83,8 +83,8 @@ Contoh respon query status/laporan (`GET /api/v1/accounting/status`):
   "data": {
     "divisionCode": "ACC",
     "divisionName": "Accounting",
-    "status": "ACTIVE",
-    "phase": "PHASE_1_FOUNDATION",
+    "status": "FOUNDATION_READY",
+    "phase": 1,
     "enabledModules": ["dashboard", "accounting"],
     "enabledKpis": ["accounting.balance"]
   },

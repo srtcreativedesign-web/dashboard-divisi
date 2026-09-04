@@ -37,7 +37,21 @@ class CapabilityMiddleware
             $divisionCode = 'ACC';
         }
 
-        $this->policy->assertCapability($user, $capability, $divisionCode ? (string) $divisionCode : null);
+        if (str_contains($capability, '|')) {
+            $capabilities = explode('|', $capability);
+            $hasAny = false;
+            foreach ($capabilities as $cap) {
+                if ($this->policy->hasCapability($user, trim($cap), $divisionCode ? (string) $divisionCode : null)) {
+                    $hasAny = true;
+                    break;
+                }
+            }
+            if (! $hasAny) {
+                $this->policy->assertCapability($user, trim($capabilities[0]), $divisionCode ? (string) $divisionCode : null);
+            }
+        } else {
+            $this->policy->assertCapability($user, $capability, $divisionCode ? (string) $divisionCode : null);
+        }
 
         return $next($request);
     }

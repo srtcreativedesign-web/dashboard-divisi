@@ -21,6 +21,8 @@ class ApiException extends Exception
         'RATE_LIMITED' => 429,
         'INTERNAL_ERROR' => 500,
         'STAGE_LOCKED' => 422,
+        'PERIOD_LOCKED' => 422,
+        'INVALID_STATE_OPERATION' => 422,
         'NOT_IMPLEMENTED' => 501,
     ];
 
@@ -30,10 +32,10 @@ class ApiException extends Exception
 
     protected ?array $fields;
 
-    public function __construct(string $errorCode, string $message = '', ?array $fields = null)
+    public function __construct(string $errorCode, string $message = '', ?array $fields = null, ?int $httpStatus = null)
     {
         $this->errorCode = $errorCode;
-        $this->httpStatus = self::HTTP_STATUS[$errorCode] ?? 500;
+        $this->httpStatus = $httpStatus ?? self::HTTP_STATUS[$errorCode] ?? 500;
         $this->fields = $fields;
         parent::__construct($message, $this->httpStatus);
     }

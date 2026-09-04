@@ -1,6 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccountingCashflowController;
 use App\Http\Controllers\Api\V1\AccountingController;
+use App\Http\Controllers\Api\V1\AccountingImportController;
+use App\Http\Controllers\Api\V1\AccountingMasterController;
+use App\Http\Controllers\Api\V1\AccountingOutstandingController;
+use App\Http\Controllers\Api\V1\AccountingReconciliationController;
+use App\Http\Controllers\Api\V1\AccountingTransactionController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\BudgetingController;
@@ -94,7 +100,7 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-        // Accounting domain foundation (ISSUE-5)
+        // Accounting domain foundation (ISSUE-5 + ISSUE-6 Master Data)
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
             // Status fondasi dan laporan ACC — BOD, Manager ACC, Admin ACC
             Route::middleware(['capability:view:acc_report'])->group(function () {
@@ -110,6 +116,99 @@ Route::prefix('v1')->group(function () {
             // Persetujuan / kontrol periode ACC — hanya Manager ACC
             Route::middleware(['capability:approve:acc_period'])->group(function () {
                 Route::post('periods/approve', [AccountingController::class, 'approvePeriod']);
+            });
+
+            // Master Data ACC — ISSUE-6
+            // Periode Accounting
+            Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::get('periods', [AccountingMasterController::class, 'listPeriods']);
+                Route::get('periods/{id}', [AccountingMasterController::class, 'getPeriod']);
+            });
+            Route::middleware(['capability:submit:acc_period'])->group(function () {
+                Route::post('periods', [AccountingMasterController::class, 'createPeriod']);
+            });
+            Route::middleware(['capability:submit:acc_period|manage:acc_period'])->group(function () {
+                Route::post('periods/{id}/transition', [AccountingMasterController::class, 'transitionPeriod']);
+            });
+
+            // Master Kategori
+            Route::middleware(['capability:view:acc_master'])->group(function () {
+                Route::get('categories', [AccountingMasterController::class, 'listCategories']);
+                Route::get('categories/{id}', [AccountingMasterController::class, 'getCategory']);
+                Route::post('categories/resolve', [AccountingMasterController::class, 'resolveCategory']);
+            });
+            Route::middleware(['capability:manage:acc_master'])->group(function () {
+                Route::post('categories', [AccountingMasterController::class, 'createCategory']);
+                Route::put('categories/{id}', [AccountingMasterController::class, 'updateCategory']);
+                Route::post('categories/{id}/deactivate', [AccountingMasterController::class, 'deactivateCategory']);
+                Route::post('categories/{id}/aliases', [AccountingMasterController::class, 'addCategoryAlias']);
+                Route::delete('categories/{id}/aliases/{aliasCode}', [AccountingMasterController::class, 'removeCategoryAlias']);
+            });
+
+            // Master Rekening
+            Route::middleware(['capability:view:acc_master'])->group(function () {
+                Route::get('accounts', [AccountingMasterController::class, 'listAccounts']);
+                Route::get('accounts/{id}', [AccountingMasterController::class, 'getAccount']);
+            });
+            Route::middleware(['capability:manage:acc_master'])->group(function () {
+                Route::post('accounts', [AccountingMasterController::class, 'createAccount']);
+                Route::put('accounts/{id}', [AccountingMasterController::class, 'updateAccount']);
+                Route::post('accounts/{id}/deactivate', [AccountingMasterController::class, 'deactivateAccount']);
+            });
+
+            // Audit History Master Data
+            Route::middleware(['capability:view:acc_master'])->group(function () {
+                Route::get('master/history', [AccountingMasterController::class, 'listMasterHistory']);
+            });
+
+            // Transaksi Accounting (Budgeting MVP) — ISSUE-7
+            Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::get('transactions', [AccountingTransactionController::class, 'list']);
+                Route::get('transactions/summary', [AccountingTransactionController::class, 'summary']);
+                Route::get('transactions/{id}', [AccountingTransactionController::class, 'get']);
+                Route::get('transactions/{id}/attachments/{attachmentId}/download', [AccountingTransactionController::class, 'downloadAttachment']);
+            });
+            Route::middleware(['capability:submit:acc_period'])->group(function () {
+                Route::post('transactions', [AccountingTransactionController::class, 'create']);
+                Route::put('transactions/{id}', [AccountingTransactionController::class, 'update']);
+                Route::post('transactions/{id}/cancel', [AccountingTransactionController::class, 'cancel']);
+                Route::post('transactions/{id}/attachments', [AccountingTransactionController::class, 'uploadAttachment']);
+            });
+
+            // Outstanding Accounting — ISSUE-9
+            Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::get('outstandings', [AccountingOutstandingController::class, 'list']);
+            });
+            Route::middleware(['capability:submit:acc_period'])->group(function () {
+                Route::post('outstandings', [AccountingOutstandingController::class, 'create']);
+                Route::post('outstandings/{id}/pay', [AccountingOutstandingController::class, 'recordPayment']);
+                Route::post('outstandings/{id}/cancel', [AccountingOutstandingController::class, 'cancel']);
+            });
+
+            // Rekonsiliasi Bank & Kontrol Periode — ISSUE-11
+            Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::get('reconciliations', [AccountingReconciliationController::class, 'list']);
+            });
+            Route::middleware(['capability:submit:acc_period'])->group(function () {
+                Route::post('reconciliations/submit', [AccountingReconciliationController::class, 'submitPeriod']);
+            });
+            Route::middleware(['capability:approve:acc_period'])->group(function () {
+                Route::post('reconciliations/approve', [AccountingReconciliationController::class, 'approvePeriod']);
+                Route::post('reconciliations/close', [AccountingReconciliationController::class, 'closePeriod']);
+                Route::post('reconciliations/reopen', [AccountingReconciliationController::class, 'reopenPeriod']);
+            });
+
+            // Impor Transaksi Excel — ISSUE-8
+            Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::post('import/preview', [AccountingImportController::class, 'preview']);
+            });
+            Route::middleware(['capability:submit:acc_period'])->group(function () {
+                Route::post('import/commit', [AccountingImportController::class, 'commit']);
+            });
+
+            // Laporan Cashflow — ISSUE-10
+            Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::get('cashflow/report', [AccountingCashflowController::class, 'report']);
             });
         });
     });
