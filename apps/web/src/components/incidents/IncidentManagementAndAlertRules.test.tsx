@@ -99,6 +99,29 @@ describe('Fase 7: Enterprise Incident Management & Alert Rules Tests', () => {
       expect(cashierInput.value).toBe('0');
     });
 
+    it('handles decimals, empty input, and invalid non-numeric strings safely without NaN', () => {
+      renderWithToast(<AlertRuleConfigurator />);
+
+      const targetInput = screen.getByTestId('rule-threshold-input-rule-02') as HTMLInputElement;
+      expect(targetInput).toHaveAttribute('step', '0.1');
+
+      // 1. Test decimal percentage: 75.5% MTD
+      fireEvent.change(targetInput, { target: { value: '75.5' } });
+      expect(targetInput.value).toBe('75.5');
+
+      // 2. Test empty string (user deletes all input): falls back to 0 without crashing
+      fireEvent.change(targetInput, { target: { value: '' } });
+      expect(targetInput.value).toBe('0');
+
+      // 3. Test invalid non-numeric string: safely resolved to 0, avoiding NaN
+      fireEvent.change(targetInput, { target: { value: 'not_a_number' } });
+      expect(targetInput.value).toBe('0');
+
+      // 4. Test negative decimal: -12.5 should clamp to 0
+      fireEvent.change(targetInput, { target: { value: '-12.5' } });
+      expect(targetInput.value).toBe('0');
+    });
+
     it('toggles notification channels on rule', () => {
       renderWithToast(<AlertRuleConfigurator />);
 

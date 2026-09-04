@@ -29,9 +29,14 @@ export function AlertRuleConfigurator({
   const [saveSuccess, setSaveSuccess] = useState(false);
   const { toast } = useToast();
 
-  const handleThresholdChange = (id: string, value: number) => {
+  const handleThresholdChange = (id: string, rawVal: string | number) => {
     setRules((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, thresholdValue: Math.max(0, value) } : r)),
+      prev.map((r) => {
+        if (r.id !== id) return r;
+        const num = typeof rawVal === 'string' ? parseFloat(rawVal) : rawVal;
+        const safeValue = Number.isNaN(num) ? 0 : Math.max(0, num);
+        return { ...r, thresholdValue: safeValue };
+      }),
     );
   };
 
@@ -198,8 +203,9 @@ export function AlertRuleConfigurator({
                     id={`input-${rule.id}`}
                     type="number"
                     min="0"
+                    step={rule.category === 'retail_target' ? '0.1' : 'any'}
                     value={rule.thresholdValue}
-                    onChange={(e) => handleThresholdChange(rule.id, Number(e.target.value))}
+                    onChange={(e) => handleThresholdChange(rule.id, e.target.value)}
                     disabled={!rule.isActive}
                     className="w-24 text-right px-2.5 py-1 text-xs font-bold font-mono bg-slate-50 border border-slate-200 rounded-lg text-navy focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 disabled:opacity-50"
                     data-testid={`rule-threshold-input-${rule.id}`}
