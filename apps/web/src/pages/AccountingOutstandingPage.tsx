@@ -273,7 +273,7 @@ export default function AccountingOutstandingPage() {
                           it.status === 'paid'
                             ? 'bg-emerald-100 text-emerald-800'
                             : it.status === 'partial'
-                            ? 'bg-blue-100 text-blue-800'
+                            ? 'bg-primary-light text-primary-dark'
                             : it.status === 'cancelled'
                             ? 'bg-slate-200 text-slate-600 line-through'
                             : 'bg-amber-100 text-amber-800'

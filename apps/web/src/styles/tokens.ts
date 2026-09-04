@@ -6,18 +6,21 @@
 export const colors = {
   // Brand colors
   primary: {
-    50: '#eef2ff',
-    100: '#e0e7ff',
-    200: '#c7d2fe',
-    300: '#a5b4fc',
-    400: '#818cf8',
-    500: '#6366f1',
-    600: '#4f46e5',
-    700: '#4338ca',
-    800: '#3730a3',
-    900: '#312e81',
-    950: '#1e1b4b',
+    50: '#f0f9ff',
+    100: '#e0f2fe',
+    200: '#bae6fd',
+    300: '#7dd3fc',
+    400: '#38bdf8',
+    500: '#0ea5e9',
+    600: '#0284c7',
+    700: '#0369a1',
+    800: '#075985',
+    900: '#0c4a6e',
+    950: '#082f49',
   },
+  dark: '#419cc3',
+  sage: '#89b4e1',
+  mint: '#ffffff',
   navy: {
     50: '#f8fafc',
     100: '#f1f5f9',
@@ -108,8 +111,8 @@ export const colors = {
     secondary: '#6b7280',
     tertiary: '#9ca3af',
     inverse: '#ffffff',
-    link: '#4f46e5',
-    linkHover: '#4338ca',
+    link: '#0284c7',
+    linkHover: '#0369a1',
   },
 } as const;
 

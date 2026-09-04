@@ -2,13 +2,29 @@
 @import '@fontsource-variable/inter';
 
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-primary-light: #dbeafe;
+  --color-primary: #0ea5e9;
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  --color-primary-950: #082f49;
+  --color-primary-dark: #0284c7;
+  --color-primary-light: #e0f2fe;
+
+  --color-dark: #419cc3;
+  --color-sage: #89b4e1;
+  --color-mint: #ffffff;
+
   --color-navy: #0f172a;
   --color-navy-light: #1e293b;
   --color-surface: #f8fafc;
-  --color-surface-2: #f1f5f9;
+  --color-surface-2: #f0f9ff;
   --color-line: #e2e8f0;
   --color-line-2: #cbd5e1;
   --color-success: #15803d;
@@ -17,7 +33,8 @@
   --color-warning-light: #fef3c7;
   --color-danger: #b91c1c;
   --color-danger-light: #fee2e2;
-  --color-info: #7c3aed;
+  --color-info: #419cc3;
+  --color-info-light: #e0f2fe;
 
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, Arial, sans-serif;
 
@@ -52,7 +69,7 @@
 
 /* Modern scrollbar + focus */
 * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
-*:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+*:focus-visible { outline: 2px solid #0ea5e9; outline-offset: 2px; }
 
 /* Refined Glass effect utility */
 .glass {
@@ -67,9 +84,9 @@
 .bg-mesh {
   background-color: #f8fafc;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.08) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.08) 0, transparent 40%), 
-    radial-gradient(at 100% 100%, rgba(37, 99, 235, 0.08) 0, transparent 50%),
+    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.08) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, rgba(137, 180, 225, 0.12) 0, transparent 40%), 
+    radial-gradient(at 100% 100%, rgba(65, 156, 195, 0.08) 0, transparent 50%),
     radial-gradient(at 0% 100%, rgba(15, 23, 42, 0.03) 0, transparent 50%);
   background-attachment: fixed;
 }

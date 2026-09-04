@@ -236,7 +236,7 @@ export default function AccountingImportPage() {
             </div>
             <div className="rounded-card border border-line bg-white p-3 shadow-sm">
               <p className="text-[11px] font-semibold text-slate-500 uppercase">Dinormalisasi</p>
-              <p className="mt-1 text-xl font-bold text-blue-600">{normalizedCount}</p>
+              <p className="mt-1 text-xl font-bold text-primary">{normalizedCount}</p>
             </div>
             <div className="rounded-card border border-line bg-white p-3 shadow-sm">
               <p className="text-[11px] font-semibold text-slate-500 uppercase">Kandidat Duplikat</p>
@@ -278,7 +278,7 @@ export default function AccountingImportPage() {
                   type="button"
                   onClick={() => setFilterStatus('normalized')}
                   className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                    filterStatus === 'normalized' ? 'bg-blue-600 text-white' : 'bg-surface text-slate-600'
+                    filterStatus === 'normalized' ? 'bg-primary text-white' : 'bg-surface text-slate-600'
                   }`}
                 >
                   Dinormalisasi ({normalizedCount})
@@ -351,7 +351,7 @@ export default function AccountingImportPage() {
                           </span>
                         )}
                         {r.status === 'normalized' && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800" title={r.notes}>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2 py-0.5 text-[10px] font-semibold text-primary-dark" title={r.notes}>
                             <RefreshCw className="h-3 w-3" /> Canonicalized
                           </span>
                         )}

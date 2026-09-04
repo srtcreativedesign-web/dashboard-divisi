@@ -156,11 +156,11 @@ export default function AccountingReconciliationPage() {
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-card bg-blue-50 border border-blue-200 p-3.5">
-            <CheckCircle2 className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 rounded-card bg-primary-50 border border-primary-200 p-3.5">
+            <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-bold text-blue-900">Arus Kas &amp; Outstanding Terpetakan</p>
-              <p className="text-[11px] text-blue-700 mt-0.5">9 item kewajiban telah tercatat dengan proyeksi saldo jelas.</p>
+              <p className="text-xs font-bold text-primary-900">Arus Kas &amp; Outstanding Terpetakan</p>
+              <p className="text-[11px] text-primary-700 mt-0.5">9 item kewajiban telah tercatat dengan proyeksi saldo jelas.</p>
             </div>
           </div>
 
@@ -301,7 +301,7 @@ export default function AccountingReconciliationPage() {
                         b.bankName === 'MANDIRI'
                           ? 'bg-amber-100 text-amber-800'
                           : b.bankName === 'BCA'
-                          ? 'bg-blue-100 text-blue-800'
+                          ? 'bg-primary-light text-primary-dark'
                           : 'bg-emerald-100 text-emerald-800'
                       }`}
                     >
