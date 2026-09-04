@@ -44,10 +44,22 @@ class PolicyService
         return str_starts_with($capability, 'acc:') || str_contains($capability, ':acc_');
     }
 
-    public function hasCapability(array $user, string $capability): bool
+    public function isWriteOrMutationCapability(string $capability): bool
+    {
+        return str_starts_with($capability, 'write:')
+            || str_starts_with($capability, 'manage:')
+            || str_starts_with($capability, 'approve:')
+            || str_starts_with($capability, 'reject:')
+            || str_starts_with($capability, 'input:')
+            || str_starts_with($capability, 'upload:')
+            || str_starts_with($capability, 'lock:')
+            || str_starts_with($capability, 'delete:');
+    }
+
+    public function hasCapability(array $user, string $capability, ?string $divisionCode = null): bool
     {
         $role = $user['role'] ?? '';
-        $division = $user['divisionCode'] ?? $user['division_code'] ?? null;
+        $division = $divisionCode ?? $user['divisionCode'] ?? $user['division_code'] ?? null;
 
         // Domain Accounting (ACC)
         if ($this->isAccountingCapability($capability)) {
@@ -69,20 +81,34 @@ class PolicyService
             return false;
         }
 
-        // Pengguna divisi ACC tidak memiliki capability operasional divisi lain
+        // Pengguna atau konteks divisi ACC
         if ($division === 'ACC') {
-            return in_array($capability, ['view:division', 'manage:division'], true)
-                && ($role === 'MANAGER' || ($role === 'ADMIN' && $capability === 'view:division'));
+            // BOD strictly read-only untuk Accounting
+            if ($role === 'BOD') {
+                return in_array($capability, ['view:acc_report', 'view:division'], true);
+            }
+
+            return in_array($capability, ['view:division'], true)
+                && ($role === 'MANAGER' || $role === 'ADMIN');
         }
 
         $caps = self::ROLE_CAPABILITIES[$role] ?? [];
 
-        return in_array('*', $caps, true) || in_array($capability, $caps, true);
+        if (in_array('*', $caps, true)) {
+            // Wildcard '*' BOD tidak boleh mengizinkan mutasi data pada divisi ACC
+            if ($division === 'ACC' && $this->isWriteOrMutationCapability($capability)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return in_array($capability, $caps, true);
     }
 
-    public function assertCapability(array $user, string $capability): void
+    public function assertCapability(array $user, string $capability, ?string $divisionCode = null): void
     {
-        if (! $this->hasCapability($user, $capability)) {
+        if (! $this->hasCapability($user, $capability, $divisionCode)) {
             $role = $user['role'] ?? 'UNKNOWN';
             $this->audit->log([
                 'actorId' => $user['sub'] ?? $user['id'] ?? null,
@@ -90,15 +116,15 @@ class PolicyService
                 'actorRole' => $role,
                 'action' => 'policy.forbidden_capability',
                 'entity' => 'Policy',
-                'divisionCode' => $user['divisionCode'] ?? $user['division_code'] ?? null,
-                'metadata' => ['capability' => $capability, 'role' => $role],
+                'divisionCode' => $divisionCode ?? $user['divisionCode'] ?? $user['division_code'] ?? null,
+                'metadata' => ['capability' => $capability, 'role' => $role, 'divisionCode' => $divisionCode],
             ]);
 
             throw new ApiException('FORBIDDEN_CAPABILITY', "Role {$role} tidak memiliki capability {$capability}");
         }
     }
 
-    public function canAccessDivision(array $user, ?string $divisionCode): bool
+    public function canAccessDivision(array $user, ?string $divisionCode, bool $forWrite = false): bool
     {
         if (empty($divisionCode)) {
             return true;
@@ -106,6 +132,11 @@ class PolicyService
 
         $role = $user['role'] ?? '';
         $userDivision = $user['divisionCode'] ?? $user['division_code'] ?? null;
+
+        // BOD tidak boleh melakukan operasi write pada divisi ACC (BOD strictly read-only)
+        if ($divisionCode === 'ACC' && $forWrite && $role === 'BOD') {
+            return false;
+        }
 
         // BOD lintas 7 divisi (divisionCode null = all)
         if ($role === 'BOD' && $userDivision === null) {
@@ -116,9 +147,23 @@ class PolicyService
         return $userDivision === $divisionCode;
     }
 
-    public function assertDivisionScope(array $user, ?string $divisionCode): void
+    public function assertDivisionScope(array $user, ?string $divisionCode, bool $forWrite = false): void
     {
-        if (! $this->canAccessDivision($user, $divisionCode)) {
+        if ($divisionCode === 'ACC' && $forWrite && ($user['role'] ?? '') === 'BOD') {
+            $this->audit->log([
+                'actorId' => $user['sub'] ?? $user['id'] ?? null,
+                'actorEmail' => $user['email'] ?? null,
+                'actorRole' => 'BOD',
+                'action' => 'policy.scope_violation',
+                'entity' => 'Division',
+                'divisionCode' => 'ACC',
+                'metadata' => ['requested' => 'ACC', 'reason' => 'BOD read-only on ACC'],
+            ]);
+
+            throw new ApiException('SCOPE_VIOLATION', 'BOD hanya memiliki akses read-only untuk divisi Accounting (ACC)');
+        }
+
+        if (! $this->canAccessDivision($user, $divisionCode, $forWrite)) {
             $role = $user['role'] ?? 'UNKNOWN';
             $userDivision = $user['divisionCode'] ?? $user['division_code'] ?? null;
 
@@ -129,7 +174,7 @@ class PolicyService
                 'action' => 'policy.scope_violation',
                 'entity' => 'Division',
                 'divisionCode' => $divisionCode,
-                'metadata' => ['requested' => $divisionCode, 'userDivision' => $userDivision],
+                'metadata' => ['requested' => $divisionCode, 'userDivision' => $userDivision, 'forWrite' => $forWrite],
             ]);
 
             throw new ApiException(

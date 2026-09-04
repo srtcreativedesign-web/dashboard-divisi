@@ -39,9 +39,14 @@ class AccountingController extends Controller
         $statusFilter = $request->query('status');
         $role = $user['role'] ?? '';
 
-        // BOD hanya diizinkan membaca laporan berstatus Disetujui atau Ditutup
-        if ($role === 'BOD') {
-            if ($statusFilter && ! in_array(strtolower($statusFilter), ['disetujui', 'ditutup'], true)) {
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $normalizedStatus = strtolower($statusFilter);
+            if (! in_array($normalizedStatus, ['disetujui', 'ditutup', 'draft'], true)) {
+                throw new ApiException('VALIDATION_ERROR', 'Filter status laporan tidak valid: gunakan Disetujui, Ditutup, atau Draft');
+            }
+
+            // BOD hanya diizinkan membaca laporan berstatus Disetujui atau Ditutup
+            if ($role === 'BOD' && $normalizedStatus === 'draft') {
                 $this->audit->log([
                     'actorId' => $user['sub'] ?? $user['id'] ?? null,
                     'actorEmail' => $user['email'] ?? null,
@@ -63,8 +68,8 @@ class AccountingController extends Controller
             }
         }
 
-        // Mock response laporan tahap 1 yang sesuai kontrak SOP
-        $reports = [
+        // Mock fixture laporan tahap 1 yang sesuai kontrak SOP
+        $allReports = [
             [
                 'id' => 'rep-acc-2026-08',
                 'period' => '2026-08',
@@ -85,11 +90,7 @@ class AccountingController extends Controller
                 'closedAt' => '2026-07-31T23:59:59Z',
                 'closedBy' => 'Manager Accounting',
             ],
-        ];
-
-        // Jika bukan BOD dan tidak filter status non-draft, sertakan draft
-        if ($role !== 'BOD' && (! $statusFilter || strtolower($statusFilter) === 'draft')) {
-            $reports[] = [
+            [
                 'id' => 'rep-acc-2026-09',
                 'period' => '2026-09',
                 'title' => 'Laporan Cashflow Accounting September 2026',
@@ -98,10 +99,25 @@ class AccountingController extends Controller
                 'balanceEnd' => '1820000000.00',
                 'approvedAt' => null,
                 'approvedBy' => null,
-            ];
+            ],
+        ];
+
+        // Filter visibilitas berdasarkan role: BOD tidak pernah menerima draft
+        $availableReports = $role === 'BOD'
+            ? array_values(array_filter($allReports, fn ($r) => in_array(strtolower($r['status']), ['disetujui', 'ditutup'], true)))
+            : $allReports;
+
+        // Terapkan filter query parameter ?status bila disertakan
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $filteredReports = array_values(array_filter(
+                $availableReports,
+                fn ($r) => strcasecmp($r['status'], $statusFilter) === 0
+            ));
+        } else {
+            $filteredReports = $availableReports;
         }
 
-        return response()->json($reports);
+        return response()->json($filteredReports);
     }
 
     public function storeTransaction(Request $request): JsonResponse
@@ -109,8 +125,8 @@ class AccountingController extends Controller
         $user = $request->attributes->get('user') ?? [];
         $this->policy->assertDivisionScope($user, 'ACC');
 
-        // Validasi input tahap 1
-        $validated = $request->validate([
+        // Validasi input kontrak tahap 1
+        $request->validate([
             'date' => 'required|date_format:Y-m-d',
             'amount' => 'required|numeric|min:0',
             'type' => 'required|in:DEBIT,CREDIT',
@@ -118,17 +134,11 @@ class AccountingController extends Controller
             'referenceNo' => 'nullable|string|max:100',
         ]);
 
-        return response()->json([
-            'id' => 'acc-tx-mock-001',
-            'divisionCode' => 'ACC',
-            'date' => $validated['date'],
-            'amount' => number_format((float) $validated['amount'], 2, '.', ''),
-            'type' => $validated['type'],
-            'description' => $validated['description'],
-            'referenceNo' => $validated['referenceNo'] ?? null,
-            'status' => 'RECORDED',
-            'createdAt' => now()->toISOString(),
-        ], 201);
+        // Fail-closed: Tahap 1 hanya menetapkan fondasi & guard; persistensi jurnal aktif pada tahap berikutnya
+        throw new ApiException(
+            'STAGE_LOCKED',
+            'Persistensi transaksi jurnal Accounting terkunci pada Tahap 1 Fondasi (tersedia pada tahap implementasi jurnal berikutnya).'
+        );
     }
 
     public function approvePeriod(Request $request): JsonResponse
@@ -156,11 +166,10 @@ class AccountingController extends Controller
             ],
         ]);
 
-        return response()->json([
-            'period' => $validated['period'],
-            'status' => $validated['action'] === 'APPROVE' ? 'Disetujui' : ($validated['action'] === 'CLOSE' ? 'Ditutup' : 'Perlu Koreksi'),
-            'updatedBy' => $user['name'] ?? $user['email'] ?? 'Manager Accounting',
-            'updatedAt' => now()->toISOString(),
-        ]);
+        // Fail-closed: Tahap 1 hanya menetapkan fondasi & guard; workflow approval aktif pada tahap berikutnya
+        throw new ApiException(
+            'STAGE_LOCKED',
+            'Workflow approval periode Accounting terkunci pada Tahap 1 Fondasi (tersedia pada tahap implementasi approval berikutnya).'
+        );
     }
 }

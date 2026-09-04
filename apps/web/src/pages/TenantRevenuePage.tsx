@@ -22,7 +22,7 @@ import type { TenantRecordDto } from '../api/sobathr';
 export default function TenantRevenuePage() {
   const { user } = useAuth();
   const isBod = user?.role === 'BOD';
-  const canEdit = hasCapability(user?.role as never, 'write:revenue');
+  const canEdit = hasCapability(user?.role as never, 'write:revenue', user?.divisionCode);
   const isPicViewOnly = !canEdit;
   const userDivision = user?.divisionCode ?? null;
 

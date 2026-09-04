@@ -118,5 +118,60 @@ describe('ORG-06 RouteGuard per capability & division — 7 divisi', () => {
 
     const mgrWrap = { role: 'MANAGER' as Role, divisionCode: 'WRAP' };
     expect(canAccessDivision(mgrWrap, 'ACC')).toBe(false);
+
+    // 6. Admin & Manager ACC TIDAK memiliki capability generik non-accounting (Bugbot Medium)
+    expect(hasCapability('ADMIN', 'write:revenue', 'ACC')).toBe(false);
+    expect(hasCapability('ADMIN', 'write:target', 'ACC')).toBe(false);
+    expect(hasCapability('MANAGER', 'write:revenue', 'ACC')).toBe(false);
+    expect(hasCapability('MANAGER', 'write:target', 'ACC')).toBe(false);
+    expect(hasCapability('ADMIN', 'view:division', 'ACC')).toBe(true);
+    expect(hasCapability('MANAGER', 'view:division', 'ACC')).toBe(true);
+
+    // Divisi retail (WRAP) tetap memiliki capability generik operasional
+    expect(hasCapability('ADMIN', 'write:revenue', 'WRAP')).toBe(true);
+    expect(hasCapability('ADMIN', 'write:target', 'WRAP')).toBe(true);
+    expect(hasCapability('MANAGER', 'write:revenue', 'WRAP')).toBe(true);
+    expect(hasCapability('MANAGER', 'write:target', 'WRAP')).toBe(true);
+  });
+
+  it('RouteGuard blocks Admin ACC from accessing retail write routes', () => {
+    localStorage.setItem('dashboard-divisi.role-demo', 'ADMIN');
+    localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
+
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <SessionProvider>
+            <RouteGuard capability="write:revenue" fallback={<div data-testid="blocked">blocked</div>}>
+              <div data-testid="retail-ok">Retail OK</div>
+            </RouteGuard>
+          </SessionProvider>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId('blocked')).toBeDefined();
+    expect(screen.queryByTestId('retail-ok')).toBeNull();
+    localStorage.clear();
+  });
+
+  it('RouteGuard allows Admin ACC to access accounting report route', () => {
+    localStorage.setItem('dashboard-divisi.role-demo', 'ADMIN');
+    localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
+
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <SessionProvider>
+            <RouteGuard capability="view:acc_report">
+              <div data-testid="acc-ok">Accounting OK</div>
+            </RouteGuard>
+          </SessionProvider>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId('acc-ok')).toBeDefined();
+    localStorage.clear();
   });
 });

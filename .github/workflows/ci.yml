@@ -108,6 +108,8 @@ jobs:
           php artisan key:generate --force || true
       - name: Migrate deploy (real pgsql) + seed idempotency
         working-directory: apps/api
+        env:
+          SEED_DEFAULT_PASSWORD: 'CiTestPassword123!'
         run: |
           php artisan migrate --force
           php artisan db:seed --force

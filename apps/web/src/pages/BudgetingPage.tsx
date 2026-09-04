@@ -24,7 +24,7 @@ const INITIAL_BUDGETS: BudgetItem[] = [
 
 export default function BudgetingPage() {
   const { user } = useAuth();
-  const isPicViewOnly = !hasCapability(user?.role as never, 'write:target');
+  const isPicViewOnly = !hasCapability(user?.role as never, 'write:target', user?.divisionCode);
 
   const [budgets, setBudgets] = useState<BudgetItem[]>(INITIAL_BUDGETS);
   const [selectedItem, setSelectedItem] = useState<BudgetItem | null>(null);
