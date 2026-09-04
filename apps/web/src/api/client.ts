@@ -3,7 +3,7 @@
  * Envelope: { data, meta:{trace_id}, links:{self} } + Error { error:{code,message,trace_id} }
  * Auth: httpOnly cookie access_token (SOP: Zero Hardcoded Secrets, via .env)
  */
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 
 export interface ApiEnvelope<T> {
   data: T;
