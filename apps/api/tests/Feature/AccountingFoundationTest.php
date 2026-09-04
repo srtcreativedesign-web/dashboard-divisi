@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AuditEvent;
 use App\Models\Division;
 use App\Models\DivisionConfig;
 use App\Models\Outlet;
@@ -60,7 +61,7 @@ class AccountingFoundationTest extends TestCase
         $this->assertTrue(UserScope::where('user_id', $admAcc->id)->where('division_id', $acc->id)->exists());
 
         // 4. Uji idempotency seeder: jalankan seeder ulang tidak menggandakan data
-        $seeder = new DatabaseSeeder();
+        $seeder = new DatabaseSeeder;
         $seeder->run();
         $seeder->run();
 
@@ -431,7 +432,7 @@ class AccountingFoundationTest extends TestCase
 
         // 2. User tanpa capability view:acc_report (role USER di ACC) -> 403 FORBIDDEN_CAPABILITY
         $accUser = User::where('email', 'user.nocap@dashboard.test')->first();
-        if (!$accUser) {
+        if (! $accUser) {
             $acc = Division::where('code', 'ACC')->first();
             $accUser = User::create([
                 'email' => 'user.nocap@dashboard.test',
@@ -471,5 +472,48 @@ class AccountingFoundationTest extends TestCase
             ->getJson('/api/v1/accounting/status');
         $bodRes->assertStatus(200);
         $this->assertEquals('ACC', $bodRes->json('data.divisionCode'));
+    }
+
+    public function test_period_approval_rejection_audit_semantics_and_fail_closed_persistence(): void
+    {
+        AuditService::clearMemory();
+
+        // 1. Manager ACC mencoba APPROVE periode pada Tahap 1
+        $response = $this->authenticated('manager.acc@dashboard.test')
+            ->postJson('/api/v1/accounting/periods/approve', [
+                'period' => '2026-08',
+                'action' => 'APPROVE',
+                'notes' => 'Pengujian audit semantics',
+            ]);
+
+        $response->assertStatus(422);
+        $this->assertEquals('STAGE_LOCKED', $response->json('error.code'));
+
+        // 2. Verifikasi audit trail: event TIDAK menyatakan keberhasilan (tidak ada accounting.period_APPROVE)
+        $logs = AuditService::getMemoryLogs();
+        $this->assertNotEmpty($logs);
+
+        $successLogs = collect($logs)->filter(function ($log) {
+            return in_array($log['action'] ?? '', [
+                'accounting.period_APPROVE',
+                'accounting.period_CLOSE',
+                'accounting.period_REOPEN',
+                'accounting.period_REJECT',
+            ], true);
+        });
+        $this->assertCount(0, $successLogs, 'Audit trail tidak boleh merekam aksi persetujuan sebagai berhasil ketika status terkunci');
+
+        // Verifikasi event yang dicatat adalah accounting.period_action_locked dengan status STAGE_LOCKED
+        $lockedLog = collect($logs)->firstWhere('action', 'accounting.period_action_locked');
+        $this->assertNotNull($lockedLog, 'Event audit percobaan fitur terkunci wajib terekam');
+        $this->assertEquals('AccountingPeriod', $lockedLog['entity']);
+        $this->assertEquals('ACC', $lockedLog['division_code']);
+        $this->assertEquals('2026-08', $lockedLog['metadata']['period']);
+        $this->assertEquals('APPROVE', $lockedLog['metadata']['requestedAction']);
+        $this->assertEquals('STAGE_LOCKED', $lockedLog['metadata']['status']);
+
+        // 3. Verifikasi persistensi: tidak ada perubahan status/record yang tersimpan
+        $dbAuditCount = AuditEvent::where('action', 'accounting.period_APPROVE')->count();
+        $this->assertEquals(0, $dbAuditCount);
     }
 }

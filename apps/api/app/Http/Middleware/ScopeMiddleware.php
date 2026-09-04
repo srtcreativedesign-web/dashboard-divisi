@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\ApiException;
+use App\Models\Outlet;
 use App\Services\PolicyService;
 use Closure;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ class ScopeMiddleware
 
         if (! $divisionCode && ($request->input('outletId') || $request->input('outlet_id'))) {
             $outletId = $request->input('outletId') ?: $request->input('outlet_id');
-            $outlet = \App\Models\Outlet::with('division')->find($outletId);
+            $outlet = Outlet::with('division')->find($outletId);
             $divisionCode = $outlet?->division?->code;
         }
 
