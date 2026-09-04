@@ -235,6 +235,15 @@ export function CommandPalette({ isOpen, onClose, onSelectAction }: CommandPalet
         icon: FileSpreadsheet,
         keywords: ['export', 'ekspor', 'unduh', 'download', 'csv', 'excel'],
       },
+      {
+        id: 'act-open-scheduled-reports',
+        title: 'Buka Pusat Jadwal Laporan Otomatis',
+        description: 'Kelola distribusi otomatis flash report harian dan aging mingguan',
+        category: 'Aksi Cepat',
+        path: '/laporan',
+        icon: Clock,
+        keywords: ['jadwal', 'schedule', 'cron', 'otomatis', 'distribusi', 'laporan'],
+      },
     ],
     [],
   );

@@ -8,6 +8,7 @@ import {
   Layers,
   Filter,
   Check,
+  Download,
 } from 'lucide-react';
 import { DIVISIONS } from '../../config/divisions';
 
@@ -21,6 +22,7 @@ export interface StickyContextFilterBarProps {
   onResetFilters?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenDetailSheet?: () => void;
+  onOpenExportModal?: () => void;
 }
 
 const PERIOD_OPTIONS: Array<{ id: PeriodFilterOption; label: string; shortLabel: string }> = [
@@ -38,6 +40,7 @@ export function StickyContextFilterBar({
   onResetFilters,
   onOpenCommandPalette,
   onOpenDetailSheet,
+  onOpenExportModal,
 }: StickyContextFilterBarProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -227,6 +230,20 @@ export function StickyContextFilterBar({
               <kbd className="hidden md:inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-600 border border-slate-200">
                 ⌘D
               </kbd>
+            </button>
+          )}
+
+          {/* Export Modal Trigger */}
+          {onOpenExportModal && (
+            <button
+              type="button"
+              onClick={onOpenExportModal}
+              title="Ekspor Data Terfilter (CSV/Excel/PDF)"
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100/80 px-2.5 py-1 text-xs font-bold text-emerald-800 transition-all shadow-2xs active:scale-95"
+              data-testid="sticky-filter-open-export"
+            >
+              <Download className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="hidden sm:inline">Ekspor</span>
             </button>
           )}
         </div>

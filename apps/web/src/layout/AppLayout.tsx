@@ -34,6 +34,7 @@ import { EmptyState } from '../components/states';
 import { CommandPalette } from '../components/ui/CommandPalette';
 import { DetailSheet } from '../components/ui/DetailSheet';
 import { StickyContextFilterBar } from '../components/filters/StickyContextFilterBar';
+import { ExportReportModal } from '../components/reports/ExportReportModal';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
@@ -63,6 +64,7 @@ export function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return localStorage.getItem('dashboard-divisi.sidebar-collapsed') === 'true';
@@ -88,6 +90,8 @@ export function AppLayout() {
       setDetailSheetOpen(true);
     } else if (actionId === 'act-toggle-sidebar') {
       toggleSidebar();
+    } else if (actionId === 'act-export-summary') {
+      setExportModalOpen(true);
     }
   };
 
@@ -492,6 +496,7 @@ export function AppLayout() {
         <StickyContextFilterBar
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onOpenDetailSheet={() => setDetailSheetOpen(true)}
+          onOpenExportModal={() => setExportModalOpen(true)}
         />
 
         <main className="flex-1 p-4 lg:p-6 lg:px-8">
@@ -558,6 +563,13 @@ export function AppLayout() {
           </div>
         </div>
       </DetailSheet>
+
+      {/* Universal Export Report Modal */}
+      <ExportReportModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        activeDivision={scopeLabel}
+      />
     </div>
   );
 }

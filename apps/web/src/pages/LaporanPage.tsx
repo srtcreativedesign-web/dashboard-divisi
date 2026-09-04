@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { FileText, Download, Filter, CheckCircle2, CreditCard, Layers, BarChart3 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { ExportReportModal, type ExportFormatType } from '../components/reports/ExportReportModal';
+import { ScheduledReportManager } from '../components/reports/ScheduledReportManager';
+import { ReportArchiveTable } from '../components/reports/ReportArchiveTable';
 
 interface DivisionSummary {
   code: string;
@@ -32,6 +35,8 @@ const PAYMENT_METHODS = [
 export default function LaporanPage() {
   const [activeTab, setActiveTab] = useState<'ringkasan' | 'pembayaran' | 'rekonsiliasi' | 'export'>('ringkasan');
   const [selectedDiv, setSelectedDiv] = useState('SEMUA');
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [exportInitialFormat, setExportInitialFormat] = useState<ExportFormatType>('csv');
 
   const filteredDivisions = selectedDiv === 'SEMUA' ? DIVISION_REPORTS : DIVISION_REPORTS.filter(d => d.code === selectedDiv);
 
@@ -53,7 +58,15 @@ export default function LaporanPage() {
               Konsolidasi laporan performa 7 divisi, metode pembayaran, rekonsiliasi kasir & bank.
             </p>
           </div>
-          <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setExportInitialFormat('print');
+              setExportModalOpen(true);
+            }}
+            className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs"
+            data-testid="header-download-pdf-btn"
+          >
             <Download className="mr-1.5 h-3.5 w-3.5" /> Download Laporan (.PDF)
           </Button>
         </div>
@@ -262,27 +275,63 @@ export default function LaporanPage() {
           </div>
         )}
 
-        {/* Tab 4: Export Center */}
+        {/* Tab 4: Export Center & Automated Reports */}
         {activeTab === 'export' && (
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <div className="rounded-card-lg border border-line/60 p-5 bg-white shadow-sm flex items-center justify-between">
-              <div>
-                <h4 className="font-bold text-navy">Laporan Omset Harian (.XLSX)</h4>
-                <p className="text-xs text-slate-500 mt-1">Export seluruh pencatatan harian beserta catatan operasional</p>
+          <div className="mt-6 space-y-6">
+            {/* Quick Export Cards */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-card-lg border border-line/60 p-5 bg-white shadow-sm flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-navy">Ekspor Dataset & Rekapitulasi (.XLSX/.CSV)</h4>
+                  <p className="text-xs text-slate-500 mt-1">Unduh seluruh ringkasan data, omzet harian, dan mutasi rekonsiliasi</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setExportInitialFormat('csv');
+                    setExportModalOpen(true);
+                  }}
+                  data-testid="tab-export-excel-btn"
+                >
+                  <Download className="mr-1.5 h-3.5 w-3.5" /> Buka Modal Ekspor
+                </Button>
               </div>
-              <Button size="sm"><Download className="mr-1.5 h-3.5 w-3.5" /> Download</Button>
+
+              <div className="rounded-card-lg border border-line/60 p-5 bg-white shadow-sm flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-navy">Cetak Laporan Eksekutif (.PDF)</h4>
+                  <p className="text-xs text-slate-500 mt-1">Format cetak A4/Letter standar audit untuk Dewan Direksi & Stakeholders</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    setExportInitialFormat('print');
+                    setExportModalOpen(true);
+                  }}
+                  data-testid="tab-export-pdf-btn"
+                >
+                  <Download className="mr-1.5 h-3.5 w-3.5" /> Cetak PDF
+                </Button>
+              </div>
             </div>
 
-            <div className="rounded-card-lg border border-line/60 p-5 bg-white shadow-sm flex items-center justify-between">
-              <div>
-                <h4 className="font-bold text-navy">Laporan Rincian Tenant (.PDF)</h4>
-                <p className="text-xs text-slate-500 mt-1">Export performa omset per tenant dan status target</p>
-              </div>
-              <Button size="sm" variant="secondary"><Download className="mr-1.5 h-3.5 w-3.5" /> Download</Button>
-            </div>
+            {/* Automated Scheduled Report Manager */}
+            <ScheduledReportManager />
+
+            {/* Report Archive & Download Audit Trail */}
+            <ReportArchiveTable />
           </div>
         )}
       </section>
+
+      {/* Universal Export Report Modal */}
+      <ExportReportModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        initialFormat={exportInitialFormat}
+        activeDivision={selectedDiv}
+      />
     </div>
   );
 }
