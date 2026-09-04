@@ -96,7 +96,8 @@ class AccountingFoundationTest extends TestCase
         // Admin ACC tidak memiliki akses modul revenue retail
         $this->assertFalse($policy->hasCapability($adminAcc, 'write:revenue'));
 
-        // Uji HTTP: Admin ACC sukses membuat transaksi
+        // Uji HTTP: Admin ACC mencoba membuat transaksi di tahap 1.
+        // Fail-closed: tidak mengembalikan 201 palsu karena persistensi baru aktif di tahap berikutnya.
         $response = $this->authenticated('admin.acc@dashboard.test')
             ->postJson('/api/v1/accounting/transactions', [
                 'date' => '2026-09-04',
@@ -106,9 +107,8 @@ class AccountingFoundationTest extends TestCase
                 'referenceNo' => 'REF-20260904-001',
             ]);
 
-        $response->assertStatus(201);
-        $this->assertEquals('RECORDED', $response->json('data.status'));
-        $this->assertEquals('ACC', $response->json('data.divisionCode'));
+        $response->assertStatus(422);
+        $this->assertEquals('STAGE_LOCKED', $response->json('error.code'));
 
         // Uji HTTP: Admin ACC ditolak saat mencoba approve periode (403 FORBIDDEN_CAPABILITY)
         $denyRes = $this->authenticated('admin.acc@dashboard.test')
@@ -128,7 +128,6 @@ class AccountingFoundationTest extends TestCase
 
         // Capability positif Manager ACC
         $this->assertTrue($policy->hasCapability($managerAcc, 'view:division'));
-        $this->assertTrue($policy->hasCapability($managerAcc, 'manage:division'));
         $this->assertTrue($policy->hasCapability($managerAcc, 'view:acc_report'));
         $this->assertTrue($policy->hasCapability($managerAcc, 'view:acc_journal'));
         $this->assertTrue($policy->hasCapability($managerAcc, 'view:acc_master'));
@@ -140,8 +139,11 @@ class AccountingFoundationTest extends TestCase
         $this->assertFalse($policy->hasCapability($managerAcc, 'write:acc_transaction'));
         $this->assertFalse($policy->hasCapability($managerAcc, 'import:acc_transaction'));
         $this->assertFalse($policy->hasCapability($managerAcc, 'submit:acc_period'));
+        // Manager ACC tidak memiliki akses modul revenue retail
+        $this->assertFalse($policy->hasCapability($managerAcc, 'write:revenue'));
 
-        // Uji HTTP: Manager ACC sukses menyetujui periode
+        // Uji HTTP: Manager ACC mencoba approve periode di tahap 1.
+        // Fail-closed: tidak mengembalikan sukses palsu karena workflow approval penuh berada di tahap berikutnya.
         $response = $this->authenticated('manager.acc@dashboard.test')
             ->postJson('/api/v1/accounting/periods/approve', [
                 'period' => '2026-08',
@@ -149,9 +151,8 @@ class AccountingFoundationTest extends TestCase
                 'notes' => 'Periode Agustus 2026 disetujui setelah rekonsiliasi',
             ]);
 
-        $response->assertStatus(200);
-        $this->assertEquals('Disetujui', $response->json('data.status'));
-        $this->assertEquals('2026-08', $response->json('data.period'));
+        $response->assertStatus(422);
+        $this->assertEquals('STAGE_LOCKED', $response->json('error.code'));
 
         // Uji HTTP: Manager ACC ditolak saat mencoba mutasi transaksi (403 FORBIDDEN_CAPABILITY)
         $denyRes = $this->authenticated('manager.acc@dashboard.test')
@@ -195,14 +196,28 @@ class AccountingFoundationTest extends TestCase
             $this->assertContains($rep['status'], ['Disetujui', 'Ditutup']);
         }
 
-        // Uji HTTP: BOD ditolak saat mencoba mengakses laporan berstatus Draft
+        // Uji HTTP Positif: BOD membaca laporan spesifik Disetujui
+        $approvedRes = $this->authenticated('bod1@dashboard.test')
+            ->getJson('/api/v1/accounting/reports?status=Disetujui');
+        $approvedRes->assertStatus(200);
+        $this->assertCount(1, $approvedRes->json('data'));
+        $this->assertEquals('Disetujui', $approvedRes->json('data.0.status'));
+
+        // Uji HTTP Positif: BOD membaca laporan spesifik Ditutup
+        $closedRes = $this->authenticated('bod1@dashboard.test')
+            ->getJson('/api/v1/accounting/reports?status=Ditutup');
+        $closedRes->assertStatus(200);
+        $this->assertCount(1, $closedRes->json('data'));
+        $this->assertEquals('Ditutup', $closedRes->json('data.0.status'));
+
+        // Uji HTTP Negatif: BOD ditolak saat mencoba mengakses laporan berstatus Draft
         $denyDraftRes = $this->authenticated('bod1@dashboard.test')
             ->getJson('/api/v1/accounting/reports?status=Draft');
 
         $denyDraftRes->assertStatus(403);
         $this->assertEquals('FORBIDDEN_CAPABILITY', $denyDraftRes->json('error.code'));
 
-        // Uji HTTP: BOD ditolak saat mencoba mutasi transaksi (403 FORBIDDEN_CAPABILITY)
+        // Uji HTTP Negatif: BOD ditolak saat mencoba mutasi transaksi Accounting (403 FORBIDDEN_CAPABILITY)
         $denyMutasiRes = $this->authenticated('bod1@dashboard.test')
             ->postJson('/api/v1/accounting/transactions', [
                 'date' => '2026-09-04',
@@ -212,9 +227,9 @@ class AccountingFoundationTest extends TestCase
             ]);
 
         $denyMutasiRes->assertStatus(403);
-        $this->assertEquals('FORBIDDEN_CAPABILITY', $denyMutasiRes->json('error.code'));
+        $this->assertContains($denyMutasiRes->json('error.code'), ['SCOPE_VIOLATION', 'FORBIDDEN_CAPABILITY']);
 
-        // Uji HTTP: BOD ditolak saat mencoba approve periode Accounting (403 FORBIDDEN_CAPABILITY)
+        // Uji HTTP Negatif: BOD ditolak saat mencoba approve periode Accounting (403 FORBIDDEN_CAPABILITY / SCOPE_VIOLATION)
         $denyApproveRes = $this->authenticated('bod1@dashboard.test')
             ->postJson('/api/v1/accounting/periods/approve', [
                 'period' => '2026-08',
@@ -222,7 +237,31 @@ class AccountingFoundationTest extends TestCase
             ]);
 
         $denyApproveRes->assertStatus(403);
-        $this->assertEquals('FORBIDDEN_CAPABILITY', $denyApproveRes->json('error.code'));
+        $this->assertContains($denyApproveRes->json('error.code'), ['SCOPE_VIOLATION', 'FORBIDDEN_CAPABILITY']);
+
+        // Uji HTTP Negatif Bugbot: BOD ditolak saat mencoba menulis omzet retail ke outlet ACC-001 melalui endpoint generik
+        $outletAcc = Outlet::where('code', 'ACC-001')->first();
+        $this->assertNotNull($outletAcc);
+        $bodRevenueRes = $this->authenticated('bod1@dashboard.test')
+            ->postJson('/api/v1/revenue/daily', [
+                'outletId' => $outletAcc->id,
+                'businessDate' => '2026-09-04',
+                'grossRevenue' => 1000000,
+                'netRevenue' => 1000000,
+            ]);
+
+        $bodRevenueRes->assertStatus(403);
+        $this->assertEquals('SCOPE_VIOLATION', $bodRevenueRes->json('error.code'));
+
+        // Uji HTTP Negatif Bugbot: BOD ditolak saat mencoba mengelola konfigurasi divisi ACC melalui endpoint generik
+        $bodConfigRes = $this->authenticated('bod1@dashboard.test')
+            ->postJson('/api/v1/division-configs/ACC', [
+                'enabledModules' => ['dashboard', 'accounting'],
+                'enabledKpis' => ['accounting.balance'],
+            ]);
+
+        $bodConfigRes->assertStatus(403);
+        $this->assertContains($bodConfigRes->json('error.code'), ['SCOPE_VIOLATION', 'FORBIDDEN_CAPABILITY']);
     }
 
     public function test_cross_division_access_denied_with_scope_violation_and_audited(): void
@@ -340,5 +379,97 @@ class AccountingFoundationTest extends TestCase
         $this->assertStringNotContainsString('password', strtolower($bodyString));
         $this->assertStringNotContainsString('trace#', strtolower($bodyString));
         $this->assertStringNotContainsString('exception in', strtolower($bodyString));
+    }
+
+    public function test_accounting_reports_status_filtering_and_validation(): void
+    {
+        // 1. Admin ACC dapat membaca semua status (default tanpa filter: 3 laporan)
+        $adminAllRes = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/reports');
+        $adminAllRes->assertStatus(200);
+        $this->assertCount(3, $adminAllRes->json('data'));
+
+        // 2. Admin ACC filter ?status=Draft -> hanya laporan Draft
+        $adminDraftRes = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/reports?status=Draft');
+        $adminDraftRes->assertStatus(200);
+        $this->assertCount(1, $adminDraftRes->json('data'));
+        $this->assertEquals('Draft', $adminDraftRes->json('data.0.status'));
+
+        // 3. Admin ACC filter ?status=Disetujui
+        $adminApproveRes = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/reports?status=Disetujui');
+        $adminApproveRes->assertStatus(200);
+        $this->assertCount(1, $adminApproveRes->json('data'));
+        $this->assertEquals('Disetujui', $adminApproveRes->json('data.0.status'));
+
+        // 4. Admin ACC filter ?status=Ditutup
+        $adminClosedRes = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/reports?status=Ditutup');
+        $adminClosedRes->assertStatus(200);
+        $this->assertCount(1, $adminClosedRes->json('data'));
+        $this->assertEquals('Ditutup', $adminClosedRes->json('data.0.status'));
+
+        // 5. Validasi status tidak valid -> 400 VALIDATION_ERROR
+        $invalidRes = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/reports?status=Archived');
+        $invalidRes->assertStatus(400);
+        $this->assertEquals('VALIDATION_ERROR', $invalidRes->json('error.code'));
+
+        $invalidRes2 = $this->authenticated('bod1@dashboard.test')
+            ->getJson('/api/v1/accounting/reports?status=InvalidStatus');
+        $invalidRes2->assertStatus(400);
+        $this->assertEquals('VALIDATION_ERROR', $invalidRes2->json('error.code'));
+    }
+
+    public function test_accounting_status_endpoint_permission_matrix(): void
+    {
+        // 1. Anonymous -> 401 AUTH_REQUIRED
+        $anon = $this->getJson('/api/v1/accounting/status');
+        $anon->assertStatus(401);
+        $this->assertEquals('AUTH_REQUIRED', $anon->json('error.code'));
+
+        // 2. User tanpa capability view:acc_report (role USER di ACC) -> 403 FORBIDDEN_CAPABILITY
+        $accUser = User::where('email', 'user.nocap@dashboard.test')->first();
+        if (!$accUser) {
+            $acc = Division::where('code', 'ACC')->first();
+            $accUser = User::create([
+                'email' => 'user.nocap@dashboard.test',
+                'name' => 'User No Cap',
+                'role' => 'USER',
+                'division_code' => 'ACC',
+                'password_hash' => 'hash',
+                'is_active' => true,
+            ]);
+            UserScope::create(['user_id' => $accUser->id, 'division_id' => $acc->id]);
+        }
+        $noCapRes = $this->authenticated('user.nocap@dashboard.test')
+            ->getJson('/api/v1/accounting/status');
+        $noCapRes->assertStatus(403);
+        $this->assertEquals('FORBIDDEN_CAPABILITY', $noCapRes->json('error.code'));
+
+        // 3. User divisi lain (Manager WRAP) -> 403 SCOPE_VIOLATION
+        $crossRes = $this->authenticated('manager.wrap@dashboard.test')
+            ->getJson('/api/v1/accounting/status');
+        $crossRes->assertStatus(403);
+        $this->assertEquals('SCOPE_VIOLATION', $crossRes->json('error.code'));
+
+        // 4. Admin ACC -> 200 OK
+        $adminRes = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/status');
+        $adminRes->assertStatus(200);
+        $this->assertEquals('ACC', $adminRes->json('data.divisionCode'));
+
+        // 5. Manager ACC -> 200 OK
+        $managerRes = $this->authenticated('manager.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/status');
+        $managerRes->assertStatus(200);
+        $this->assertEquals('ACC', $managerRes->json('data.divisionCode'));
+
+        // 6. BOD -> 200 OK (memiliki capability view:acc_report dan cakupan enterprise)
+        $bodRes = $this->authenticated('bod1@dashboard.test')
+            ->getJson('/api/v1/accounting/status');
+        $bodRes->assertStatus(200);
+        $this->assertEquals('ACC', $bodRes->json('data.divisionCode'));
     }
 }

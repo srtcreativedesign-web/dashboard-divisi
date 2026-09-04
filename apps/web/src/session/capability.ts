@@ -33,17 +33,40 @@ const ACC_ADMIN_CAPABILITIES = [
   'submit:acc_period',
 ];
 
+function getStoredDivision(): string | null {
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    try {
+      return localStorage.getItem('dashboard-divisi.division-demo');
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export function hasCapability(role: Role, capability: string, divisionCode?: string | null): boolean {
+  const activeDivision = divisionCode !== undefined ? divisionCode : getStoredDivision();
+
+  // Domain Accounting (ACC)
   if (capability.startsWith('acc:') || capability.includes(':acc_')) {
     if (role === 'BOD') {
       return capability === 'view:acc_report';
     }
-    if (divisionCode === 'ACC') {
+    if (activeDivision === 'ACC') {
       if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
       if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
     }
     return false;
   }
+
+  // Pengguna dengan konteks/divisi ACC tidak memiliki capability operasional retail divisi lain
+  if (activeDivision === 'ACC') {
+    if (role === 'BOD') {
+      return capability === 'view:acc_report' || capability === 'view:division';
+    }
+    return capability === 'view:division' && (role === 'MANAGER' || role === 'ADMIN');
+  }
+
   const caps = ROLE_CAPABILITIES[role] ?? [];
   return caps.includes('*') || caps.includes(capability);
 }

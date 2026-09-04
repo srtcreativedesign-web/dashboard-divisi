@@ -21,7 +21,22 @@ class CapabilityMiddleware
             throw new ApiException('AUTH_REQUIRED', 'Autentikasi diperlukan');
         }
 
-        $this->policy->assertCapability($user, $capability);
+        $divisionCode = $request->route('divisionCode')
+            ?? $request->query('divisionCode')
+            ?? $request->input('divisionCode')
+            ?? $request->input('division_code');
+
+        if (! $divisionCode && ($request->input('outletId') || $request->input('outlet_id'))) {
+            $outletId = $request->input('outletId') ?: $request->input('outlet_id');
+            $outlet = \App\Models\Outlet::with('division')->find($outletId);
+            $divisionCode = $outlet?->division?->code;
+        }
+
+        if (! $divisionCode && $request->is('api/v1/accounting*')) {
+            $divisionCode = 'ACC';
+        }
+
+        $this->policy->assertCapability($user, $capability, $divisionCode ? (string) $divisionCode : null);
 
         return $next($request);
     }

@@ -96,11 +96,9 @@ Route::prefix('v1')->group(function () {
 
         // Accounting domain foundation (ISSUE-5)
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
-            // Status fondasi ACC
-            Route::get('status', [AccountingController::class, 'status']);
-
-            // Baca laporan ACC (Disetujui/Ditutup) — BOD, Manager ACC, Admin ACC
+            // Status fondasi dan laporan ACC — BOD, Manager ACC, Admin ACC
             Route::middleware(['capability:view:acc_report'])->group(function () {
+                Route::get('status', [AccountingController::class, 'status']);
                 Route::get('reports', [AccountingController::class, 'reports']);
             });
 

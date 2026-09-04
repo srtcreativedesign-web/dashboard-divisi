@@ -33,7 +33,7 @@ const INITIAL_REPORTS: DailyRecord[] = [
 export default function DailyReportPage() {
   const { user } = useAuth();
   const isBod = user?.role === 'BOD';
-  const isPicViewOnly = !hasCapability(user?.role as never, 'write:revenue');
+  const isPicViewOnly = !hasCapability(user?.role as never, 'write:revenue', user?.divisionCode);
   const isManager = user?.role === 'MANAGER' || user?.role === 'SUPERADMIN';
   const userDivision = user?.divisionCode; // NULL jika BOD, atau 'WRAP'/'CELL'/dll.
 

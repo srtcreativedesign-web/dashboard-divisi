@@ -20,6 +20,8 @@ class ApiException extends Exception
         'SOURCE_DATA_UNAVAILABLE' => 422,
         'RATE_LIMITED' => 429,
         'INTERNAL_ERROR' => 500,
+        'STAGE_LOCKED' => 422,
+        'NOT_IMPLEMENTED' => 501,
     ];
 
     protected string $errorCode;
