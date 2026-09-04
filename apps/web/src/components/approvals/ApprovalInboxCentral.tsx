@@ -28,6 +28,7 @@ import {
 } from './approvalTypes';
 import { ApprovalReviewModal } from './ApprovalReviewModal';
 import { useToast } from '../ui/Toast';
+import { useApprovalStore } from '../../store/approvalStore';
 
 export interface ApprovalInboxCentralProps {
   initialRequests?: ApprovalRequest[];
@@ -39,14 +40,19 @@ export interface ApprovalInboxCentralProps {
 }
 
 export function ApprovalInboxCentral({
-  initialRequests = INITIAL_APPROVAL_REQUESTS,
+  initialRequests,
   onApproveRequest,
   onRejectRequest,
   userRole = 'BOD',
   userDivision,
   className = '',
 }: ApprovalInboxCentralProps) {
-  const [requests, setRequests] = useState<ApprovalRequest[]>(initialRequests);
+  const store = useApprovalStore();
+  const [localRequests, setLocalRequests] = useState<ApprovalRequest[]>(
+    initialRequests || INITIAL_APPROVAL_REQUESTS
+  );
+
+  const requests = initialRequests ? localRequests : store.requests;
   const [selectedDivision, setSelectedDivision] = useState<string>('SEMUA');
   const [selectedCategory, setSelectedCategory] = useState<string>('SEMUA');
   const [selectedStatus, setSelectedStatus] = useState<string>('pending_review');
@@ -129,20 +135,27 @@ export function ApprovalInboxCentral({
   };
 
   const handleApprove = (requestId: string, note?: string) => {
-    setRequests((prev) =>
-      prev.map((r) => {
-        if (r.id !== requestId) return r;
-        return {
-          ...r,
-          status: 'approved',
-          reviewedAt: 'Baru Saja',
-          reviewerId: 'current-user-id',
-          reviewerName: isBod ? 'Direksi (BOD)' : 'Manager Divisi',
-          reviewerRole: isBod ? 'BOD' : 'MANAGER',
-          approvalNote: note || 'Disetujui sesuai SOP.',
-        };
-      })
-    );
+    const reviewerName = isBod ? 'Direksi (BOD)' : 'Manager Divisi';
+    const reviewerRole = isBod ? 'BOD' : 'MANAGER';
+
+    store.approveRequest(requestId, reviewerName, reviewerRole, note);
+
+    if (initialRequests) {
+      setLocalRequests((prev) =>
+        prev.map((r) => {
+          if (r.id !== requestId) return r;
+          return {
+            ...r,
+            status: 'approved',
+            reviewedAt: 'Baru Saja',
+            reviewerId: 'current-user-id',
+            reviewerName,
+            reviewerRole,
+            approvalNote: note || 'Disetujui sesuai SOP.',
+          };
+        })
+      );
+    }
     setSelectedIds((prev) => prev.filter((id) => id !== requestId));
     if (onApproveRequest) {
       onApproveRequest(requestId, note);
@@ -154,20 +167,27 @@ export function ApprovalInboxCentral({
   };
 
   const handleReject = (requestId: string, reason: string) => {
-    setRequests((prev) =>
-      prev.map((r) => {
-        if (r.id !== requestId) return r;
-        return {
-          ...r,
-          status: 'rejected',
-          reviewedAt: 'Baru Saja',
-          reviewerId: 'current-user-id',
-          reviewerName: isBod ? 'Direksi (BOD)' : 'Manager Divisi',
-          reviewerRole: isBod ? 'BOD' : 'MANAGER',
-          rejectionReason: reason,
-        };
-      })
-    );
+    const reviewerName = isBod ? 'Direksi (BOD)' : 'Manager Divisi';
+    const reviewerRole = isBod ? 'BOD' : 'MANAGER';
+
+    store.rejectRequest(requestId, reviewerName, reviewerRole, reason);
+
+    if (initialRequests) {
+      setLocalRequests((prev) =>
+        prev.map((r) => {
+          if (r.id !== requestId) return r;
+          return {
+            ...r,
+            status: 'rejected',
+            reviewedAt: 'Baru Saja',
+            reviewerId: 'current-user-id',
+            reviewerName,
+            reviewerRole,
+            rejectionReason: reason,
+          };
+        })
+      );
+    }
     setSelectedIds((prev) => prev.filter((id) => id !== requestId));
     if (onRejectRequest) {
       onRejectRequest(requestId, reason);
@@ -181,20 +201,27 @@ export function ApprovalInboxCentral({
   // Batch Approval for selected pending requests
   const handleBatchApprove = () => {
     if (selectedIds.length === 0) return;
-    setRequests((prev) =>
-      prev.map((r) => {
-        if (!selectedIds.includes(r.id)) return r;
-        return {
-          ...r,
-          status: 'approved',
-          reviewedAt: 'Baru Saja (Batch)',
-          reviewerId: 'current-user-id',
-          reviewerName: isBod ? 'Direksi (BOD)' : 'Manager Divisi',
-          reviewerRole: isBod ? 'BOD' : 'MANAGER',
-          approvalNote: 'Disetujui melalui aksi otorisasi massal (Batch Approval).',
-        };
-      })
-    );
+    const reviewerName = isBod ? 'Direksi (BOD)' : 'Manager Divisi';
+    const reviewerRole = isBod ? 'BOD' : 'MANAGER';
+
+    store.batchApproveRequests(selectedIds, reviewerName, reviewerRole);
+
+    if (initialRequests) {
+      setLocalRequests((prev) =>
+        prev.map((r) => {
+          if (!selectedIds.includes(r.id)) return r;
+          return {
+            ...r,
+            status: 'approved',
+            reviewedAt: 'Baru Saja (Batch)',
+            reviewerId: 'current-user-id',
+            reviewerName,
+            reviewerRole,
+            approvalNote: 'Disetujui melalui aksi otorisasi massal (Batch Approval).',
+          };
+        })
+      );
+    }
     const count = selectedIds.length;
     setSelectedIds([]);
     toast(
