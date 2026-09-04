@@ -1,6 +1,29 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, X, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, Clock, ShieldCheck } from 'lucide-react';
+import {
+  LayoutDashboard,
+  TrendingUp,
+  Target,
+  Award,
+  Users,
+  ClipboardList,
+  BarChart3,
+  Settings,
+  Menu,
+  X,
+  Calendar,
+  Store,
+  Calculator,
+  DollarSign,
+  PieChart,
+  BookOpenText,
+  Database,
+  UploadCloud,
+  Clock,
+  ShieldCheck,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from 'lucide-react';
 import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, roleDisplay } from '../mocks/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
@@ -33,14 +56,55 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('dashboard-divisi.sidebar-collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('dashboard-divisi.sidebar-collapsed', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        const target = e.target as HTMLElement | null;
+        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+          return;
+        }
+        e.preventDefault();
+        toggleSidebar();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   useEffect(() => {
     if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDrawerOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDrawerOpen(false);
+    };
     window.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
   }, [drawerOpen]);
+
   const { user, loading: authLoading, logout: authLogout } = useAuth();
   const logout = async () => {
     await authLogout();
@@ -49,8 +113,6 @@ export function AppLayout() {
     localStorage.removeItem('dashboard-divisi.division-demo');
     window.location.href = '/login';
   };
-
-
 
   const location = useLocation();
 
@@ -74,98 +136,298 @@ export function AppLayout() {
     return true;
   });
 
-  const renderMenu = (variant: 'sidebar' | 'mobile') => (
-    <nav className={variant === 'sidebar' ? 'flex flex-col gap-1.5' : 'flex gap-2 overflow-x-auto pb-2 scrollbar-thin'} aria-label={variant === 'sidebar' ? 'Navigasi utama' : 'Navigasi mobile'}>
-      {visibleMenu.map((item) => {
-        const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-        return (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              isActive
-                ? 'flex shrink-0 items-center gap-2.5 rounded-card bg-white/20 px-3 py-2.5 text-sm font-medium text-white shadow-glass backdrop-blur-md ring-1 ring-white/10'
-                : 'flex shrink-0 items-center gap-2.5 rounded-card px-3 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white transition-all duration-200'
-            }
-          >
-            <Icon className="h-4 w-4" />
-            {item.label}
-          </NavLink>
-        );
-      })}
-    </nav>
-  );
+  const renderMenu = (variant: 'sidebar' | 'mobile') => {
+    const isSidebar = variant === 'sidebar';
+    const isCollapsed = isSidebar && sidebarCollapsed;
+
+    return (
+      <nav
+        className={
+          isSidebar
+            ? 'flex flex-col gap-1.5 px-3'
+            : 'flex gap-2 overflow-x-auto pb-2 scrollbar-thin'
+        }
+        aria-label={isSidebar ? 'Navigasi utama' : 'Navigasi mobile'}
+      >
+        {visibleMenu.map((item) => {
+          const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              title={isCollapsed ? item.label : undefined}
+              className={({ isActive }) =>
+                isActive
+                  ? `group relative flex shrink-0 items-center ${
+                      isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3.5 py-2.5'
+                    } rounded-xl bg-gradient-to-r from-primary-600 via-primary-700 to-dark text-sm font-semibold text-white shadow-md ring-1 ring-white/20 transition-all duration-200`
+                  : `group relative flex shrink-0 items-center ${
+                      isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3.5 py-2.5'
+                    } rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-white/12 hover:shadow-xs transition-all duration-200 ease-out ${
+                      !isCollapsed ? 'hover:translate-x-1.5' : ''
+                    }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)]" />
+                  )}
+                  <Icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                  <span className={isCollapsed ? 'sr-only' : 'truncate'}>{item.label}</span>
+                  {isCollapsed && (
+                    <div
+                      role="tooltip"
+                      className="pointer-events-none absolute left-full ml-3 z-50 hidden rounded-md bg-slate-900/95 px-2.5 py-1.5 text-xs font-semibold text-white shadow-xl ring-1 ring-white/15 whitespace-nowrap group-hover:block transition-all animate-in fade-in zoom-in-95 duration-150"
+                    >
+                      {item.label}
+                    </div>
+                  )}
+                </>
+              )}
+            </NavLink>
+          );
+        })}
+      </nav>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-mesh relative selection:bg-primary/20 selection:text-primary-dark">
       {/* Decorative ambient background for layout */}
       <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-primary/5 blur-[100px]" />
-      
+
       {/* Drawer mobile overlay */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden animate-fade-in">
-          <div className="absolute inset-0 bg-navy/40 backdrop-blur-md" onClick={() => setDrawerOpen(false)} aria-hidden="true" />
-          <aside className="absolute left-0 top-0 h-full w-64 bg-gradient-to-b from-navy via-navy to-[#0b1221] px-4 py-6 text-slate-200 shadow-2xl ring-1 ring-white/10">
-            <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-card-lg bg-white/15 text-white font-bold text-sm">{isAccounting ? 'AC' : 'DD'}</div><p className="text-sm font-semibold text-white">{isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}</p></div>
-              <button type="button" aria-label="Tutup menu" onClick={() => setDrawerOpen(false)} className="rounded-input p-1 text-slate-300 hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
+          <div
+            className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+            onClick={() => setDrawerOpen(false)}
+            aria-hidden="true"
+          />
+          <aside className="absolute left-0 top-0 h-full w-72 bg-gradient-to-b from-[#0c4a6e] via-[#075985] to-[#042f48] px-4 py-6 text-slate-200 shadow-2xl ring-1 ring-white/15 flex flex-col">
+            <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
+                  {isAccounting ? 'AC' : 'DD'}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white tracking-tight leading-snug">
+                    {isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}
+                  </p>
+                  <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5">
+                    {isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                aria-label="Tutup menu"
+                onClick={() => setDrawerOpen(false)}
+                className="rounded-lg p-1.5 text-slate-300 hover:bg-white/15 hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
-            <nav className="flex flex-col gap-1.5" aria-label="Navigasi drawer">
+            <nav className="flex flex-col gap-1.5 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
               {visibleMenu.map((item) => {
                 const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-                return <NavLink key={item.path} to={item.path} onClick={() => setDrawerOpen(false)} className={({ isActive }) => isActive ? 'flex items-center gap-2.5 rounded-card-lg bg-white/15 px-3 py-2.5 text-sm font-medium text-white shadow-glass' : 'flex items-center gap-2.5 rounded-card-lg px-3 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/10'}><Icon className="h-4 w-4" />{item.label}</NavLink>;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setDrawerOpen(false)}
+                    className={({ isActive }) =>
+                      isActive
+                        ? 'group relative flex items-center gap-3 rounded-xl bg-gradient-to-r from-primary-600 via-primary-700 to-dark px-3.5 py-2.5 text-sm font-semibold text-white shadow-md ring-1 ring-white/20'
+                        : 'group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/12 hover:text-white transition-all duration-200'
+                    }
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span>{item.label}</span>
+                  </NavLink>
+                );
               })}
             </nav>
-            
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10">
+                <p className="text-xs font-semibold text-white">{user.name}</p>
+                <p className="text-[11px] text-sky-200/80">{roleLabel} · {scopeLabel}</p>
+                <LogoutButton
+                  onLogout={() => void logout()}
+                  className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-white/10 py-1.5 text-xs font-medium text-white hover:bg-white/20 transition-all"
+                />
+              </div>
+            </div>
           </aside>
         </div>
       )}
-      {/* Modern sidebar with gradient */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 bg-gradient-to-b from-navy via-navy to-[#0b1221] px-4 py-6 text-slate-200 lg:block border-r border-white/5 shadow-glass z-50 flex flex-col">
-        <div className="mb-8 flex items-center gap-3 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-card bg-gradient-to-br from-primary to-info text-white font-bold text-sm shadow-md ring-1 ring-white/20">DD</div>
-          <div>
-            <p className="text-sm font-bold text-white leading-none tracking-tight">{isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}</p>
-            <p className="text-xs text-slate-400 mt-1">{isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}</p>
+
+      {/* Modern Clean Ocean-Sky Desktop Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 hidden bg-gradient-to-b from-[#0c4a6e] via-[#075985] to-[#042f48] text-slate-200 lg:flex flex-col border-r border-[#419cc3]/30 shadow-xl z-50 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? 'w-20' : 'w-64'
+        }`}
+      >
+        {/* Top Brand & Toggle Header */}
+        <div
+          className={`flex items-center ${
+            sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'
+          } py-5 border-b border-white/10 mb-3`}
+        >
+          {!sidebarCollapsed ? (
+            <>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
+                  {isAccounting ? 'AC' : 'DD'}
+                </div>
+                <div className="min-w-0 truncate">
+                  <p className="text-sm font-bold text-white tracking-tight leading-snug truncate">
+                    {isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}
+                  </p>
+                  <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5 truncate">
+                    {isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                aria-label="Kecilkan sidebar"
+                title="Kecilkan sidebar (Ctrl+B)"
+                className="shrink-0 rounded-lg p-1.5 text-sky-200 hover:text-white hover:bg-white/15 active:scale-95 transition-all"
+              >
+                <PanelLeftClose className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              aria-label="Perbesar sidebar"
+              title="Perbesar sidebar (Ctrl+B)"
+              className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:bg-white/10 transition-all"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30 group-hover:scale-105 transition-transform">
+                {isAccounting ? 'AC' : 'DD'}
+              </div>
+              <PanelLeftOpen className="h-4 w-4 text-sky-200 group-hover:text-white group-hover:scale-110 transition-all" />
+            </button>
+          )}
+        </div>
+
+        {/* Navigation list */}
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 py-1">
+          {renderMenu('sidebar')}
+        </div>
+
+        {/* Bottom user card */}
+        {!sidebarCollapsed ? (
+          <div className="border-t border-white/10 p-3.5">
+            <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10 shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-dark text-xs font-bold text-white shadow-xs ring-1 ring-white/20">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-semibold text-white">{user.name}</p>
+                  <p className="truncate text-[11px] text-sky-200/80">{roleLabel} · {scopeLabel}</p>
+                </div>
+              </div>
+              <LogoutButton
+                onLogout={() => void logout()}
+                className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-white/10 py-1.5 text-xs font-medium text-white hover:bg-white/20 transition-all active:scale-[0.98]"
+              />
+            </div>
           </div>
-        </div>
-        {renderMenu('sidebar')}
-        <div className="absolute bottom-4 left-4 right-4 rounded-card-lg bg-white/10 p-3">
-          <p className="text-xs font-medium text-white">{user.name}</p>
-          <p className="text-xs text-slate-300">{roleLabel} · {scopeLabel}</p>
-          <LogoutButton onLogout={() => void logout()} className="mt-2 flex w-full items-center gap-1.5 rounded-input bg-white/10 px-2 py-1.5 text-xs font-medium text-white hover:bg-white/15 transition-colors" />
-        </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 border-t border-white/10 p-3">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-dark text-xs font-bold text-white shadow-sm ring-1 ring-white/20"
+              title={`${user.name} (${roleLabel} · ${scopeLabel})`}
+            >
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <LogoutButton
+              compact
+              onLogout={() => void logout()}
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-rose-500/80 hover:text-white transition-all active:scale-95"
+            />
+          </div>
+        )}
       </aside>
 
-      <div className="flex min-h-screen flex-col lg:ml-64 relative z-10">
-        {/* Glass header */}
-        <header className="sticky top-0 z-40 border-b border-line/40 bg-white/60 glass backdrop-blur-xl">
-          <div className="flex min-h-16 flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+      {/* Main Content Area */}
+      <div
+        className={`flex min-h-screen flex-col relative z-10 transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
+        }`}
+      >
+        {/* Modern Clean Ocean-Sky Header */}
+        <header className="sticky top-0 z-40 border-b border-sage/25 bg-white/90 backdrop-blur-xl shadow-xs">
+          {/* Top accent gradient bar */}
+          <div className="h-1 w-full bg-gradient-to-r from-primary-500 via-dark to-sage" />
+
+          <div className="flex min-h-16 flex-col gap-3 px-4 py-2.5 lg:flex-row lg:items-center lg:justify-between lg:px-6">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <button type="button" aria-label="Buka menu" onClick={() => setDrawerOpen(true)} className="lg:hidden rounded-input border border-line p-2 text-navy hover:bg-surface"><Menu className="h-5 w-5" /></button>
+                {/* Mobile drawer toggle */}
+                <button
+                  type="button"
+                  aria-label="Buka menu"
+                  onClick={() => setDrawerOpen(true)}
+                  className="lg:hidden rounded-lg border border-line p-2 text-navy hover:bg-primary-50 hover:text-primary-700 transition-colors"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+
+                {/* Desktop sidebar collapse/expand toggle button */}
+                <button
+                  type="button"
+                  onClick={toggleSidebar}
+                  aria-label={sidebarCollapsed ? 'Perbesar sidebar (navbar)' : 'Kecilkan sidebar (navbar)'}
+                  title={sidebarCollapsed ? 'Perbesar sidebar (Ctrl+B)' : 'Kecilkan sidebar (Ctrl+B)'}
+                  className="hidden lg:flex items-center justify-center p-2 rounded-lg text-slate-600 hover:text-primary-700 hover:bg-primary-50 active:scale-95 transition-all border border-transparent hover:border-primary-100"
+                >
+                  {sidebarCollapsed ? (
+                    <PanelLeftOpen className="h-5 w-5 text-primary-600" />
+                  ) : (
+                    <PanelLeftClose className="h-5 w-5 text-slate-600" />
+                  )}
+                </button>
+
                 <div>
                   <p className="text-sm font-semibold text-navy lg:hidden">Dashboard Divisi</p>
                   <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <span className="hidden lg:inline">Dashboard Divisi</span>
-                    {activeMenu && <><span className="text-slate-300">/</span><span className="font-medium text-navy">{activeMenu.label}</span></>}
+                    <span className="hidden lg:inline font-medium text-slate-700">Dashboard Divisi</span>
+                    {activeMenu && (
+                      <>
+                        <span className="text-slate-300">/</span>
+                        <span className="font-semibold text-primary-900 bg-primary-50 px-2 py-0.5 rounded-md border border-primary-200/60 shadow-2xs">
+                          {activeMenu.label}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
-              <span className="text-sm font-medium lg:hidden">{user.name}</span>
+              <span className="text-sm font-medium text-slate-800 lg:hidden">{user.name}</span>
             </div>
-            <div className="flex items-center gap-3">
 
-              <div className="hidden lg:flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-xs">
-                <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                <span className="font-medium text-navy">{roleLabel}</span>
-                <span className="text-slate-400">·</span>
-                <span className="text-slate-600">{scopeLabel}</span>
+            <div className="flex items-center gap-3">
+              {/* Active Role & Scope Pill */}
+              <div className="hidden lg:flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200/60 px-3.5 py-1.5 text-xs shadow-2xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-semibold text-primary-900">{roleLabel}</span>
+                <span className="text-primary-300">|</span>
+                <span className="font-medium text-slate-600">{scopeLabel}</span>
               </div>
             </div>
+
             <div className="lg:hidden">{renderMenu('mobile')}</div>
           </div>
         </header>
+
         <main className="flex-1 p-4 lg:p-6 lg:px-8">
           <Outlet />
         </main>
@@ -173,3 +435,4 @@ export function AppLayout() {
     </div>
   );
 }
+
