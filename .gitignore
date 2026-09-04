@@ -15,3 +15,7 @@ coverage/
 .env.*
 !.env.example
 cookies.txt
+
+documents/
+Decisions/
+lessons/
