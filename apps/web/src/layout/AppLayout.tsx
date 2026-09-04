@@ -35,6 +35,7 @@ import { CommandPalette } from '../components/ui/CommandPalette';
 import { DetailSheet } from '../components/ui/DetailSheet';
 import { StickyContextFilterBar } from '../components/filters/StickyContextFilterBar';
 import { ExportReportModal } from '../components/reports/ExportReportModal';
+import { NotificationBell, AuditLogModal } from '../components/notifications';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
@@ -65,6 +66,7 @@ export function AppLayout() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [auditModalOpen, setAuditModalOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return localStorage.getItem('dashboard-divisi.sidebar-collapsed') === 'true';
@@ -92,6 +94,8 @@ export function AppLayout() {
       toggleSidebar();
     } else if (actionId === 'act-export-summary') {
       setExportModalOpen(true);
+    } else if (actionId === 'act-open-audit-trail') {
+      setAuditModalOpen(true);
     }
   };
 
@@ -479,6 +483,9 @@ export function AppLayout() {
                 <Search className="h-5 w-5" />
               </button>
 
+              {/* Smart Notification Center Bell & Popover */}
+              <NotificationBell onOpenAuditModal={() => setAuditModalOpen(true)} />
+
               {/* Active Role & Scope Pill */}
               <div className="hidden lg:flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200/60 px-3.5 py-1.5 text-xs shadow-2xs">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -569,6 +576,12 @@ export function AppLayout() {
         isOpen={exportModalOpen}
         onClose={() => setExportModalOpen(false)}
         activeDivision={scopeLabel}
+      />
+
+      {/* Audit Log Modal */}
+      <AuditLogModal
+        isOpen={auditModalOpen}
+        onClose={() => setAuditModalOpen(false)}
       />
     </div>
   );

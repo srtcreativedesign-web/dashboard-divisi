@@ -23,6 +23,7 @@ import {
   Sparkles,
   PanelLeft,
   FileSpreadsheet,
+  Bell,
 } from 'lucide-react';
 
 export interface CommandItem {
@@ -243,6 +244,22 @@ export function CommandPalette({ isOpen, onClose, onSelectAction }: CommandPalet
         path: '/laporan',
         icon: Clock,
         keywords: ['jadwal', 'schedule', 'cron', 'otomatis', 'distribusi', 'laporan'],
+      },
+      {
+        id: 'act-open-notifications',
+        title: 'Lihat Notifikasi & Peringatan Dini',
+        description: 'Buka notifikasi tagihan kritis, rekonsiliasi, dan performa divisi',
+        category: 'Aksi Cepat',
+        icon: Bell,
+        keywords: ['notifikasi', 'notification', 'peringatan', 'alert', 'lonceng', 'unread'],
+      },
+      {
+        id: 'act-open-audit-trail',
+        title: 'Buka Jejak Audit Sistem (Audit Trail)',
+        description: 'Inspeksi riwayat aktivitas kepatuhan, mutasi, ekspor, dan otentikasi',
+        category: 'Aksi Cepat',
+        icon: ShieldCheck,
+        keywords: ['audit', 'trail', 'log', 'keamanan', 'riwayat', 'trace', 'aktivitas'],
       },
     ],
     [],
