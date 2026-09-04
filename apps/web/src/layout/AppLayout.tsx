@@ -23,12 +23,17 @@ import {
   ShieldCheck,
   PanelLeftClose,
   PanelLeftOpen,
+  Search,
+  Sparkles,
 } from 'lucide-react';
 import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, roleDisplay } from '../mocks/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
 import { hasCapability } from '../session/capability';
 import { EmptyState } from '../components/states';
+import { CommandPalette } from '../components/ui/CommandPalette';
+import { DetailSheet } from '../components/ui/DetailSheet';
+import { StickyContextFilterBar } from '../components/filters/StickyContextFilterBar';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
@@ -56,6 +61,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try {
       return localStorage.getItem('dashboard-divisi.sidebar-collapsed') === 'true';
@@ -76,15 +83,31 @@ export function AppLayout() {
     });
   };
 
+  const handleCommandAction = (actionId: string) => {
+    if (actionId === 'act-open-detail-sheet') {
+      setDetailSheetOpen(true);
+    } else if (actionId === 'act-toggle-sidebar') {
+      toggleSidebar();
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
-        const target = e.target as HTMLElement | null;
-        if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
-          return;
-        }
+        if (isInput) return;
         e.preventDefault();
         toggleSidebar();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        if (isInput) return;
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+        if (isInput) return;
+        e.preventDefault();
+        setDetailSheetOpen((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -424,7 +447,34 @@ export function AppLayout() {
               <span className="text-sm font-medium text-slate-800 lg:hidden">{user.name}</span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
+              {/* Command Palette Trigger Button (Desktop & Tablet) */}
+              <button
+                type="button"
+                onClick={() => setCommandPaletteOpen(true)}
+                aria-label="Cari modul atau aksi (Ctrl+K)"
+                className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs text-slate-500 hover:border-sky-300 hover:bg-sky-50/60 hover:text-sky-900 transition-all shadow-2xs active:scale-95 cursor-pointer"
+                data-testid="navbar-search-btn"
+              >
+                <Search className="h-3.5 w-3.5 text-slate-400" />
+                <span className="hidden md:inline">Cari modul, menu, atau aksi...</span>
+                <span className="md:hidden">Cari...</span>
+                <kbd className="ml-1 inline-flex items-center rounded bg-white px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-600 border border-slate-200 shadow-2xs">
+                  ⌘K
+                </kbd>
+              </button>
+
+              {/* Mobile Search Button */}
+              <button
+                type="button"
+                onClick={() => setCommandPaletteOpen(true)}
+                aria-label="Cari modul (Ctrl+K)"
+                className="sm:hidden rounded-lg border border-line p-2 text-navy hover:bg-primary-50 hover:text-primary-700 transition-colors"
+                data-testid="navbar-mobile-search-btn"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+
               {/* Active Role & Scope Pill */}
               <div className="hidden lg:flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200/60 px-3.5 py-1.5 text-xs shadow-2xs">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -438,11 +488,76 @@ export function AppLayout() {
           </div>
         </header>
 
+        {/* Sticky Context Filter Bar */}
+        <StickyContextFilterBar
+          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+          onOpenDetailSheet={() => setDetailSheetOpen(true)}
+        />
+
         <main className="flex-1 p-4 lg:p-6 lg:px-8">
           <Outlet />
         </main>
       </div>
+
+      {/* Global Command Palette */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSelectAction={handleCommandAction}
+      />
+
+      {/* Sliding Detail Sheet */}
+      <DetailSheet
+        isOpen={detailSheetOpen}
+        onClose={() => setDetailSheetOpen(false)}
+        title="Rincian Operasional & Finansial"
+        subtitle={`Inspeksi ringkasan metrik dan audit status: ${scopeLabel}`}
+        badge={{ text: 'Aktif · Real-Time', variant: 'success' }}
+      >
+        <div className="space-y-4 text-sm text-slate-700">
+          <div className="rounded-xl bg-sky-50 border border-sky-100 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-sky-800">Status Entitas Aktif</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                <Sparkles className="h-3 w-3" /> Terverifikasi
+              </span>
+            </div>
+            <p className="font-semibold text-slate-900">{user.name}</p>
+            <p className="text-xs text-slate-500">{roleLabel} · {scopeLabel}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+              <p className="text-[11px] text-slate-500 font-medium">Realisasi MTD</p>
+              <p className="text-base font-bold text-slate-900 mt-1">Rp 1.482.500.000</p>
+              <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">↑ +14.2% vs target</p>
+            </div>
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
+              <p className="text-[11px] text-slate-500 font-medium">Rekonsiliasi Bank</p>
+              <p className="text-base font-bold text-slate-900 mt-1">31/31 Klop</p>
+              <p className="text-[10px] text-sky-600 font-semibold mt-0.5">100% Cocok Sempurna</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-2.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">Panduan Pintasan Cepat</h4>
+            <div className="space-y-1.5 text-xs text-slate-600">
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+                <span>Buka Command Palette</span>
+                <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-700 text-[10px]">Ctrl+K</kbd>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+                <span>Toggle Sidebar Desktop</span>
+                <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-700 text-[10px]">Ctrl+B</kbd>
+              </div>
+              <div className="flex items-center justify-between py-1">
+                <span>Buka Panel Rincian Cepat</span>
+                <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-700 text-[10px]">Ctrl+D</kbd>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DetailSheet>
     </div>
   );
 }
-
