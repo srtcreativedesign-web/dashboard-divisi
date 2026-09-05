@@ -9,8 +9,17 @@ export interface DailyRecord {
   date: string;
   division: 'WRAP' | 'CELL' | 'REFL' | 'MINI' | 'FNB' | 'MC' | 'ACC';
   divisionName: string;
+  outletCode?: string;
+  outletName?: string;
+  shift?: 'Pagi (06:00 - 14:00)' | 'Siang/Sore (14:00 - 22:00)' | 'Full Day (All Shifts)';
+  categoryService?: string;
   revenue: number;
   target: number;
+  cashAmount?: number;
+  edcAmount?: number;
+  qrisAmount?: number;
+  transactionCount?: number;
+  attachmentName?: string;
   notes: string;
   updatedBy: string;
   status: 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
@@ -26,8 +35,17 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
     date: '2026-09-03',
     division: 'WRAP',
     divisionName: 'Wrapping',
+    outletCode: 'T2D1',
+    outletName: 'STAR WRAP-T2D1',
+    shift: 'Full Day (All Shifts)',
+    categoryService: 'Wrapping Bagasi & Protection',
     revenue: 45000000,
     target: 40000000,
+    cashAmount: 12000000,
+    edcAmount: 23000000,
+    qrisAmount: 10000000,
+    transactionCount: 225,
+    attachmentName: 'settlement_edc_mandiri_t2d1.pdf',
     notes: 'Promosi Bundling Hari Pelanggan',
     updatedBy: 'Admin Wrapping',
     status: 'PENDING_REVIEW',
@@ -38,8 +56,17 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
     date: '2026-09-03',
     division: 'CELL',
     divisionName: 'Cellular',
+    outletCode: 'T3IOUT',
+    outletName: 'POINT CELLULLER-T3IOUT',
+    shift: 'Full Day (All Shifts)',
+    categoryService: 'SIM Card Wisatawan & Kuota Roaming',
     revenue: 110000000,
     target: 100000000,
+    cashAmount: 20000000,
+    edcAmount: 60000000,
+    qrisAmount: 30000000,
+    transactionCount: 310,
+    attachmentName: 'slip_settlement_bca_t3i.pdf',
     notes: 'Launching Aksesoris Flagship',
     updatedBy: 'Admin Cellular',
     status: 'APPROVED',
@@ -52,8 +79,16 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
     date: '2026-09-03',
     division: 'REFL',
     divisionName: 'Refleksi',
+    outletCode: 'T2FA',
+    outletName: 'SERENITY BLOSSOMS-T2FA',
+    shift: 'Siang/Sore (14:00 - 22:00)',
+    categoryService: 'Pijat Relaksasi Refleksi Bandara',
     revenue: 28000000,
     target: 30000000,
+    cashAmount: 8000000,
+    edcAmount: 15000000,
+    qrisAmount: 5000000,
+    transactionCount: 95,
     notes: 'Jam sibuk sore hari',
     updatedBy: 'Admin Refleksi',
     status: 'REJECTED',
@@ -65,8 +100,17 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
     date: '2026-09-03',
     division: 'MINI',
     divisionName: 'Minimarket',
+    outletCode: 'T3I',
+    outletName: 'M-MART-T3I',
+    shift: 'Full Day (All Shifts)',
+    categoryService: 'Groceries, Minuman & Snack Bandara',
     revenue: 65000000,
     target: 60000000,
+    cashAmount: 25000000,
+    edcAmount: 25000000,
+    qrisAmount: 15000000,
+    transactionCount: 420,
+    attachmentName: 'rekap_kasir_mmart_t3i.pdf',
     notes: 'Penjualan groceries stabil',
     updatedBy: 'Admin Minimarket',
     status: 'PENDING_REVIEW',
@@ -77,8 +121,17 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
     date: '2026-09-03',
     division: 'FNB',
     divisionName: 'Food & Beverage',
+    outletCode: 'T3INT',
+    outletName: 'BAKSO ZURO-T3INT',
+    shift: 'Full Day (All Shifts)',
+    categoryService: 'Food & Beverage Terminal 3',
     revenue: 85000000,
     target: 75000000,
+    cashAmount: 30000000,
+    edcAmount: 35000000,
+    qrisAmount: 20000000,
+    transactionCount: 380,
+    attachmentName: 'settlement_edc_mandiri_fnb.pdf',
     notes: 'Event Kuliner Malam',
     updatedBy: 'Admin FnB',
     status: 'APPROVED',
@@ -91,8 +144,16 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
     date: '2026-09-03',
     division: 'ACC',
     divisionName: 'Accounting & Finance',
+    outletCode: 'ACC-001',
+    outletName: 'Accounting Head Office',
+    shift: 'Full Day (All Shifts)',
+    categoryService: 'Pendapatan Jasa Shared Accounting',
     revenue: 150000000,
     target: 140000000,
+    cashAmount: 0,
+    edcAmount: 0,
+    qrisAmount: 150000000,
+    transactionCount: 15,
     notes: 'Pencatatan pendapatan jasa & pembukuan',
     updatedBy: 'Admin Accounting',
     status: 'PENDING_REVIEW',
@@ -103,8 +164,17 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
     date: '2026-09-03',
     division: 'MC',
     divisionName: 'Money Changer',
+    outletCode: 'MCT3-I',
+    outletName: 'MONEY CHANGER-MCT3-I',
+    shift: 'Full Day (All Shifts)',
+    categoryService: 'Transaksi Valas & Penukaran Mata Uang',
     revenue: 210000000,
     target: 200000000,
+    cashAmount: 90000000,
+    edcAmount: 70000000,
+    qrisAmount: 50000000,
+    transactionCount: 140,
+    attachmentName: 'rekap_transaksi_valas_mct3.pdf',
     notes: 'Lonjakan transaksi valas',
     updatedBy: 'Admin Money Changer',
     status: 'APPROVED',
@@ -288,15 +358,80 @@ export const useApprovalStore = create<ApprovalStoreState>((set, get) => ({
       submittedAt,
     };
 
+    // Build diff fields dynamically
+    const diffFields = [
+      {
+        label: 'Target Harian',
+        originalValue: `Rp ${reportData.target.toLocaleString('id-ID')}`,
+        proposedValue: `Rp ${reportData.target.toLocaleString('id-ID')}`,
+        isChanged: false,
+      },
+      {
+        label: 'Realisasi Pendapatan',
+        originalValue: 'Rp 0',
+        proposedValue: `Rp ${reportData.revenue.toLocaleString('id-ID')}`,
+        diffText: `+Rp ${reportData.revenue.toLocaleString('id-ID')}`,
+        isChanged: true,
+      },
+    ];
+
+    if (reportData.outletName) {
+      diffFields.push({
+        label: 'Outlet / Unit Kerja',
+        originalValue: '-',
+        proposedValue: `${reportData.outletCode ?? ''} - ${reportData.outletName}`,
+        isChanged: true,
+      });
+    }
+
+    if (reportData.cashAmount !== undefined || reportData.edcAmount !== undefined || reportData.qrisAmount !== undefined) {
+      const c = (reportData.cashAmount ?? 0).toLocaleString('id-ID');
+      const e = (reportData.edcAmount ?? 0).toLocaleString('id-ID');
+      const q = (reportData.qrisAmount ?? 0).toLocaleString('id-ID');
+      diffFields.push({
+        label: 'Rincian Kanal Kasir',
+        originalValue: '-',
+        proposedValue: `Tunai: Rp ${c} | EDC: Rp ${e} | QRIS: Rp ${q}`,
+        isChanged: true,
+      });
+    }
+
+    if (reportData.transactionCount) {
+      diffFields.push({
+        label: 'Volume Transaksi',
+        originalValue: '-',
+        proposedValue: `${reportData.transactionCount.toLocaleString('id-ID')} Struk / Pax`,
+        isChanged: true,
+      });
+    }
+
+    if (reportData.attachmentName) {
+      diffFields.push({
+        label: 'Lampiran Slip Kasir / Settlement',
+        originalValue: '-',
+        proposedValue: reportData.attachmentName,
+        isChanged: true,
+      });
+    }
+
+    diffFields.push({
+      label: 'Catatan Lapangan',
+      originalValue: '-',
+      proposedValue: reportData.notes || 'Tanpa catatan',
+      isChanged: Boolean(reportData.notes),
+    });
+
     // Auto-generate matching ApprovalRequest
     const newApproval: ApprovalRequest = {
       id: `app-daily-${newId}`,
       referenceNo: `REQ-DAILY-${newId.slice(-6)}`,
       category: 'daily_revenue',
-      title: `Laporan Omzet Harian Divisi ${reportData.divisionName} (${reportData.date})`,
+      title: reportData.outletName
+        ? `Laporan Omzet Harian Divisi ${reportData.divisionName} - ${reportData.outletName} (${reportData.date})`
+        : `Laporan Omzet Harian Divisi ${reportData.divisionName} (${reportData.date})`,
       description:
         reportData.notes ||
-        `Pengajuan omzet operasional harian divisi ${reportData.divisionName}.`,
+        `Pengajuan omzet operasional harian divisi ${reportData.divisionName}${reportData.outletName ? ` di unit ${reportData.outletName}` : ''}.`,
       divisionCode: reportData.division,
       divisionName: reportData.divisionName,
       amount: reportData.revenue,
@@ -312,27 +447,7 @@ export const useApprovalStore = create<ApprovalStoreState>((set, get) => ({
         reportData.revenue < reportData.target * 0.8
           ? 'Realisasi harian di bawah 80% dari target divisi.'
           : undefined,
-      diffFields: [
-        {
-          label: 'Target Harian',
-          originalValue: `Rp ${reportData.target.toLocaleString('id-ID')}`,
-          proposedValue: `Rp ${reportData.target.toLocaleString('id-ID')}`,
-          isChanged: false,
-        },
-        {
-          label: 'Realisasi Pendapatan',
-          originalValue: 'Rp 0',
-          proposedValue: `Rp ${reportData.revenue.toLocaleString('id-ID')}`,
-          diffText: `+Rp ${reportData.revenue.toLocaleString('id-ID')}`,
-          isChanged: true,
-        },
-        {
-          label: 'Catatan Lapangan',
-          originalValue: '-',
-          proposedValue: reportData.notes || 'Tanpa catatan',
-          isChanged: Boolean(reportData.notes),
-        },
-      ],
+      diffFields,
     };
 
     set((state) => ({
