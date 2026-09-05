@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Building2,
-  Calendar,
-  Clock,
   DollarSign,
   CreditCard,
   QrCode,
   Wallet,
-  Receipt,
   FileCheck,
   AlertCircle,
   CheckCircle2,
   Lock,
-  Calculator,
-  Upload,
-  Sparkles,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -58,89 +53,81 @@ const DIVISION_SERVICE_CATEGORIES: Record<string, string[]> = {
     'Powerbank & Perangkat Seluler Darurat',
   ],
   REFL: [
-    'Pijat Relaksasi Refleksi 30 Menit',
-    'Pijat Relaksasi Refleksi 60 Menit',
-    'Head, Shoulder & Back Acupressure',
-    'Sewa Kursi Pijat Digital Terminal',
-    'Minyak Aromaterapi & Herbal Care',
+    'Foot Reflexology (30 / 60 Menit)',
+    'Body Massage & Relaksasi Transit',
+    'Neck & Shoulder Express Massage',
+    'Produk Aromatherapy & Essential Oils',
   ],
   MINI: [
-    'Minuman Dingin, Kopi Botol & Air Mineral',
-    'Snack, Makanan Ringan & Biskuit',
-    'Travel Toiletries & Perlengkapan Pribadi',
-    'Rokok, Korek Api & Permen Kasir',
-    'Oleh-oleh & Merchandise Bandara',
+    'Minuman Dingin, Kopi & Air Mineral',
+    'Snacks, Roti & Makanan Siap Saji',
+    'Travel Essentials & Perlengkapan Mandi',
+    'Rokok & Permen Kasir Bandara',
+    'Souvenir & Oleh-Oleh Khas Daerah',
   ],
   FNB: [
     'Menu Makanan Utama (Bakso / Nasi / Mie)',
-    'Kopi Spesialis & Minuman Segar',
-    'Roti, Pastry & Kudapan Cepat Saji',
-    'Paket Sarapan & Makan Siang Combo',
-    'Central Kitchen & Bahan Baku Olahan',
+    'Paket Makanan Cepat Saji (Fast Food)',
+    'Kopi Seduh, Teh & Minuman Dingin',
+    'Pastry, Donat & Snack Transit',
+    'Paket Takeaway & Makanan Kotak',
   ],
   MC: [
-    'Penukaran Valas Mayor (USD, EUR, SGD)',
-    'Penukaran Valas Regional (MYR, THB, AUD)',
-    'Penukaran Valas Haji/Umrah (SAR)',
-    'Komisi Transaksi Kurs & Remittance',
+    'Penukaran Valuta Asing Kertas (Banknotes)',
+    'Transaksi Beli Valas (Inbound Passenger)',
+    'Transaksi Jual Valas (Outbound Passenger)',
+    'Layanan Remittance & Pengiriman Uang',
   ],
   ACC: [
-    'Pendapatan Jasa Shared Services',
-    'Manajemen Fee Head Office',
-    'Pendapatan Jasa Pembukuan & Rekonsiliasi',
-    'Jasa Administrasi & Verifikasi Laporan',
+    'Rekonsiliasi Kas Toko Seluruh Outlet',
+    'Setoran Kas Fisik Kasir ke Rekening Utama',
+    'Penyesuaian Selisih Kasir & Admin',
   ],
 };
 
 const DIVISION_NAMES: Record<string, string> = {
-  WRAP: 'Wrapping',
-  CELL: 'Cellular',
-  REFL: 'Refleksi',
-  MINI: 'Minimarket',
+  WRAP: 'Wrapping & Luggage',
+  CELL: 'Cellular & Gadget',
+  REFL: 'Refleksi & Fragrance',
+  MINI: 'Minimarket & Kiosk',
   FNB: 'Food & Beverage',
   MC: 'Money Changer',
-  ACC: 'Accounting & Finance',
+  ACC: 'Accounting Center',
 };
 
 export function DailyReportInputModal({
   isOpen,
   onClose,
-  userRole,
   userDivision,
   userName,
   onSubmit,
 }: DailyReportInputModalProps) {
-  // Form State
-  const [formDate, setFormDate] = useState('2026-09-03');
-  const [formDivision, setFormDivision] = useState<DailyRecord['division']>(
-    (userDivision as DailyRecord['division']) ?? 'WRAP'
-  );
-  const [formOutletCode, setFormOutletCode] = useState<string>('');
+  const initialDivision: DailyRecord['division'] =
+    userDivision && userDivision in DEFAULT_TARGETS
+      ? (userDivision as DailyRecord['division'])
+      : 'WRAP';
+
+  const [formDivision, setFormDivision] = useState<DailyRecord['division']>(initialDivision);
+  const activeDivision = userDivision ? (userDivision as DailyRecord['division']) : formDivision;
+
+  const [formDate, setFormDate] = useState<string>(() => new Date().toISOString().split('T')[0] ?? '');
   const [formShift, setFormShift] = useState<DailyRecord['shift']>('Full Day (All Shifts)');
+  const [formOutletCode, setFormOutletCode] = useState<string>('');
   const [formCategory, setFormCategory] = useState<string>('');
-  const [formRevenue, setFormRevenue] = useState<string>('45000000');
   const [formTarget, setFormTarget] = useState<string>('40000000');
-
-  // Breakdown kanal pembayaran kasir
-  const [formCash, setFormCash] = useState<string>('15000000');
-  const [formEdc, setFormEdc] = useState<string>('20000000');
-  const [formQris, setFormQris] = useState<string>('10000000');
-
-  // Metrik transaksi & bukti
-  const [formTxCount, setFormTxCount] = useState<string>('150');
+  const [formRevenue, setFormRevenue] = useState<string>('');
+  const [formCash, setFormCash] = useState<string>('');
+  const [formEdc, setFormEdc] = useState<string>('');
+  const [formQris, setFormQris] = useState<string>('');
+  const [formTxCount, setFormTxCount] = useState<string>('');
   const [formBatchNo, setFormBatchNo] = useState<string>('');
   const [formAttachmentName, setFormAttachmentName] = useState<string>('');
   const [formNotes, setFormNotes] = useState<string>('');
 
-  // UI state
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Active division context
-  const activeDivision = userDivision ? (userDivision as DailyRecord['division']) : formDivision;
-
-  // Real outlets according to current division
-  const availableOutlets = getRealOutlets(activeDivision);
+  const availableOutlets: RealOutlet[] = getRealOutlets(activeDivision);
 
   // Reset form when modal opens or division changes
   useEffect(() => {
@@ -196,7 +183,7 @@ export function DailyReportInputModal({
     setFormRevenue(String(sumBreakdown));
   };
 
-  // Auto-distribute Total Omset to Breakdown (40% EDC, 35% QRIS, 25% Tunai)
+  // Auto-distribute Total Omset to Breakdown (45% EDC, 30% QRIS, 25% Tunai)
   const handleDistributePayment = () => {
     if (numRevenue > 0) {
       const edcVal = Math.round(numRevenue * 0.45);
@@ -250,61 +237,61 @@ export function DailyReportInputModal({
     onClose();
   };
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="daily-report-input-title"
-      className="fixed inset-0 z-50 overflow-y-auto bg-navy/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-fade-in"
+      className="fixed inset-0 z-50 overflow-y-auto bg-navy/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 animate-fade-in"
       data-testid="daily-report-input-modal"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in-up"
+        className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-fade-in-up"
       >
-        {/* Header Modal - Sticky Header */}
-        <div className="shrink-0 px-6 py-4 border-b border-line bg-slate-50/70 flex items-start justify-between">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-pill bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
-              <FileCheck className="h-3.5 w-3.5" /> Formulir Standar Pelaporan Omset Harian
+        {/* Header - Compact Single Line */}
+        <div className="shrink-0 px-5 py-3 border-b border-line bg-slate-50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+              <FileCheck className="h-4 w-4" />
             </div>
-            <h3 id="daily-report-input-title" className="mt-1 text-lg sm:text-xl font-black tracking-tight text-navy">
-              Input Omset Harian — Divisi {DIVISION_NAMES[activeDivision] ?? activeDivision}
-            </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
-              SOP Otorisasi: Rekam transaksi per outlet bandara, rincian pembayaran kasir, dan lampiran settlement EDC.
-            </p>
+            <div>
+              <h3 id="daily-report-input-title" className="text-sm sm:text-base font-bold text-navy leading-tight">
+                Input Omset Harian — Divisi {DIVISION_NAMES[activeDivision] ?? activeDivision}
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Pencatatan realisasi omset, rincian kasir, dan settlement harian
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-card p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200/60 transition-colors"
             data-testid="btn-close-modal"
             aria-label="Tutup Modal"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Scrollable Form Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
-          {/* Validation Error Banner */}
+        {/* Scrollable Form Body - Clean, Compact Spacing */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 text-xs">
           {validationError && (
-            <div className="rounded-card bg-danger/10 border border-danger/30 p-3 flex items-center gap-2 text-xs text-danger font-semibold">
-              <AlertCircle className="h-4 w-4 shrink-0" />
+            <div className="rounded-lg bg-danger/10 border border-danger/30 p-2 flex items-center gap-2 text-danger font-medium text-xs">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
               <span>{validationError}</span>
             </div>
           )}
-          {/* SECTION 1: Identitas & Lokasi Outlet */}
-          <div className="rounded-card-lg border border-line bg-slate-50/60 p-4 space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5 text-primary" /> 1. Identitas Unit Operasional & Jadwal
-            </h4>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {/* Tanggal */}
+          {/* SEKSI 1: Outlet, Tanggal, Shift, Divisi */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3 space-y-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block font-semibold text-slate-700 mb-1">
                   Tanggal Laporan <span className="text-danger">*</span>
                 </label>
                 <Input
@@ -313,26 +300,24 @@ export function DailyReportInputModal({
                   onChange={(e) => setFormDate(e.target.value)}
                   required
                   data-testid="input-date"
+                  className="h-8 text-xs"
                 />
               </div>
 
-              {/* Divisi */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Divisi Operasional <span className="text-danger">*</span>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Divisi <span className="text-danger">*</span>
                 </label>
                 {userDivision ? (
-                  <div className="flex items-center justify-between rounded-input border border-line bg-white p-2.5 text-xs font-bold text-navy shadow-2xs">
-                    <span>{userDivision} - {DIVISION_NAMES[userDivision]}</span>
-                    <span className="flex items-center gap-1 text-[11px] text-slate-400 font-normal">
-                      <Lock className="h-3 w-3" /> Scope Terkunci
-                    </span>
+                  <div className="flex items-center justify-between h-8 px-2.5 rounded-input border border-line bg-white text-xs font-bold text-navy">
+                    <span className="truncate">{userDivision} - {DIVISION_NAMES[userDivision]}</span>
+                    <Lock className="h-3 w-3 text-slate-400 shrink-0" />
                   </div>
                 ) : (
                   <select
                     value={formDivision}
                     onChange={(e) => handleDivisionChange(e.target.value as DailyRecord['division'])}
-                    className="w-full rounded-input border border-line bg-white p-2.5 text-xs font-medium text-navy focus:border-primary focus:outline-none shadow-2xs"
+                    className="w-full h-8 rounded-input border border-line bg-white px-2 text-xs font-medium text-navy focus:border-primary focus:outline-none"
                     data-testid="select-division"
                   >
                     {DIVISIONS.map((d) => (
@@ -344,335 +329,282 @@ export function DailyReportInputModal({
                 )}
               </div>
 
-              {/* Shift Kerja */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Shift Operasional</label>
+                <label className="block font-semibold text-slate-700 mb-1">Shift</label>
                 <select
                   value={formShift}
                   onChange={(e) => setFormShift(e.target.value as DailyRecord['shift'])}
-                  className="w-full rounded-input border border-line bg-white p-2.5 text-xs font-medium text-navy focus:border-primary focus:outline-none shadow-2xs"
+                  className="w-full h-8 rounded-input border border-line bg-white px-2 text-xs font-medium text-navy focus:border-primary focus:outline-none"
                 >
-                  <option value="Full Day (All Shifts)">Full Day (Akumulasi 24 Jam)</option>
-                  <option value="Pagi (06:00 - 14:00)">Shift Pagi (06:00 - 14:00)</option>
-                  <option value="Siang/Sore (14:00 - 22:00)">Shift Siang/Sore (14:00 - 22:00)</option>
+                  <option value="Full Day (All Shifts)">Full Day (24 Jam)</option>
+                  <option value="Pagi (06:00 - 14:00)">Pagi (06:00 - 14:00)</option>
+                  <option value="Siang/Sore (14:00 - 22:00)">Siang/Sore (14:00 - 22:00)</option>
                 </select>
               </div>
             </div>
 
-            {/* Pilihan Outlet Sobat API Nyata */}
-            <div className="pt-2 border-t border-line/60">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1.5">
-                <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                  <Building2 className="h-3.5 w-3.5 text-primary" /> Outlet / Titik Layanan Bandara ({availableOutlets.length} Unit Tersedia)
+            {/* Outlet Sobat API & Kategori */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-slate-200/60">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Outlet Bandara ({availableOutlets.length} Unit)
                 </label>
-                {selectedOutletObj?.address && (
-                  <span className="text-[11px] text-slate-500 font-mono italic">
-                    Lokasi: {selectedOutletObj.address}
-                  </span>
-                )}
+                <select
+                  value={formOutletCode}
+                  onChange={(e) => setFormOutletCode(e.target.value)}
+                  className="w-full h-8 rounded-input border border-line bg-white px-2 text-xs font-medium text-navy focus:border-primary focus:outline-none"
+                  data-testid="select-outlet"
+                >
+                  <option value="">-- Pilih Outlet Bandara --</option>
+                  {availableOutlets.map((o) => (
+                    <option key={o.code} value={o.code}>
+                      {o.code} — {o.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <select
-                value={formOutletCode}
-                onChange={(e) => setFormOutletCode(e.target.value)}
-                className="w-full rounded-input border border-line bg-white p-2.5 text-xs font-semibold text-navy focus:border-primary focus:outline-none shadow-2xs"
-                data-testid="select-outlet"
-              >
-                <option value="">-- Pilih Outlet / Cabang Spesifik --</option>
-                {availableOutlets.map((o) => (
-                  <option key={o.code} value={o.code}>
-                    {o.code} — {o.name} {o.address ? `(${o.address})` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Kategori Layanan Spesifik Divisi */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Layanan / Kategori Produk Dominan
-              </label>
-              <select
-                value={formCategory}
-                onChange={(e) => setFormCategory(e.target.value)}
-                className="w-full rounded-input border border-line bg-white p-2.5 text-xs font-medium text-navy focus:border-primary focus:outline-none shadow-2xs"
-              >
-                {(DIVISION_SERVICE_CATEGORIES[activeDivision] ?? []).map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Kategori Layanan / Produk
+                </label>
+                <select
+                  value={formCategory}
+                  onChange={(e) => setFormCategory(e.target.value)}
+                  className="w-full h-8 rounded-input border border-line bg-white px-2 text-xs font-medium text-navy focus:border-primary focus:outline-none"
+                >
+                  {(DIVISION_SERVICE_CATEGORIES[activeDivision] ?? []).map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          {/* SECTION 2: Target & Realisasi Omset Finansial */}
-          <div className="rounded-card-lg border border-line bg-slate-50/60 p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                <DollarSign className="h-3.5 w-3.5 text-success" /> 2. Omset & Target Operasional
-              </h4>
-              <span
-                className={`inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-xs font-bold ${
-                  achievementPct >= 100
-                    ? 'bg-success/10 text-success border border-success/30'
-                    : achievementPct >= 80
-                    ? 'bg-info/10 text-info border border-info/30'
-                    : 'bg-warning/10 text-warning border border-warning/30'
-                }`}
-              >
-                <Sparkles className="h-3 w-3" /> Pencapaian Target: {achievementPct}%
+          {/* SEKSI 2: Target & Realisasi Omset */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                <DollarSign className="h-3.5 w-3.5 text-success" /> Omset & Target Harian
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                achievementPct >= 100 ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'
+              }`}>
+                Capaian: {achievementPct}%
               </span>
             </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {/* Target Harian */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Target Harian (Rp)
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-slate-700">Target Harian (Rp)</label>
+                  <span className="text-[10px] text-slate-500 font-mono">Rp {numTarget.toLocaleString('id-ID')}</span>
+                </div>
                 <Input
                   type="number"
                   value={formTarget}
                   onChange={(e) => setFormTarget(e.target.value)}
-                  placeholder="Contoh: 40000000"
+                  placeholder="40000000"
                   data-testid="input-target"
+                  className="h-8 text-xs font-mono"
                 />
-                <p className="mt-1 text-[11px] text-slate-500 font-mono">
-                  Rp {numTarget.toLocaleString('id-ID')}
-                </p>
               </div>
 
-              {/* Realisasi Omset */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Total Realisasi Omset Kasir (Rp) <span className="text-danger">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-slate-700">Realisasi Omset (Rp) <span className="text-danger">*</span></label>
+                  <span className="text-[10px] text-primary font-bold font-mono">Rp {numRevenue.toLocaleString('id-ID')}</span>
+                </div>
                 <Input
                   type="number"
                   value={formRevenue}
                   onChange={(e) => setFormRevenue(e.target.value)}
                   required
-                  placeholder="Contoh: 45000000"
+                  placeholder="45000000"
                   data-testid="input-revenue"
+                  className="h-8 text-xs font-mono font-bold"
                 />
-                <p className="mt-1 text-[11px] font-bold font-mono text-primary">
-                  Rp {numRevenue.toLocaleString('id-ID')}
-                </p>
               </div>
             </div>
           </div>
 
-          {/* SECTION 3: Rincian Kanal Pembayaran Kasir (SOP Rekonsiliasi Kasir & Bank) */}
-          <div className="rounded-card-lg border border-line bg-slate-50/60 p-4 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                  <CreditCard className="h-3.5 w-3.5 text-primary" /> 3. Rincian Metode Pembayaran Kasir
-                </h4>
-                <p className="text-[11px] text-slate-500">
-                  Digunakan sebagai dasar pencocokan otomatis pada modul Rekonsiliasi Bank.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
+          {/* SEKSI 3: Rincian Kanal Pembayaran Kasir */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                <CreditCard className="h-3.5 w-3.5 text-primary" /> Rincian Metode Pembayaran Kasir
+              </span>
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={handleSumToRevenue}
-                  className="inline-flex items-center gap-1 rounded-card bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-xs font-bold transition-colors"
-                  title="Gunakan jumlah rincian kasir sebagai total omset"
+                  className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                  title="Gunakan total rincian sebagai nilai omset"
                 >
-                  <Calculator className="h-3 w-3" /> Jumlahkan ke Total
+                  Hitung Total
                 </button>
                 <button
                   type="button"
                   onClick={handleDistributePayment}
-                  className="inline-flex items-center gap-1 rounded-card bg-slate-200 hover:bg-slate-300 text-slate-700 px-2.5 py-1 text-xs font-semibold transition-colors"
+                  className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors"
                   title="Bagi rata proporsi kasir otomatis"
                 >
-                  Bagi Otomatis
+                  Bagi Rata
                 </button>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3 pt-2">
-              {/* Cash / Tunai */}
-              <div className="rounded-card border border-line bg-white p-3 shadow-2xs">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-1">
-                  <Wallet className="h-3.5 w-3.5 text-amber-600" /> Uang Tunai / Cash
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div>
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
+                    <Wallet className="h-3 w-3 text-amber-600" /> Cash / Tunai
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">Rp {numCash.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
                   type="number"
                   value={formCash}
                   onChange={(e) => setFormCash(e.target.value)}
                   placeholder="0"
-                  className="text-xs font-mono"
+                  className="h-8 text-xs font-mono"
                   data-testid="input-cash"
                 />
-                <p className="mt-1 text-[10px] text-slate-400 font-mono">
-                  Rp {numCash.toLocaleString('id-ID')}
-                </p>
               </div>
 
-              {/* EDC Mesin */}
-              <div className="rounded-card border border-line bg-white p-3 shadow-2xs">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-1">
-                  <CreditCard className="h-3.5 w-3.5 text-blue-600" /> EDC (BCA / Mandiri)
+              <div>
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
+                    <CreditCard className="h-3 w-3 text-blue-600" /> Mesin EDC
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">Rp {numEdc.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
                   type="number"
                   value={formEdc}
                   onChange={(e) => setFormEdc(e.target.value)}
                   placeholder="0"
-                  className="text-xs font-mono"
+                  className="h-8 text-xs font-mono"
                   data-testid="input-edc"
                 />
-                <p className="mt-1 text-[10px] text-slate-400 font-mono">
-                  Rp {numEdc.toLocaleString('id-ID')}
-                </p>
               </div>
 
-              {/* QRIS / Transfer */}
-              <div className="rounded-card border border-line bg-white p-3 shadow-2xs">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-1">
-                  <QrCode className="h-3.5 w-3.5 text-emerald-600" /> QRIS & Transfer Bank
+              <div>
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[11px] font-medium text-slate-600 flex items-center gap-1">
+                    <QrCode className="h-3 w-3 text-emerald-600" /> QRIS / Transfer
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">Rp {numQris.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
                   type="number"
                   value={formQris}
                   onChange={(e) => setFormQris(e.target.value)}
                   placeholder="0"
-                  className="text-xs font-mono"
+                  className="h-8 text-xs font-mono"
                   data-testid="input-qris"
                 />
-                <p className="mt-1 text-[10px] text-slate-400 font-mono">
-                  Rp {numQris.toLocaleString('id-ID')}
-                </p>
               </div>
             </div>
 
-            {/* Rekapitulasi Klop Status */}
-            <div
-              className={`rounded-card p-2.5 flex items-center justify-between text-xs font-semibold ${
-                isBalanced
-                  ? 'bg-success/10 text-success border border-success/30'
-                  : 'bg-warning/10 text-warning border border-warning/30'
-              }`}
-            >
-              <div className="flex items-center gap-1.5">
-                {isBalanced ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                <span>
-                  Total Rincian: Rp {sumBreakdown.toLocaleString('id-ID')}{' '}
-                  {isBalanced ? '(100% Klop dengan Total Omset)' : `(Selisih Rp ${Math.abs(numRevenue - sumBreakdown).toLocaleString('id-ID')})`}
-                </span>
-              </div>
+            {/* Status Klop Inline */}
+            <div className={`px-2.5 py-1.5 rounded-md flex items-center justify-between text-[11px] font-semibold ${
+              isBalanced ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
+            }`}>
+              <span>
+                Total Rincian: Rp {sumBreakdown.toLocaleString('id-ID')}{' '}
+                {isBalanced ? '(Klop 100%)' : `(Selisih Rp ${Math.abs(numRevenue - sumBreakdown).toLocaleString('id-ID')})`}
+              </span>
               {!isBalanced && (
-                <button
-                  type="button"
-                  onClick={handleSumToRevenue}
-                  className="text-[11px] underline font-bold hover:text-navy"
-                >
-                  Samakan Total
+                <button type="button" onClick={handleSumToRevenue} className="underline font-bold">
+                  Samakan
                 </button>
               )}
             </div>
           </div>
 
-          {/* SECTION 4: Volume Transaksi & Lampiran Slip Settlement */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Volume Transaksi */}
-            <div className="rounded-card-lg border border-line bg-slate-50/60 p-4 space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                <Receipt className="h-3.5 w-3.5 text-slate-600" /> 4. Volume Transaksi Kasir
-              </h4>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Jumlah Transaksi / Struk (Pax)
-                </label>
-                <Input
-                  type="number"
-                  value={formTxCount}
-                  onChange={(e) => setFormTxCount(e.target.value)}
-                  placeholder="Contoh: 150"
-                  data-testid="input-tx-count"
-                />
-                <p className="mt-1 text-[11px] text-slate-500 font-mono">
-                  Rata-rata Nilai Belanja (Basket Size):{' '}
-                  <strong className="text-navy">Rp {avgTicket.toLocaleString('id-ID')}</strong> / pax
-                </p>
-              </div>
+          {/* SEKSI 4: Volume Transaksi & Lampiran Batch EDC */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-2.5">
+              <label className="block font-semibold text-slate-700 mb-1">
+                Jumlah Transaksi (Pax / Struk)
+              </label>
+              <Input
+                type="number"
+                value={formTxCount}
+                onChange={(e) => setFormTxCount(e.target.value)}
+                placeholder="150"
+                data-testid="input-tx-count"
+                className="h-8 text-xs"
+              />
+              <p className="mt-1 text-[10px] text-slate-500 font-mono">
+                Basket Size: <strong>Rp {avgTicket.toLocaleString('id-ID')}</strong> / pax
+              </p>
             </div>
 
-            {/* Lampiran Slip Settlement EDC / Kasir */}
-            <div className="rounded-card-lg border border-line bg-slate-50/60 p-4 space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                <Upload className="h-3.5 w-3.5 text-slate-600" /> 5. Lampiran Bukti Setoran / EDC
-              </h4>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  No. Referensi / Batch Settlement EDC
-                </label>
+            <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-2.5">
+              <label className="block font-semibold text-slate-700 mb-1">
+                Settlement EDC / Slip Bukti
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
                 <Input
                   type="text"
                   value={formBatchNo}
                   onChange={(e) => setFormBatchNo(e.target.value)}
-                  placeholder="Contoh: BATCH-BCA-849102"
+                  placeholder="Batch EDC"
                   data-testid="input-batch-no"
+                  className="h-8 text-xs"
                 />
-                <div className="mt-2 flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={formAttachmentName}
-                    onChange={(e) => setFormAttachmentName(e.target.value)}
-                    placeholder="Nama file lampiran (slip_edc_outlet.pdf)"
-                    className="w-full text-[11px] rounded-input border border-line p-1.5 bg-white font-mono"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={formAttachmentName}
+                  onChange={(e) => setFormAttachmentName(e.target.value)}
+                  placeholder="Nama file bukti"
+                  className="h-8 rounded-input border border-line px-2 text-xs bg-white font-mono"
+                />
               </div>
             </div>
           </div>
 
-          {/* SECTION 5: Catatan Operasional */}
-          {/* SECTION 6: Catatan Operasional */}
+          {/* SEKSI 5: Catatan Operasional */}
           <div>
-            <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
-              Catatan Operasional & Kendala Lapangan
+            <label className="block font-semibold text-slate-700 mb-1">
+              Catatan Operasional (Opsional)
             </label>
             <Input
               value={formNotes}
               onChange={(e) => setFormNotes(e.target.value)}
-              placeholder="Contoh: Lonjakan penumpang penerbangan malam, promosi bundling berhasil..."
+              placeholder="Catatan kondisi operasional lapangan..."
               data-testid="input-notes"
+              className="h-8 text-xs"
             />
           </div>
         </div>
 
-        {/* Footer Actions - Sticky Bottom */}
-        <div className="shrink-0 px-6 py-4 border-t border-line bg-slate-50/90 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs">
+        {/* Footer - Fixed Single Row */}
+        <div className="shrink-0 px-5 py-3 border-t border-line bg-slate-50 flex items-center justify-between">
+          <div className="text-[11px]">
             {numRevenue > 0 && isBalanced ? (
-              <span className="text-success font-semibold flex items-center gap-1.5 text-xs">
-                <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-                Rincian klop 100% (Rp {numRevenue.toLocaleString('id-ID')})
+              <span className="text-success font-semibold flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Rincian klop 100%
               </span>
             ) : numRevenue > 0 ? (
-              <span className="text-danger font-semibold flex items-center gap-1.5 text-xs">
-                <AlertCircle className="h-4 w-4 text-danger shrink-0" />
-                Selisih Rp {Math.abs(numRevenue - sumBreakdown).toLocaleString('id-ID')} belum klop
+              <span className="text-danger font-semibold flex items-center gap-1">
+                <AlertCircle className="h-3.5 w-3.5 text-danger" /> Selisih Rp {Math.abs(numRevenue - sumBreakdown).toLocaleString('id-ID')}
               </span>
             ) : (
-              <span className="text-slate-400 text-xs">
-                Lengkapi omset & rincian pembayaran kasir
-              </span>
+              <span className="text-slate-400">Masukkan omset kasir</span>
             )}
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-            <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting} className="h-8 text-xs px-3">
               Batal
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-primary hover:bg-primary-dark text-white font-bold text-xs shadow-md"
+              className="h-8 bg-primary hover:bg-primary-dark text-white font-bold text-xs px-4 shadow-sm"
               data-testid="btn-submit-daily-report"
             >
               {isSubmitting ? 'Memproses...' : 'Submit Laporan ke Manager'}
@@ -682,4 +614,6 @@ export function DailyReportInputModal({
       </form>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 }
