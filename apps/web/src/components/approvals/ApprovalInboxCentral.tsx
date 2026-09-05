@@ -428,8 +428,8 @@ export function ApprovalInboxCentral({
             <option value="REFL">Refleksi (REFL)</option>
             <option value="MINI">Minimarket (MINI)</option>
             <option value="FNB">Food & Beverage (FNB)</option>
-            <option value="FIN">Finance (FIN)</option>
             <option value="MC">Money Changer (MC)</option>
+            <option value="ACC">Accounting & Finance (ACC)</option>
           </select>
 
           {/* Category Filter */}

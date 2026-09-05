@@ -40,7 +40,7 @@ function TestHarness() {
         data-testid="set-outlet"
         onClick={() => {
           const next = new URLSearchParams(params);
-          next.set('outletCode', 'WRAP-001');
+          next.set('outletCode', 'T3-A');
           setParams(next);
         }}
       >
@@ -78,7 +78,7 @@ describe('ORG-05 Filter state di URL', () => {
     // outlet enabled after division selected
     expect(outletSelect).not.toBeDisabled();
     await user.click(screen.getByTestId('set-outlet'));
-    await waitFor(() => expect(screen.getByTestId('url-state').textContent).toContain('outletCode=WRAP-001'));
+    await waitFor(() => expect(screen.getByTestId('url-state').textContent).toContain('outletCode=T3-A'));
   });
 
   it('clear menghapus semua filter dari URL', async () => {
@@ -123,6 +123,6 @@ describe('ORG-05 Filter state di URL', () => {
     const options = Array.from((screen.getByTestId('filter-division') as HTMLSelectElement).options).map(
       (o) => o.value,
     );
-    expect(options).toEqual(expect.arrayContaining(['WRAP', 'CELL', 'REFL', 'MINI', 'FNB', 'FIN', 'MC']));
+    expect(options).toEqual(expect.arrayContaining(['WRAP', 'CELL', 'REFL', 'MINI', 'FNB', 'MC', 'ACC']));
   });
 });

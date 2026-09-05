@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { api } from '../api/client';
-import { DIVISIONS } from '../config/divisions';
+import { DIVISIONS, getRealOutlets } from '../config/divisions';
 import type { DivisionCode } from '../config/divisions';
 
 interface Division {
@@ -43,9 +43,13 @@ export function useOrgOutlets(divisionCode?: string) {
       const res = await api.get<Outlet[]>('/org/outlets', divisionCode ? { divisionCode } : undefined);
       return res.data;
     },
-    enabled: !!divisionCode,
     staleTime: 2 * 60 * 1000,
-    placeholderData: divisionCode ? ([{ code: `${divisionCode}-001` as string, name: `${divisionCode} 001`, divisionId: divisionCode, isActive: true }, { code: `${divisionCode}-002` as string, name: `${divisionCode} 002`, divisionId: divisionCode, isActive: true }] as Outlet[]) : undefined,
+    placeholderData: getRealOutlets(divisionCode).map((o) => ({
+      code: o.code,
+      name: o.name,
+      divisionId: o.divisionCode,
+      isActive: true,
+    })),
   });
 }
 

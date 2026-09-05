@@ -20,7 +20,7 @@ describe('ORG-06 RouteGuard per capability & division — 7 divisi', () => {
 
   it('canAccessDivision: BOD all 7, Manager strict 1:1', () => {
     const bod = { role: 'BOD' as Role, divisionCode: null };
-    for (const code of ['WRAP', 'CELL', 'REFL', 'MINI', 'FNB', 'FIN', 'MC']) {
+    for (const code of ['WRAP', 'CELL', 'REFL', 'MINI', 'FNB', 'MC', 'ACC']) {
       expect(canAccessDivision(bod, code)).toBe(true);
     }
     const mgrWrap = { role: 'MANAGER' as Role, divisionCode: 'WRAP' };

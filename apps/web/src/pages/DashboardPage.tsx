@@ -34,7 +34,7 @@ export default function DashboardPage() {
   const [pendingApprovals, setPendingApprovals] = useState([
     { id: '1', division: 'WRAP', name: 'Wrapping', revenue: 45000000, date: '2026-09-03', admin: 'Admin Wrapping' },
     { id: '4', division: 'MINI', name: 'Minimarket', revenue: 65000000, date: '2026-09-03', admin: 'Admin Minimarket' },
-    { id: '6', division: 'FIN', name: 'Finance', revenue: 150000000, date: '2026-09-03', admin: 'Admin Finance' },
+    { id: '6', division: 'ACC', name: 'Accounting & Finance', revenue: 150000000, date: '2026-09-03', admin: 'Admin Accounting' },
   ]);
 
   const filteredPending = pendingApprovals.filter((a) => {
