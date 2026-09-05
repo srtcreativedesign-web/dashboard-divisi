@@ -36,6 +36,8 @@ import { DetailSheet } from '../components/ui/DetailSheet';
 import { StickyContextFilterBar } from '../components/filters/StickyContextFilterBar';
 import { ExportReportModal } from '../components/reports/ExportReportModal';
 import { NotificationBell, AuditLogModal } from '../components/notifications';
+import { DisplayScaleControl } from '../components/ui/DisplayScaleControl';
+import { useDisplayScale } from '../context/DisplayScaleContext';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
@@ -87,6 +89,8 @@ export function AppLayout() {
     });
   };
 
+  const { setScale, zoomIn, zoomOut, resetScale } = useDisplayScale();
+
   const handleCommandAction = (actionId: string) => {
     if (actionId === 'act-open-detail-sheet') {
       setDetailSheetOpen(true);
@@ -96,6 +100,16 @@ export function AppLayout() {
       setExportModalOpen(true);
     } else if (actionId === 'act-open-audit-trail') {
       setAuditModalOpen(true);
+    } else if (actionId === 'act-scale-comfortable') {
+      setScale(110);
+    } else if (actionId === 'act-scale-large') {
+      setScale(120);
+    } else if (actionId === 'act-scale-standard') {
+      resetScale();
+    } else if (actionId === 'act-scale-zoom-in') {
+      zoomIn();
+    } else if (actionId === 'act-scale-zoom-out') {
+      zoomOut();
     }
   };
 
@@ -290,7 +304,11 @@ export function AppLayout() {
                 );
               })}
             </nav>
-            <div className="mt-4 border-t border-white/10 pt-4">
+            <div className="mt-4 border-t border-white/10 pt-4 space-y-3">
+              <div className="flex items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-xs text-white ring-1 ring-white/10">
+                <span className="font-semibold text-sky-100">Ukuran Tampilan</span>
+                <DisplayScaleControl compact />
+              </div>
               <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10">
                 <p className="text-xs font-semibold text-white">{user.name}</p>
                 <p className="text-[11px] text-sky-200/80">{roleLabel} · {scopeLabel}</p>
@@ -485,6 +503,9 @@ export function AppLayout() {
 
               {/* Smart Notification Center Bell & Popover */}
               <NotificationBell onOpenAuditModal={() => setAuditModalOpen(true)} />
+
+              {/* Universal Display Scale Control (Resize Ukuran Tampilan) */}
+              <DisplayScaleControl />
 
               {/* Active Role & Scope Pill */}
               <div className="hidden lg:flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200/60 px-3.5 py-1.5 text-xs shadow-2xs">
