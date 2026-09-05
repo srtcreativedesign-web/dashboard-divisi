@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   Building2,
@@ -36,13 +37,16 @@ export function DailyReportDetailModal({ report, isOpen, onClose }: DailyReportD
   const numTx = report.transactionCount ?? 0;
   const avgTicket = numTx > 0 ? Math.round(report.revenue / numTx) : 0;
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="daily-report-detail-title"
       className="fixed inset-0 z-50 overflow-y-auto bg-navy/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-fade-in"
       data-testid="daily-report-detail-modal"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in-up">
         {/* Header Modal - Sticky */}
@@ -261,4 +265,6 @@ export function DailyReportDetailModal({ report, isOpen, onClose }: DailyReportD
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 }

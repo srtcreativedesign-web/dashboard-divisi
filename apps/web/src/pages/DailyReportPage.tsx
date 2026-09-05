@@ -116,7 +116,7 @@ export default function DailyReportPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in-up relative" data-testid="daily-report-page">
+    <div className="space-y-6 relative min-h-full" data-testid="daily-report-page">
       {/* Pop-up Toast Feedback */}
       {toastMsg && (
         <div className="fixed top-20 right-6 z-50 flex items-center gap-2 rounded-card-lg bg-navy text-white px-4 py-3 shadow-2xl border border-primary/30 animate-fade-in-down text-xs font-semibold">
