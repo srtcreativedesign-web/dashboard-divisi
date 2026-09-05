@@ -119,11 +119,3 @@ export function getRealOutlets(divisionCode?: string): RealOutlet[] {
   return REAL_SOBAT_OUTLETS.filter((o) => o.divisionCode === divisionCode);
 }
 
-/**
- * @deprecated — diganti getRealOutlets. Dipertahankan sebagai fallback kompatibilitas nama lama.
- */
-export function getMockOutlets(divisionCode: string): string[] {
-  const outlets = getRealOutlets(divisionCode);
-  return outlets.map((o) => o.code);
-}
-

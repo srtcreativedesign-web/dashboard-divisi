@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button';
 import { PnlComparisonChart } from '../components/pnl/PnlComparisonChart';
 import { useAuth } from '../session/AuthContext';
 import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
+import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 
 interface PnlItem {
   id: string;
@@ -12,22 +13,20 @@ interface PnlItem {
   amount: number;
 }
 
-const INITIAL_PNL: PnlItem[] = [
-  { id: '1', section: 'Revenue', label: 'Pendapatan Sewa Tenant', amount: 850000000 },
-  { id: '2', section: 'Revenue', label: 'Pendapatan Komisi Penjualan', amount: 320000000 },
-  { id: '3', section: 'Revenue', label: 'Pendapatan Event & Utility', amount: 150000000 },
-  { id: '4', section: 'COGS', label: 'Harga Pokok Penjualan (HPP)', amount: 280000000 },
-  { id: '5', section: 'Opex', label: 'Gaji Karyawan & Tunjangan', amount: 240000000 },
-  { id: '6', section: 'Opex', label: 'Biaya Listrik, Air & Gas', amount: 95000000 },
-  { id: '7', section: 'Opex', label: 'Pemasaran, Promosi & Event', amount: 65000000 },
-  { id: '8', section: 'Opex', label: 'Pemeliharaan Gedung & Fasilitas', amount: 45000000 },
+const REAL_EXCEL_PNL: PnlItem[] = [
+  { id: '1', section: 'Revenue', label: 'Pendapatan Omset Operasional Wrapping (Excel Sheet)', amount: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue },
+  { id: '2', section: 'COGS', label: 'Bagi Hasil & Sewa Lokasi Bandara (PT Angkasa Pura)', amount: 1720636274 },
+  { id: '3', section: 'COGS', label: 'Beban Kemitraan KSO Lapangan HLP', amount: 30336954 },
+  { id: '4', section: 'Opex', label: 'Gaji, Insentif & Tunjangan Karyawan Lapangan', amount: 521906036 },
+  { id: '5', section: 'Opex', label: 'Beban Operasional Backoffice & Manajemen HO', amount: ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice },
+  { id: '6', section: 'Opex', label: 'Beban Angsuran Leasing & Pinjaman Mesin', amount: 83700000 },
 ];
 
 export default function PnlPage() {
   const { user } = useAuth();
   const isBod = user?.role === 'BOD';
 
-  const [pnlItems] = useState<PnlItem[]>(INITIAL_PNL);
+  const [pnlItems] = useState<PnlItem[]>(REAL_EXCEL_PNL);
 
   const totalRevenue = pnlItems.filter(i => i.section === 'Revenue').reduce((a, b) => a + b.amount, 0);
   const totalCogs = pnlItems.filter(i => i.section === 'COGS').reduce((a, b) => a + b.amount, 0);

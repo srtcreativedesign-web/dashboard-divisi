@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../session/AuthContext';
 import { hasCapability } from '../session/capability';
+import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 
 interface BudgetItem {
   id: string;
@@ -14,19 +15,54 @@ interface BudgetItem {
   status: 'Approved' | 'Pending Review' | 'Over Budget';
 }
 
-const INITIAL_BUDGETS: BudgetItem[] = [
-  { id: '1', category: 'Biaya Operasional (Opex)', allocated: 450000000, used: 310000000, division: 'WRAP', status: 'Approved' },
-  { id: '2', category: 'Pemasaran & Promosi', allocated: 200000000, used: 185000000, division: 'WRAP', status: 'Approved' },
-  { id: '3', category: 'Pengembangan SDM & Pelatihan', allocated: 120000000, used: 75000000, division: 'WRAP', status: 'Approved' },
-  { id: '4', category: 'Investasi Peralatan (CapEx)', allocated: 350000000, used: 340000000, division: 'WRAP', status: 'Approved' },
-  { id: '5', category: 'Teknologi & Infrastruktur IT', allocated: 180000000, used: 120000000, division: 'WRAP', status: 'Approved' },
+const REAL_EXCEL_BUDGETS: BudgetItem[] = [
+  {
+    id: 'b-1',
+    category: 'Bagi Hasil & Sewa Bandara (PT Angkasa Pura Indonesia)',
+    allocated: 2000000000,
+    used: 1720636274,
+    division: 'WRAP',
+    status: 'Approved',
+  },
+  {
+    id: 'b-2',
+    category: 'Gaji, THR & Insentif Karyawan Lapangan (58 Outlet)',
+    allocated: 600000000,
+    used: 521906036,
+    division: 'WRAP',
+    status: 'Approved',
+  },
+  {
+    id: 'b-3',
+    category: 'Beban Operasional Backoffice & Manajemen Head Office',
+    allocated: 1000000000,
+    used: ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice,
+    division: 'WRAP',
+    status: 'Approved',
+  },
+  {
+    id: 'b-4',
+    category: 'Kemitraan KSO (Halim Perdanakusuma & Aviasi)',
+    allocated: 40000000,
+    used: 30336954,
+    division: 'WRAP',
+    status: 'Approved',
+  },
+  {
+    id: 'b-5',
+    category: 'Kewajiban Angsuran Leasing & Pinjaman Mesin',
+    allocated: 100000000,
+    used: 83700000,
+    division: 'WRAP',
+    status: 'Approved',
+  },
 ];
 
 export default function BudgetingPage() {
   const { user } = useAuth();
   const isPicViewOnly = !hasCapability(user?.role as never, 'write:target', user?.divisionCode);
 
-  const [budgets, setBudgets] = useState<BudgetItem[]>(INITIAL_BUDGETS);
+  const [budgets, setBudgets] = useState<BudgetItem[]>(REAL_EXCEL_BUDGETS);
   const [selectedItem, setSelectedItem] = useState<BudgetItem | null>(null);
   const [newAllocated, setNewAllocated] = useState<number>(0);
 
