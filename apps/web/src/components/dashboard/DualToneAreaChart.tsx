@@ -81,14 +81,44 @@ function getSplinePath(points: [number, number][]): string {
   }, '');
 }
 
-export function DualToneAreaChart() {
-  const [timeframe, setTimeframe] = useState<TimeframeMode>('daily');
+export interface DualToneAreaChartProps {
+  activePeriod?: 'today' | '7d' | 'month' | 'ytd';
+  onPeriodChange?: (period: 'today' | '7d' | 'month' | 'ytd') => void;
+  dataOverride?: ChartPoint[];
+}
+
+export function DualToneAreaChart({ activePeriod, onPeriodChange, dataOverride }: DualToneAreaChartProps = {}) {
+  const [internalTimeframe, setInternalTimeframe] = useState<TimeframeMode>('daily');
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   const gradientId = useId();
   const strokeGradId = useId();
 
-  const data = TIMEFRAME_DATA[timeframe];
+  // Sinkronkan timeframe berdasarkan activePeriod jika disediakan oleh parent
+  const timeframe: TimeframeMode = activePeriod
+    ? activePeriod === 'today'
+      ? 'daily'
+      : activePeriod === '7d'
+      ? 'daily'
+      : activePeriod === 'month'
+      ? 'monthly'
+      : activePeriod === 'ytd'
+      ? 'ytd'
+      : internalTimeframe
+    : internalTimeframe;
+
+  const handleTimeframeClick = (tf: TimeframeMode) => {
+    setInternalTimeframe(tf);
+    setHoverIndex(null);
+    if (onPeriodChange) {
+      if (tf === 'daily') onPeriodChange('today');
+      else if (tf === 'weekly') onPeriodChange('7d');
+      else if (tf === 'monthly') onPeriodChange('month');
+      else if (tf === 'ytd') onPeriodChange('ytd');
+    }
+  };
+
+  const data = dataOverride ?? TIMEFRAME_DATA[timeframe];
 
   // Dimensions
   const svgWidth = 700;
@@ -179,10 +209,7 @@ export function DualToneAreaChart() {
           ).map((tf) => (
             <button
               key={tf.key}
-              onClick={() => {
-                setTimeframe(tf.key);
-                setHoverIndex(null);
-              }}
+              onClick={() => handleTimeframeClick(tf.key)}
               className={`rounded-lg px-3 py-1 text-xs font-bold transition-all ${
                 timeframe === tf.key
                   ? 'bg-white text-navy shadow-xs border border-line/40'

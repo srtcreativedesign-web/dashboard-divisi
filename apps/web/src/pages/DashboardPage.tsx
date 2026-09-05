@@ -15,12 +15,26 @@ import {
   Calendar,
   Target,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../session/AuthContext';
 import { roleDisplay } from '../mocks/session';
 import { Button } from '../components/ui/Button';
 import BodExecutiveDashboard from '../components/dashboard/BodExecutiveDashboard';
 import { SparklineSvg } from '../components/dashboard/SparklineSvg';
+import { getPeriodSummary } from '../data/dashboardPeriodData';
+import { type PeriodFilterOption } from '../components/filters/StickyContextFilterBar';
+
+function formatNominal(val: number): string {
+  if (Math.abs(val) >= 1e9) {
+    const m = val / 1e9;
+    return `${m % 1 === 0 ? m.toFixed(0) : m.toFixed(2)} M`;
+  }
+  if (Math.abs(val) >= 1e6) {
+    const jt = val / 1e6;
+    return `${jt % 1 === 0 ? jt.toFixed(0) : jt.toFixed(1)} Jt`;
+  }
+  return val.toLocaleString('id-ID');
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -31,6 +45,16 @@ export default function DashboardPage() {
   const isPicViewOnly = role === 'PIC' || role === 'USER';
 
   const userDivision = user?.divisionCode;
+
+  const [searchParams] = useSearchParams();
+  const rawPeriod = searchParams.get('period');
+  const activePeriod: PeriodFilterOption =
+    rawPeriod && ['today', '7d', 'month', 'ytd'].includes(rawPeriod)
+      ? (rawPeriod as PeriodFilterOption)
+      : 'month';
+  const divisionParam = searchParams.get('divisionCode') || userDivision || 'ALL';
+
+  const periodData = getPeriodSummary(activePeriod, divisionParam);
 
   // State antrean ACC untuk Manager
   const [pendingApprovals, setPendingApprovals] = useState([
@@ -276,20 +300,30 @@ export default function DashboardPage() {
         <div className="space-y-6" data-testid="admin-dashboard-view">
           {/* Admin Metric Cards: Target vs Realisasi & Status */}
           <div className="grid gap-4 sm:grid-cols-3">
-            {/* Card 1: Target Divisi Bulan Ini */}
+            {/* Card 1: Target Divisi Berdasarkan Periode */}
             <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Target Divisi Bulan Ini
+                    {periodData.adminMetrics.targetLabel}
                   </span>
                   <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
-                    {userDivision ?? 'Divisi'} · RKAP 2026
+                    {userDivision ?? 'Divisi'} · {periodData.adminMetrics.targetBadge}
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <p className="text-2xl font-black text-navy">Rp 2.50 M</p>
-                  <span className="text-xs font-medium text-slate-500">alokasi bulan ini</span>
+                  <p className="text-2xl font-black text-navy">
+                    Rp {formatNominal(periodData.adminMetrics.targetNominal)}
+                  </p>
+                  <span className="text-xs font-medium text-slate-500">
+                    {activePeriod === 'month'
+                      ? 'alokasi bulan ini'
+                      : activePeriod === '7d'
+                      ? 'alokasi 7 hari terakhir'
+                      : activePeriod === 'ytd'
+                      ? 'alokasi tahun berjalan'
+                      : 'alokasi hari ini'}
+                  </span>
                 </div>
               </div>
 
@@ -297,16 +331,21 @@ export default function DashboardPage() {
               <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-medium text-slate-600">
                   <span className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5 text-sky-600" /> Pacing Waktu Kalender
+                    <Calendar className="h-3.5 w-3.5 text-sky-600" /> {periodData.adminMetrics.pacingLabel}
                   </span>
-                  <span className="font-bold text-navy">Hari ke-6 / 30 (20%)</span>
+                  <span className="font-bold text-navy">{periodData.adminMetrics.pacingDetail}</span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '20%' }} />
+                  <div
+                    className="h-full bg-sky-500 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(periodData.adminMetrics.pacingValue, 100)}%` }}
+                  />
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                  <span>Target Harian: <strong className="text-slate-700 font-mono">Rp 83.3 Jt/hari</strong></span>
-                  <span className="text-sky-700 font-semibold">24 Hari Tersisa</span>
+                  <span>
+                    Rata-rata: <strong className="text-slate-700 font-mono">Rp 83.3 Jt/hari</strong>
+                  </span>
+                  <span className="text-sky-700 font-semibold">{periodData.adminMetrics.pacingRemaining}</span>
                 </div>
               </div>
             </div>
@@ -319,12 +358,22 @@ export default function DashboardPage() {
                     Realisasi Input Berjalan
                   </span>
                   <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3 text-emerald-600" /> 88.0% Capaian
+                    <TrendingUp className="h-3 w-3 text-emerald-600" /> {periodData.adminMetrics.realisasiPct.toFixed(1)}% Capaian
                   </span>
                 </div>
                 <div className="mt-2 flex items-baseline gap-1.5">
-                  <p className="text-2xl font-black text-emerald-800">Rp 2.20 M</p>
-                  <span className="text-xs font-medium text-slate-500">tercatat s/d hari ini</span>
+                  <p className="text-2xl font-black text-emerald-800">
+                    Rp {formatNominal(periodData.adminMetrics.realisasiNominal)}
+                  </p>
+                  <span className="text-xs font-medium text-slate-500">
+                    {activePeriod === 'today'
+                      ? 'tercatat hari ini'
+                      : activePeriod === '7d'
+                      ? 'tercatat 7 hari terakhir'
+                      : activePeriod === 'ytd'
+                      ? 'tercatat YTD'
+                      : 'tercatat s/d hari ini'}
+                  </span>
                 </div>
               </div>
 
@@ -332,20 +381,30 @@ export default function DashboardPage() {
               <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-medium text-slate-600">
                   <span>Progres Capaian terhadap Target</span>
-                  <span className="font-bold text-emerald-800 font-mono">88.0% (Rp 2.20 M / Rp 2.50 M)</span>
+                  <span className="font-bold text-emerald-800 font-mono">
+                    {periodData.adminMetrics.realisasiPct.toFixed(1)}% (Rp {formatNominal(periodData.adminMetrics.realisasiNominal)} / Rp {formatNominal(periodData.adminMetrics.targetNominal)})
+                  </span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
                   <div
                     className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500 shadow-xs"
-                    style={{ width: '88%' }}
+                    style={{ width: `${Math.min(periodData.adminMetrics.realisasiPct, 100)}%` }}
                   />
                 </div>
                 <div className="flex items-center justify-between text-[11px] pt-0.5">
                   <span className="text-slate-500">
-                    Sisa Gap: <strong className="text-rose-600 font-semibold font-mono">Rp 300 Jt</strong> (-12.0%)
+                    {periodData.adminMetrics.gapNominal < 0 ? (
+                      <>
+                        Sisa Gap: <strong className="text-rose-600 font-semibold font-mono">-Rp {formatNominal(Math.abs(periodData.adminMetrics.gapNominal))}</strong> ({periodData.adminMetrics.gapPct.toFixed(1)}%)
+                      </>
+                    ) : (
+                      <>
+                        Surplus: <strong className="text-emerald-700 font-semibold font-mono">+Rp {formatNominal(periodData.adminMetrics.gapNominal)}</strong> (+{periodData.adminMetrics.gapPct.toFixed(1)}%)
+                      </>
+                    )}
                   </span>
                   <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] border border-emerald-200">
-                    On Track
+                    {periodData.adminMetrics.realisasiPct >= 100 ? 'Surplus Target' : 'On Track'}
                   </span>
                 </div>
               </div>
@@ -356,17 +415,17 @@ export default function DashboardPage() {
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Status Laporan Hari Ini
+                    Status Laporan Operasional
                   </span>
                   <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                    Siap
+                    {activePeriod === 'today' ? 'Hari Ini' : activePeriod === '7d' ? '7 Hari' : activePeriod === 'ytd' ? 'YTD' : 'Bulan Ini'}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center gap-2.5">
                   <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0" />
                   <div>
-                    <span className="text-base font-bold text-navy">Tersubmit & Approved</span>
-                    <p className="text-[11px] text-slate-500">Log harian tanggal berjalan lengkap</p>
+                    <span className="text-base font-bold text-navy">{periodData.adminMetrics.reportStatus}</span>
+                    <p className="text-[11px] text-slate-500">{periodData.adminMetrics.reportStatusDetail}</p>
                   </div>
                 </div>
               </div>
