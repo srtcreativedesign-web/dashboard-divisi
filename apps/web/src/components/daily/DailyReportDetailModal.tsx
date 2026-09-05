@@ -38,12 +38,15 @@ export function DailyReportDetailModal({ report, isOpen, onClose }: DailyReportD
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="daily-report-detail-title"
+      className="fixed inset-0 z-50 overflow-y-auto bg-navy/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-fade-in"
       data-testid="daily-report-detail-modal"
     >
-      <div className="relative w-full max-w-2xl my-8 rounded-card-lg bg-white p-6 shadow-2xl border border-slate-200 animate-fade-in-up">
-        {/* Header Modal */}
-        <div className="flex items-start justify-between border-b border-line pb-4">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in-up">
+        {/* Header Modal - Sticky */}
+        <div className="shrink-0 px-6 py-4 border-b border-line bg-slate-50/70 flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-pill bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
@@ -65,7 +68,7 @@ export function DailyReportDetailModal({ report, isOpen, onClose }: DailyReportD
                 </span>
               )}
             </div>
-            <h3 className="mt-1 text-lg font-black tracking-tight text-navy">
+            <h3 id="daily-report-detail-title" className="mt-1 text-base sm:text-lg font-black tracking-tight text-navy">
               Detail Laporan: {report.outletName ? `${report.outletName} (${report.division})` : report.divisionName}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -77,13 +80,14 @@ export function DailyReportDetailModal({ report, isOpen, onClose }: DailyReportD
             type="button"
             onClick={onClose}
             className="rounded-card p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            aria-label="Tutup Detail"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="mt-5 space-y-4">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
           {/* KPI Summary Banner */}
           <div className="grid gap-3 sm:grid-cols-3 rounded-card-lg bg-slate-50 p-4 border border-line">
             <div>
@@ -248,8 +252,8 @@ export function DailyReportDetailModal({ report, isOpen, onClose }: DailyReportD
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-6 flex justify-end border-t border-line pt-4">
+        {/* Footer - Sticky Bottom */}
+        <div className="shrink-0 px-6 py-4 border-t border-line bg-slate-50/90 flex justify-end">
           <Button variant="secondary" onClick={onClose}>
             Tutup
           </Button>
