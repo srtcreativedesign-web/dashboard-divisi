@@ -316,7 +316,7 @@ export default function DashboardPage() {
               {/* Visual Antrean & SLA */}
               <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                  <span>Tingkat Kepatuhan SLA</span>
+                  <span>Approval Rate</span>
                   <span className="font-bold text-emerald-800 font-mono">96.8% (Target 95%)</span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
@@ -714,12 +714,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Card 3: Status Audit & Kepatuhan */}
+            {/* Card 3: Status Pengawasan & Kepatuhan */}
             <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Status Audit & Kepatuhan
+                    Status Pengawasan
                   </span>
                   <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
                     Aktif
