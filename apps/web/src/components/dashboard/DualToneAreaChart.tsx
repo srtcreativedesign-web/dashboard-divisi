@@ -99,7 +99,7 @@ export function DualToneAreaChart({ activePeriod, onPeriodChange, dataOverride }
     ? activePeriod === 'today'
       ? 'daily'
       : activePeriod === '7d'
-      ? 'daily'
+      ? 'weekly'
       : activePeriod === 'month'
       ? 'monthly'
       : activePeriod === 'ytd'

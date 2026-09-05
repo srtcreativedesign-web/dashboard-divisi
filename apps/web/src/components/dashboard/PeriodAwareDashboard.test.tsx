@@ -145,5 +145,168 @@ describe('Fungsionalitas Filter Rentang Waktu Dashboard (7 Hari, Sebulan, Setahu
       expect(screen.getByText('Pacing Tahun Anggaran')).toBeInTheDocument();
       expect(screen.getByText('Bulan ke-9 / 12 (75%)')).toBeInTheDocument();
     });
+
+    it('menampilkan DualToneAreaChart dan Panel Input pada Dashboard Admin', () => {
+      localStorage.setItem('dashboard-divisi.role-demo', 'ADMIN');
+      localStorage.setItem('dashboard-divisi.division-demo', 'WRAP');
+
+      const queryClient = createTestQueryClient();
+      render(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/dashboard?period=month']}>
+              <DashboardPage />
+            </MemoryRouter>
+          </AuthProvider>
+        </QueryClientProvider>,
+      );
+
+      // Verifikasi Universal Timeframe Bar ada di Admin
+      expect(screen.getByTestId('dashboard-timeframe-bar')).toBeInTheDocument();
+      expect(screen.getByTestId('timeframe-tab-today')).toBeInTheDocument();
+      expect(screen.getByTestId('timeframe-tab-7d')).toBeInTheDocument();
+      expect(screen.getByTestId('timeframe-tab-month')).toBeInTheDocument();
+      expect(screen.getByTestId('timeframe-tab-ytd')).toBeInTheDocument();
+
+      // Verifikasi DualToneAreaChart ada di Admin
+      expect(screen.getByTestId('dual-tone-area-chart')).toBeInTheDocument();
+
+      // Verifikasi Panel Input Admin tetap tersedia
+      expect(screen.getByRole('heading', { name: /Panel Input Admin Divisi/i })).toBeInTheDocument();
+    });
+  });
+
+  describe('4. Integrasi Manager Dashboard dengan Filter Periode & DualToneAreaChart', () => {
+    it('menampilkan Target vs Realisasi, DualToneAreaChart, dan Approval Center untuk Manager', () => {
+      localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
+      localStorage.setItem('dashboard-divisi.division-demo', 'WRAP');
+
+      const queryClient = createTestQueryClient();
+      render(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/dashboard?period=7d']}>
+              <DashboardPage />
+            </MemoryRouter>
+          </AuthProvider>
+        </QueryClientProvider>,
+      );
+
+      // Verifikasi Universal Timeframe Bar ada di Manager
+      expect(screen.getByTestId('dashboard-timeframe-bar')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-active-period-label')).toHaveTextContent(/7 Hari Terakhir/i);
+
+      // Verifikasi Target dan Realisasi terintegrasi
+      expect(screen.getByText('Target 7 Hari Terakhir')).toBeInTheDocument();
+      expect(screen.getByText('Realisasi Omset Berjalan')).toBeInTheDocument();
+
+      // Verifikasi DualToneAreaChart ada di Manager
+      expect(screen.getByTestId('dual-tone-area-chart')).toBeInTheDocument();
+
+      // Verifikasi Manager Approval Center tetap ada dan aktif
+      expect(screen.getByText(/Manager Approval Center/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('5. Integrasi PIC (View-Only) Dashboard dengan Filter Periode & DualToneAreaChart', () => {
+    it('menampilkan Target vs Realisasi, DualToneAreaChart, dan Banner Read-Only untuk PIC', () => {
+      localStorage.setItem('dashboard-divisi.role-demo', 'PIC');
+      localStorage.setItem('dashboard-divisi.division-demo', 'WRAP');
+
+      const queryClient = createTestQueryClient();
+      render(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/dashboard?period=month']}>
+              <DashboardPage />
+            </MemoryRouter>
+          </AuthProvider>
+        </QueryClientProvider>,
+      );
+
+      // Verifikasi Universal Timeframe Bar ada di PIC
+      expect(screen.getByTestId('dashboard-timeframe-bar')).toBeInTheDocument();
+
+      // Verifikasi Target vs Realisasi ada di PIC
+      expect(screen.getByText('Target Divisi Bulan Ini')).toBeInTheDocument();
+      expect(screen.getByText('Realisasi Omset Berjalan')).toBeInTheDocument();
+
+      // Verifikasi DualToneAreaChart ada di PIC
+      expect(screen.getByTestId('dual-tone-area-chart')).toBeInTheDocument();
+
+      // Verifikasi Mode Read-Only PIC
+      expect(screen.getByText(/Mode Akses PIC \(Read-Only\)/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('6. Interaktivitas Switcher Rentang Waktu dan Role Tambahan (Superadmin & HRD)', () => {
+    it('mengubah tampilan periode saat tombol tab diklik oleh pengguna', () => {
+      localStorage.setItem('dashboard-divisi.role-demo', 'ADMIN');
+      localStorage.setItem('dashboard-divisi.division-demo', 'CELL');
+
+      const queryClient = createTestQueryClient();
+      render(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/dashboard']}>
+              <DashboardPage />
+            </MemoryRouter>
+          </AuthProvider>
+        </QueryClientProvider>,
+      );
+
+      // Default: Bulan Ini
+      expect(screen.getByTestId('dashboard-active-period-label')).toHaveTextContent(/Bulan Ini/i);
+
+      // Klik 7 Hari
+      fireEvent.click(screen.getByTestId('timeframe-tab-7d'));
+      expect(screen.getByTestId('dashboard-active-period-label')).toHaveTextContent(/7 Hari Terakhir/i);
+
+      // Klik Setahun (YTD)
+      fireEvent.click(screen.getByTestId('timeframe-tab-ytd'));
+      expect(screen.getByTestId('dashboard-active-period-label')).toHaveTextContent(/Tahun Berjalan/i);
+
+      // Klik Hari Ini
+      fireEvent.click(screen.getByTestId('timeframe-tab-today'));
+      expect(screen.getByTestId('dashboard-active-period-label')).toHaveTextContent(/Hari Ini/i);
+    });
+
+    it('mendukung role SUPERADMIN dengan view managerial dan chart performa lengkap', () => {
+      localStorage.setItem('dashboard-divisi.role-demo', 'SUPERADMIN');
+
+      const queryClient = createTestQueryClient();
+      render(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/dashboard?period=month']}>
+              <DashboardPage />
+            </MemoryRouter>
+          </AuthProvider>
+        </QueryClientProvider>,
+      );
+
+      expect(screen.getByTestId('manager-dashboard-view')).toBeInTheDocument();
+      expect(screen.getByTestId('dual-tone-area-chart')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-timeframe-bar')).toBeInTheDocument();
+    });
+
+    it('mendukung role HRD dengan panel pengawasan operasional dan chart performa', () => {
+      localStorage.setItem('dashboard-divisi.role-demo', 'HRD');
+
+      const queryClient = createTestQueryClient();
+      render(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <MemoryRouter initialEntries={['/dashboard?period=month']}>
+              <DashboardPage />
+            </MemoryRouter>
+          </AuthProvider>
+        </QueryClientProvider>,
+      );
+
+      expect(screen.getByTestId('pic-dashboard-view')).toBeInTheDocument();
+      expect(screen.getByTestId('dual-tone-area-chart')).toBeInTheDocument();
+      expect(screen.getByTestId('dashboard-timeframe-bar')).toBeInTheDocument();
+    });
   });
 });

@@ -20,6 +20,7 @@ import { useAuth } from '../session/AuthContext';
 import { roleDisplay } from '../mocks/session';
 import { Button } from '../components/ui/Button';
 import BodExecutiveDashboard from '../components/dashboard/BodExecutiveDashboard';
+import { DualToneAreaChart } from '../components/dashboard/DualToneAreaChart';
 import { SparklineSvg } from '../components/dashboard/SparklineSvg';
 import { getPeriodSummary } from '../data/dashboardPeriodData';
 import { type PeriodFilterOption } from '../components/filters/StickyContextFilterBar';
@@ -42,11 +43,11 @@ export default function DashboardPage() {
   const isBod = role === 'BOD';
   const isManager = role === 'MANAGER' || role === 'SUPERADMIN';
   const isAdmin = role === 'ADMIN';
-  const isPicViewOnly = role === 'PIC' || role === 'USER';
+  const isPicViewOnly = role === 'PIC' || role === 'USER' || role === 'HRD';
 
   const userDivision = user?.divisionCode;
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const rawPeriod = searchParams.get('period');
   const activePeriod: PeriodFilterOption =
     rawPeriod && ['today', '7d', 'month', 'ytd'].includes(rawPeriod)
@@ -55,6 +56,16 @@ export default function DashboardPage() {
   const divisionParam = searchParams.get('divisionCode') || userDivision || 'ALL';
 
   const periodData = getPeriodSummary(activePeriod, divisionParam);
+
+  const handlePeriodChange = (newPeriod: PeriodFilterOption) => {
+    const next = new URLSearchParams(searchParams);
+    if (newPeriod !== 'month') {
+      next.set('period', newPeriod);
+    } else {
+      next.delete('period');
+    }
+    setSearchParams(next);
+  };
 
   // State antrean ACC untuk Manager
   const [pendingApprovals, setPendingApprovals] = useState([
@@ -116,15 +127,174 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {/* Universal Period Filter Toolbar (Untuk Semua Akun & Role) */}
+      <section
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/95 backdrop-blur-md p-4 rounded-card-lg border border-line/60 shadow-xs"
+        data-testid="dashboard-timeframe-bar"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary-700">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Rentang Waktu Laporan</span>
+              <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[10px] font-bold text-sky-800 border border-sky-200">
+                Data Riil
+              </span>
+            </div>
+            <p className="text-sm font-bold text-navy" data-testid="dashboard-active-period-label">{periodData.periodLabel}</p>
+          </div>
+        </div>
+
+        {/* Timeframe Switcher Tabs */}
+        <div
+          className="flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200 self-start sm:self-auto"
+          role="group"
+          aria-label="Pilih Rentang Waktu Dashboard"
+        >
+          {(
+            [
+              { key: 'today', label: 'Hari Ini' },
+              { key: '7d', label: '7 Hari' },
+              { key: 'month', label: 'Bulan Ini' },
+              { key: 'ytd', label: 'Setahun (YTD)' },
+            ] as const
+          ).map((p) => (
+            <button
+              key={p.key}
+              type="button"
+              onClick={() => handlePeriodChange(p.key)}
+              className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
+                activePeriod === p.key
+                  ? 'bg-white text-navy shadow-xs border border-line/40'
+                  : 'text-slate-600 font-medium hover:text-navy hover:bg-white/50'
+              }`}
+              data-testid={`timeframe-tab-${p.key}`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* ==================== VIEW ROLE 1: EXECUTIVE (BOD) ==================== */}
       {isBod && <BodExecutiveDashboard />}
 
       {/* ==================== VIEW ROLE 2: MANAGER (SUPERADMIN) ==================== */}
       {isManager && (
         <div className="space-y-6" data-testid="manager-dashboard-view">
-          {/* Manager Operational Metric Cards */}
+          {/* Manager Financial & Target Overview for the selected timeframe */}
           <div className="grid gap-4 sm:grid-cols-3">
-            {/* Card 1: Antrean ACC Pending */}
+            {/* Card 1: Target Divisi Berdasarkan Periode */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    {periodData.adminMetrics.targetLabel}
+                  </span>
+                  <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
+                    {userDivision ?? 'Semua Divisi'} · {periodData.adminMetrics.targetBadge}
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-navy">
+                    Rp {formatNominal(periodData.adminMetrics.targetNominal)}
+                  </p>
+                  <span className="text-xs font-medium text-slate-500">
+                    {activePeriod === 'month'
+                      ? 'alokasi bulan ini'
+                      : activePeriod === '7d'
+                      ? 'alokasi 7 hari terakhir'
+                      : activePeriod === 'ytd'
+                      ? 'alokasi tahun berjalan'
+                      : 'alokasi hari ini'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Visual Pacing & Target Operasional */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5 text-sky-600" /> {periodData.adminMetrics.pacingLabel}
+                  </span>
+                  <span className="font-bold text-navy">{periodData.adminMetrics.pacingDetail}</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div
+                    className="h-full bg-sky-500 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(periodData.adminMetrics.pacingValue, 100)}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Pacing Operasional</span>
+                  <span className="text-sky-700 font-semibold">{periodData.adminMetrics.pacingRemaining}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Realisasi Divisi Berjalan */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Realisasi Omset Berjalan
+                  </span>
+                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3 text-emerald-600" /> {periodData.adminMetrics.realisasiPct.toFixed(1)}% Capaian
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-emerald-800">
+                    Rp {formatNominal(periodData.adminMetrics.realisasiNominal)}
+                  </p>
+                  <span className="text-xs font-medium text-slate-500">
+                    {activePeriod === 'today'
+                      ? 'tercatat hari ini'
+                      : activePeriod === '7d'
+                      ? 'tercatat 7 hari terakhir'
+                      : activePeriod === 'ytd'
+                      ? 'tercatat YTD'
+                      : 'tercatat s/d hari ini'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Visual Progress Bar Capaian & Gap to Target */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Progres terhadap Target</span>
+                  <span className="font-bold text-emerald-800 font-mono">
+                    {periodData.adminMetrics.realisasiPct.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500 shadow-xs"
+                    style={{ width: `${Math.min(periodData.adminMetrics.realisasiPct, 100)}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] pt-0.5">
+                  <span className="text-slate-500">
+                    {periodData.adminMetrics.gapNominal < 0 ? (
+                      <>
+                        Sisa Gap: <strong className="text-rose-600 font-semibold font-mono">-Rp {formatNominal(Math.abs(periodData.adminMetrics.gapNominal))}</strong>
+                      </>
+                    ) : (
+                      <>
+                        Surplus: <strong className="text-emerald-700 font-semibold font-mono">+Rp {formatNominal(periodData.adminMetrics.gapNominal)}</strong>
+                      </>
+                    )}
+                  </span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] border border-emerald-200">
+                    {periodData.adminMetrics.realisasiPct >= 100 ? 'Surplus' : 'On Track'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Antrean ACC Pending & Total Nominal */}
             <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
@@ -137,79 +307,13 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-2 flex items-baseline gap-1.5">
                   <p className="text-2xl font-black text-navy">{filteredPending.length} Berkas</p>
-                  <span className="text-xs font-medium text-slate-500">menunggu verifikasi</span>
+                  <span className="text-xs font-medium text-slate-500">
+                    (Rp {(totalPendingNominal / 1e6).toLocaleString('id-ID')} Jt)
+                  </span>
                 </div>
               </div>
 
               {/* Visual Antrean & SLA */}
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                  <span>Beban Antrean Validasi</span>
-                  <span className="font-bold text-amber-800">{filteredPending.length} Laporan Pending</span>
-                </div>
-                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-                  <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min(filteredPending.length * 20, 100)}%` }} />
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                  <span>Prioritas: Cepat</span>
-                  <span className="text-amber-700 font-semibold">Target SLA: &lt; 24 Jam</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Total Nominal Menunggu ACC */}
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Total Nominal Menunggu ACC
-                  </span>
-                  <span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-800 border border-primary-200">
-                    Verifikasi
-                  </span>
-                </div>
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <p className="text-2xl font-black text-navy">
-                    Rp {(totalPendingNominal / 1e6).toLocaleString('id-ID')} Jt
-                  </p>
-                  <span className="text-xs font-medium text-slate-500">omset dalam antrean</span>
-                </div>
-              </div>
-
-              {/* Visual Distribusi Verifikasi */}
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                  <span>Distribusi Verifikasi Kasir</span>
-                  <span className="font-bold text-navy font-mono">100% Tercatat</span>
-                </div>
-                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '100%' }} />
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                  <span>Rekonsiliasi Kas: Siap</span>
-                  <span className="text-sky-700 font-semibold">Siap Di-ACC</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: Approval Rate */}
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Approval Rate
-                  </span>
-                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                    On-Time
-                  </span>
-                </div>
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <p className="text-2xl font-black text-emerald-800">96.8%</p>
-                  <span className="text-xs font-medium text-slate-500">tepat waktu</span>
-                </div>
-              </div>
-
-              {/* Visual Kepatuhan SLA */}
               <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-medium text-slate-600">
                   <span>Tingkat Kepatuhan SLA</span>
@@ -219,12 +323,19 @@ export default function DashboardPage() {
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: '96.8%' }} />
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                  <span>Audit Kepatuhan: Prima</span>
-                  <span className="text-emerald-700 font-semibold">+1.8% Melampaui SLA</span>
+                  <span>Prioritas: Cepat</span>
+                  <span className="text-emerald-700 font-semibold">SLA: &lt; 24 Jam</span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Dual-Tone Area Chart untuk Manager Divisi */}
+          <DualToneAreaChart
+            activePeriod={activePeriod}
+            onPeriodChange={handlePeriodChange}
+            dataOverride={periodData.chartPoints}
+          />
 
           {/* Approval Queue Widget */}
           <section className="rounded-card-lg border border-amber-200 bg-gradient-to-br from-amber-50/40 to-white backdrop-blur-md p-6 shadow-xs">
@@ -447,6 +558,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Dual-Tone Area Chart untuk Admin Divisi */}
+          <DualToneAreaChart
+            activePeriod={activePeriod}
+            onPeriodChange={handlePeriodChange}
+            dataOverride={periodData.chartPoints}
+          />
+
           <section className="rounded-card-lg border border-primary-200 bg-gradient-to-br from-primary-50/50 to-white backdrop-blur-md p-6 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
@@ -486,14 +604,122 @@ export default function DashboardPage() {
       {/* ==================== VIEW ROLE 4: PIC (VIEW ONLY) ==================== */}
       {isPicViewOnly && (
         <div className="space-y-6" data-testid="pic-dashboard-view">
-          {/* PIC Metric Cards: Status Pengawasan, Divisi Dipantau, dan Kepatuhan */}
+          {/* PIC Financial & Target Overview for the selected timeframe */}
           <div className="grid gap-4 sm:grid-cols-3">
-            {/* Card 1: Status Pengawasan */}
+            {/* Card 1: Target Divisi / Scope */}
             <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Status Pengawasan
+                    {periodData.adminMetrics.targetLabel}
+                  </span>
+                  <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
+                    {userDivision ?? 'Seluruh Unit'} · {periodData.adminMetrics.targetBadge}
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-navy">
+                    Rp {formatNominal(periodData.adminMetrics.targetNominal)}
+                  </p>
+                  <span className="text-xs font-medium text-slate-500">
+                    {activePeriod === 'month'
+                      ? 'alokasi bulan ini'
+                      : activePeriod === '7d'
+                      ? 'alokasi 7 hari terakhir'
+                      : activePeriod === 'ytd'
+                      ? 'alokasi tahun berjalan'
+                      : 'alokasi hari ini'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Visual Pacing */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5 text-sky-600" /> {periodData.adminMetrics.pacingLabel}
+                  </span>
+                  <span className="font-bold text-navy">{periodData.adminMetrics.pacingDetail}</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div
+                    className="h-full bg-sky-500 rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(periodData.adminMetrics.pacingValue, 100)}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Pacing Operasional</span>
+                  <span className="text-sky-700 font-semibold">{periodData.adminMetrics.pacingRemaining}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Realisasi Divisi Berjalan */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Realisasi Omset Berjalan
+                  </span>
+                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3 text-emerald-600" /> {periodData.adminMetrics.realisasiPct.toFixed(1)}% Capaian
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-emerald-800">
+                    Rp {formatNominal(periodData.adminMetrics.realisasiNominal)}
+                  </p>
+                  <span className="text-xs font-medium text-slate-500">
+                    {activePeriod === 'today'
+                      ? 'tercatat hari ini'
+                      : activePeriod === '7d'
+                      ? 'tercatat 7 hari terakhir'
+                      : activePeriod === 'ytd'
+                      ? 'tercatat YTD'
+                      : 'tercatat s/d hari ini'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Visual Progress Bar Capaian */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Progres terhadap Target</span>
+                  <span className="font-bold text-emerald-800 font-mono">
+                    {periodData.adminMetrics.realisasiPct.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500 shadow-xs"
+                    style={{ width: `${Math.min(periodData.adminMetrics.realisasiPct, 100)}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] pt-0.5">
+                  <span className="text-slate-500">
+                    {periodData.adminMetrics.gapNominal < 0 ? (
+                      <>
+                        Sisa Gap: <strong className="text-rose-600 font-semibold font-mono">-Rp {formatNominal(Math.abs(periodData.adminMetrics.gapNominal))}</strong>
+                      </>
+                    ) : (
+                      <>
+                        Surplus: <strong className="text-emerald-700 font-semibold font-mono">+Rp {formatNominal(periodData.adminMetrics.gapNominal)}</strong>
+                      </>
+                    )}
+                  </span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] border border-emerald-200">
+                    {periodData.adminMetrics.realisasiPct >= 100 ? 'Surplus' : 'On Track'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Status Audit & Kepatuhan */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Status Audit & Kepatuhan
                   </span>
                   <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
                     Aktif
@@ -501,92 +727,33 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-2 flex items-baseline gap-1.5">
                   <p className="text-2xl font-black text-navy">100% Real-Time</p>
-                  <span className="text-xs font-medium text-slate-500">live stream</span>
+                  <span className="text-xs font-medium text-slate-500">live stream audit</span>
                 </div>
               </div>
 
-              {/* Visual Integritas Log */}
+              {/* Visual Kepatuhan */}
               <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                  <span>Integritas Log Real-Time</span>
-                  <span className="font-bold text-emerald-800">100% Sinkron</span>
-                </div>
-                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: '100%' }} />
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                  <span>Sensor Audit: Aktif</span>
-                  <span className="text-emerald-700 font-semibold">Tanpa Latensi</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Total Divisi Dipantau */}
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Total Divisi Dipantau
-                  </span>
-                  <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
-                    Seluruh Unit
-                  </span>
-                </div>
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <p className="text-2xl font-black text-navy">7 Unit Bisnis</p>
-                  <span className="text-xs font-medium text-slate-500">operasional aktif</span>
-                </div>
-              </div>
-
-              {/* Visual Cakupan Unit */}
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                  <span>Cakupan Unit Bisnis</span>
-                  <span className="font-bold text-navy">7 / 7 Divisi Ritel</span>
-                </div>
-                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
-                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '100%' }} />
-                </div>
-                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                  <span>58 Outlet Bandara</span>
-                  <span className="text-sky-700 font-semibold">Terkoneksi Sobat API</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: Tingkat Kepatuhan Laporan */}
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Tingkat Kepatuhan Laporan
-                  </span>
-                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                    Tertib
-                  </span>
-                </div>
-                <div className="mt-2 flex items-baseline gap-1.5">
-                  <p className="text-2xl font-black text-emerald-800">98.2%</p>
-                  <span className="text-xs font-medium text-slate-500">akurasi laporan</span>
-                </div>
-              </div>
-
-              {/* Visual Kepatuhan Input */}
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
-                  <span>Kepatuhan Input SOP</span>
+                  <span>Kepatuhan SOP Input</span>
                   <span className="font-bold text-emerald-800 font-mono">98.2% Tertib</span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
                   <div className="h-full bg-emerald-500 rounded-full" style={{ width: '98.2%' }} />
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
-                  <span>Standar Digital Tech IT</span>
-                  <span className="text-emerald-700 font-semibold">Lulus Standar</span>
+                  <span>Audit Kepatuhan: Prima</span>
+                  <span className="text-emerald-700 font-semibold">Tervalidasi Sobat</span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Dual-Tone Area Chart untuk PIC */}
+          <DualToneAreaChart
+            activePeriod={activePeriod}
+            onPeriodChange={handlePeriodChange}
+            dataOverride={periodData.chartPoints}
+          />
 
           <section className="rounded-card-lg border border-amber-200 bg-amber-50/40 p-4">
             <div className="flex items-center gap-2">
