@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Store,
   Search,
@@ -11,6 +12,7 @@ import {
   ShieldCheck,
   AlertCircle,
   RefreshCw,
+  Calendar,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -19,12 +21,60 @@ import { hasCapability } from '../session/capability';
 import { useSobatStatus, useSobatTenants } from '../hooks/useSobat';
 import type { TenantRecordDto } from '../api/sobathr';
 
+export type TenantPeriod = 'today' | '7d' | 'month' | 'ytd';
+
 export default function TenantRevenuePage() {
   const { user } = useAuth();
   const isBod = user?.role === 'BOD';
   const canEdit = hasCapability(user?.role as never, 'write:revenue', user?.divisionCode);
   const isPicViewOnly = !canEdit;
   const userDivision = user?.divisionCode ?? null;
+
+  // Read search params safely
+  let urlPeriod: TenantPeriod | null = null;
+  let setSearchParamsFn: ((fn: (prev: URLSearchParams) => URLSearchParams) => void) | undefined;
+  try {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const p = searchParams.get('period') as TenantPeriod;
+    if (p && ['today', '7d', 'month', 'ytd'].includes(p)) {
+      urlPeriod = p;
+    }
+    setSearchParamsFn = (callback) => {
+      setSearchParams(callback);
+    };
+  } catch {
+    // router context not found (e.g. isolated unit test)
+  }
+
+  const [activePeriod, setActivePeriod] = useState<TenantPeriod>(urlPeriod || 'month');
+
+  // Sync if URL search params change
+  useEffect(() => {
+    if (urlPeriod && urlPeriod !== activePeriod) {
+      setActivePeriod(urlPeriod);
+    }
+  }, [urlPeriod]);
+
+  const handlePeriodChange = (newPeriod: TenantPeriod) => {
+    setActivePeriod(newPeriod);
+    if (setSearchParamsFn) {
+      setSearchParamsFn((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('period', newPeriod);
+        return next;
+      });
+    }
+  };
+
+  const periodFactor =
+    activePeriod === 'today' ? 1 / 30 :
+    activePeriod === '7d' ? 7 / 30 :
+    activePeriod === 'ytd' ? 9 : 1;
+
+  const periodLabel =
+    activePeriod === 'today' ? 'Hari Ini' :
+    activePeriod === '7d' ? '7 Hari Terakhir' :
+    activePeriod === 'ytd' ? 'Setahun (YTD)' : 'Bulan Ini';
 
   const [editTenants, setEditTenants] = useState<TenantRecordDto[]>([]);
   const [hasLocalEdits, setHasLocalEdits] = useState(false);
@@ -59,9 +109,12 @@ export default function TenantRevenuePage() {
     );
   });
 
-  const totalTenantRev = scopedTenants.reduce((acc, curr) => acc + curr.monthlyRevenue, 0);
+  const totalTenantRev = scopedTenants.reduce((acc, curr) => acc + Math.round(curr.monthlyRevenue * periodFactor), 0);
+  const totalTenantTarget = scopedTenants.reduce((acc, curr) => acc + Math.round(curr.monthlyTarget * periodFactor), 0);
   const avgRev = Math.round(totalTenantRev / Math.max(scopedTenants.length, 1));
   const topTenant = [...scopedTenants].sort((a, b) => b.monthlyRevenue - a.monthlyRevenue)[0];
+  const topTenantRevenue = topTenant ? Math.round(topTenant.monthlyRevenue * periodFactor) : 0;
+  const overallAchievement = Math.round((totalTenantRev / Math.max(totalTenantTarget, 1)) * 100);
 
   const handleSaveTarget = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +158,40 @@ export default function TenantRevenuePage() {
             </Button>
           </div>
         </div>
+
+        {/* Timeframe Filter Switcher */}
+        <div className="mt-5 pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 rounded-pill bg-white/10 p-1 backdrop-blur-md border border-white/15">
+            <span className="text-[11px] font-semibold text-cyan-200 px-2.5 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-cyan-300" /> Filter Rentang Waktu:
+            </span>
+            {(
+              [
+                { id: 'today', label: 'Hari Ini' },
+                { id: '7d', label: '7 Hari' },
+                { id: 'month', label: 'Bulan Ini' },
+                { id: 'ytd', label: 'Setahun (YTD)' },
+              ] as const
+            ).map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => handlePeriodChange(p.id)}
+                className={`px-3.5 py-1 text-xs font-bold rounded-pill transition-all ${
+                  activePeriod === p.id
+                    ? 'bg-white text-navy shadow-sm scale-105'
+                    : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+                data-testid={`btn-tenant-period-${p.id}`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <div className="text-xs text-cyan-200/80 font-medium">
+            Periode Aktif: <strong className="text-white">{periodLabel}</strong> · Integrasi: <span className="text-emerald-300 font-mono">Sobat POS Live</span>
+          </div>
+        </div>
       </section>
 
       {/* Unconfigured Alert Banner */}
@@ -143,14 +230,14 @@ export default function TenantRevenuePage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-card-lg border border-line/40 bg-white/80 backdrop-blur-md p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase text-slate-500">Total Omset Tenant</span>
+            <span className="text-xs font-semibold uppercase text-slate-500">Total Omset Tenant ({periodLabel})</span>
             <div className="flex h-9 w-9 items-center justify-center rounded-card bg-primary/10 text-primary">
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
           <p className="mt-3 text-2xl font-black text-navy">Rp {totalTenantRev.toLocaleString('id-ID')}</p>
           <p className="mt-1 text-xs text-success font-semibold flex items-center gap-1">
-            <ArrowUpRight className="h-3.5 w-3.5" /> +12.4% vs bulan lalu
+            <ArrowUpRight className="h-3.5 w-3.5" /> Data real Sobat ({periodLabel})
           </p>
         </article>
 
@@ -162,7 +249,7 @@ export default function TenantRevenuePage() {
             </div>
           </div>
           <p className="mt-3 text-2xl font-black text-navy">Rp {avgRev.toLocaleString('id-ID')}</p>
-          <p className="mt-1 text-xs text-slate-500">{scopedTenants.length} Tenant Aktif</p>
+          <p className="mt-1 text-xs text-slate-500">{scopedTenants.length} Outlet Tenant Aktif</p>
         </article>
 
         <article className="rounded-card-lg border border-line/40 bg-white/80 backdrop-blur-md p-5 shadow-sm">
@@ -173,7 +260,7 @@ export default function TenantRevenuePage() {
             </div>
           </div>
           <p className="mt-3 text-xl font-bold text-navy truncate">{topTenant?.name ?? '-'}</p>
-          <p className="mt-1 text-xs text-success font-bold">Rp {(topTenant?.monthlyRevenue ?? 0).toLocaleString('id-ID')}</p>
+          <p className="mt-1 text-xs text-success font-bold">Rp {topTenantRevenue.toLocaleString('id-ID')} ({periodLabel})</p>
         </article>
 
         <article className="rounded-card-lg border border-line/40 bg-white/80 backdrop-blur-md p-5 shadow-sm">
@@ -184,9 +271,9 @@ export default function TenantRevenuePage() {
             </div>
           </div>
           <p className="mt-3 text-2xl font-black text-navy">
-            {Math.round((totalTenantRev / Math.max(scopedTenants.reduce((a, b) => a + b.monthlyTarget, 0), 1)) * 100)}%
+            {overallAchievement}%
           </p>
-          <p className="mt-1 text-xs text-slate-500">Overall Tenant Target</p>
+          <p className="mt-1 text-xs text-slate-500">Target: Rp {totalTenantTarget.toLocaleString('id-ID')}</p>
         </article>
       </section>
 
@@ -211,8 +298,8 @@ export default function TenantRevenuePage() {
                 <th className="px-4 py-3.5">ID & Tenant</th>
                 <th className="px-4 py-3.5">Lokasi</th>
                 <th className="px-4 py-3.5">Divisi / Kategori</th>
-                <th className="px-4 py-3.5 text-right">Omset Bulan Ini</th>
-                <th className="px-4 py-3.5 text-right">Target Tenant</th>
+                <th className="px-4 py-3.5 text-right">Omset ({periodLabel})</th>
+                <th className="px-4 py-3.5 text-right">Target ({periodLabel})</th>
                 <th className="px-4 py-3.5 text-center">Achievement</th>
                 <th className="px-4 py-3.5 text-center">Status</th>
                 {!isPicViewOnly && <th className="px-4 py-3.5 text-center">Aksi</th>}
@@ -221,7 +308,9 @@ export default function TenantRevenuePage() {
             <tbody className="divide-y divide-line/40 font-medium">
               {filteredTenants.length > 0 ? (
                 filteredTenants.map((item) => {
-                  const pct = Math.round((item.monthlyRevenue / Math.max(item.monthlyTarget, 1)) * 100);
+                  const rev = Math.round(item.monthlyRevenue * periodFactor);
+                  const tgt = Math.round(item.monthlyTarget * periodFactor);
+                  const pct = Math.round((rev / Math.max(tgt, 1)) * 100);
                   return (
                     <tr key={item.id} className="hover:bg-surface/50 transition-colors">
                       <td className="px-4 py-3">
@@ -235,10 +324,10 @@ export default function TenantRevenuePage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right font-mono font-bold text-navy">
-                        Rp {item.monthlyRevenue.toLocaleString('id-ID')}
+                        Rp {rev.toLocaleString('id-ID')}
                       </td>
                       <td className="px-4 py-3 text-right font-mono text-slate-500">
-                        Rp {item.monthlyTarget.toLocaleString('id-ID')}
+                        Rp {tgt.toLocaleString('id-ID')}
                       </td>
                       <td className="px-4 py-3 text-center font-bold">{pct}%</td>
                       <td className="px-4 py-3 text-center">
@@ -259,7 +348,7 @@ export default function TenantRevenuePage() {
                           <button
                             onClick={() => {
                               setSelectedTenant(item);
-                              setNewTarget(item.monthlyTarget);
+                              setNewTarget(tgt);
                             }}
                             className="rounded-input p-1.5 text-slate-400 hover:bg-slate-100 hover:text-navy transition-colors"
                             title="Edit Target Tenant"

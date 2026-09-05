@@ -54,6 +54,8 @@ export default function DailyReportPage() {
   const [rejectReason, setRejectReason] = useState('');
   const [rejectError, setRejectError] = useState<string | null>(null);
 
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | '7d' | 'month'>('all');
+
   // Filter Data Berdasarkan Scope Divisi Pengguna
   // Admin, Manager, dan PIC HANYA melihat data dari divisinya sendiri.
   // BOD dapat melihat semua data 7 divisi.
@@ -62,10 +64,24 @@ export default function DailyReportPage() {
     return r.division === userDivision;
   });
 
-  const filteredReports =
+  const divisionFiltered =
     selectedDivision === 'SEMUA'
       ? scopedReports
       : scopedReports.filter((r) => r.division === selectedDivision);
+
+  const filteredReports = divisionFiltered.filter((r) => {
+    if (dateFilter === 'all') return true;
+    if (dateFilter === 'today') {
+      return r.date === '2026-09-05' || r.date === '2026-09-06';
+    }
+    if (dateFilter === '7d') {
+      return r.date >= '2026-08-30';
+    }
+    if (dateFilter === 'month') {
+      return r.date.startsWith('2026-09');
+    }
+    return true;
+  });
 
   const pendingCount = scopedReports.filter((r) => r.status === 'PENDING_REVIEW').length;
 
@@ -207,8 +223,37 @@ export default function DailyReportPage() {
                 Log transaksi harian yang disinkronkan secara reaktif dengan alur persetujuan enterprise
               </p>
             </div>
-            {isBod && (
-              <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Quick Date Range Filter */}
+              <div className="flex items-center gap-1 rounded-card border border-line bg-surface p-1 text-xs">
+                <span className="text-[11px] font-semibold text-slate-500 px-1.5 flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5 text-primary" /> Tanggal:
+                </span>
+                {(
+                  [
+                    { id: 'all', label: 'Semua' },
+                    { id: 'today', label: 'Hari Ini' },
+                    { id: '7d', label: '7 Hari' },
+                    { id: 'month', label: 'Bulan Ini' },
+                  ] as const
+                ).map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setDateFilter(d.id)}
+                    className={`px-2.5 py-1 text-xs font-bold rounded-input transition-all ${
+                      dateFilter === d.id
+                        ? 'bg-primary text-white shadow-xs'
+                        : 'text-slate-600 hover:text-navy hover:bg-slate-100'
+                    }`}
+                    data-testid={`btn-daily-filter-${d.id}`}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+
+              {isBod && (
                 <div className="flex items-center gap-2 rounded-card border border-line bg-surface px-3 py-1.5 text-xs">
                   <Filter className="h-3.5 w-3.5 text-slate-400" />
                   <span className="font-medium text-slate-600">Filter Divisi BOD:</span>
@@ -228,8 +273,8 @@ export default function DailyReportPage() {
                     <option value="ACC">ACC - Accounting & Finance</option>
                   </select>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="mt-6 overflow-x-auto rounded-card-lg border border-line/40">
