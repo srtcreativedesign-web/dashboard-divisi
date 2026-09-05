@@ -85,8 +85,8 @@ export default function DailyReportPage() {
       REFL: 'Refleksi',
       MINI: 'Minimarket',
       FNB: 'Food & Beverage',
-      FIN: 'Finance',
       MC: 'Money Changer',
+      ACC: 'Accounting',
     };
 
     addDailyReport(

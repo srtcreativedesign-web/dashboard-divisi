@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Wallet, Activity, Download } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
+import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 
 interface CashflowTransaction {
   id: string;
@@ -12,28 +13,72 @@ interface CashflowTransaction {
   type: 'Operasional' | 'Investasi' | 'Pendanaan';
 }
 
-const INITIAL_TRANSACTIONS: CashflowTransaction[] = [
-  { id: '1', date: '2026-09-03', category: 'Inflow', description: 'Penerimaan Penjualan Harian Tenant', amount: 145000000, type: 'Operasional' },
-  { id: '2', date: '2026-09-02', category: 'Outflow', description: 'Pembayaran Listrik & Utility Mal', amount: 35000000, type: 'Operasional' },
-  { id: '3', date: '2026-09-01', category: 'Inflow', description: 'Pembayaran Sewa Tenant Bulanan', amount: 350000000, type: 'Operasional' },
-  { id: '4', date: '2026-08-30', category: 'Outflow', description: 'Gaji Karyawan Operasional Q3', amount: 210000000, type: 'Operasional' },
-  { id: '5', date: '2026-08-28', category: 'Outflow', description: 'Pembelian Perangkat POS Baru', amount: 45000000, type: 'Investasi' },
+const REAL_EXCEL_TRANSACTIONS: CashflowTransaction[] = [
+  {
+    id: 'tx-1',
+    date: '2026-08-31',
+    category: 'Inflow',
+    description: 'Penerimaan Omset Operasional Wrapping (Excel Sheet)',
+    amount: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue,
+    type: 'Operasional',
+  },
+  {
+    id: 'tx-2',
+    date: '2026-08-31',
+    category: 'Outflow',
+    description: 'Tagihan PT Angkasa Pura Indonesia (Sewa Lokasi & Gate)',
+    amount: 1720636274,
+    type: 'Operasional',
+  },
+  {
+    id: 'tx-3',
+    date: '2026-08-31',
+    category: 'Outflow',
+    description: 'Gaji, THR & Insentif Karyawan Lapangan (58 Outlet)',
+    amount: 521906036,
+    type: 'Operasional',
+  },
+  {
+    id: 'tx-4',
+    date: '2026-08-31',
+    category: 'Outflow',
+    description: 'Beban Operasional Backoffice & Manajemen Head Office',
+    amount: ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice,
+    type: 'Operasional',
+  },
+  {
+    id: 'tx-5',
+    date: '2026-08-31',
+    category: 'Outflow',
+    description: 'Pinjaman & Angsuran Hutang Leasing Mesin Wrapping',
+    amount: 83700000,
+    type: 'Pendanaan',
+  },
+  {
+    id: 'tx-6',
+    date: '2026-08-31',
+    category: 'Outflow',
+    description: 'Tagihan Kemitraan KSO Bandara HLP',
+    amount: 30336954,
+    type: 'Operasional',
+  },
 ];
 
 export default function CashflowPage() {
-  const [transactions] = useState<CashflowTransaction[]>(INITIAL_TRANSACTIONS);
+  const [transactions] = useState<CashflowTransaction[]>(REAL_EXCEL_TRANSACTIONS);
 
   const totalInflow = transactions.filter(t => t.category === 'Inflow').reduce((acc, curr) => acc + curr.amount, 0);
   const totalOutflow = transactions.filter(t => t.category === 'Outflow').reduce((acc, curr) => acc + curr.amount, 0);
   const netCashflow = totalInflow - totalOutflow;
 
   const waterfallItems: WaterfallItem[] = [
-    { id: 'inflow-sewa', label: 'Sewa Tenant', amount: 350000000 },
-    { id: 'inflow-sales', label: 'Sales Harian', amount: 145000000 },
-    { id: 'outflow-gaji', label: 'Gaji Karyawan', amount: -210000000 },
-    { id: 'outflow-pos', label: 'Perangkat POS', amount: -45000000 },
-    { id: 'outflow-util', label: 'Listrik & Utilitas', amount: -35000000 },
-    { id: 'net', label: 'Net Cashflow', amount: netCashflow, isTotal: true },
+    { id: 'initial', label: 'Saldo Awal Kas', amount: ACCOUNTING_EXCEL_DATA.cashflow.initialBalance },
+    { id: 'inflow-sales', label: 'Omset Wrapping', amount: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue },
+    { id: 'outflow-ap', label: 'Angkasa Pura', amount: -1720636274 },
+    { id: 'outflow-gaji', label: 'Gaji Lapangan', amount: -521906036 },
+    { id: 'outflow-bo', label: 'Backoffice & HO', amount: -ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice },
+    { id: 'outflow-misc', label: 'KSO & Leasing', amount: -114036954 },
+    { id: 'net', label: 'Saldo Kas Akhir', amount: ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance, isTotal: true },
   ];
 
   return (

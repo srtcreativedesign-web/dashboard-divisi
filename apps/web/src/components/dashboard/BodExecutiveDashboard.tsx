@@ -6,6 +6,7 @@ import { ExecutiveKpiCards } from './ExecutiveKpiCards';
 import { DualToneAreaChart } from './DualToneAreaChart';
 import { DivisionLeaderboard } from './DivisionLeaderboard';
 import { InteractiveDonutChart, type DonutSlice } from './InteractiveDonutChart';
+import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
 
 export default function BodExecutiveDashboard() {
   const { data: rawData, isLoading } = useQuery<BodOverviewItem[]>({
@@ -15,16 +16,16 @@ export default function BodExecutiveDashboard() {
     retry: 1,
   });
 
-  // Fallback mock data if API is returning empty or error
+  // Fallback data if API is returning empty or offline
   const fallbackData: BodOverviewItem[] = [
     {
       divisionCode: 'WRAP',
       divisionName: 'Wrapping',
-      revenue: { gross: 2200000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
-      target: { value: 2500000000, achievement: 88, source: 'Target Q3' },
-      performance: { score: 88, level: 'Baik', source: 'SOP Audit' },
-      workforce: { count: 45, risk: 'Low', source: 'HRD' },
-      period: { from: '2026-09-01', to: '2026-09-30' },
+      revenue: { gross: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue, source: 'Accounting Sync (Excel Sheet)', freshness: '2 Jam Lalu' },
+      target: { value: 5000000000, achievement: 101.0, source: 'Target Q3' },
+      performance: { score: 98, level: 'Unggul', source: 'SOP Audit' },
+      workforce: { count: 58, risk: 'Low', source: 'HRD' },
+      period: { from: '2026-08-01', to: '2026-08-31' },
       drillDown: { href: '/laporan-harian?divisi=WRAP' },
     },
     {

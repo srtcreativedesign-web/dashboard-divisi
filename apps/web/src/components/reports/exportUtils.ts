@@ -2,6 +2,7 @@
  * Utilitas Ekspor Data Korporat untuk FINAL DASHBOARD
  * Mendukung pembentukan CSV ber-BOM UTF-8, format angka IDR, JSON, dan Print.
  */
+import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
 
 export interface ExportMetadata {
   title: string;
@@ -120,13 +121,13 @@ export function getExportDataset(
         filename: `Division_Performance_${Date.now()}.csv`,
         headers: ['Kode Divisi', 'Nama Divisi', 'Omzet Harian', 'Omzet MTD', 'Target Bulanan', 'Pencapaian (%)', 'Peringkat'],
         rows: [
-          ['WRAP', 'Wrapping Bandara', curr(45000000), curr(262500000), curr(1200000000), '21.9%', '#2'],
-          ['CELL', 'Cellular & Gadget', curr(55000000), curr(310000000), curr(1500000000), '20.7%', '#3'],
-          ['MINI', 'Minimarket & Retail', curr(89000000), curr(540000000), curr(2000000000), '27.0%', '#1 (Juara)'],
-          ['FNB', 'Food & Beverage', curr(78000000), curr(420000000), curr(1800000000), '23.3%', '#2'],
-          ['REFL', 'Refleksi & Relaksasi', curr(18000000), curr(110000000), curr(600000000), '18.3%', '#4'],
-          ['MC', 'Money Changer & Forex', curr(95000000), curr(620000000), curr(2200000000), '28.2%', '#1'],
-          ['ACC', 'Accounting & Finance', curr(32000000), curr(195000000), curr(800000000), '24.4%', '#3'],
+          ['WRAP', 'Wrapping Bandara', curr(162931986), curr(ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue), curr(5000000000), '101.0%', '#1'],
+          ['CELL', 'Cellular & Gadget', curr(45000000), curr(1250000000), curr(1200000000), '104.2%', '#2'],
+          ['MINI', 'Minimarket & Retail', curr(65000000), curr(1950000000), curr(2000000000), '97.5%', '#3'],
+          ['FNB', 'Food & Beverage', curr(52000000), curr(1560000000), curr(1600000000), '97.5%', '#4'],
+          ['REFL', 'Refleksi & Relaksasi', curr(28000000), curr(850000000), curr(900000000), '94.4%', '#5'],
+          ['MC', 'Money Changer & Forex', curr(75000000), curr(2250000000), curr(2200000000), '102.3%', '#1'],
+          ['ACC', 'Accounting & Finance', curr(0), curr(0), curr(0), '100.0%', '#6'],
         ],
       };
 
@@ -149,13 +150,13 @@ export function getExportDataset(
         filename: `Cashflow_Waterfall_${Date.now()}.csv`,
         headers: ['Komponen Arus Kas', 'Jenis Aliran', 'Nominal (Rp)', 'Kategori', 'Keterangan'],
         rows: [
-          ['Saldo Kas Awal Periode', 'Saldo Awal', curr(850000000), 'Kas & Bank', 'Posisi per 1 September 2026'],
-          ['Penerimaan Penjualan Kasir', 'Kas Masuk (+)', curr(1482500000), 'Operasional', 'Setoran harian 7 divisi ritel'],
-          ['Penerimaan Piutang Tenant', 'Kas Masuk (+)', curr(240000000), 'Operasional', 'Pelunasan invoice jatuh tempo'],
-          ['Pembayaran Beban Pokok & Suplier', 'Kas Keluar (-)', curr(-620000000), 'HPP', 'Pengadaan stok dan logistik ritel'],
-          ['Beban Gaji & Upah Karyawan', 'Kas Keluar (-)', curr(-315000000), 'Operasional', 'Payroll 142 staf dan teknisi'],
-          ['Beban Sewa & Utilisasi Bandara', 'Kas Keluar (-)', curr(-185000000), 'Fasilitas', 'Biaya tenant & listrik bandara'],
-          ['Saldo Kas Akhir Periode', 'Saldo Akhir', curr(1452500000), 'Net Cash', 'Kenaikan kas neto +Rp 602.500.000'],
+          ['Saldo Kas Awal Periode', 'Saldo Awal', curr(ACCOUNTING_EXCEL_DATA.cashflow.initialBalance), 'Kas & Bank', 'Posisi kas awal per Excel'],
+          ['Penerimaan Omset Wrapping', 'Kas Masuk (+)', curr(ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue), 'Operasional', 'Total omset lembar Excel Wrapping'],
+          ['Beban Sewa Angkasa Pura', 'Kas Keluar (-)', curr(-1720636274), 'Beban Sewa', 'Sewa lokasi & gate AP'],
+          ['Beban Gaji Karyawan Lapangan', 'Kas Keluar (-)', curr(-521906036), 'Operasional', 'Payroll 58 outlet bandara'],
+          ['Beban Backoffice & Manajemen HO', 'Kas Keluar (-)', curr(-ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice), 'HO', 'Beban manajemen head office'],
+          ['Beban KSO & Leasing Mesin', 'Kas Keluar (-)', curr(-114036954), 'Kemitraan', 'KSO Halim & angsuran leasing'],
+          ['Saldo Kas Akhir Periode', 'Saldo Akhir', curr(ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance), 'Net Cash', 'Saldo kas akhir klop Excel'],
         ],
       };
 
@@ -165,11 +166,11 @@ export function getExportDataset(
         filename: `Bank_Reconciliation_31Accounts_${Date.now()}.csv`,
         headers: ['Nama Bank Mitra', 'Nomor Rekening', 'Saldo Buku Besar', 'Saldo Rekening Koran', 'Selisih Audit', 'Status'],
         rows: [
-          ['Bank Mandiri Operasional', '137-00-1928371-1', curr(482500000), curr(482500000), curr(0), 'Klop (100%)'],
-          ['BCA Giro Penjualan Ritel', '521-098273-0', curr(395000000), curr(395000000), curr(0), 'Klop (100%)'],
-          ['BNI Valas Money Changer', '019-283746-2', curr(215000000), curr(215000000), curr(0), 'Klop (100%)'],
-          ['BRI Setoran Kasir Wrapping', '028-192837-5', curr(178000000), curr(178000000), curr(0), 'Klop (100%)'],
-          ['Bank Syariah Indonesia (BSI)', '712-983741-9', curr(182000000), curr(182000000), curr(0), 'Klop (100%)'],
+          ['Bank Mandiri STARWRAPP T2D', '155-00-1241716-1', curr(2505042), curr(2505042), curr(0), 'Klop (100%)'],
+          ['BCA STARWRAPP T2D', '551-0490071', curr(1000000), curr(1000000), curr(0), 'Klop (100%)'],
+          ['Bank Mandiri GALAXYPORT T2E', '155-00-1243142-8', curr(23824835), curr(23824835), curr(0), 'Klop (100%)'],
+          ['Bank Mandiri ROBUSTPACK T2F', '155-00-1268016-4', curr(49961293), curr(49961293), curr(0), 'Klop (100%)'],
+          ['Total 31 Rekening Koran Bank', 'Konsolidasi 31 Akun', curr(ACCOUNTING_EXCEL_DATA.totalBankAug), curr(ACCOUNTING_EXCEL_DATA.totalBankAug), curr(0), 'Klop (100%)'],
         ],
       };
   }

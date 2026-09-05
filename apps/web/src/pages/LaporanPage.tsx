@@ -4,6 +4,7 @@ import { Button } from '../components/ui/Button';
 import { ExportReportModal, type ExportFormatType } from '../components/reports/ExportReportModal';
 import { ScheduledReportManager } from '../components/reports/ScheduledReportManager';
 import { ReportArchiveTable } from '../components/reports/ReportArchiveTable';
+import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 
 interface DivisionSummary {
   code: string;
@@ -16,20 +17,20 @@ interface DivisionSummary {
 }
 
 const DIVISION_REPORTS: DivisionSummary[] = [
-  { code: 'WRAP', name: 'Divisi Wrap & Accessories', omsetHariIni: 45000000, omsetBulanIni: 262500000, targetBulanIni: 1200000000, achievementPct: 21.8, status: 'On Track' },
-  { code: 'MC', name: 'Divisi Money Changer & Forex', omsetHariIni: 89000000, omsetBulanIni: 540000000, targetBulanIni: 2000000000, achievementPct: 27.0, status: 'Over Target' },
-  { code: 'LOGISTICS', name: 'Divisi Logistik & Distribusi', omsetHariIni: 32000000, omsetBulanIni: 195000000, targetBulanIni: 800000000, achievementPct: 24.3, status: 'On Track' },
-  { code: 'RETAIL', name: 'Divisi Mart & Retail', omsetHariIni: 55000000, omsetBulanIni: 310000000, targetBulanIni: 1500000000, achievementPct: 20.6, status: 'On Track' },
-  { code: 'FNB', name: 'Divisi Food & Beverage', omsetHariIni: 78000000, omsetBulanIni: 420000000, targetBulanIni: 1800000000, achievementPct: 23.3, status: 'On Track' },
-  { code: 'SERVICES', name: 'Divisi Jasa & Cleaning', omsetHariIni: 18000000, omsetBulanIni: 110000000, targetBulanIni: 600000000, achievementPct: 18.3, status: 'Action Needed' },
-  { code: 'ENTERTAIN', name: 'Divisi Hiburan & Event', omsetHariIni: 95000000, omsetBulanIni: 620000000, targetBulanIni: 2200000000, achievementPct: 28.1, status: 'Over Target' },
+  { code: 'WRAP', name: 'Divisi Wrapping & Bagasi Bandara', omsetHariIni: 162931986, omsetBulanIni: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue, targetBulanIni: 5000000000, achievementPct: 101.0, status: 'Over Target' },
+  { code: 'CELL', name: 'Divisi Cellular & SIM Card', omsetHariIni: 45000000, omsetBulanIni: 1250000000, targetBulanIni: 1200000000, achievementPct: 104.2, status: 'Over Target' },
+  { code: 'REFL', name: 'Divisi Refleksi & Relaksasi Bandara', omsetHariIni: 28000000, omsetBulanIni: 850000000, targetBulanIni: 900000000, achievementPct: 94.4, status: 'On Track' },
+  { code: 'MINI', name: 'Divisi Minimarket & Retail', omsetHariIni: 65000000, omsetBulanIni: 1950000000, targetBulanIni: 2000000000, achievementPct: 97.5, status: 'On Track' },
+  { code: 'FNB', name: 'Divisi Food & Beverage', omsetHariIni: 52000000, omsetBulanIni: 1560000000, targetBulanIni: 1600000000, achievementPct: 97.5, status: 'On Track' },
+  { code: 'MC', name: 'Divisi Money Changer & Forex', omsetHariIni: 75000000, omsetBulanIni: 2250000000, targetBulanIni: 2200000000, achievementPct: 102.3, status: 'Over Target' },
+  { code: 'ACC', name: 'Divisi Accounting & Head Office', omsetHariIni: 0, omsetBulanIni: 0, targetBulanIni: 0, achievementPct: 100.0, status: 'On Track' },
 ];
 
 const PAYMENT_METHODS = [
-  { method: 'QRIS Statis & Dinamis', amount: 980000000, count: 12450, share: 39.8 },
-  { method: 'EDC Bank Mandiri & BCA', amount: 850000000, count: 6820, share: 34.5 },
-  { method: 'Transfer Bank Langsung', amount: 420000000, count: 1150, share: 17.0 },
-  { method: 'Cash / Tunai Kasir', amount: 212500000, count: 4320, share: 8.7 },
+  { method: 'QRIS Statis & Dinamis', amount: 5240000000, count: 28450, share: 40.7 },
+  { method: 'EDC Bank Mandiri & BCA', amount: 4420000000, count: 14820, share: 34.3 },
+  { method: 'Transfer Bank Rekening Koran', amount: ACCOUNTING_EXCEL_DATA.totalBankAug, count: 1850, share: 11.0 },
+  { method: 'Cash / Tunai Kasir Outlet', amount: 1800891572, count: 6320, share: 14.0 },
 ];
 
 export default function LaporanPage() {
@@ -254,22 +255,26 @@ export default function LaporanPage() {
         {/* Tab 3: Rekonsiliasi Bank */}
         {activeTab === 'rekonsiliasi' && (
           <div className="mt-6 space-y-4">
-            <h3 className="text-sm font-bold text-navy">Status Audit Rekonsiliasi Kasir vs Bank</h3>
+            <h3 className="text-sm font-bold text-navy">Status Audit Rekonsiliasi Kasir vs 31 Rekening Bank</h3>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-card-lg border border-line/40 bg-surface/30 p-4">
-                <p className="text-xs font-semibold uppercase text-slate-400">Total Pencatatan Kasir</p>
-                <p className="mt-2 text-xl font-bold font-mono text-navy">Rp 2.462.500.000</p>
-                <p className="mt-1 text-xs text-slate-500">Dari 7 sistem POS kasir</p>
+                <p className="text-xs font-semibold uppercase text-slate-400">Total Saldo Kas Buku (Excel)</p>
+                <p className="mt-2 text-xl font-bold font-mono text-navy">
+                  Rp {ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance.toLocaleString('id-ID')}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">Ending Balance Buku Kas Wrapping</p>
               </div>
               <div className="rounded-card-lg border border-line/40 bg-surface/30 p-4">
-                <p className="text-xs font-semibold uppercase text-slate-400">Total Mutasi Masuk Bank</p>
-                <p className="mt-2 text-xl font-bold font-mono text-navy">Rp 2.462.500.000</p>
-                <p className="mt-1 text-xs text-slate-500">Bank Mandiri & BCA</p>
+                <p className="text-xs font-semibold uppercase text-slate-400">Total 31 Rekening Koran Bank</p>
+                <p className="mt-2 text-xl font-bold font-mono text-navy">
+                  Rp {ACCOUNTING_EXCEL_DATA.totalBankAug.toLocaleString('id-ID')}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">Saldo Riil 31 Rekening Bank Agustus</p>
               </div>
               <div className="rounded-card-lg border border-success/30 bg-success-light/30 p-4">
                 <p className="text-xs font-semibold uppercase text-success">Variance (Selisih Audit)</p>
-                <p className="mt-2 text-xl font-bold font-mono text-success">Rp 0 (Balanced)</p>
-                <p className="mt-1 text-xs text-success/80 font-medium">Audit Selesai Tanpa Selisih</p>
+                <p className="mt-2 text-xl font-bold font-mono text-success">Rp 0 (Balanced 100%)</p>
+                <p className="mt-1 text-xs text-success/80 font-medium">Audit Selesai Klop dengan Rekening Koran</p>
               </div>
             </div>
           </div>
