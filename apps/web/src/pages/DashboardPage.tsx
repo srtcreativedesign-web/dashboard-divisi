@@ -12,6 +12,8 @@ import {
   FileSpreadsheet,
   Coins,
   ArrowRight,
+  Calendar,
+  Target,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../session/AuthContext';
@@ -96,52 +98,106 @@ export default function DashboardPage() {
       {/* ==================== VIEW ROLE 2: MANAGER (SUPERADMIN) ==================== */}
       {isManager && (
         <div className="space-y-6" data-testid="manager-dashboard-view">
-          {/* Manager Operational Metric Cards with Sparklines */}
+          {/* Manager Operational Metric Cards */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Antrean ACC Pending
-                </span>
-                <span className="rounded-pill bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 border border-amber-200">
-                  {filteredPending.length} Laporan
-                </span>
+            {/* Card 1: Antrean ACC Pending */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Antrean ACC Pending
+                  </span>
+                  <span className="rounded-pill bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 border border-amber-200">
+                    {filteredPending.length} Laporan
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-navy">{filteredPending.length} Berkas</p>
+                  <span className="text-xs font-medium text-slate-500">menunggu verifikasi</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-navy">{filteredPending.length} Berkas</p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[12, 10, 8, 7, 5, 4, filteredPending.length]} color="#f59e0b" height={28} />
+
+              {/* Visual Antrean & SLA */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Beban Antrean Validasi</span>
+                  <span className="font-bold text-amber-800">{filteredPending.length} Laporan Pending</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min(filteredPending.length * 20, 100)}%` }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Prioritas: Cepat</span>
+                  <span className="text-amber-700 font-semibold">Target SLA: &lt; 24 Jam</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Total Nominal Menunggu ACC
-                </span>
-                <span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-800 border border-primary-200">
-                  Verifikasi
-                </span>
+            {/* Card 2: Total Nominal Menunggu ACC */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Total Nominal Menunggu ACC
+                  </span>
+                  <span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-800 border border-primary-200">
+                    Verifikasi
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-navy">
+                    Rp {(totalPendingNominal / 1e6).toLocaleString('id-ID')} Jt
+                  </p>
+                  <span className="text-xs font-medium text-slate-500">omset dalam antrean</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-navy">
-                Rp {(totalPendingNominal / 1e6).toLocaleString('id-ID')} Jt
-              </p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[450, 420, 380, 310, 290, 270, totalPendingNominal / 1e6]} color="#0284c7" height={28} />
+
+              {/* Visual Distribusi Verifikasi */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Distribusi Verifikasi Kasir</span>
+                  <span className="font-bold text-navy font-mono">100% Tercatat</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '100%' }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Rekonsiliasi Kas: Siap</span>
+                  <span className="text-sky-700 font-semibold">Siap Di-ACC</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Approval Rate
-                </span>
-                <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                  On-Time
-                </span>
+            {/* Card 3: Approval Rate */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Approval Rate
+                  </span>
+                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+                    On-Time
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-emerald-800">96.8%</p>
+                  <span className="text-xs font-medium text-slate-500">tepat waktu</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-emerald-800">96.8%</p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[91, 92, 94, 95, 96, 96.5, 96.8]} color="#059669" height={28} />
+
+              {/* Visual Kepatuhan SLA */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Tingkat Kepatuhan SLA</span>
+                  <span className="font-bold text-emerald-800 font-mono">96.8% (Target 95%)</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: '96.8%' }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Audit Kepatuhan: Prima</span>
+                  <span className="text-emerald-700 font-semibold">+1.8% Melampaui SLA</span>
+                </div>
               </div>
             </div>
           </div>
@@ -218,52 +274,117 @@ export default function DashboardPage() {
       {/* ==================== VIEW ROLE 3: ADMIN ==================== */}
       {isAdmin && (
         <div className="space-y-6" data-testid="admin-dashboard-view">
-          {/* Admin Metric Cards with Sparklines */}
+          {/* Admin Metric Cards: Target vs Realisasi & Status */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Target Divisi Bulan Ini
-                </span>
-                <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
-                  {userDivision ?? 'Divisi'}
-                </span>
+            {/* Card 1: Target Divisi Bulan Ini */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Target Divisi Bulan Ini
+                  </span>
+                  <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
+                    {userDivision ?? 'Divisi'} · RKAP 2026
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-navy">Rp 2.50 M</p>
+                  <span className="text-xs font-medium text-slate-500">alokasi bulan ini</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-navy">Rp 2.50 M</p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[2.2, 2.3, 2.35, 2.4, 2.45, 2.48, 2.5]} color="#0284c7" height={28} />
+
+              {/* Visual Pacing & Target Harian Operasional */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5 text-sky-600" /> Pacing Waktu Kalender
+                  </span>
+                  <span className="font-bold text-navy">Hari ke-6 / 30 (20%)</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '20%' }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Target Harian: <strong className="text-slate-700 font-mono">Rp 83.3 Jt/hari</strong></span>
+                  <span className="text-sky-700 font-semibold">24 Hari Tersisa</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Realisasi Input Berjalan
-                </span>
-                <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                  88.0% Capaian
-                </span>
+            {/* Card 2: Realisasi Input Berjalan */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Realisasi Input Berjalan
+                  </span>
+                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3 text-emerald-600" /> 88.0% Capaian
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-emerald-800">Rp 2.20 M</p>
+                  <span className="text-xs font-medium text-slate-500">tercatat s/d hari ini</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-emerald-800">Rp 2.20 M</p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[1.8, 1.9, 1.95, 2.05, 2.1, 2.15, 2.2]} color="#059669" height={28} />
+
+              {/* Visual Progress Bar Capaian & Gap to Target */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Progres Capaian terhadap Target</span>
+                  <span className="font-bold text-emerald-800 font-mono">88.0% (Rp 2.20 M / Rp 2.50 M)</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500 shadow-xs"
+                    style={{ width: '88%' }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] pt-0.5">
+                  <span className="text-slate-500">
+                    Sisa Gap: <strong className="text-rose-600 font-semibold font-mono">Rp 300 Jt</strong> (-12.0%)
+                  </span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] border border-emerald-200">
+                    On Track
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Status Laporan Hari Ini
-                </span>
-                <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                  Siap
-                </span>
+            {/* Card 3: Status Laporan Hari Ini */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Status Laporan Hari Ini
+                  </span>
+                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+                    Siap
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center gap-2.5">
+                  <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="text-base font-bold text-navy">Tersubmit & Approved</span>
+                    <p className="text-[11px] text-slate-500">Log harian tanggal berjalan lengkap</p>
+                  </div>
+                </div>
               </div>
-              <div className="mt-2 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-800" />
-                <span className="text-base font-bold text-navy">Tersubmit & Approved</span>
+
+              {/* Visual Kelengkapan Shift */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Kelengkapan Shift Kasir</span>
+                  <span className="font-bold text-emerald-800">100% (Pagi & Sore)</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: '100%' }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Settlement EDC: <strong className="text-slate-700">Klop</strong></span>
+                  <span className="text-emerald-700 font-semibold">Tervalidasi ACC</span>
+                </div>
               </div>
-              <p className="text-[11px] text-slate-700 font-medium mt-2">Log harian tanggal berjalan lengkap</p>
             </div>
           </div>
 
@@ -306,50 +427,104 @@ export default function DashboardPage() {
       {/* ==================== VIEW ROLE 4: PIC (VIEW ONLY) ==================== */}
       {isPicViewOnly && (
         <div className="space-y-6" data-testid="pic-dashboard-view">
-          {/* PIC Metric Cards with Sparklines */}
+          {/* PIC Metric Cards: Status Pengawasan, Divisi Dipantau, dan Kepatuhan */}
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Status Pengawasan
-                </span>
-                <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                  Aktif
-                </span>
+            {/* Card 1: Status Pengawasan */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Status Pengawasan
+                  </span>
+                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+                    Aktif
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-navy">100% Real-Time</p>
+                  <span className="text-xs font-medium text-slate-500">live stream</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-navy">100% Real-Time</p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[100, 100, 100, 100, 100, 100, 100]} color="#059669" height={28} />
+
+              {/* Visual Integritas Log */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Integritas Log Real-Time</span>
+                  <span className="font-bold text-emerald-800">100% Sinkron</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: '100%' }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Sensor Audit: Aktif</span>
+                  <span className="text-emerald-700 font-semibold">Tanpa Latensi</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Total Divisi Dipantau
-                </span>
-                <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
-                  Seluruh Unit
-                </span>
+            {/* Card 2: Total Divisi Dipantau */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Total Divisi Dipantau
+                  </span>
+                  <span className="rounded-pill bg-sky-50 px-2 py-0.5 text-[11px] font-bold text-sky-800 border border-sky-200">
+                    Seluruh Unit
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-navy">7 Unit Bisnis</p>
+                  <span className="text-xs font-medium text-slate-500">operasional aktif</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-navy">7 Unit Bisnis</p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[7, 7, 7, 7, 7, 7, 7]} color="#0284c7" height={28} />
+
+              {/* Visual Cakupan Unit */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Cakupan Unit Bisnis</span>
+                  <span className="font-bold text-navy">7 / 7 Divisi Ritel</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-sky-500 rounded-full" style={{ width: '100%' }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>58 Outlet Bandara</span>
+                  <span className="text-sky-700 font-semibold">Terkoneksi Sobat API</span>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-4 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Tingkat Kepatuhan Laporan
-                </span>
-                <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
-                  Tertib
-                </span>
+            {/* Card 3: Tingkat Kepatuhan Laporan */}
+            <div className="rounded-card-lg border border-line/60 bg-white/90 backdrop-blur-md p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Tingkat Kepatuhan Laporan
+                  </span>
+                  <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+                    Tertib
+                  </span>
+                </div>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <p className="text-2xl font-black text-emerald-800">98.2%</p>
+                  <span className="text-xs font-medium text-slate-500">akurasi laporan</span>
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-black text-emerald-800">98.2%</p>
-              <div className="mt-2 pt-1 border-t border-slate-100">
-                <SparklineSvg data={[95, 96, 96.5, 97, 97.8, 98, 98.2]} color="#059669" height={28} />
+
+              {/* Visual Kepatuhan Input */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                  <span>Kepatuhan Input SOP</span>
+                  <span className="font-bold text-emerald-800 font-mono">98.2% Tertib</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: '98.2%' }} />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Standar Digital Tech IT</span>
+                  <span className="text-emerald-700 font-semibold">Lulus Standar</span>
+                </div>
               </div>
             </div>
           </div>
