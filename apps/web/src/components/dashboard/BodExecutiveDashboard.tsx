@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Activity, TrendingUp, AlertTriangle } from 'lucide-react';
 import { bodApi, type BodOverviewItem } from '../../api/bod';
@@ -6,97 +7,47 @@ import { ExecutiveKpiCards } from './ExecutiveKpiCards';
 import { DualToneAreaChart } from './DualToneAreaChart';
 import { DivisionLeaderboard } from './DivisionLeaderboard';
 import { InteractiveDonutChart, type DonutSlice } from './InteractiveDonutChart';
-import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
+import { getPeriodSummary } from '../../data/dashboardPeriodData';
+import { type PeriodFilterOption } from '../filters/StickyContextFilterBar';
 
 export default function BodExecutiveDashboard() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawPeriod = searchParams.get('period');
+  const activePeriod: PeriodFilterOption =
+    rawPeriod && ['today', '7d', 'month', 'ytd'].includes(rawPeriod)
+      ? (rawPeriod as PeriodFilterOption)
+      : 'month';
+  const activeDivision = searchParams.get('divisionCode') || 'ALL';
+
+  const periodSummary = getPeriodSummary(activePeriod, activeDivision);
+
+  const handlePeriodChange = (newPeriod: 'today' | '7d' | 'month' | 'ytd') => {
+    const next = new URLSearchParams(searchParams);
+    if (newPeriod !== 'month') {
+      next.set('period', newPeriod);
+    } else {
+      next.delete('period');
+    }
+    setSearchParams(next);
+  };
+
   const { data: rawData, isLoading } = useQuery<BodOverviewItem[]>({
-    queryKey: ['bod', 'overview'],
+    queryKey: ['bod', 'overview', activePeriod, activeDivision],
     queryFn: () => bodApi.overview().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
 
-  // Fallback data if API is returning empty or offline
-  const fallbackData: BodOverviewItem[] = [
-    {
-      divisionCode: 'WRAP',
-      divisionName: 'Wrapping',
-      revenue: { gross: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue, source: 'Accounting Sync (Excel Sheet)', freshness: '2 Jam Lalu' },
-      target: { value: 5000000000, achievement: 101.0, source: 'Target Q3' },
-      performance: { score: 98, level: 'Unggul', source: 'SOP Audit' },
-      workforce: { count: 58, risk: 'Low', source: 'HRD' },
-      period: { from: '2026-08-01', to: '2026-08-31' },
-      drillDown: { href: '/laporan-harian?divisi=WRAP' },
-    },
-    {
-      divisionCode: 'CELL',
-      divisionName: 'Cellular',
-      revenue: { gross: 1800000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
-      target: { value: 1600000000, achievement: 112.5, source: 'Target Q3' },
-      performance: { score: 112, level: 'Unggul', source: 'SOP Audit' },
-      workforce: { count: 20, risk: 'Low', source: 'HRD' },
-      period: { from: '2026-09-01', to: '2026-09-30' },
-      drillDown: { href: '/laporan-harian?divisi=CELL' },
-    },
-    {
-      divisionCode: 'MINI',
-      divisionName: 'Minimarket',
-      revenue: { gross: 3500000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
-      target: { value: 3400000000, achievement: 102.9, source: 'Target Q3' },
-      performance: { score: 102, level: 'Sesuai Target', source: 'SOP Audit' },
-      workforce: { count: 30, risk: 'Low', source: 'HRD' },
-      period: { from: '2026-09-01', to: '2026-09-30' },
-      drillDown: { href: '/laporan-harian?divisi=MINI' },
-    },
-    {
-      divisionCode: 'FNB',
-      divisionName: 'FnB',
-      revenue: { gross: 1200000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
-      target: { value: 1500000000, achievement: 80, source: 'Target Q3' },
-      performance: { score: 80, level: 'Perhatian', source: 'SOP Audit' },
-      workforce: { count: 60, risk: 'Medium', source: 'HRD' },
-      period: { from: '2026-09-01', to: '2026-09-30' },
-      drillDown: { href: '/laporan-harian?divisi=FNB' },
-    },
-    {
-      divisionCode: 'REFL',
-      divisionName: 'Refleksi',
-      revenue: { gross: 450000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
-      target: { value: 400000000, achievement: 112.5, source: 'Target Q3' },
-      performance: { score: 112, level: 'Unggul', source: 'SOP Audit' },
-      workforce: { count: 15, risk: 'Low', source: 'HRD' },
-      period: { from: '2026-09-01', to: '2026-09-30' },
-      drillDown: { href: '/laporan-harian?divisi=REFL' },
-    },
-    {
-      divisionCode: 'MC',
-      divisionName: 'Money Changer',
-      revenue: { gross: 5000000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
-      target: { value: 5000000000, achievement: 100, source: 'Target Q3' },
-      performance: { score: 100, level: 'Sesuai Target', source: 'SOP Audit' },
-      workforce: { count: 8, risk: 'Low', source: 'HRD' },
-      period: { from: '2026-09-01', to: '2026-09-30' },
-      drillDown: { href: '/laporan-harian?divisi=MC' },
-    },
-    {
-      divisionCode: 'ACC',
-      divisionName: 'Accounting & Finance',
-      revenue: { gross: 800000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
-      target: { value: 750000000, achievement: 106.7, source: 'Target Q3' },
-      performance: { score: 106, level: 'Sesuai Target', source: 'SOP Audit' },
-      workforce: { count: 5, risk: 'Low', source: 'HRD' },
-      period: { from: '2026-09-01', to: '2026-09-30' },
-      drillDown: { href: '/laporan-harian?divisi=ACC' },
-    },
-  ];
-
-  const data = rawData && rawData.length > 0 ? rawData : fallbackData;
+  // Gunakan data periode terpilih (7d, today, month, ytd)
+  const data = (rawData && rawData.length > 0 && activePeriod === 'month' && activeDivision === 'ALL')
+    ? rawData
+    : periodSummary.divisions;
 
   // Computations
-  const totalRevenue = data.reduce((acc, curr) => acc + (curr.revenue.gross ?? 0), 0);
-  const totalTarget = data.reduce((acc, curr) => acc + curr.target.value, 0);
-  const achievementPct = totalTarget > 0 ? (totalRevenue / totalTarget) * 100 : 0;
-  const totalWorkforce = data.reduce((sum, d) => sum + d.workforce.count, 0);
+  const totalRevenue = periodSummary.totalRevenue;
+  const totalTarget = periodSummary.totalTarget;
+  const achievementPct = periodSummary.achievementPct;
+  const totalWorkforce = periodSummary.totalWorkforce;
 
   // Donut data mapping
   const colorMap: Record<string, string> = {
@@ -159,8 +110,11 @@ export default function BodExecutiveDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <span className="rounded-pill bg-white px-3 py-1 text-xs font-bold text-navy border border-line/60 shadow-xs">
-              Periode: September 2026
+            <span
+              className="rounded-pill bg-white px-3 py-1 text-xs font-bold text-navy border border-line/60 shadow-xs"
+              data-testid="bod-period-badge"
+            >
+              Periode: {periodSummary.periodLabel}
             </span>
           </div>
         </div>
@@ -175,7 +129,11 @@ export default function BodExecutiveDashboard() {
       />
 
       {/* 3. Dual-Tone Gradient Area Chart */}
-      <DualToneAreaChart />
+      <DualToneAreaChart
+        activePeriod={activePeriod}
+        onPeriodChange={handlePeriodChange}
+        dataOverride={periodSummary.chartPoints}
+      />
 
       {/* 4. Division Leaderboard & Interactive Donut Chart */}
       <div className="grid gap-6 lg:grid-cols-3">
