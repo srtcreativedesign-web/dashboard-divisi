@@ -6,6 +6,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { RouteGuard } from './components/RouteGuard';
 import { LoadingState } from './components/states';
 import { ToastProvider } from './components/ui/Toast';
+import { DisplayScaleProvider } from './context/DisplayScaleContext';
 import { AppLayout } from './layout/AppLayout';
 import { AuthProvider, useAuth } from './session/AuthContext';
 
@@ -60,7 +61,8 @@ function RouteSuspense({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <ErrorBoundary>
-      <ToastProvider>
+      <DisplayScaleProvider>
+        <ToastProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <BrowserRouter>
@@ -151,6 +153,7 @@ export default function App() {
           </AuthProvider>
         </QueryClientProvider>
       </ToastProvider>
-    </ErrorBoundary>
-  );
+    </DisplayScaleProvider>
+  </ErrorBoundary>
+);
 }
