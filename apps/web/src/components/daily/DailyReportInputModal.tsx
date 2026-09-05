@@ -252,17 +252,23 @@ export function DailyReportInputModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="daily-report-input-title"
+      className="fixed inset-0 z-50 overflow-y-auto bg-navy/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 md:p-6 animate-fade-in"
       data-testid="daily-report-input-modal"
     >
-      <div className="relative w-full max-w-3xl my-8 rounded-card-lg bg-white p-6 shadow-2xl border border-slate-200 animate-fade-in-up">
-        {/* Header Modal */}
-        <div className="flex items-start justify-between border-b border-line pb-4">
+      <form
+        onSubmit={handleSubmit}
+        className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in-up"
+      >
+        {/* Header Modal - Sticky Header */}
+        <div className="shrink-0 px-6 py-4 border-b border-line bg-slate-50/70 flex items-start justify-between">
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-pill bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
               <FileCheck className="h-3.5 w-3.5" /> Formulir Standar Pelaporan Omset Harian
             </div>
-            <h3 className="mt-1 text-xl font-black tracking-tight text-navy">
+            <h3 id="daily-report-input-title" className="mt-1 text-lg sm:text-xl font-black tracking-tight text-navy">
               Input Omset Harian — Divisi {DIVISION_NAMES[activeDivision] ?? activeDivision}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -274,20 +280,21 @@ export function DailyReportInputModal({
             onClick={onClose}
             className="rounded-card p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
             data-testid="btn-close-modal"
+            aria-label="Tutup Modal"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Validation Error Banner */}
-        {validationError && (
-          <div className="mt-4 rounded-card bg-danger/10 border border-danger/30 p-3 flex items-center gap-2 text-xs text-danger font-semibold">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>{validationError}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-5 space-y-5">
+        {/* Scrollable Form Body */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+          {/* Validation Error Banner */}
+          {validationError && (
+            <div className="rounded-card bg-danger/10 border border-danger/30 p-3 flex items-center gap-2 text-xs text-danger font-semibold">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{validationError}</span>
+            </div>
+          )}
           {/* SECTION 1: Identitas & Lokasi Outlet */}
           <div className="rounded-card-lg border border-line bg-slate-50/60 p-4 space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
@@ -625,6 +632,7 @@ export function DailyReportInputModal({
           </div>
 
           {/* SECTION 5: Catatan Operasional */}
+          {/* SECTION 6: Catatan Operasional */}
           <div>
             <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
               Catatan Operasional & Kendala Lapangan
@@ -636,9 +644,28 @@ export function DailyReportInputModal({
               data-testid="input-notes"
             />
           </div>
+        </div>
 
-          {/* Footer Actions */}
-          <div className="mt-6 flex items-center justify-end gap-3 border-t border-line pt-4">
+        {/* Footer Actions - Sticky Bottom */}
+        <div className="shrink-0 px-6 py-4 border-t border-line bg-slate-50/90 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-xs">
+            {numRevenue > 0 && isBalanced ? (
+              <span className="text-success font-semibold flex items-center gap-1.5 text-xs">
+                <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                Rincian klop 100% (Rp {numRevenue.toLocaleString('id-ID')})
+              </span>
+            ) : numRevenue > 0 ? (
+              <span className="text-danger font-semibold flex items-center gap-1.5 text-xs">
+                <AlertCircle className="h-4 w-4 text-danger shrink-0" />
+                Selisih Rp {Math.abs(numRevenue - sumBreakdown).toLocaleString('id-ID')} belum klop
+              </span>
+            ) : (
+              <span className="text-slate-400 text-xs">
+                Lengkapi omset & rincian pembayaran kasir
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
               Batal
             </Button>
@@ -651,8 +678,8 @@ export function DailyReportInputModal({
               {isSubmitting ? 'Memproses...' : 'Submit Laporan ke Manager'}
             </Button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 }
