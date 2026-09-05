@@ -3,7 +3,7 @@ import { api } from './client';
 export interface TenantRecordDto {
   id: string;
   name: string;
-  division: 'WRAP' | 'CELL' | 'REFL' | 'MINI' | 'FNB' | 'FIN' | 'MC';
+  division: 'WRAP' | 'CELL' | 'REFL' | 'MINI' | 'FNB' | 'MC' | 'ACC';
   category: string;
   location: string;
   monthlyRevenue: number;

@@ -243,8 +243,8 @@ export default function DailyReportPage() {
                     <option value="REFL">REFL - Refleksi</option>
                     <option value="MINI">MINI - Minimarket</option>
                     <option value="FNB">FNB - Food & Beverage</option>
-                    <option value="FIN">FIN - Finance</option>
                     <option value="MC">MC - Money Changer</option>
+                    <option value="ACC">ACC - Accounting & Finance</option>
                   </select>
                 </div>
               </div>
@@ -408,8 +408,8 @@ export default function DailyReportPage() {
                     <option value="REFL">REFL - Refleksi</option>
                     <option value="MINI">MINI - Minimarket</option>
                     <option value="FNB">FNB - Food & Beverage</option>
-                    <option value="FIN">FIN - Finance</option>
                     <option value="MC">MC - Money Changer</option>
+                    <option value="ACC">ACC - Accounting & Finance</option>
                   </select>
                 )}
               </div>

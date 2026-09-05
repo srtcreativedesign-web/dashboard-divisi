@@ -23,7 +23,7 @@ export interface ApprovalRequest {
   category: ApprovalCategory;
   title: string;
   description: string;
-  divisionCode: 'WRAP' | 'CELL' | 'REFL' | 'MINI' | 'FNB' | 'FIN' | 'MC' | 'ALL';
+  divisionCode: 'WRAP' | 'CELL' | 'REFL' | 'MINI' | 'FNB' | 'MC' | 'ACC' | 'ALL';
   divisionName: string;
   amount: number;
   priority: ApprovalPriority;
@@ -204,8 +204,8 @@ export const INITIAL_APPROVAL_REQUESTS: ApprovalRequest[] = [
     category: 'bank_reconciliation',
     title: 'Penyesuaian Biaya Administrasi Mutasi Bank BCA',
     description: 'Rekonsiliasi mutasi rekening koran BCA Operasional dengan selisih biaya kliring antar-bank.',
-    divisionCode: 'FIN',
-    divisionName: 'Finance',
+    divisionCode: 'ACC',
+    divisionName: 'Accounting & Finance',
     amount: 1250000,
     priority: 'high',
     status: 'pending_review',
@@ -270,8 +270,8 @@ export const INITIAL_APPROVAL_REQUESTS: ApprovalRequest[] = [
     category: 'period_closing',
     title: 'Pembukaan Sementara Periode Akuntansi Agustus 2026',
     description: 'Permohonan unfreeze buku besar Agustus 2026 untuk penyesuaian jurnal audit eksternal.',
-    divisionCode: 'FIN',
-    divisionName: 'Finance',
+    divisionCode: 'ACC',
+    divisionName: 'Accounting & Finance',
     amount: 0,
     priority: 'critical',
     status: 'pending_review',

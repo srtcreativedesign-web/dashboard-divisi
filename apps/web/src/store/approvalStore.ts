@@ -7,7 +7,7 @@ import {
 export interface DailyRecord {
   id: string;
   date: string;
-  division: 'WRAP' | 'CELL' | 'REFL' | 'MINI' | 'FNB' | 'FIN' | 'MC';
+  division: 'WRAP' | 'CELL' | 'REFL' | 'MINI' | 'FNB' | 'MC' | 'ACC';
   divisionName: string;
   revenue: number;
   target: number;
@@ -89,12 +89,12 @@ export const INITIAL_DAILY_REPORTS: DailyRecord[] = [
   {
     id: '6',
     date: '2026-09-03',
-    division: 'FIN',
-    divisionName: 'Finance',
+    division: 'ACC',
+    divisionName: 'Accounting & Finance',
     revenue: 150000000,
     target: 140000000,
-    notes: 'Pencatatan pendapatan jasa',
-    updatedBy: 'Admin Finance',
+    notes: 'Pencatatan pendapatan jasa & pembukuan',
+    updatedBy: 'Admin Accounting',
     status: 'PENDING_REVIEW',
     submittedAt: '03 Sep 2026 09:20',
   },

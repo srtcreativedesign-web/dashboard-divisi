@@ -78,14 +78,14 @@ export default function BodExecutiveDashboard() {
       drillDown: { href: '/laporan-harian?divisi=MC' },
     },
     {
-      divisionCode: 'FIN',
-      divisionName: 'Finance',
+      divisionCode: 'ACC',
+      divisionName: 'Accounting & Finance',
       revenue: { gross: 800000000, source: 'Accounting Sync', freshness: '2 Jam Lalu' },
       target: { value: 750000000, achievement: 106.7, source: 'Target Q3' },
       performance: { score: 106, level: 'Sesuai Target', source: 'SOP Audit' },
       workforce: { count: 5, risk: 'Low', source: 'HRD' },
       period: { from: '2026-09-01', to: '2026-09-30' },
-      drillDown: { href: '/laporan-harian?divisi=FIN' },
+      drillDown: { href: '/laporan-harian?divisi=ACC' },
     },
   ];
 
@@ -105,7 +105,7 @@ export default function BodExecutiveDashboard() {
     FNB: '#f59e0b',  // Amber
     REFL: '#8b5cf6', // Purple
     MC: '#06b6d4',   // Teal
-    FIN: '#6366f1',  // Indigo
+    ACC: '#6366f1',  // Indigo
   };
 
   const donutData: DonutSlice[] = data.map((d) => ({

@@ -68,6 +68,81 @@ class DatabaseSeeder extends Seeder
         ['email' => 'pic@dashboard.test', 'name' => 'PIC View Only', 'role' => 'USER', 'division_code' => null],
     ];
 
+    public const SOBAT_REAL_OUTLETS = [
+        // WRAP (19 real outlets)
+        ['code' => 'T3-A', 'name' => 'FIRST SECURE-T3-A', 'division_code' => 'WRAP'],
+        ['code' => 'T3 B', 'name' => 'ROBUSTPACK-T3 B', 'division_code' => 'WRAP'],
+        ['code' => 'T3E', 'name' => 'FIRST SECURE-T3E', 'division_code' => 'WRAP'],
+        ['code' => 'T2D', 'name' => 'KINGTECH-T2D', 'division_code' => 'WRAP'],
+        ['code' => 'T2D1', 'name' => 'STAR WRAP-T2D1', 'division_code' => 'WRAP'],
+        ['code' => 'T2E', 'name' => 'GALAXY PORT-T2E', 'division_code' => 'WRAP'],
+        ['code' => 'T2E4', 'name' => 'FIRST SECURE-T2E4', 'division_code' => 'WRAP'],
+        ['code' => 'T2F', 'name' => 'KINGTECH-T2F', 'division_code' => 'WRAP'],
+        ['code' => 'T2F5', 'name' => 'ROBUST PACK-T2F5', 'division_code' => 'WRAP'],
+        ['code' => 'T2F2', 'name' => 'KINGCELL-T2F2', 'division_code' => 'WRAP'],
+        ['code' => 'T1C', 'name' => 'PIONER WRAP-T1C', 'division_code' => 'WRAP'],
+        ['code' => 'YIA', 'name' => 'KINGTECH-YIA', 'division_code' => 'WRAP'],
+        ['code' => 'SUB', 'name' => 'KINGTECH-SUB', 'division_code' => 'WRAP'],
+        ['code' => 'DPS', 'name' => 'KINGTECH-DPS', 'division_code' => 'WRAP'],
+        ['code' => 'HLP', 'name' => 'KINGTECH-HLP', 'division_code' => 'WRAP'],
+        ['code' => 'BDG', 'name' => 'PIONEER WRAP-BDG', 'division_code' => 'WRAP'],
+        ['code' => 'YIA-B', 'name' => 'KINGTECH-YIA-B', 'division_code' => 'WRAP'],
+        ['code' => 'PN-BDG', 'name' => 'PIONEER-PN-BDG', 'division_code' => 'WRAP'],
+        ['code' => 'HO', 'name' => 'KINGTECH-HO', 'division_code' => 'WRAP'],
+
+        // MINI (20 real outlets)
+        ['code' => 'T3I', 'name' => 'M-MART-T3I', 'division_code' => 'MINI'],
+        ['code' => '2D1', 'name' => 'POINT ONE -2D1', 'division_code' => 'MINI'],
+        ['code' => 'T2D2', 'name' => 'AMBIL BEKAL YUK-T2D2', 'division_code' => 'MINI'],
+        ['code' => 'T2D3', 'name' => 'POINT ONE-T2D3', 'division_code' => 'MINI'],
+        ['code' => 'T2D5', 'name' => 'POINT ONE-T2D5', 'division_code' => 'MINI'],
+        ['code' => 'T2D6', 'name' => 'AMBIL BEKAL YUK-T2D6', 'division_code' => 'MINI'],
+        ['code' => 'T2D7', 'name' => 'POINT ONE-T2D7', 'division_code' => 'MINI'],
+        ['code' => 'T1E3', 'name' => 'PAPIMART-T1E3', 'division_code' => 'MINI'],
+        ['code' => 'T2E7', 'name' => 'LATTE STORY-T2E7', 'division_code' => 'MINI'],
+        ['code' => 'T2E41', 'name' => 'PAPIMART-T2E41', 'division_code' => 'MINI'],
+        ['code' => 'T2E51', 'name' => 'PAPIMART-T2E51', 'division_code' => 'MINI'],
+        ['code' => 'T2FB', 'name' => 'LATTE STORY-T2FB', 'division_code' => 'MINI'],
+        ['code' => 'LST1C', 'name' => 'LATTE STORY-LST1C', 'division_code' => 'MINI'],
+        ['code' => 'T1B6', 'name' => 'URBAN-T1B6', 'division_code' => 'MINI'],
+        ['code' => 'T1B4', 'name' => 'URBAN-T1B4', 'division_code' => 'MINI'],
+        ['code' => 'T1B7', 'name' => 'URBAN-T1B7', 'division_code' => 'MINI'],
+        ['code' => 'T1B5', 'name' => 'PAPI COFFEE-T1B5', 'division_code' => 'MINI'],
+        ['code' => 'T3G18', 'name' => 'PAPIMART-T3G18', 'division_code' => 'MINI'],
+        ['code' => 'BIM', 'name' => 'PAPIMART-BIM', 'division_code' => 'MINI'],
+        ['code' => 'PDG', 'name' => 'PAPAMAXX COFFEE-PDG', 'division_code' => 'MINI'],
+
+        // FNB (8 real outlets)
+        ['code' => 'T3INT', 'name' => 'BAKSO ZURO-T3INT', 'division_code' => 'FNB'],
+        ['code' => 'T3ICGK', 'name' => 'MASSURO-T3ICGK', 'division_code' => 'FNB'],
+        ['code' => 'MAX-3I', 'name' => 'MAXIMUM T3-MAX-3I', 'division_code' => 'FNB'],
+        ['code' => '600', 'name' => 'MAXIMUM -600', 'division_code' => 'FNB'],
+        ['code' => 'T1B', 'name' => 'BAKSO ZURO-T1B', 'division_code' => 'FNB'],
+        ['code' => 'BM', 'name' => 'CENTRAL KITCHEN-BM', 'division_code' => 'FNB'],
+        ['code' => 'TUNG', 'name' => 'WAROENG KOPI TUNGTAU-TUNG', 'division_code' => 'FNB'],
+        ['code' => 'TUNG TAU', 'name' => 'CK PAPAMAX-TUNG TAU', 'division_code' => 'FNB'],
+
+        // REFL (6 real outlets)
+        ['code' => 'T2FA', 'name' => 'SERENITY BLOSSOMS-T2FA', 'division_code' => 'REFL'],
+        ['code' => 'REFT3', 'name' => 'SERENITY BLOSSOM-REFT3', 'division_code' => 'REFL'],
+        ['code' => 'T3CGK', 'name' => 'SERENITY BLOSSOMS-T3CGK', 'division_code' => 'REFL'],
+        ['code' => 'HLP-G8', 'name' => 'SERENITY BLOSSOM-HLP-G8', 'division_code' => 'REFL'],
+        ['code' => 'HLP-G4', 'name' => 'SERENITY BLOSSOM-HLP-G4', 'division_code' => 'REFL'],
+        ['code' => 'HLP2', 'name' => 'HANS-HLP2', 'division_code' => 'REFL'],
+
+        // CELL (4 real outlets)
+        ['code' => 'T3IOUT', 'name' => 'POINT CELLULLER-T3IOUT', 'division_code' => 'CELL'],
+        ['code' => '3I', 'name' => 'TSEL-3I', 'division_code' => 'CELL'],
+        ['code' => 'DC3I', 'name' => 'DATA CELL-DC3I', 'division_code' => 'CELL'],
+        ['code' => 'T2F1', 'name' => 'DATA CELLULLER-T2F1', 'division_code' => 'CELL'],
+
+        // MC (1 real outlet)
+        ['code' => 'MCT3-I', 'name' => 'MONEY CHANGER-MCT3-I', 'division_code' => 'MC'],
+
+        // ACC (1 entity)
+        ['code' => 'ACC-001', 'name' => 'Accounting Pusat (Anonim)', 'division_code' => 'ACC'],
+    ];
+
     public function run(): void
     {
         // SOP: Zero Hardcoded Secrets — default password hanya dibolehkan untuk testing.
@@ -84,23 +159,36 @@ class DatabaseSeeder extends Seeder
         foreach (self::DIVISIONS as $d) {
             $division = Division::firstOrCreate(
                 ['code' => $d['code']],
-                ['name' => $d['name'], 'sort_order' => $d['sort_order'], 'is_active' => true]
+                ['name' => $d['name'], 'sort_order' => $d['sort_order'], 'is_active' => $d['code'] !== 'FIN']
             );
-            $division->update(['name' => $d['name'], 'sort_order' => $d['sort_order'], 'is_active' => true]);
+            $division->update(['name' => $d['name'], 'sort_order' => $d['sort_order'], 'is_active' => $d['code'] !== 'FIN']);
             $divisionMap[$d['code']] = $division;
         }
 
-        // 2. Seed Outlets
+        // 2. Seed Outlets (58 Real Outlets dari Sobat API + ACC Head Office)
+        foreach (self::SOBAT_REAL_OUTLETS as $o) {
+            $division = $divisionMap[$o['division_code']] ?? null;
+            if (! $division) continue;
+
+            $outlet = Outlet::firstOrCreate(
+                ['code' => $o['code']],
+                ['name' => $o['name'], 'division_id' => $division->id, 'is_active' => true]
+            );
+            $outlet->update(['name' => $o['name'], 'division_id' => $division->id, 'is_active' => true]);
+        }
+
+        // Fallback untuk backward-compatibility test legacy (WRAP-001, dsb)
         foreach (self::DIVISIONS as $d) {
             $division = $divisionMap[$d['code']];
             $outletCode = "{$d['code']}-001";
-            $outletName = "{$d['name']} Pusat (Anonim)";
-
-            $outlet = Outlet::firstOrCreate(
-                ['code' => $outletCode],
-                ['name' => $outletName, 'division_id' => $division->id, 'is_active' => true]
-            );
-            $outlet->update(['name' => $outletName, 'division_id' => $division->id, 'is_active' => true]);
+            if (! Outlet::where('code', $outletCode)->exists()) {
+                Outlet::create([
+                    'code' => $outletCode,
+                    'name' => "{$d['name']} Pusat",
+                    'division_id' => $division->id,
+                    'is_active' => $d['code'] !== 'FIN',
+                ]);
+            }
         }
 
         // 3. Seed Users

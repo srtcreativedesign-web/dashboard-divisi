@@ -39,7 +39,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     isRead: false,
     actionPath: '/accounting/outstanding',
     actionLabel: 'Inspeksi Piutang',
-    divisionCode: 'FIN',
+    divisionCode: 'ACC',
   },
   {
     id: 'notif-002',

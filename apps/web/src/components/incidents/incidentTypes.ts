@@ -94,7 +94,7 @@ export const INITIAL_INCIDENTS: FinancialIncident[] = [
     title: 'Tagihan Piutang Melewati Batas 60 Hari',
     description: 'Invoice AR-2026-009 milik PT Sarana Retail telah menunggak 68 hari tanpa pembayaran cicilan.',
     category: 'ar_aging',
-    divisionCode: 'FIN',
+    divisionCode: 'ACC',
     divisionName: 'Finance & Accounting',
     amount: 45000000,
     severity: 'danger',

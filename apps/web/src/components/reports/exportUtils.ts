@@ -126,7 +126,7 @@ export function getExportDataset(
           ['FNB', 'Food & Beverage', curr(78000000), curr(420000000), curr(1800000000), '23.3%', '#2'],
           ['REFL', 'Refleksi & Relaksasi', curr(18000000), curr(110000000), curr(600000000), '18.3%', '#4'],
           ['MC', 'Money Changer & Forex', curr(95000000), curr(620000000), curr(2200000000), '28.2%', '#1'],
-          ['FIN', 'Finance & Treasury', curr(32000000), curr(195000000), curr(800000000), '24.4%', '#3'],
+          ['ACC', 'Accounting & Finance', curr(32000000), curr(195000000), curr(800000000), '24.4%', '#3'],
         ],
       };
 

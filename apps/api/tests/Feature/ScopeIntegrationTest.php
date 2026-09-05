@@ -20,12 +20,14 @@ class ScopeIntegrationTest extends TestCase
         $this->assertTrue($policy->canAccessDivision($bod, 'MC'));
         $this->assertTrue($policy->canAccessDivision($bod, 'ACC'));
 
-        // BOD can query outlets across all divisions (8 outlets after ACC added)
+        // BOD can query outlets across all divisions (all real outlets from Sobat API + ACC)
         $response = $this->authenticated('bod1@dashboard.test')
             ->getJson('/api/v1/org/outlets');
 
         $response->assertStatus(200);
-        $this->assertCount(8, $response->json('data'));
+        $this->assertGreaterThanOrEqual(58, count($response->json('data')));
+        $this->assertContains('ACC-001', collect($response->json('data'))->pluck('code')->all());
+        $this->assertContains('T3-A', collect($response->json('data'))->pluck('code')->all());
     }
 
     public function test_manager_and_admin_strict_1_to_1_division_scope(): void
@@ -37,12 +39,13 @@ class ScopeIntegrationTest extends TestCase
         $this->assertFalse($policy->canAccessDivision($managerWrap, 'CELL'));
         $this->assertFalse($policy->canAccessDivision($managerWrap, 'MINI'));
 
-        // Manager WRAP querying outlets for own division succeeds
+        // Manager WRAP querying outlets for own division succeeds (sees real WRAP outlets)
         $ownRes = $this->authenticated('manager.wrap@dashboard.test')
             ->getJson('/api/v1/org/outlets?divisionCode=WRAP');
         $ownRes->assertStatus(200);
-        $this->assertCount(1, $ownRes->json('data'));
-        $this->assertEquals('WRAP-001', $ownRes->json('data.0.code'));
+        $this->assertGreaterThanOrEqual(19, count($ownRes->json('data')));
+        $this->assertContains('T3-A', collect($ownRes->json('data'))->pluck('code')->all());
+        $this->assertContains('T2D', collect($ownRes->json('data'))->pluck('code')->all());
 
         // Manager WRAP querying other division returns empty or scope error
         $otherRes = $this->authenticated('manager.wrap@dashboard.test')
