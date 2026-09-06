@@ -283,35 +283,27 @@ export default function AccountingCashflowReportPage() {
                   <th scope="col" className="p-2.5 font-semibold">Kelompok</th>
                   <th scope="col" className="p-2.5 font-semibold">Nama Pos Akun</th>
                   <th scope="col" className="p-2.5 text-right font-semibold">Realisasi Aktual (Rp)</th>
-                  <th scope="col" className="p-2.5 text-right font-semibold">Porsi Arus Kas</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {filteredCategories.map((cat) => {
-                  const totalBase = cat.group === 'B' ? cf.totalRevenue : cf.totalOperational + cf.totalBackoffice;
-                  const pct = totalBase > 0 && cat.amount > 0 ? ((cat.amount / totalBase) * 100).toFixed(1) : '0.0';
-                  return (
-                    <tr key={cat.code} className="hover:bg-slate-50/50">
-                      <td className="p-2.5 font-mono font-bold text-navy">{cat.code}</td>
-                      <td className="p-2.5">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                            cat.group === 'B' ? 'bg-success-light text-success' : cat.group === 'C' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning'
-                          }`}
-                        >
-                          {cat.groupLabel}
-                        </span>
-                      </td>
-                      <td className="p-2.5 font-medium text-slate-800">{cat.name}</td>
-                      <td className={`p-2.5 text-right font-mono font-semibold ${cat.amount > 0 ? (cat.group === 'B' ? 'text-success' : 'text-slate-900') : 'text-slate-300'}`}>
-                        {cat.amount > 0 ? rupiah(cat.amount) : '-'}
-                      </td>
-                      <td className="p-2.5 text-right font-mono text-slate-500">
-                        {cat.amount > 0 ? `${pct}%` : '-'}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {filteredCategories.map((cat) => (
+                  <tr key={cat.code} className="hover:bg-slate-50/50">
+                    <td className="p-2.5 font-mono font-bold text-navy">{cat.code}</td>
+                    <td className="p-2.5">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          cat.group === 'B' ? 'bg-success-light text-success' : cat.group === 'C' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning'
+                        }`}
+                      >
+                        {cat.groupLabel}
+                      </span>
+                    </td>
+                    <td className="p-2.5 font-medium text-slate-800">{cat.name}</td>
+                    <td className={`p-2.5 text-right font-mono font-semibold ${cat.amount > 0 ? (cat.group === 'B' ? 'text-success' : 'text-slate-900') : 'text-slate-300'}`}>
+                      {cat.amount > 0 ? rupiah(cat.amount) : '-'}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
