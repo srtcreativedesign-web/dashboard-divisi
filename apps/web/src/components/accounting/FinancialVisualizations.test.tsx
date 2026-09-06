@@ -224,6 +224,23 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
       expect(screen.getByText(/Waterfall Chart: Jembatan Aliran Arus Kas/i)).toBeInTheDocument();
     });
 
+    it('AccountingCashflowReportPage tidak lagi menampilkan kolom persentase porsi arus kas pada tab penjelasan', () => {
+      renderWithProviders(<AccountingCashflowReportPage />, 'MANAGER', 'ACC');
+
+      const explanationTab = screen.getByRole('button', { name: /Penjelasan Arus Kas/i });
+      fireEvent.click(explanationTab);
+
+      // Verifikasi header tabel esensial 4 kolom
+      expect(screen.getByRole('columnheader', { name: /Kode/i })).toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: /Kelompok/i })).toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: /Nama Pos Akun/i })).toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: /Realisasi Aktual \(Rp\)/i })).toBeInTheDocument();
+
+      // Memastikan kolom Porsi Arus Kas dalam persen telah dihilangkan
+      expect(screen.queryByRole('columnheader', { name: /Porsi Arus Kas/i })).not.toBeInTheDocument();
+      expect(screen.queryByText(/Porsi Arus Kas/i)).not.toBeInTheDocument();
+    });
+
     it('CashflowPage modul ritel operasional merender WaterfallChart', () => {
       renderWithProviders(<CashflowPage />, 'MANAGER', 'WRAP');
 
