@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\ApiException;
 use App\Services\Sobat\Contracts\SobatClientInterface;
 use App\Services\Sobat\Mappers\SobatTenantMapper;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -60,67 +61,95 @@ class SobatHrClientService implements SobatClientInterface
             );
         }
 
-        $fullUrl = "{$this->baseUrl}{$this->endpoint}";
+        $endpoint = '/'.ltrim((string) $this->endpoint, '/');
+        $baseUrl = rtrim((string) $this->baseUrl, '/');
+        $fullUrl = str_ends_with($baseUrl, $endpoint) ? $baseUrl : "{$baseUrl}{$endpoint}";
 
-        try {
-            $query = [];
-            if ($divisionCode !== null && $divisionCode !== '') {
-                $query['division_code'] = $divisionCode;
-            }
+        $cacheKey = 'sobat_tenants_raw';
+        $rawItems = null;
 
-            $req = Http::timeout($this->timeout)->withoutVerifying()->withHeaders([
-                'Accept' => 'application/json',
-            ]);
-
-            if ($this->apiKey) {
-                $req = $req->withToken($this->apiKey);
-            }
-            if ($this->companyId) {
-                $req = $req->withHeaders(['X-Company-ID' => $this->companyId]);
-            }
-
-            $response = $req->get($fullUrl, $query);
-        } catch (\Throwable $e) {
-            Log::warning('Gagal menghubungi upstream Sobat API', [
-                'endpoint' => $fullUrl,
-                'division_code' => $divisionCode,
-                'error_type' => get_class($e),
-                'error_message' => $e->getMessage(),
-            ]);
-
-            throw new ApiException(
-                'SOURCE_DATA_UNAVAILABLE',
-                'Gagal berkomunikasi dengan upstream API Sobat (timeout atau koneksi terputus).'
-            );
+        if (! app()->environment('testing') && Cache::has($cacheKey)) {
+            $rawItems = Cache::get($cacheKey);
         }
 
-        if ($response->failed()) {
-            Log::warning('Upstream Sobat API merespons dengan status error', [
-                'status' => $response->status(),
-                'division_code' => $divisionCode,
-            ]);
+        if ($rawItems === null) {
+            try {
+                $query = [];
+                if ($divisionCode !== null && $divisionCode !== '') {
+                    $query['division_code'] = $divisionCode;
+                }
 
-            throw new ApiException(
-                'SOURCE_DATA_UNAVAILABLE',
-                "Upstream API Sobat mengembalikan status error: {$response->status()}"
-            );
-        }
+                $req = Http::timeout($this->timeout)->withoutVerifying()->withHeaders([
+                    'Accept' => 'application/json',
+                ]);
 
-        $json = $response->json();
-        if (! is_array($json)) {
-            throw new ApiException(
-                'SOURCE_DATA_UNAVAILABLE',
-                'Format response dari upstream API Sobat tidak valid (bukan JSON array/object).'
-            );
-        }
+                if ($this->apiKey) {
+                    $req = $req->withToken($this->apiKey);
+                }
+                if ($this->companyId) {
+                    $req = $req->withHeaders(['X-Company-ID' => $this->companyId]);
+                }
 
-        // Upstream public API sometimes returns data directly as array or wrapped in 'data'
-        $rawItems = $json['data'] ?? $json['tenants'] ?? $json;
-        if (! is_array($rawItems)) {
-            throw new ApiException(
-                'SOURCE_DATA_UNAVAILABLE',
-                'Format response dari upstream API Sobat tidak memuat daftar tenant yang valid.'
-            );
+                $response = $req->get($fullUrl, $query);
+            } catch (\Throwable $e) {
+                if (! app()->environment('testing') && Cache::has("{$cacheKey}_stale")) {
+                    $rawItems = Cache::get("{$cacheKey}_stale");
+                } else {
+                    Log::warning('Gagal menghubungi upstream Sobat API', [
+                        'endpoint' => $fullUrl,
+                        'division_code' => $divisionCode,
+                        'error_type' => get_class($e),
+                        'error_message' => $e->getMessage(),
+                    ]);
+
+                    throw new ApiException(
+                        'SOURCE_DATA_UNAVAILABLE',
+                        'Gagal berkomunikasi dengan upstream API Sobat (timeout atau koneksi terputus).'
+                    );
+                }
+            }
+
+            if ($rawItems === null) {
+                if ($response->failed()) {
+                    if (! app()->environment('testing') && Cache::has("{$cacheKey}_stale")) {
+                        Log::info('Upstream Sobat API error, fallback ke stale cache', [
+                            'status' => $response->status(),
+                        ]);
+                        $rawItems = Cache::get("{$cacheKey}_stale");
+                    } else {
+                        Log::warning('Upstream Sobat API merespons dengan status error', [
+                            'status' => $response->status(),
+                            'division_code' => $divisionCode,
+                        ]);
+
+                        throw new ApiException(
+                            'SOURCE_DATA_UNAVAILABLE',
+                            "Upstream API Sobat mengembalikan status error: {$response->status()}"
+                        );
+                    }
+                } else {
+                    $json = $response->json();
+                    if (! is_array($json)) {
+                        throw new ApiException(
+                            'SOURCE_DATA_UNAVAILABLE',
+                            'Format response dari upstream API Sobat tidak valid (bukan JSON array/object).'
+                        );
+                    }
+
+                    $rawItems = $json['data'] ?? $json['tenants'] ?? $json;
+                    if (! is_array($rawItems)) {
+                        throw new ApiException(
+                            'SOURCE_DATA_UNAVAILABLE',
+                            'Format response dari upstream API Sobat tidak memuat daftar tenant yang valid.'
+                        );
+                    }
+
+                    if (! app()->environment('testing')) {
+                        Cache::put($cacheKey, $rawItems, now()->addMinutes(5));
+                        Cache::put("{$cacheKey}_stale", $rawItems, now()->addHours(24));
+                    }
+                }
+            }
         }
 
         $tenants = [];
