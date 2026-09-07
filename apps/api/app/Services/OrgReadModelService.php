@@ -23,7 +23,7 @@ class OrgReadModelService
         $role = $user['role'] ?? '';
         $userDivision = $user['divisionCode'] ?? $user['division_code'] ?? null;
 
-        if ($role === 'BOD' && !$userDivision) {
+        if ($role === 'BOD' && ! $userDivision) {
             return array_values(array_filter($all, fn ($d) => $d['isActive']));
         }
 
@@ -43,13 +43,13 @@ class OrgReadModelService
         $query = Outlet::where('is_active', true);
         if ($divisionCode) {
             $div = Division::where('code', $divisionCode)->first();
-            if (!$div) {
+            if (! $div) {
                 return [];
             }
             $query->where('division_id', $div->id);
         } elseif ($role !== 'BOD' && $userDivision) {
             $div = Division::where('code', $userDivision)->first();
-            if (!$div) {
+            if (! $div) {
                 return [];
             }
             $query->where('division_id', $div->id);
@@ -109,7 +109,7 @@ class OrgReadModelService
                 'divisionCode' => $o['divisionCode'] ?? ($o['divisionId'] ?? null),
             ], $outlets),
             'assignments' => array_slice($assignments, 0, 5),
-            'scope' => ($role === 'BOD' && !$userDivision) ? 'ALL_7_DIVISI' : $userDivision,
+            'scope' => ($role === 'BOD' && ! $userDivision) ? 'ALL_7_DIVISI' : $userDivision,
         ];
     }
 }

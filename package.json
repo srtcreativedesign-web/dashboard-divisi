@@ -2,16 +2,19 @@
   "name": "dashboard-divisi",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@11.23.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "check:env": "node scripts/check-env.mjs",
     "lint": "eslint .",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
-    "build": "pnpm -r build"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
   },
   "devDependencies": {
     "eslint": "^9.18.0",

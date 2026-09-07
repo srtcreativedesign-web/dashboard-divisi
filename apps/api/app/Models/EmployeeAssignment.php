@@ -11,6 +11,7 @@ class EmployeeAssignment extends Model
     protected $table = 'employee_assignments';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

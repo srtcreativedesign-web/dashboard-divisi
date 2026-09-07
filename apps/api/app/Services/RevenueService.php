@@ -455,7 +455,11 @@ class RevenueService
             throw new ApiException('RESOURCE_NOT_FOUND', 'Outlet tidak ditemukan atau tidak aktif');
         }
 
-        $this->policy->assertDivisionScope($user, $outlet->division?->code);
+        if ($outlet->division?->code === 'ACC') {
+            throw new ApiException('SCOPE_VIOLATION', 'Divisi Accounting (ACC) bukan divisi operasional retail omzet');
+        }
+
+        $this->policy->assertDivisionScope($user, $outlet->division?->code, true);
 
         return $outlet;
     }

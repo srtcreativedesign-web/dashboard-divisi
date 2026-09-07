@@ -12,6 +12,7 @@ class Division extends Model
     protected $table = 'divisions';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

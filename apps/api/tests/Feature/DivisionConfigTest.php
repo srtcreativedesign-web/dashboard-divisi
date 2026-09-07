@@ -6,13 +6,26 @@ use Tests\TestCase;
 
 class DivisionConfigTest extends TestCase
 {
-    public function test_get_all_configs_returns_7_division_configs(): void
+    public function test_get_all_configs_returns_all_division_configs(): void
     {
         $response = $this->authenticated('bod1@dashboard.test')
             ->getJson('/api/v1/division-configs');
 
         $response->assertStatus(200);
-        $this->assertCount(7, $response->json('data'));
+        $this->assertCount(8, $response->json('data'));
+    }
+
+    public function test_get_acc_division_config(): void
+    {
+        $response = $this->authenticated('bod1@dashboard.test')
+            ->getJson('/api/v1/division-configs/ACC');
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertEquals('ACC', $data['divisionCode']);
+        $this->assertContains('dashboard', $data['enabledModules']);
+        $this->assertContains('accounting', $data['enabledModules']);
+        $this->assertContains('accounting.balance', $data['enabledKpis']);
     }
 
     public function test_get_single_division_config(): void

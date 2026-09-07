@@ -5,19 +5,18 @@ namespace App\Services;
 use App\Exceptions\ApiException;
 use App\Models\Division;
 use App\Models\DivisionConfig;
-use Throwable;
 
 class DivisionConfigService
 {
     public function getConfig(string $divisionCode): ?array
     {
         $division = Division::where('code', $divisionCode)->first();
-        if (!$division) {
+        if (! $division) {
             return null;
         }
 
         $config = DivisionConfig::where('division_id', $division->id)->first();
-        if (!$config) {
+        if (! $config) {
             return [
                 'divisionCode' => $divisionCode,
                 'divisionName' => $division->name,
@@ -52,7 +51,7 @@ class DivisionConfigService
     public function upsertConfig(string $divisionCode, array $enabledModules, array $enabledKpis): array
     {
         $division = Division::where('code', $divisionCode)->first();
-        if (!$division) {
+        if (! $division) {
             throw new ApiException('RESOURCE_NOT_FOUND', "Division {$divisionCode} not found");
         }
 

@@ -6,7 +6,6 @@ use App\Exceptions\ApiException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Throwable;
 
 class AuthService
 {
@@ -23,6 +22,7 @@ class AuthService
         ['id' => 'mock-mgr-fnb', 'email' => 'manager.fnb@dashboard.test', 'name' => 'Manager FnB', 'role' => 'MANAGER', 'division_code' => 'FNB', 'is_active' => true],
         ['id' => 'mock-mgr-fin', 'email' => 'manager.fin@dashboard.test', 'name' => 'Manager Finance', 'role' => 'MANAGER', 'division_code' => 'FIN', 'is_active' => true],
         ['id' => 'mock-mgr-mc', 'email' => 'manager.mc@dashboard.test', 'name' => 'Manager Money Changer', 'role' => 'MANAGER', 'division_code' => 'MC', 'is_active' => true],
+        ['id' => 'mock-mgr-acc', 'email' => 'manager.acc@dashboard.test', 'name' => 'Manager Accounting', 'role' => 'MANAGER', 'division_code' => 'ACC', 'is_active' => true],
         ['id' => 'mock-adm-wrap', 'email' => 'admin.wrap@dashboard.test', 'name' => 'Admin Wrapping', 'role' => 'ADMIN', 'division_code' => 'WRAP', 'is_active' => true],
         ['id' => 'mock-adm-cell', 'email' => 'admin.cell@dashboard.test', 'name' => 'Admin Cellular', 'role' => 'ADMIN', 'division_code' => 'CELL', 'is_active' => true],
         ['id' => 'mock-adm-refl', 'email' => 'admin.refl@dashboard.test', 'name' => 'Admin Refleksi', 'role' => 'ADMIN', 'division_code' => 'REFL', 'is_active' => true],
@@ -30,6 +30,7 @@ class AuthService
         ['id' => 'mock-adm-fnb', 'email' => 'admin.fnb@dashboard.test', 'name' => 'Admin FnB', 'role' => 'ADMIN', 'division_code' => 'FNB', 'is_active' => true],
         ['id' => 'mock-adm-fin', 'email' => 'admin.fin@dashboard.test', 'name' => 'Admin Finance', 'role' => 'ADMIN', 'division_code' => 'FIN', 'is_active' => true],
         ['id' => 'mock-adm-mc', 'email' => 'admin.mc@dashboard.test', 'name' => 'Admin Money Changer', 'role' => 'ADMIN', 'division_code' => 'MC', 'is_active' => true],
+        ['id' => 'mock-adm-acc', 'email' => 'admin.acc@dashboard.test', 'name' => 'Admin Accounting', 'role' => 'ADMIN', 'division_code' => 'ACC', 'is_active' => true],
     ];
 
     public function __construct(
@@ -94,13 +95,13 @@ class AuthService
     public function validateUser(string $email, string $password): array
     {
         $user = $this->findUserByEmail($email);
-        if (!$user || !$user['is_active']) {
+        if (! $user || ! $user['is_active']) {
             throw new ApiException('AUTH_REQUIRED', 'Email atau password salah');
         }
 
         $ok = Hash::check($password, $user['password_hash']) || password_verify($password, $user['password_hash']);
 
-        if (!$ok) {
+        if (! $ok) {
             throw new ApiException('AUTH_REQUIRED', 'Email atau password salah');
         }
 
@@ -147,8 +148,11 @@ class AuthService
 
     public function logout(array $userPayload): array
     {
-        if (!empty($userPayload['jti'])) {
-            $this->tokenRevocation->revoke($userPayload['jti']);
+        if (! empty($userPayload['jti'])) {
+            $expiresAt = isset($userPayload['exp'])
+                ? (new \DateTimeImmutable)->setTimestamp((int) $userPayload['exp'])
+                : null;
+            $this->tokenRevocation->revoke($userPayload['jti'], $userPayload['sub'] ?? null, $expiresAt);
         }
 
         $this->audit->log([
@@ -168,7 +172,7 @@ class AuthService
     {
         $userId = $userPayload['sub'] ?? '';
         $user = $this->findUserById($userId);
-        if (!$user || !$user['is_active']) {
+        if (! $user || ! $user['is_active']) {
             throw new ApiException('AUTH_REQUIRED', 'Sesi tidak valid');
         }
 
@@ -188,13 +192,13 @@ class AuthService
         }
 
         $user = $this->findUserById($userId);
-        if (!$user) {
+        if (! $user) {
             throw new ApiException('AUTH_REQUIRED', 'User tidak ditemukan');
         }
 
         $ok = Hash::check($oldPassword, $user['password_hash']) || password_verify($oldPassword, $user['password_hash']);
 
-        if (!$ok) {
+        if (! $ok) {
             throw new ApiException('AUTH_REQUIRED', 'Password lama salah');
         }
 

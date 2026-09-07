@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 
-import { NoAccessState } from './states';
-import { useSession } from '../session/SessionContext';
+import { Navigate } from 'react-router-dom';
+import { EmptyState, NoAccessState } from './states';
+import { useAuth } from '../session/AuthContext';
 import { hasCapability, canAccessDivision } from '../session/capability';
 
 interface RouteGuardProps {
@@ -12,13 +13,16 @@ interface RouteGuardProps {
 }
 
 export function RouteGuard({ children, capability, divisionCode, fallback }: RouteGuardProps) {
-  const { user } = useSession();
+  const { user, loading: authLoading } = useAuth();
 
-  if (capability && !hasCapability(user.role, capability)) {
+  if (authLoading) return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
+  if (!user) return <Navigate to="/login" replace />;
+
+  if (capability && !hasCapability(user.role as never, capability, user.divisionCode)) {
     return fallback ?? <NoAccessState description={`Role ${user.role} tidak memiliki izin ${capability}.`} />;
   }
 
-  if (divisionCode && !canAccessDivision(user, divisionCode)) {
+  if (divisionCode && !canAccessDivision(user as unknown as { role: never; divisionCode: string | null }, divisionCode)) {
     return fallback ?? <NoAccessState description={`Role ${user.role} tidak memiliki akses ke divisi ${divisionCode}.`} />;
   }
 

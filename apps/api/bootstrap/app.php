@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-if (!defined('GENERIC_INTERNAL_MESSAGE')) {
+if (! defined('GENERIC_INTERNAL_MESSAGE')) {
     define('GENERIC_INTERNAL_MESSAGE', 'Terjadi kesalahan internal. Silakan coba lagi.');
 }
 
@@ -49,7 +49,7 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->render(function (Throwable $e, Request $request) {
-            if (!$request->is('api/*') && !$request->expectsJson()) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
                 return null;
             }
 
@@ -81,7 +81,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         ];
                     }
                 }
-                $fields = !empty($fieldErrors) ? $fieldErrors : null;
+                $fields = ! empty($fieldErrors) ? $fieldErrors : null;
             } elseif ($e instanceof AuthenticationException) {
                 $httpStatus = 401;
                 $code = 'AUTH_REQUIRED';

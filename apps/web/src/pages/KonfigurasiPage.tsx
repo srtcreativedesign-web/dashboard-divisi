@@ -1,125 +1,341 @@
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import {
+  Settings,
+  Sliders,
+  AlertOctagon,
+  Sparkles,
+  Store,
+  Layers,
+} from 'lucide-react';
+import { api } from '../api/client';
+import { useDivisionConfigs, useOutlets } from '../hooks/useBod';
+import { useToast } from '../components/ui/Toast';
+import { EmptyState, ErrorState, LoadingState } from '../components/states';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 import { StatusPill } from '../components/StatusPill';
+import {
+  AlertRuleConfigurator,
+  IncidentResolutionBoard,
+  AlertDryRunSimulator,
+} from '../components/incidents';
 
-const divisions = [
-  { code: 'MINI', name: 'Minimarket', modules: 'Revenue, Target, Workforce', outlets: 12, status: 'Aktif' },
-  { code: 'CELL', name: 'Cellular', modules: 'Revenue, Target', outlets: 8, status: 'Aktif' },
-  { code: 'WRAP', name: 'Wrapping', modules: 'Revenue, Assessment', outlets: 6, status: 'Aktif' },
-  { code: 'FNB', name: 'FnB', modules: 'Revenue, Workforce', outlets: 5, status: 'Draft' },
-  { code: 'MC', name: 'Money Changer', modules: 'Forex guard, Reporting', outlets: 3, status: 'Restricted' },
-];
-
-const outlets = [
-  { code: 'MINI-001', division: 'MINI', city: 'Jakarta', manager: 'Mina Demo', status: 'Aktif' },
-  { code: 'CELL-001', division: 'CELL', city: 'Bandung', manager: 'Admin Demo', status: 'Aktif' },
-  { code: 'WRAP-001', division: 'WRAP', city: 'Surabaya', manager: 'Wira Demo', status: 'Aktif' },
-  { code: 'FNB-001', division: 'FNB', city: 'Jakarta', manager: 'Fina Demo', status: 'Draft' },
-  { code: 'MC-001', division: 'MC', city: 'Medan', manager: 'Mira Demo', status: 'Restricted' },
-];
-
-const rules = [
-  { title: 'Aktif/nonaktif terkontrol', detail: 'Divisi atau outlet nonaktif tetap tersimpan untuk histori dan tidak muncul di input baru.' },
-  { title: 'Module toggle per divisi', detail: 'Revenue, target, workforce, assessment, dan report dapat diaktifkan sesuai kebutuhan divisi.' },
-  { title: 'Money Changer guard', detail: 'Transaksi valuta ditandai restricted dan tidak otomatis masuk omzet retail.' },
-];
+type ConfigTab = 'divisions' | 'rules' | 'incidents' | 'simulator';
 
 export default function KonfigurasiPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (searchParams.get('tab') as ConfigTab) || 'divisions';
+  const [activeTab, setActiveTab] = useState<ConfigTab>(initialTab);
+
+  // Sync tab with URL
+  useEffect(() => {
+    const tabParam = searchParams.get('tab') as ConfigTab;
+    if (tabParam && ['divisions', 'rules', 'incidents', 'simulator'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: ConfigTab) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
+
+  // Division & Outlet config state (Real BE)
+  const { data, isLoading, error, refetch } = useDivisionConfigs();
+  const outletQ = useOutlets();
+  const { toast } = useToast();
+  const [code, setCode] = useState('WRAP');
+  const [modules, setModules] = useState('dashboard,revenue');
+  const [kpis, setKpis] = useState('revenue.gross');
+
+  const mut = useMutation({
+    mutationFn: () =>
+      api
+        .post<unknown>(`/division-configs/${code}`, {
+          enabledModules: modules.split(',').map((s) => s.trim()).filter(Boolean),
+          enabledKpis: kpis.split(',').map((s) => s.trim()).filter(Boolean),
+        })
+        .then((r) => r.data),
+    onSuccess: () => {
+      toast('Config disimpan', 'success');
+      void refetch();
+    },
+    onError: () => {
+      const err = mut.error as unknown as { message?: string; traceId?: string };
+      toast(
+        `${err.message ?? 'Gagal simpan'}${err.traceId ? ` — ${err.traceId}` : ''}`,
+        'error',
+      );
+    },
+  });
+
   return (
-    <div className="space-y-6">
-      <section className="rounded-card border border-line bg-white p-5 shadow-card">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+    <div className="space-y-6 animate-fade-in-up" data-testid="konfigurasi-page">
+      {/* Modern Glassmorphic Top Header */}
+      <section className="rounded-2xl border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-primary">Superadmin Configuration</p>
-            <h1 className="mt-1 text-2xl font-semibold text-navy">Konfigurasi Divisi & Outlet</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">Mock konfigurasi aktif/nonaktif divisi, outlet, dan module toggle tanpa API/DB.</p>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-100/80 px-2.5 py-0.5 rounded-full">
+                Tata Kelola & Konfigurasi
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="text-xs font-medium text-slate-500">Real BE & Alert Engine</span>
+            </div>
+            <h1 className="mt-1.5 text-2xl lg:text-3xl font-bold tracking-tight text-navy">
+              Konfigurasi Sistem & Resolusi Anomali
+            </h1>
+            <p className="mt-1 text-xs text-slate-500 max-w-2xl leading-relaxed">
+              Pusat kendali pengaturan divisi, ambang batas peringatan dini finansial, tata kelola insiden operasional, serta simulasi respon sistem.
+            </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" className="rounded-input border border-line px-4 py-2 text-sm font-medium text-navy">Preview perubahan</button>
-            <button type="button" className="rounded-input bg-primary px-4 py-2 text-sm font-medium text-white">Simpan konfigurasi</button>
-          </div>
+        </div>
+
+        {/* Tabbed Navigation */}
+        <div className="mt-6 flex items-center gap-2 border-b border-line/60 pb-px overflow-x-auto scrollbar-none">
+          <button
+            type="button"
+            onClick={() => handleTabChange('divisions')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer shrink-0 ${
+              activeTab === 'divisions'
+                ? 'border-sky-600 text-sky-900 bg-sky-50/50 rounded-t-lg'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+            data-testid="tab-divisions"
+          >
+            <Settings className="h-4 w-4" />
+            <span>Divisi & Outlet</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('rules')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer shrink-0 ${
+              activeTab === 'rules'
+                ? 'border-sky-600 text-sky-900 bg-sky-50/50 rounded-t-lg'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+            data-testid="tab-rules"
+          >
+            <Sliders className="h-4 w-4" />
+            <span>Aturan Ambang Batas</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('incidents')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer shrink-0 ${
+              activeTab === 'incidents'
+                ? 'border-sky-600 text-sky-900 bg-sky-50/50 rounded-t-lg'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+            data-testid="tab-incidents"
+          >
+            <AlertOctagon className="h-4 w-4" />
+            <span>Pusat Manajemen Insiden</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('simulator')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer shrink-0 ${
+              activeTab === 'simulator'
+                ? 'border-sky-600 text-sky-900 bg-sky-50/50 rounded-t-lg'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+            data-testid="tab-simulator"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>Simulasi Pemicu Alert</span>
+          </button>
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-4">
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-slate-500">Divisi aktif</p>
-          <p className="mt-3 text-2xl font-semibold text-success">3/5</p>
-          <p className="mt-2 text-sm text-slate-500">2 draft/restricted</p>
-        </article>
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-slate-500">Outlet aktif</p>
-          <p className="mt-3 text-2xl font-semibold text-navy">34</p>
-          <p className="mt-2 text-sm text-slate-500">Lintas 5 divisi</p>
-        </article>
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-slate-500">Module toggle</p>
-          <p className="mt-3 text-2xl font-semibold text-primary">12</p>
-          <p className="mt-2 text-sm text-slate-500">Config-driven dashboard</p>
-        </article>
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-slate-500">Audit config</p>
-          <p className="mt-3 text-2xl font-semibold text-warning">Wajib</p>
-          <p className="mt-2 text-sm text-slate-500">Semua perubahan tercatat</p>
-        </article>
-      </section>
-
-      <section className="rounded-card border border-line bg-white p-5 shadow-card">
-        <h2 className="text-lg font-semibold text-navy">Divisi</h2>
-        <div className="mt-4 overflow-x-auto rounded-card border border-line">
-          <table className="min-w-[720px] w-full text-left text-sm">
-            <thead className="bg-surface text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">Kode</th>
-                <th className="px-4 py-3 font-medium">Nama</th>
-                <th className="px-4 py-3 font-medium">Module</th>
-                <th className="px-4 py-3 font-medium">Outlet</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {divisions.map((division) => (
-                <tr key={division.code}>
-                  <td className="px-4 py-3 font-medium text-navy">{division.code}</td>
-                  <td className="px-4 py-3 text-slate-600">{division.name}</td>
-                  <td className="px-4 py-3 text-slate-600">{division.modules}</td>
-                  <td className="px-4 py-3 text-slate-600">{division.outlets}</td>
-                  <td className="px-4 py-3"><StatusPill status={division.status} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <h2 className="text-lg font-semibold text-navy">Outlet</h2>
-          <div className="mt-4 space-y-3">
-            {outlets.map((outlet) => (
-              <div key={outlet.code} className="rounded-card border border-line p-4">
-                <div className="flex items-start justify-between gap-3">
+      {/* Tab 1: Divisi & Outlet (Preserved Real BE Implementation) */}
+      {activeTab === 'divisions' && (
+        <div className="space-y-6 animate-in fade-in duration-150" data-testid="tab-content-divisions">
+          {isLoading ? (
+            <LoadingState />
+          ) : error ? (
+            <ErrorState
+              description={(error as Error).message}
+              onRetry={() => void refetch()}
+            />
+          ) : !data ? (
+            <EmptyState />
+          ) : (
+            <>
+              {/* Section Divisi */}
+              <section className="rounded-2xl border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-navy">{outlet.code}</p>
-                    <p className="mt-1 text-sm text-slate-500">{outlet.division} · {outlet.city} · {outlet.manager}</p>
+                    <h2 className="text-base font-bold text-navy">Konfigurasi Modul Divisi</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      GET /division-configs & POST /division-configs/{'{divisionCode}'} (capability:manage:division).
+                    </p>
                   </div>
-                  <StatusPill status={outlet.status} />
                 </div>
-              </div>
-            ))}
-          </div>
-        </article>
 
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <h2 className="text-lg font-semibold text-navy">Aturan konfigurasi</h2>
-          <div className="mt-4 space-y-3">
-            {rules.map((rule) => (
-              <div key={rule.title} className="rounded-card border border-line p-4">
-                <p className="font-medium text-navy">{rule.title}</p>
-                <p className="mt-1 text-sm text-slate-500">{rule.detail}</p>
-              </div>
-            ))}
-          </div>
-        </article>
-      </section>
+                <div className="mt-4 overflow-x-auto rounded-xl border border-line/40">
+                  <table className="min-w-[720px] w-full text-left text-xs">
+                    <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-line">
+                      <tr>
+                        <th scope="col" className="px-4 py-3">Kode</th>
+                        <th scope="col" className="px-4 py-3">Modules</th>
+                        <th scope="col" className="px-4 py-3">KPIs</th>
+                        <th scope="col" className="px-4 py-3">Aktif</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line/40 bg-white">
+                      {(
+                        data as unknown as {
+                          divisionCode: string;
+                          enabledModules: string[];
+                          enabledKpis: string[];
+                          isActive: boolean;
+                        }[]
+                      ).map((d) => (
+                        <tr key={d.divisionCode} className="hover:bg-slate-50/60">
+                          <td className="px-4 py-3 font-semibold text-navy">{d.divisionCode}</td>
+                          <td className="px-4 py-3 text-slate-600">{d.enabledModules.join(', ')}</td>
+                          <td className="px-4 py-3 text-slate-600">{d.enabledKpis.join(', ')}</td>
+                          <td className="px-4 py-3">
+                            <StatusPill status={d.isActive ? 'Aktif' : 'Nonaktif'} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              {/* Section Outlet */}
+              <section className="rounded-2xl border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm">
+                <h2 className="text-base font-bold text-navy">Daftar Outlet Terdaftar</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  GET /org/outlets scoped per role/divisi.
+                </p>
+
+                {outletQ.isLoading ? (
+                  <p className="mt-3 text-xs text-slate-500">Memuat outlet...</p>
+                ) : outletQ.error ? (
+                  <ErrorState
+                    description={(outletQ.error as Error).message}
+                    onRetry={() => void outletQ.refetch()}
+                  />
+                ) : (() => {
+                  const rows = (outletQ.data ?? []) as unknown as {
+                    code: string;
+                    name: string;
+                    divisionId: string;
+                    isActive: boolean;
+                  }[];
+                  if (rows.length === 0)
+                    return (
+                      <EmptyState
+                        title="Belum ada outlet"
+                        description="Seed outlet belum tersedia — jalankan php artisan db:seed"
+                      />
+                    );
+                  return (
+                    <>
+                      <div className="mt-4 overflow-x-auto rounded-xl border border-line/40">
+                        <table className="min-w-[520px] w-full text-left text-xs">
+                          <caption className="sr-only">Outlet per divisi</caption>
+                          <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-line">
+                            <tr>
+                              <th scope="col" className="px-4 py-3">Kode</th>
+                              <th scope="col" className="px-4 py-3">Nama</th>
+                              <th scope="col" className="px-4 py-3">Aktif</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-line/40 bg-white">
+                            {rows.slice(0, 20).map((o) => (
+                              <tr key={o.code} className="hover:bg-slate-50/60">
+                                <td className="px-4 py-3 font-semibold text-navy">{o.code}</td>
+                                <td className="px-4 py-3 text-slate-600">{o.name}</td>
+                                <td className="px-4 py-3">
+                                  <StatusPill status={o.isActive ? 'Aktif' : 'Nonaktif'} />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <p className="mt-2 text-xs text-slate-400">
+                        {rows.length} outlet terlihat (scope {rows.length > 7 ? 'BOD lintas' : '1:1'})
+                      </p>
+                    </>
+                  );
+                })()}
+              </section>
+
+              {/* Section Upsert */}
+              <section className="rounded-2xl border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm">
+                <h2 className="text-base font-bold text-navy">Upsert Parameter Divisi (Real BE)</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Perbarui daftar modul dan KPI aktif.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className="w-24"
+                    placeholder="WRAP"
+                    aria-label="Kode divisi"
+                  />
+                  <Input
+                    value={modules}
+                    onChange={(e) => setModules(e.target.value)}
+                    className="flex-1 min-w-[200px]"
+                    placeholder="dashboard,revenue"
+                    aria-label="Modules"
+                  />
+                  <Input
+                    value={kpis}
+                    onChange={(e) => setKpis(e.target.value)}
+                    className="flex-1 min-w-[200px]"
+                    placeholder="revenue.gross"
+                    aria-label="KPIs"
+                  />
+                  <Button onClick={() => mut.mutate()} disabled={mut.isPending}>
+                    Simpan
+                  </Button>
+                </div>
+                {mut.isError && (
+                  <p className="mt-2 text-xs text-danger font-medium">
+                    {(mut.error as Error).message}
+                  </p>
+                )}
+                {mut.isSuccess && (
+                  <p className="mt-2 text-xs text-success font-semibold">Tersimpan</p>
+                )}
+              </section>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Tab 2: Alert Rules Configurator */}
+      {activeTab === 'rules' && (
+        <div className="animate-in fade-in duration-150" data-testid="tab-content-rules">
+          <AlertRuleConfigurator />
+        </div>
+      )}
+
+      {/* Tab 3: Incident Management Board */}
+      {activeTab === 'incidents' && (
+        <div className="animate-in fade-in duration-150" data-testid="tab-content-incidents">
+          <IncidentResolutionBoard />
+        </div>
+      )}
+
+      {/* Tab 4: Alert Dry-Run Simulator */}
+      {activeTab === 'simulator' && (
+        <div className="animate-in fade-in duration-150" data-testid="tab-content-simulator">
+          <AlertDryRunSimulator />
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiEnvelopeMiddleware
@@ -15,7 +16,7 @@ class ApiEnvelopeMiddleware
 
         // Only wrap successful API responses (200-299)
         if ($response instanceof JsonResponse && $response->isSuccessful()) {
-            $traceId = $request->attributes->get('trace_id') ?: (string) \Illuminate\Support\Str::uuid();
+            $traceId = $request->attributes->get('trace_id') ?: (string) Str::uuid();
             $data = $response->getData(true);
 
             // Check if already wrapped with data & meta
@@ -23,10 +24,10 @@ class ApiEnvelopeMiddleware
                 return $response;
             }
 
-            $selfUri = '/' . ltrim($request->path(), '/');
+            $selfUri = '/'.ltrim($request->path(), '/');
             $query = $request->getQueryString();
             if ($query) {
-                $selfUri .= '?' . $query;
+                $selfUri .= '?'.$query;
             }
 
             $wrapped = [

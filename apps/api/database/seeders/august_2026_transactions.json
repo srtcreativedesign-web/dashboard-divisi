@@ -1,0 +1,3874 @@
+[
+  {
+    "row": 8,
+    "code": "B1",
+    "date": "2026-08-03",
+    "desc": "B1. SALES 31 JULI, 01,02 AGUSTUS 2026",
+    "debit": 505634761,
+    "credit": 0
+  },
+  {
+    "row": 9,
+    "code": "C30",
+    "date": "2026-08-03",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK ROBUSTPACK T3B BCA",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 10,
+    "code": "C30",
+    "date": "2026-08-03",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E BCA",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 11,
+    "code": "C30",
+    "date": "2026-08-03",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH YIA INTER BCA",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 12,
+    "code": "C30",
+    "date": "2026-08-03",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH BALI",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 13,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN STARWRAPP T2D MASA JULI 2026",
+    "debit": 0,
+    "credit": 24640954
+  },
+  {
+    "row": 14,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN GALAXYPORT T2E MASA JULI 2026",
+    "debit": 0,
+    "credit": 26942454
+  },
+  {
+    "row": 15,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN ROBUSTPACK T2F MASA JULI 2026",
+    "debit": 0,
+    "credit": 11631954
+  },
+  {
+    "row": 16,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN ROBUSTPACK T3B MASA JULI 2026",
+    "debit": 0,
+    "credit": 29418770
+  },
+  {
+    "row": 17,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN PIONER T1C MASA JULI 2026",
+    "debit": 0,
+    "credit": 39583112
+  },
+  {
+    "row": 18,
+    "code": "C30",
+    "date": "2026-08-03",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 19,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN FIRST SECURE T2E MASA JULI 2026",
+    "debit": 0,
+    "credit": 23534454
+  },
+  {
+    "row": 20,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN KINGTECH T2F MASA JULI 2026",
+    "debit": 0,
+    "credit": 25019954
+  },
+  {
+    "row": 21,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN KINGTECH T2D MASA JULI 2026",
+    "debit": 0,
+    "credit": 32028954
+  },
+  {
+    "row": 22,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN KINGTECH HLP MASA JULI 2026",
+    "debit": 0,
+    "credit": 30439518
+  },
+  {
+    "row": 23,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN FIRST SECURE T3E MASA JULI 2026",
+    "debit": 0,
+    "credit": 53362880
+  },
+  {
+    "row": 24,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN FIRST SECURE T3A MASA JULI 2026",
+    "debit": 0,
+    "credit": 40128344
+  },
+  {
+    "row": 25,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN KINGTECH YIA MASA JULI 2026",
+    "debit": 0,
+    "credit": 56023054
+  },
+  {
+    "row": 26,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN KINGTECH T1A SUB MASA JULI 2026",
+    "debit": 0,
+    "credit": 31803018
+  },
+  {
+    "row": 27,
+    "code": "C13a",
+    "date": "2026-08-03",
+    "desc": "C13a. GAJI LAPANGAN - PEMBAYARAN GAJI LAPANGAN KINGTECH BALI MASA JULI 2026",
+    "debit": 0,
+    "credit": 54951518
+  },
+  {
+    "row": 28,
+    "code": "C30",
+    "date": "2026-08-03",
+    "desc": "C30. BIAYA BANK - BIAYA ADM PAYROLL WRAPPING FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 317501
+  },
+  {
+    "row": 29,
+    "code": "C20",
+    "date": "2026-08-03",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH T1A SUB DC WRAPPING",
+    "debit": 0,
+    "credit": 40533800
+  },
+  {
+    "row": 31,
+    "code": "B1",
+    "date": "2026-08-04",
+    "desc": "B1. SALES 03 AGUSTUS 2026",
+    "debit": 143467980,
+    "credit": 0
+  },
+  {
+    "row": 32,
+    "code": "B3e",
+    "date": "2026-08-04",
+    "desc": "B3e. PEND LAIN-LAIN - PEMBAYARAN SETORAN AWAL REKENING BCA PIONER BANDUNG",
+    "debit": 1000000,
+    "credit": 0
+  },
+  {
+    "row": 33,
+    "code": "B3e",
+    "date": "2026-08-04",
+    "desc": "B3e. PEND LAIN-LAIN - PEMBAYARAN SETORAN AWAL REKENING BCA KINGTECH  T2D",
+    "debit": 1000000,
+    "credit": 0
+  },
+  {
+    "row": 34,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3A BCA",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 35,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C BCA",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 36,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK ROBUSTPACK T2F BCA",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 37,
+    "code": "D6",
+    "date": "2026-08-04",
+    "desc": "D6. PRIVE - PRIVE FIRST SECURE T3E CICILAN PERTAMA",
+    "debit": 0,
+    "credit": 26271199
+  },
+  {
+    "row": 38,
+    "code": "D6",
+    "date": "2026-08-04",
+    "desc": "D6. PRIVE - PRIVE FIRST SECURE T3A CICILAN PERTAMA",
+    "debit": 0,
+    "credit": 24728801
+  },
+  {
+    "row": 39,
+    "code": "D6",
+    "date": "2026-08-04",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE KINGTECH HLP CICILAN PERTAMA",
+    "debit": 0,
+    "credit": 11500000
+  },
+  {
+    "row": 40,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH HLP BRI",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 41,
+    "code": "C22a",
+    "date": "2026-08-04",
+    "desc": "C22a. MKT TENANT - MARKETING RUTIN FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 6000000
+  },
+  {
+    "row": 42,
+    "code": "C22a",
+    "date": "2026-08-04",
+    "desc": "C22a. MKT TENANT - MARKETING RUTIN FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 2500000
+  },
+  {
+    "row": 43,
+    "code": "C28",
+    "date": "2026-08-04",
+    "desc": "C28. B.OPS - PEMBAYARAN UANG SAKU 2 CREW PIONER BANDUNG",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 44,
+    "code": "C27",
+    "date": "2026-08-04",
+    "desc": "C27. MESS KRY - PEMBAYARAN KOSAN PIONER BANDUNG (2 BULAN)",
+    "debit": 0,
+    "credit": 2200000
+  },
+  {
+    "row": 45,
+    "code": "C28",
+    "date": "2026-08-04",
+    "desc": "C28. B.OPS - PENGADAAN UANG RECEH OUTLET WRAPPING PIONER BANDUNG",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 46,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 47,
+    "code": "C28",
+    "date": "2026-08-04",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 48,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E MANDIRI",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 49,
+    "code": "C28",
+    "date": "2026-08-04",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 500000
+  },
+  {
+    "row": 50,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK GALAXYPORT T2E MANDIRI",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 51,
+    "code": "C22a",
+    "date": "2026-08-04",
+    "desc": "C22a. MKT TENANT - INVESTASI OPERASIONAL KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 20000000
+  },
+  {
+    "row": 52,
+    "code": "C29b",
+    "date": "2026-08-04",
+    "desc": "C29b. PERBAIKAN - PENGADAAN BLOWER TIUP UNTUK MAINTENANCE",
+    "debit": 0,
+    "credit": 1705000
+  },
+  {
+    "row": 53,
+    "code": "C28",
+    "date": "2026-08-04",
+    "desc": "C28. B.OPS - PEMBAYARAN PENGGANTIAN KOMISI KASIR REFLEKSI ALIH TUGAS FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 452500
+  },
+  {
+    "row": 54,
+    "code": "C28",
+    "date": "2026-08-04",
+    "desc": "C28. B.OPS - PEMBAYARAN SETORAN AWAL REKENING BCA PIONER BANDUNG",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 55,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E MANDIRI",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 56,
+    "code": "C28",
+    "date": "2026-08-04",
+    "desc": "C28. B.OPS - PEMBAYARAN SETORAN AWAL REKENING BCA KINGTECH T2D",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 57,
+    "code": "C30",
+    "date": "2026-08-04",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH T2D MANDIRI",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 61,
+    "code": "B1",
+    "date": "2026-08-05",
+    "desc": "B1. SALES 04 AGUSTUS 2026",
+    "debit": 117107102,
+    "credit": 0
+  },
+  {
+    "row": 62,
+    "code": "D5",
+    "date": "2026-08-05",
+    "desc": "D5. OC - OFFICE CHARGE CICILAN PERTAMA ROBUSTPACK T2F PERIODE JULI",
+    "debit": 0,
+    "credit": 848529
+  },
+  {
+    "row": 63,
+    "code": "D5",
+    "date": "2026-08-05",
+    "desc": "D5. OC - OFFICE CHARGE CICILAN PERTAMA ROBUSTPACK T3B PERIODE JULI",
+    "debit": 0,
+    "credit": 1697058
+  },
+  {
+    "row": 64,
+    "code": "D5",
+    "date": "2026-08-05",
+    "desc": "D5. OC - OFFICE CHARGE CICILAN PERTAMA FIRST SECURE T3E PERIODE JULI",
+    "debit": 0,
+    "credit": 11332360
+  },
+  {
+    "row": 65,
+    "code": "D5",
+    "date": "2026-08-05",
+    "desc": "D5. OC - OFFICE CHARGE CICILAN PERTAMA KINGTECH BALI  PERIODE JULI",
+    "debit": 0,
+    "credit": 16122053
+  },
+  {
+    "row": 66,
+    "code": "C28",
+    "date": "2026-08-05",
+    "desc": "C28. B.OPS - PEMBELIAN KURSI UNTUK POS CENTER T3",
+    "debit": 0,
+    "credit": 400000
+  },
+  {
+    "row": 67,
+    "code": "C22a",
+    "date": "2026-08-05",
+    "desc": "C22a. MKT TENANT - MARKETING RUTIN HLP PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 11240000
+  },
+  {
+    "row": 68,
+    "code": "C22a",
+    "date": "2026-08-05",
+    "desc": "C22a. MKT TENANT - PEMBAYARAN SPONSORSHIP ATAS FORUM KOMUNIKASI AVSEC HLP",
+    "debit": 0,
+    "credit": 500000
+  },
+  {
+    "row": 69,
+    "code": "C28",
+    "date": "2026-08-05",
+    "desc": "C28. B.OPS - PEMBAYARAN KASBON KRY KINGTECH YIA DOMES AN ADRI APRILIYANTO",
+    "debit": 0,
+    "credit": 3000000
+  },
+  {
+    "row": 70,
+    "code": "C28",
+    "date": "2026-08-05",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK KINGTECH SURABAYA",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 71,
+    "code": "C28",
+    "date": "2026-08-05",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 500000
+  },
+  {
+    "row": 72,
+    "code": "C30",
+    "date": "2026-08-05",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK ROBUSTPACK T2F MANDIRI",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 76,
+    "code": "B1",
+    "date": "2026-08-06",
+    "desc": "B1. SALES 05 AGUSTUS 2026",
+    "debit": 139363071,
+    "credit": 0
+  },
+  {
+    "row": 77,
+    "code": "C1",
+    "date": "2026-08-06",
+    "desc": "C1. TAGIHAN API - TAGIHAN API FIRST SECURE T2E & KINGTECH T2F PERIODE MEI",
+    "debit": 0,
+    "credit": 76104000
+  },
+  {
+    "row": 78,
+    "code": "C26b",
+    "date": "2026-08-06",
+    "desc": "C26b. PPH UNIFIKASI 23 DAN 4(2) - PEMBAYARAN PPH 23 DAN 4(2) PT AED MASA JULI 2026",
+    "debit": 0,
+    "credit": 10260211
+  },
+  {
+    "row": 79,
+    "code": "C26b",
+    "date": "2026-08-06",
+    "desc": "C26b. PPH UNIFIKASI 23 DAN 4(2) - PEMBAYARAN PPH 23 DAN 4(2) PT WNI MASA JULI 2026",
+    "debit": 0,
+    "credit": 14150662
+  },
+  {
+    "row": 80,
+    "code": "C30",
+    "date": "2026-08-06",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 81,
+    "code": "C26b",
+    "date": "2026-08-06",
+    "desc": "C26b. PPH UNIFIKASI 25 - PEMBAYARAN PPH 25 PT AED MASA JULI 2026",
+    "debit": 0,
+    "credit": 271000
+  },
+  {
+    "row": 82,
+    "code": "C26f",
+    "date": "2026-08-06",
+    "desc": "C26f. STP - PEMBAYARAN STP PT AED MASA JULI 2026",
+    "debit": 0,
+    "credit": 2187461
+  },
+  {
+    "row": 83,
+    "code": "C28",
+    "date": "2026-08-06",
+    "desc": "C28. B.OPS - PEMBAYARAN PENGADAAN MEJA UNTUK BUFFER MESIN WRAPPING",
+    "debit": 0,
+    "credit": 3970000
+  },
+  {
+    "row": 84,
+    "code": "C22a",
+    "date": "2026-08-06",
+    "desc": "C22a. MKT TENANT - INVESTASI OPERASIONAL KINGTECH YIA INTER",
+    "debit": 0,
+    "credit": 7000000
+  },
+  {
+    "row": 85,
+    "code": "C22a",
+    "date": "2026-08-06",
+    "desc": "C22a. MKT TENANT - INVESTASI OPERASIONAL KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 10000000
+  },
+  {
+    "row": 86,
+    "code": "C22a",
+    "date": "2026-08-06",
+    "desc": "C22a. MKT TENANT - INVESTASI OPERASIONAL KINGTECH BALI",
+    "debit": 0,
+    "credit": 10000000
+  },
+  {
+    "row": 87,
+    "code": "C22a",
+    "date": "2026-08-06",
+    "desc": "C22a. MKT TENANT - INVESTASI OPERASIONAL KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 25000000
+  },
+  {
+    "row": 88,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG GALAXYPORT T2E DC WRAPPING",
+    "debit": 0,
+    "credit": 3533999
+  },
+  {
+    "row": 89,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG ROBUSTPACK T2F DC WRAPPING",
+    "debit": 0,
+    "credit": 1938666
+  },
+  {
+    "row": 90,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG ROBUSTPACK T3B DC WRAPPING",
+    "debit": 0,
+    "credit": 1197266
+  },
+  {
+    "row": 91,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG FIRST SECURE T2E DC WRAPPING",
+    "debit": 0,
+    "credit": 2251115
+  },
+  {
+    "row": 92,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH T2F DC WRAPPING",
+    "debit": 0,
+    "credit": 3036341
+  },
+  {
+    "row": 93,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH T2D DC WRAPPING",
+    "debit": 0,
+    "credit": 7110747
+  },
+  {
+    "row": 94,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG FIRST SECURE T3E DC WRAPPING",
+    "debit": 0,
+    "credit": 13084635
+  },
+  {
+    "row": 95,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG FIRST SECURE T3A DC WRAPPING",
+    "debit": 0,
+    "credit": 8664444
+  },
+  {
+    "row": 96,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH YIA INTER DC WRAPPING",
+    "debit": 0,
+    "credit": 3130937
+  },
+  {
+    "row": 97,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH YIA DOMES DC WRAPPING",
+    "debit": 0,
+    "credit": 5337513
+  },
+  {
+    "row": 98,
+    "code": "C20",
+    "date": "2026-08-06",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH BALI DC WRAPPING",
+    "debit": 0,
+    "credit": 4949451
+  },
+  {
+    "row": 100,
+    "code": "B1",
+    "date": "2026-08-07",
+    "desc": "B1. SALES 06 AGUSTUS 2026",
+    "debit": 128736560,
+    "credit": 0
+  },
+  {
+    "row": 101,
+    "code": "D6",
+    "date": "2026-08-07",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEDUA KINGTECH T2F",
+    "debit": 0,
+    "credit": 9511077
+  },
+  {
+    "row": 102,
+    "code": "D6",
+    "date": "2026-08-07",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEDUA KINGTECH T2D",
+    "debit": 0,
+    "credit": 17119939
+  },
+  {
+    "row": 103,
+    "code": "D6",
+    "date": "2026-08-07",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEDUA FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 10000000
+  },
+  {
+    "row": 104,
+    "code": "D6",
+    "date": "2026-08-07",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEDUA KINGTECH BALI",
+    "debit": 0,
+    "credit": 4368984
+  },
+  {
+    "row": 105,
+    "code": "D6",
+    "date": "2026-08-07",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE KINGTECH BALI CICILAN KEDUA",
+    "debit": 0,
+    "credit": 25000000
+  },
+  {
+    "row": 106,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 1% 16-22 MARET 2026 KINGTECH T2F",
+    "debit": 0,
+    "credit": 3019459
+  },
+  {
+    "row": 107,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 1% 16-22 MARET 2026 KINGTECH T2D",
+    "debit": 0,
+    "credit": 10211171
+  },
+  {
+    "row": 108,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 14% 16-22 MARET 2026 KINGTECH HLP",
+    "debit": 0,
+    "credit": 10885946
+  },
+  {
+    "row": 109,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 14% 16-22 MARET 2026 FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 52455856
+  },
+  {
+    "row": 110,
+    "code": "C30",
+    "date": "2026-08-07",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 111,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 14% 16-22 MARET 2026 FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 3998198
+  },
+  {
+    "row": 112,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 1% 16-22 MARET 2026 KINGTECH T2F",
+    "debit": 0,
+    "credit": 215676
+  },
+  {
+    "row": 113,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 1% 16-22 MARET 2026 KINGTECH T2D",
+    "debit": 0,
+    "credit": 729369
+  },
+  {
+    "row": 114,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 1% 16-22 MARET 2026 KINGTECH HLP",
+    "debit": 0,
+    "credit": 777568
+  },
+  {
+    "row": 115,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 1% 16-22 MARET 2026 FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 3746847
+  },
+  {
+    "row": 116,
+    "code": "C22a",
+    "date": "2026-08-07",
+    "desc": "C22a. MKT TENANT - MARKETING 1% 16-22 MARET 2026 FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 285586
+  },
+  {
+    "row": 117,
+    "code": "C26b",
+    "date": "2026-08-07",
+    "desc": "C26b. PPH UNIFIKASI 23 DAN 4(2) - PEMBAYARAN PPH 23 DAN 4(2) PT PSI MASA JULI 2026",
+    "debit": 0,
+    "credit": 179946573
+  },
+  {
+    "row": 118,
+    "code": "C30",
+    "date": "2026-08-07",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3A BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 119,
+    "code": "C30",
+    "date": "2026-08-07",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH BALI BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 120,
+    "code": "C26b",
+    "date": "2026-08-07",
+    "desc": "C26b. PPH UNIFIKASI 25 - PEMBAYARAN PPH 25 PT PSI MASA JULI 2026",
+    "debit": 0,
+    "credit": 804300
+  },
+  {
+    "row": 121,
+    "code": "C26f",
+    "date": "2026-08-07",
+    "desc": "C26f. STP - PEMBAYARAN STP PT PSI MASA JASA JULI 2026",
+    "debit": 0,
+    "credit": 1249266
+  },
+  {
+    "row": 122,
+    "code": "C26b",
+    "date": "2026-08-07",
+    "desc": "C26b. PPH UNIFIKASI 23 DAN 4(2) - PEMBAYARAN PPH 23 DAN 4(2) PT RPJ MASA JULI 2026",
+    "debit": 0,
+    "credit": 17145000
+  },
+  {
+    "row": 123,
+    "code": "C26f",
+    "date": "2026-08-07",
+    "desc": "C26f. STP - PEMBAYARAN STP PT RPJ MASA JASA JULI 2026",
+    "debit": 0,
+    "credit": 250900
+  },
+  {
+    "row": 124,
+    "code": "D5",
+    "date": "2026-08-07",
+    "desc": "D5. OC - OFFICE CHARGE CICILAN PERTAMA KINGTECH T1A SUB PERIODE JULI",
+    "debit": 0,
+    "credit": 11879407
+  },
+  {
+    "row": 125,
+    "code": "C26b",
+    "date": "2026-08-07",
+    "desc": "C26b. PPH UNIFIKASI 23 DAN 4(2) - PEMBAYARAN PPH 23 DAN 4(2) PT GRS MASA JULI 2026",
+    "debit": 0,
+    "credit": 5130000
+  },
+  {
+    "row": 126,
+    "code": "C26b",
+    "date": "2026-08-07",
+    "desc": "C26b. PPH UNIFIKASI 25 - PEMBAYARAN PPH 25 PT GRS MASA JULI 2026",
+    "debit": 0,
+    "credit": 5025000
+  },
+  {
+    "row": 127,
+    "code": "C26f",
+    "date": "2026-08-07",
+    "desc": "C26f. STP - PEMBAYARAN STP PT GRS MASA JASA JULI 2026",
+    "debit": 0,
+    "credit": 71000
+  },
+  {
+    "row": 129,
+    "code": "B1",
+    "date": "2026-08-10",
+    "desc": "B1. SALES 07,08,09 AGUSTUS 2026",
+    "debit": 526632963,
+    "credit": 0
+  },
+  {
+    "row": 130,
+    "code": "D6",
+    "date": "2026-08-10",
+    "desc": "D6. PRIVE - PRIVE CICILAN KETIGA KINGTECH HLP",
+    "debit": 0,
+    "credit": 11413293
+  },
+  {
+    "row": 131,
+    "code": "D6",
+    "date": "2026-08-10",
+    "desc": "D6. PRIVE - PRIVE CICILAN KETIGA KINGTECH BALI",
+    "debit": 0,
+    "credit": 3586707
+  },
+  {
+    "row": 132,
+    "code": "D6",
+    "date": "2026-08-10",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KETIGA KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 14000000
+  },
+  {
+    "row": 133,
+    "code": "D6",
+    "date": "2026-08-10",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KETIGA KINGTECH BALI",
+    "debit": 0,
+    "credit": 10000000
+  },
+  {
+    "row": 134,
+    "code": "D7",
+    "date": "2026-08-10",
+    "desc": "D7. B. MESS - MESS DAFFA PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 9433929
+  },
+  {
+    "row": 135,
+    "code": "D7",
+    "date": "2026-08-10",
+    "desc": "D7. B. MESS - MESS AD 3 PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 2066667
+  },
+  {
+    "row": 136,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT STARWRAPP T2D",
+    "debit": 0,
+    "credit": 621000
+  },
+  {
+    "row": 137,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 1863000
+  },
+  {
+    "row": 138,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 621000
+  },
+  {
+    "row": 139,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 1242000
+  },
+  {
+    "row": 140,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 1242000
+  },
+  {
+    "row": 141,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT KINGTECH T2F",
+    "debit": 0,
+    "credit": 3105000
+  },
+  {
+    "row": 142,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT KINGTECH T2D",
+    "debit": 0,
+    "credit": 5589000
+  },
+  {
+    "row": 143,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT KINGTECH HLP",
+    "debit": 0,
+    "credit": 3726000
+  },
+  {
+    "row": 144,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 15525000
+  },
+  {
+    "row": 145,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 8073000
+  },
+  {
+    "row": 146,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 8694000
+  },
+  {
+    "row": 147,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 270JT KINGTECH BALI",
+    "debit": 0,
+    "credit": 11799000
+  },
+  {
+    "row": 148,
+    "code": "C22a",
+    "date": "2026-08-10",
+    "desc": "C22a. MKT TENANT - CICILAN HUTANG ROBUSTPACK T3B PERIODE AGUSTUS (8/12) MAKS TGL 10",
+    "debit": 0,
+    "credit": 16666667
+  },
+  {
+    "row": 149,
+    "code": "C15a",
+    "date": "2026-08-10",
+    "desc": "C15a. PINJAMAN DEPARTEMEN - CICILAN HUTANG MONEY CHANGER PERIODE AGUSTUS (8/12) MAKS TGL 10",
+    "debit": 0,
+    "credit": 14285714
+  },
+  {
+    "row": 150,
+    "code": "C22b",
+    "date": "2026-08-10",
+    "desc": "C22b. MKT UMUM - CICILAN HUTANG HOLDING PERIODE AGUSTUS (8/12) MAKS TGL 10",
+    "debit": 0,
+    "credit": 10119048
+  },
+  {
+    "row": 151,
+    "code": "C28",
+    "date": "2026-08-10",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 152,
+    "code": "C30",
+    "date": "2026-08-10",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 153,
+    "code": "C28",
+    "date": "2026-08-10",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK PIONER T1C",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 154,
+    "code": "C30",
+    "date": "2026-08-10",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 155,
+    "code": "C30",
+    "date": "2026-08-10",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C MANDIRI",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 156,
+    "code": "C28",
+    "date": "2026-08-10",
+    "desc": "C28. B.OPS - PEMBAYARAN KASBON KARYAWAN KINGTECH HLP AN ZAKI ARFANDI",
+    "debit": 0,
+    "credit": 1500000
+  },
+  {
+    "row": 157,
+    "code": "C28",
+    "date": "2026-08-10",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS STARWRAP T2D PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1648374
+  },
+  {
+    "row": 158,
+    "code": "C28",
+    "date": "2026-08-10",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS GALAXYPORT T2E PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1648374
+  },
+  {
+    "row": 159,
+    "code": "C28",
+    "date": "2026-08-10",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS ROBUSTPACK T2F PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1591376
+  },
+  {
+    "row": 160,
+    "code": "C28",
+    "date": "2026-08-10",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS ROBUSTPACK T3B PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1663874
+  },
+  {
+    "row": 161,
+    "code": "C17b",
+    "date": "2026-08-10",
+    "desc": "C17b. PEMB HUTANG MANDIRI - CICILAN BANK MANDIRI (13/24) MAKS TGL 13",
+    "debit": 0,
+    "credit": 16852661
+  },
+  {
+    "row": 163,
+    "code": "B1",
+    "date": "2026-08-11",
+    "desc": "B1. SALES 10 AGUSTUS 2026",
+    "debit": 150877959,
+    "credit": 0
+  },
+  {
+    "row": 164,
+    "code": "B3e",
+    "date": "2026-08-11",
+    "desc": "B3e. LAIN-LAIN - PEMBAYARAN KEKURANGAN CICILAN AUTODEBET HOLDING PERIODE JUNI (11/24)",
+    "debit": 1329141,
+    "credit": 0
+  },
+  {
+    "row": 165,
+    "code": "B3e",
+    "date": "2026-08-11",
+    "desc": "B3e. LAIN-LAIN - PEMBAYARAN KEKURANGAN CICILAN AUTODEBET HOLDING PERIODE JULI (12/24)",
+    "debit": 999857,
+    "credit": 0
+  },
+  {
+    "row": 166,
+    "code": "C19",
+    "date": "2026-08-11",
+    "desc": "C19. HUTANG LAIN-LAIN - CICILAN HUTANG KE PAK SUROTO PERIODE AGUSTUS 2026 (14/36) MAKS TGL 10",
+    "debit": 0,
+    "credit": 12170725
+  },
+  {
+    "row": 167,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS PIONER T1C PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1684574
+  },
+  {
+    "row": 168,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS PIONER BANDUNG PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 13758873
+  },
+  {
+    "row": 169,
+    "code": "C30",
+    "date": "2026-08-11",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 170,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS FIRST SECURE T2E PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 2382874
+  },
+  {
+    "row": 171,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS KINGTECH T2F PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1705374
+  },
+  {
+    "row": 172,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS KINGTECH T2D PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1986374
+  },
+  {
+    "row": 173,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS KINGTECH HLP PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1752274
+  },
+  {
+    "row": 174,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS FIRST SECURE T3E PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1843874
+  },
+  {
+    "row": 175,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS FIRST SECURE T3A PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 2427874
+  },
+  {
+    "row": 176,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS KINGTECH YIA INTER PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 3241996
+  },
+  {
+    "row": 177,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS KINGTECH YIA DOMES PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 3101266
+  },
+  {
+    "row": 178,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS KINGTECH T1A SUB PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 4781564
+  },
+  {
+    "row": 179,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN B.OPS KINGTECH BALI PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 3466764
+  },
+  {
+    "row": 180,
+    "code": "C22b",
+    "date": "2026-08-11",
+    "desc": "C22b. MKT UMUM - INVESTASI OPERASIONAL KINGTECH BALI INTER",
+    "debit": 0,
+    "credit": 10000000
+  },
+  {
+    "row": 181,
+    "code": "C28",
+    "date": "2026-08-11",
+    "desc": "C28. B.OPS - PEMBAYARAN PENJUALAN AKSESORIS HLP PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1654000
+  },
+  {
+    "row": 183,
+    "code": "B1",
+    "date": "2026-08-12",
+    "desc": "B1. SALES 11 AGUSTUS 2026",
+    "debit": 133225558,
+    "credit": 0
+  },
+  {
+    "row": 184,
+    "code": "C26a",
+    "date": "2026-08-12",
+    "desc": "C26a. PPH 21 - PEMBAYARAN PPH 21 MASA JULI 2026",
+    "debit": 0,
+    "credit": 15651235
+  },
+  {
+    "row": 185,
+    "code": "C26a",
+    "date": "2026-08-12",
+    "desc": "C26a. PPH 21 - PEMBAYARAN PPH 21 MASA MARET 2026",
+    "debit": 0,
+    "credit": 42874234
+  },
+  {
+    "row": 186,
+    "code": "C30",
+    "date": "2026-08-12",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 187,
+    "code": "C24",
+    "date": "2026-08-12",
+    "desc": "C24. BPJS TK - PEMBAYARAN BPJS TK KINGTECH HLP PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 498905
+  },
+  {
+    "row": 188,
+    "code": "C24",
+    "date": "2026-08-12",
+    "desc": "C24. BPJS TK - PEMBAYARAN BPJS TK FIRST SECURE T3E PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1496715
+  },
+  {
+    "row": 189,
+    "code": "C24",
+    "date": "2026-08-12",
+    "desc": "C24. BPJS TK - PEMBAYARAN BPJS TK KINGTECH YIA PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 498905
+  },
+  {
+    "row": 190,
+    "code": "C24",
+    "date": "2026-08-12",
+    "desc": "C24. BPJS TK - PEMBAYARAN BPJS TK KINGTECH T1A SUB PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 498905
+  },
+  {
+    "row": 191,
+    "code": "C24",
+    "date": "2026-08-12",
+    "desc": "C24. BPJS TK - PEMBAYARAN BPJS TK KINGTECH BALI PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 498905
+  },
+  {
+    "row": 192,
+    "code": "D1",
+    "date": "2026-08-12",
+    "desc": "D1. VIRTUAL OFFICE - PEMBAYARAN VIRTUAL OFFICE PT ROBUST PACKING JAYANESIA ROBUST T2F",
+    "debit": 0,
+    "credit": 5842850
+  },
+  {
+    "row": 193,
+    "code": "D1",
+    "date": "2026-08-12",
+    "desc": "D1. VIRTUAL OFFICE - PEMBAYARAN VIRTUAL OFFICE PT ROBUST PACKING JAYANESIA ROBUST T3B",
+    "debit": 0,
+    "credit": 5842850
+  },
+  {
+    "row": 194,
+    "code": "C30",
+    "date": "2026-08-12",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 196,
+    "code": "B1",
+    "date": "2026-08-13",
+    "desc": "B1. SALES 12 AGUSTUS 2026",
+    "debit": 122594635,
+    "credit": 0
+  },
+  {
+    "row": 197,
+    "code": "C28",
+    "date": "2026-08-13",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK KINGTECH BALI",
+    "debit": 0,
+    "credit": 1010000
+  },
+  {
+    "row": 198,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE FIRST SECURE T2E PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1697058
+  },
+  {
+    "row": 199,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE KINGTECH T2F PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 4242646
+  },
+  {
+    "row": 200,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE KINGTECH T2D PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 7636762
+  },
+  {
+    "row": 201,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE STARWRAPP T2D PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 848529
+  },
+  {
+    "row": 202,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE GALAXYPORT T2E PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 2545587
+  },
+  {
+    "row": 203,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE KINGTECH HLP PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 5091175
+  },
+  {
+    "row": 204,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE FIRST SECURE T3E PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 9880868
+  },
+  {
+    "row": 205,
+    "code": "D5",
+    "date": "2026-08-13",
+    "desc": "D5. OC - OFFICE CHARGE FIRST SECURE T3A PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 11030878
+  },
+  {
+    "row": 206,
+    "code": "C20",
+    "date": "2026-08-13",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG STARWRAPP T2D DC WRAPPING",
+    "debit": 0,
+    "credit": 6716929
+  },
+  {
+    "row": 207,
+    "code": "C20",
+    "date": "2026-08-13",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG GALAXYPORT T2E DC WRAPPING",
+    "debit": 0,
+    "credit": 3741099
+  },
+  {
+    "row": 208,
+    "code": "C20",
+    "date": "2026-08-13",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG FIRST SECURE T2E DC WRAPPING",
+    "debit": 0,
+    "credit": 4587207
+  },
+  {
+    "row": 209,
+    "code": "C20",
+    "date": "2026-08-13",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH T2F DC WRAPPING",
+    "debit": 0,
+    "credit": 5398918
+  },
+  {
+    "row": 210,
+    "code": "C20",
+    "date": "2026-08-13",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH T2D DC WRAPPING",
+    "debit": 0,
+    "credit": 8500540
+  },
+  {
+    "row": 211,
+    "code": "C20",
+    "date": "2026-08-13",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH HLP DC WRAPPING",
+    "debit": 0,
+    "credit": 8738198
+  },
+  {
+    "row": 212,
+    "code": "C20",
+    "date": "2026-08-13",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG FIRST SECURE T3A DC WRAPPING",
+    "debit": 0,
+    "credit": 6617470
+  },
+  {
+    "row": 214,
+    "code": "B1",
+    "date": "2026-08-14",
+    "desc": "B1. SALES 13 AGUSTUS 2026",
+    "debit": 152746348,
+    "credit": 0
+  },
+  {
+    "row": 215,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEEMPAT GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 5706646
+  },
+  {
+    "row": 216,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEEMPAT KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 26631016
+  },
+  {
+    "row": 217,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEEMPAT KINGTECH BALI",
+    "debit": 0,
+    "credit": 4662338
+  },
+  {
+    "row": 218,
+    "code": "C30",
+    "date": "2026-08-14",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 219,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KEEMPAT KINGTECH BALI",
+    "debit": 0,
+    "credit": 2230990
+  },
+  {
+    "row": 220,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KEEMPAT KINGETCH T2F",
+    "debit": 0,
+    "credit": 5000000
+  },
+  {
+    "row": 221,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KEEMPAT KINGTECH HLP",
+    "debit": 0,
+    "credit": 1885942
+  },
+  {
+    "row": 222,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KEEMPAT ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 2230990
+  },
+  {
+    "row": 223,
+    "code": "D6",
+    "date": "2026-08-14",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KEEMPAT KINGTECH BALI",
+    "debit": 0,
+    "credit": 7652078
+  },
+  {
+    "row": 224,
+    "code": "C18",
+    "date": "2026-08-14",
+    "desc": "C18. PEMB HUTANG KE DEPT - CICILAN HUTANG KE DIVISI CELLULAR PERIODE AGUSTUS 2026 (14/60) MAKS TGL 15",
+    "debit": 0,
+    "credit": 24584634
+  },
+  {
+    "row": 225,
+    "code": "C18",
+    "date": "2026-08-14",
+    "desc": "C18. PEMB HUTANG KE DEPT - CICILAN HUTANG KE DIVISI BD PERIODE AGUSTUS 2026 (14/60) MAKS TGL 15",
+    "debit": 0,
+    "credit": 7158487
+  },
+  {
+    "row": 226,
+    "code": "C28",
+    "date": "2026-08-14",
+    "desc": "C28. B.OPS - PEMBAYARAN KASBON A.N FADLI YAZID KUMALA KRY KINGTECH HLP",
+    "debit": 0,
+    "credit": 1500000
+  },
+  {
+    "row": 227,
+    "code": "C28",
+    "date": "2026-08-14",
+    "desc": "C28. B.OPS - PEMBAYARAN REFILL APAR 1 UNIT UKURAN 6KG PIONER T1C",
+    "debit": 0,
+    "credit": 1920000
+  },
+  {
+    "row": 228,
+    "code": "C30",
+    "date": "2026-08-14",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C BCA",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 229,
+    "code": "C28",
+    "date": "2026-08-14",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK KINGTECH YIA DOMESTIK",
+    "debit": 0,
+    "credit": 1364865
+  },
+  {
+    "row": 230,
+    "code": "C28",
+    "date": "2026-08-14",
+    "desc": "C28. B.OPS - PEMBAYARAN LISTRIK KINGTECH HLP",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 231,
+    "code": "C28",
+    "date": "2026-08-14",
+    "desc": "C28. B.OPS - PEMBAYARAN SETORAN AWAL REKENING BCA FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 232,
+    "code": "C30",
+    "date": "2026-08-14",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 233,
+    "code": "C28",
+    "date": "2026-08-14",
+    "desc": "C28. B.OPS - PEMBAYARAN SETORAN AWAL REKENING BCA KINGTECH T2F",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 234,
+    "code": "C30",
+    "date": "2026-08-14",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH T2F",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 235,
+    "code": "C20",
+    "date": "2026-08-14",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG ROBUSTPACK T2F DC WRAPPING",
+    "debit": 0,
+    "credit": 2811998
+  },
+  {
+    "row": 236,
+    "code": "C20",
+    "date": "2026-08-14",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG ROBUSTPACK T3B DC WRAPPING",
+    "debit": 0,
+    "credit": 6249600
+  },
+  {
+    "row": 237,
+    "code": "C20",
+    "date": "2026-08-14",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH BALI DC WRAPPING",
+    "debit": 0,
+    "credit": 56022360
+  },
+  {
+    "row": 239,
+    "code": "B1",
+    "date": "2026-08-18",
+    "desc": "B1. SALES 14,15,16,17 AGUSTUS 2026",
+    "debit": 627695203,
+    "credit": 0
+  },
+  {
+    "row": 240,
+    "code": "B3e",
+    "date": "2026-08-18",
+    "desc": "B3e. PEND LAIN-LAIN - PEMBAYARAN SETORAN AWAL REKENING BCA FIRST SECURE T2E",
+    "debit": 1000000,
+    "credit": 0
+  },
+  {
+    "row": 241,
+    "code": "B3e",
+    "date": "2026-08-18",
+    "desc": "B3e. PEND LAIN-LAIN - PEMBAYARAN SETORAN AWAL REKENING BCA KINGTECH  T2F",
+    "debit": 1000000,
+    "credit": 0
+  },
+  {
+    "row": 242,
+    "code": "B3a",
+    "date": "2026-08-18",
+    "desc": "B3a. PIUTANG DEPT - PEMBAYARAN PIUTANG DARI REFLEXOLOGY @35JT PERIODE AGUSTUS 2026 (6/7)",
+    "debit": 5000000,
+    "credit": 0
+  },
+  {
+    "row": 243,
+    "code": "B3a",
+    "date": "2026-08-18",
+    "desc": "B3a. PIUTANG DEPT - PEMBAYARAN PIUTANG DARI REFLEXOLOGY PERIODE AGUSTUS 2026 (14/84)",
+    "debit": 2366071,
+    "credit": 0
+  },
+  {
+    "row": 244,
+    "code": "B3a",
+    "date": "2026-08-18",
+    "desc": "B3a. PIUTANG DEPT - PEMBAYARAN PIUTANG DARI HANS PERIODE AGUSTUS 2026 (14/84)",
+    "debit": 2734955,
+    "credit": 0
+  },
+  {
+    "row": 245,
+    "code": "B3a",
+    "date": "2026-08-18",
+    "desc": "B3a. PIUTANG DEPT - PEMBAYARAN PIUTANG DARI FNB PERIODE AGUSTUS 2026 (14/180)",
+    "debit": 3469116,
+    "credit": 0
+  },
+  {
+    "row": 246,
+    "code": "B3a",
+    "date": "2026-08-18",
+    "desc": "B3a. PIUTANG DEPT - PEMBAYARAN PIUTANG DARI MM PERIODE AGUSTUS 2026 (14/84)",
+    "debit": 12117780,
+    "credit": 0
+  },
+  {
+    "row": 247,
+    "code": "C1",
+    "date": "2026-08-18",
+    "desc": "C1. TAGIHAN API - TAGIHAN API KINGTECH YIA DOMES INV 8100006565 PERIODE MARET",
+    "debit": 0,
+    "credit": 371520000
+  },
+  {
+    "row": 248,
+    "code": "D6",
+    "date": "2026-08-18",
+    "desc": "D6. PRIVE - PRIVE CICILAN KELIMA STARWRAPP T2D",
+    "debit": 0,
+    "credit": 1902215
+  },
+  {
+    "row": 249,
+    "code": "D6",
+    "date": "2026-08-18",
+    "desc": "D6. PRIVE - PRIVE CICILAN KELIMA KINGTECH BALI",
+    "debit": 0,
+    "credit": 16097785
+  },
+  {
+    "row": 250,
+    "code": "D6",
+    "date": "2026-08-18",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KELIMA GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 6692971
+  },
+  {
+    "row": 251,
+    "code": "D6",
+    "date": "2026-08-18",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KELIMA KINGTECH T2D",
+    "debit": 0,
+    "credit": 11304156
+  },
+  {
+    "row": 252,
+    "code": "D6",
+    "date": "2026-08-18",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE CICILAN KELIMA FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 29002873
+  },
+  {
+    "row": 253,
+    "code": "C17c",
+    "date": "2026-08-18",
+    "desc": "C17c. PEMB HUTANG PNM - PEMBAYARAN CICILAN HUTANG BANK PNM MASA AGUSTUS 2026 (11/18) MAKS TGL 20",
+    "debit": 0,
+    "credit": 70847634
+  },
+  {
+    "row": 254,
+    "code": "D2e",
+    "date": "2026-08-18",
+    "desc": "D2e. PEMBAYARAN BONUS POKOK KRY HO PERIODE APR-JUNI 2026",
+    "debit": 0,
+    "credit": 21652359
+  },
+  {
+    "row": 255,
+    "code": "D2f",
+    "date": "2026-08-18",
+    "desc": "D2f. PEMBAYARAN BONUS SUPPORT KRY HO PERIODE APR-JUNI 2026",
+    "debit": 0,
+    "credit": 18349157
+  },
+  {
+    "row": 256,
+    "code": "D4a",
+    "date": "2026-08-18",
+    "desc": "D4a. PINJAMAN DEPT - PINJAMAN AUTODEBET HOLDING PERIODE AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1324549
+  },
+  {
+    "row": 257,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN SPAREPART UNTUK PENGGANTI TOMBOL MANUAL STARWRAPP T2D",
+    "debit": 0,
+    "credit": 655000
+  },
+  {
+    "row": 258,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN POTENSIO NGELOS ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 220000
+  },
+  {
+    "row": 259,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN KAWAT LAS DAN WD, LASS SS 305 FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 994000
+  },
+  {
+    "row": 260,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN MANUAL STATE UP/DOWN SWITCH FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 118000
+  },
+  {
+    "row": 261,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN LISTRIK KINGTECH T2F",
+    "debit": 0,
+    "credit": 500000
+  },
+  {
+    "row": 262,
+    "code": "C30",
+    "date": "2026-08-18",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH T2F",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 263,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN LISTRIK KINGTECH T2D",
+    "debit": 0,
+    "credit": 500000
+  },
+  {
+    "row": 264,
+    "code": "C30",
+    "date": "2026-08-18",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH T2D",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 265,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN LISTRIK FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 266,
+    "code": "C30",
+    "date": "2026-08-18",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 267,
+    "code": "C28",
+    "date": "2026-08-18",
+    "desc": "C28. B.OPS - PEMBELIAN LISTRIK FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 500000
+  },
+  {
+    "row": 268,
+    "code": "C30",
+    "date": "2026-08-18",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 269,
+    "code": "C15a",
+    "date": "2026-08-18",
+    "desc": "C15a. PINJAMAN DIVISI CELLULAR DAN REFLEKSI ATAS INV OPS",
+    "debit": 0,
+    "credit": 3000000
+  },
+  {
+    "row": 270,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT STARWRAPP T2D",
+    "debit": 0,
+    "credit": 46000
+  },
+  {
+    "row": 271,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 138000
+  },
+  {
+    "row": 272,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 46000
+  },
+  {
+    "row": 273,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 92000
+  },
+  {
+    "row": 274,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 92000
+  },
+  {
+    "row": 275,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT KINGTECH T2F",
+    "debit": 0,
+    "credit": 230000
+  },
+  {
+    "row": 276,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT KINGTECH T2D",
+    "debit": 0,
+    "credit": 414000
+  },
+  {
+    "row": 277,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT KINGTECH HLP",
+    "debit": 0,
+    "credit": 276000
+  },
+  {
+    "row": 278,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 1150000
+  },
+  {
+    "row": 279,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 598000
+  },
+  {
+    "row": 280,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 644000
+  },
+  {
+    "row": 281,
+    "code": "C22b",
+    "date": "2026-08-18",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 20JT KINGTECH BALI",
+    "debit": 0,
+    "credit": 874000
+  },
+  {
+    "row": 283,
+    "code": "B1",
+    "date": "2026-08-19",
+    "desc": "B1. SALES 18 AGUSTUS 2026",
+    "debit": 127746777,
+    "credit": 0
+  },
+  {
+    "row": 284,
+    "code": "B3a",
+    "date": "2026-08-19",
+    "desc": "B3a. PIUTANG DEPT - PENGEMBALIAN DIVISI CELLULAR DAN REFLEKSI ATAS INV OPS",
+    "debit": 3000000,
+    "credit": 0
+  },
+  {
+    "row": 285,
+    "code": "B3e",
+    "date": "2026-08-19",
+    "desc": "B3e. KELEBIHAN PEMBAYARAN PPH 21 MASA MARET 2026",
+    "debit": 3920843,
+    "credit": 0
+  },
+  {
+    "row": 286,
+    "code": "C28",
+    "date": "2026-08-19",
+    "desc": "C28. B.OPS - PEMBAYARAN ID PENGENAL KINGTECH YIA INTER",
+    "debit": 0,
+    "credit": 88800
+  },
+  {
+    "row": 289,
+    "code": "B1",
+    "date": "2026-08-20",
+    "desc": "B1. SALES 19 AGUSTUS 2026",
+    "debit": 136576206,
+    "credit": 0
+  },
+  {
+    "row": 290,
+    "code": "C20",
+    "date": "2026-08-20",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG DC WRAPPING - TRIMITRA",
+    "debit": 0,
+    "credit": 31043128
+  },
+  {
+    "row": 291,
+    "code": "C30",
+    "date": "2026-08-20",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 292,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT STARWRAPP T2D",
+    "debit": 0,
+    "credit": 460000
+  },
+  {
+    "row": 293,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 1380000
+  },
+  {
+    "row": 294,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 460000
+  },
+  {
+    "row": 295,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 920000
+  },
+  {
+    "row": 296,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 920000
+  },
+  {
+    "row": 297,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT KINGTECH T2F",
+    "debit": 0,
+    "credit": 2300000
+  },
+  {
+    "row": 298,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT KINGTECH T2D",
+    "debit": 0,
+    "credit": 4140000
+  },
+  {
+    "row": 299,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT KINGTECH HLP",
+    "debit": 0,
+    "credit": 2760000
+  },
+  {
+    "row": 300,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 11500000
+  },
+  {
+    "row": 301,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 5980000
+  },
+  {
+    "row": 302,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 6440000
+  },
+  {
+    "row": 303,
+    "code": "C22b",
+    "date": "2026-08-20",
+    "desc": "C22b. MKT UMUM - MARKETING RUTIN 200JT KINGTECH BALI",
+    "debit": 0,
+    "credit": 8740000
+  },
+  {
+    "row": 304,
+    "code": "C28",
+    "date": "2026-08-20",
+    "desc": "C28. B.OPS - PEMBAYARAN HELLO BILL PIONER T1C",
+    "debit": 0,
+    "credit": 3441937
+  },
+  {
+    "row": 305,
+    "code": "C30",
+    "date": "2026-08-20",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 306,
+    "code": "C28",
+    "date": "2026-08-20",
+    "desc": "C28. B.OPS - PEMBAYARAN INTERNET KINGTECH HLP",
+    "debit": 0,
+    "credit": 1110000
+  },
+  {
+    "row": 307,
+    "code": "C30",
+    "date": "2026-08-20",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH HLP",
+    "debit": 0,
+    "credit": 1000
+  },
+  {
+    "row": 308,
+    "code": "C27",
+    "date": "2026-08-20",
+    "desc": "C27. MESS KRY - PEMBAYARAN PERPANJANGAN SEWA RUMAH CREW SURABAYA 1 SEPT 2026 - 31 AGUSTUS 2027",
+    "debit": 0,
+    "credit": 17000000
+  },
+  {
+    "row": 309,
+    "code": "C28",
+    "date": "2026-08-20",
+    "desc": "C28. B.OPS - PEMBAYARAN PENGADAAN KARET IN LINE 2 BENANG HITAM",
+    "debit": 0,
+    "credit": 855000
+  },
+  {
+    "row": 312,
+    "code": "B1",
+    "date": "2026-08-21",
+    "desc": "B1. SALES 20 AGUSTUS 2026",
+    "debit": 126953322,
+    "credit": 0
+  },
+  {
+    "row": 313,
+    "code": "C2",
+    "date": "2026-08-21",
+    "desc": "C2. TAGIHAN KSO - TAGIHAN KSO KINGTECH HLP CICILAN (1/10)",
+    "debit": 0,
+    "credit": 30336954
+  },
+  {
+    "row": 314,
+    "code": "C30",
+    "date": "2026-08-21",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH HLP",
+    "debit": 0,
+    "credit": 5000
+  },
+  {
+    "row": 315,
+    "code": "C30",
+    "date": "2026-08-21",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH HLP",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 316,
+    "code": "C1",
+    "date": "2026-08-21",
+    "desc": "C1. TAGIHAN API - TAGIHAN API ROBUSTPACK T2F PERIODE JULI",
+    "debit": 0,
+    "credit": 27409270
+  },
+  {
+    "row": 317,
+    "code": "C1",
+    "date": "2026-08-21",
+    "desc": "C1. TAGIHAN API - TAGIHAN API FIRST SECURE T3E/T3A PERIODE MEI",
+    "debit": 0,
+    "credit": 204564554
+  },
+  {
+    "row": 318,
+    "code": "C30",
+    "date": "2026-08-21",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 319,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEENAM FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 3804431
+  },
+  {
+    "row": 320,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEENAM FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 6621849
+  },
+  {
+    "row": 321,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - PRIVE CICILAN KEENAM KINGTECH BALI",
+    "debit": 0,
+    "credit": 6573720
+  },
+  {
+    "row": 322,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE PELUNASAN FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 4461981
+  },
+  {
+    "row": 323,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE PELUNASAN KINGTECH T2F",
+    "debit": 0,
+    "credit": 6154951
+  },
+  {
+    "row": 324,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE PELUNASAN KINGTECH T2D",
+    "debit": 0,
+    "credit": 8774756
+  },
+  {
+    "row": 325,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE PELUNASAN FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 48122678
+  },
+  {
+    "row": 326,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE PELUNASAN ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 4461981
+  },
+  {
+    "row": 327,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE PELUNASAN KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 17233864
+  },
+  {
+    "row": 328,
+    "code": "D6",
+    "date": "2026-08-21",
+    "desc": "D6. PRIVE - OPERASIONAL OFFICE PELUNASAN KINGTECH BALI",
+    "debit": 0,
+    "credit": 7388814
+  },
+  {
+    "row": 329,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN STARWRAPP T2D PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 138989
+  },
+  {
+    "row": 330,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN GALAXYPORT T2E PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 416966
+  },
+  {
+    "row": 331,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN ROBUSTPACK T2F PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 138989
+  },
+  {
+    "row": 332,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN ROBUSTPACK T3B PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 277977
+  },
+  {
+    "row": 333,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN FIRST SECURE T2E PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 277977
+  },
+  {
+    "row": 334,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN KINGTECH T2F PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 694943
+  },
+  {
+    "row": 335,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN KINGTECH T2D PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1250897
+  },
+  {
+    "row": 336,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN KINGTECH HLP PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 833931
+  },
+  {
+    "row": 337,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN FIRST SECURE T3E PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 3474714
+  },
+  {
+    "row": 338,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN FIRST SECURE T3A PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1806851
+  },
+  {
+    "row": 339,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN KINGTECH T1A SUB PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1945840
+  },
+  {
+    "row": 340,
+    "code": "D5",
+    "date": "2026-08-21",
+    "desc": "D5. OC - OFFICE CHARGE TAMBAHAN KINGTECH BALI PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 2640783
+  },
+  {
+    "row": 341,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN ELCB 25A 2P 30MA SHNEIDER, MCB 10A 2P SHNEIDER FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 705000
+  },
+  {
+    "row": 342,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN ELCB 25A 2P 30MA SHNEIDER, MCB 10A 2P SHNEIDER KINGTECH T2F",
+    "debit": 0,
+    "credit": 955000
+  },
+  {
+    "row": 343,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN KABEL DUCT TC 6, KABEL DUCT DAN KABEL TIES KINGTECH T2D",
+    "debit": 0,
+    "credit": 65000
+  },
+  {
+    "row": 344,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN KABEL DUCT TC 6 DAN KABEL DUCT PMD STARWRAPP T2D",
+    "debit": 0,
+    "credit": 55000
+  },
+  {
+    "row": 345,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN KABEL DUCT TC 6 DAN KABEL DUCT PMD GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 55000
+  },
+  {
+    "row": 346,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN KABEL DUCT TC 6 DAN KABEL DUCT PMD ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 55000
+  },
+  {
+    "row": 347,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 STARWRAPP T2D",
+    "debit": 0,
+    "credit": 546691
+  },
+  {
+    "row": 348,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 1675342
+  },
+  {
+    "row": 349,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 765479
+  },
+  {
+    "row": 350,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 680066
+  },
+  {
+    "row": 351,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026  KINGTECH T2D",
+    "debit": 0,
+    "credit": 4717217
+  },
+  {
+    "row": 352,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026  KINGTECH HLP",
+    "debit": 0,
+    "credit": 2069735
+  },
+  {
+    "row": 353,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026  FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 11880077
+  },
+  {
+    "row": 354,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 7572887
+  },
+  {
+    "row": 355,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 4146913
+  },
+  {
+    "row": 356,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 KINGTECH BALI",
+    "debit": 0,
+    "credit": 5220013
+  },
+  {
+    "row": 357,
+    "code": "C13b",
+    "date": "2026-08-21",
+    "desc": "C13b. INSENTIF KRY - PEMBAYARAN BONUS KRY LAPANGAN PERIODE APRIL-JUNI 2026 PIONER T1C",
+    "debit": 0,
+    "credit": 3122678
+  },
+  {
+    "row": 358,
+    "code": "C30",
+    "date": "2026-08-21",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 359,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PENGGANTIAN CUSTOMER CARE 4 DIVISI (CELL, WRAP, REFLEXOLOGY, MM) PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 111000
+  },
+  {
+    "row": 360,
+    "code": "C28",
+    "date": "2026-08-21",
+    "desc": "C28. B.OPS - PEMBAYARAN VOUCHER HOUSE USE WRAPPING",
+    "debit": 0,
+    "credit": 1800000
+  },
+  {
+    "row": 361,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG STARWRAPP T2D DC WRAPPING",
+    "debit": 0,
+    "credit": 191999
+  },
+  {
+    "row": 362,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG GALAXYPORT T2E DC WRAPPING",
+    "debit": 0,
+    "credit": 1591099
+  },
+  {
+    "row": 363,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG ROBUSTPACK T2F DC WRAPPING",
+    "debit": 0,
+    "credit": 612000
+  },
+  {
+    "row": 364,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG ROBUSTPACK T3B DC WRAPPING",
+    "debit": 0,
+    "credit": 5883000
+  },
+  {
+    "row": 365,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG FIRST SECURE T2E DC WRAPPING",
+    "debit": 0,
+    "credit": 201891
+  },
+  {
+    "row": 366,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH T2F DC WRAPPING",
+    "debit": 0,
+    "credit": 1651216
+  },
+  {
+    "row": 367,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH T2D DC WRAPPING",
+    "debit": 0,
+    "credit": 5858378
+  },
+  {
+    "row": 368,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - DOUBLE PEMBAYARAN BARANG DAGANG FIRST SECURE T3A DC WRAPPING",
+    "debit": 0,
+    "credit": 8157567
+  },
+  {
+    "row": 369,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG FIRST SECURE T3E DC WRAPPING",
+    "debit": 0,
+    "credit": 26179910
+  },
+  {
+    "row": 370,
+    "code": "C30",
+    "date": "2026-08-21",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 371,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG PIONER T1C DC WRAPPING",
+    "debit": 0,
+    "credit": 7037963
+  },
+  {
+    "row": 372,
+    "code": "C20",
+    "date": "2026-08-21",
+    "desc": "C20. BELANJA DISTRIBUTOR - DOUBLE PEMBAYARAN BARANG DAGANG FIRST SECURE T3A DC WRAPPING",
+    "debit": 0,
+    "credit": 8157567
+  },
+  {
+    "row": 373,
+    "code": "C30",
+    "date": "2026-08-21",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 375,
+    "code": "B1",
+    "date": "2026-08-24",
+    "desc": "B1. SALES 21,22,23 AGUSTUS 2026",
+    "debit": 498040760,
+    "credit": 0
+  },
+  {
+    "row": 376,
+    "code": "B3e",
+    "date": "2026-08-24",
+    "desc": "B3e. PEND LAIN-LAIN - PEMBAYARAN SETORAN AWAL REKENING BCA STARWRAPP T2D",
+    "debit": 1000000,
+    "credit": 0
+  },
+  {
+    "row": 377,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT STARWRAPP T2D",
+    "debit": 0,
+    "credit": 23000
+  },
+  {
+    "row": 378,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 69000
+  },
+  {
+    "row": 379,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 23000
+  },
+  {
+    "row": 380,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 46000
+  },
+  {
+    "row": 381,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 46000
+  },
+  {
+    "row": 382,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT KINGTECH T2F",
+    "debit": 0,
+    "credit": 115000
+  },
+  {
+    "row": 383,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT KINGTECH T2D",
+    "debit": 0,
+    "credit": 207000
+  },
+  {
+    "row": 384,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT KINGTECH HLP",
+    "debit": 0,
+    "credit": 138000
+  },
+  {
+    "row": 385,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 575000
+  },
+  {
+    "row": 386,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 299000
+  },
+  {
+    "row": 387,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 322000
+  },
+  {
+    "row": 388,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 10JT KINGTECH BALI",
+    "debit": 0,
+    "credit": 437000
+  },
+  {
+    "row": 389,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT STARWRAPP T2D",
+    "debit": 0,
+    "credit": 57500
+  },
+  {
+    "row": 390,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 172500
+  },
+  {
+    "row": 391,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 57500
+  },
+  {
+    "row": 392,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 115000
+  },
+  {
+    "row": 393,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 115000
+  },
+  {
+    "row": 394,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT KINGTECH T2F",
+    "debit": 0,
+    "credit": 287500
+  },
+  {
+    "row": 395,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT KINGTECH T2D",
+    "debit": 0,
+    "credit": 517500
+  },
+  {
+    "row": 396,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT KINGTECH HLP",
+    "debit": 0,
+    "credit": 345000
+  },
+  {
+    "row": 397,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 1437500
+  },
+  {
+    "row": 398,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 747500
+  },
+  {
+    "row": 399,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 805000
+  },
+  {
+    "row": 400,
+    "code": "C22b",
+    "date": "2026-08-24",
+    "desc": "C22b. MKT UMUM - MARKETING UMUM 25JT KINGTECH BALI",
+    "debit": 0,
+    "credit": 1092500
+  },
+  {
+    "row": 401,
+    "code": "C28",
+    "date": "2026-08-24",
+    "desc": "C28. B.OPS - PEMBAYARAN MEMBER PARKIR KINGTECH YIA INTER",
+    "debit": 0,
+    "credit": 720000
+  },
+  {
+    "row": 402,
+    "code": "C28",
+    "date": "2026-08-24",
+    "desc": "C28. B.OPS - PEMBAYARAN SETORAN AWAL REKENING BCA STARWRAPP T2D",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 403,
+    "code": "C30",
+    "date": "2026-08-24",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK STARWRAPP T2D",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 405,
+    "code": "B1",
+    "date": "2026-08-26",
+    "desc": "B1. SALES 24,25 AGUSTUS 2026",
+    "debit": 340773458,
+    "credit": 0
+  },
+  {
+    "row": 406,
+    "code": "B3d",
+    "date": "2026-08-26",
+    "desc": "B3d. PINJAMAN BANK - PINJAMAN BANK PNM",
+    "debit": 150000000,
+    "credit": 0
+  },
+  {
+    "row": 407,
+    "code": "D6",
+    "date": "2026-08-26",
+    "desc": "D6. PRIVE - PRIVE PELUNASAN KINGTECH BALI",
+    "debit": 0,
+    "credit": 5514897
+  },
+  {
+    "row": 408,
+    "code": "D6",
+    "date": "2026-08-26",
+    "desc": "D6. PRIVE - PRIVE PELUNASAN ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 1902216
+  },
+  {
+    "row": 409,
+    "code": "D6",
+    "date": "2026-08-26",
+    "desc": "D6. PRIVE - PRIVE PELUNASAN ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 3804431
+  },
+  {
+    "row": 410,
+    "code": "C28",
+    "date": "2026-08-26",
+    "desc": "C28. B.OPS - PEMBELIAN EQUIPMENT PIONER BALI",
+    "debit": 0,
+    "credit": 18695000
+  },
+  {
+    "row": 411,
+    "code": "C22b",
+    "date": "2026-08-26",
+    "desc": "C22b. MKT UMUM - MARKETING DADAKAN PIONER BALI 10JT",
+    "debit": 0,
+    "credit": 5000000
+  },
+  {
+    "row": 412,
+    "code": "C16a",
+    "date": "2026-08-26",
+    "desc": "C16a. ANGSURAN HUTANG ADIRA - CICILAN MITSUBISHI PERIODE AGUSTUS 2026 (34/60)",
+    "debit": 0,
+    "credit": 6414000
+  },
+  {
+    "row": 413,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 414,
+    "code": "C28",
+    "date": "2026-08-26",
+    "desc": "C28. B.OPS - PEMBELIAN LISTRIK FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 1000000
+  },
+  {
+    "row": 415,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 3000
+  },
+  {
+    "row": 416,
+    "code": "C1",
+    "date": "2026-08-26",
+    "desc": "C1. TAGIHAN API - TAGIHAN API GALAXYPORT T2E PERIODE JULI",
+    "debit": 0,
+    "credit": 43838226
+  },
+  {
+    "row": 417,
+    "code": "C1",
+    "date": "2026-08-26",
+    "desc": "C1. TAGIHAN API - TAGIHAN API KINGTECH T1A SUB PERIODE JULI",
+    "debit": 0,
+    "credit": 80213827
+  },
+  {
+    "row": 418,
+    "code": "C1",
+    "date": "2026-08-26",
+    "desc": "C1. TAGIHAN API - TAGIHAN API KINGTECH BALI PERIODE JULI",
+    "debit": 0,
+    "credit": 144000000
+  },
+  {
+    "row": 419,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM BANK FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 5000
+  },
+  {
+    "row": 420,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK -  BIAYA SALDO MINIMUM FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 421,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM BANK KINGTECH T2F",
+    "debit": 0,
+    "credit": 5000
+  },
+  {
+    "row": 422,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK -  BIAYA SALDO MINIMUM KINGTECH T2F",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 423,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM BANK KINGTECH HLP",
+    "debit": 0,
+    "credit": 5000
+  },
+  {
+    "row": 424,
+    "code": "C30",
+    "date": "2026-08-26",
+    "desc": "C30. BIAYA BANK -  BIAYA SALDO MINIMUM KINGTECH HLP",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 426,
+    "code": "B1",
+    "date": "2026-08-27",
+    "desc": "B1. SALES 26 AGUSTUS 2026",
+    "debit": 146293227,
+    "credit": 0
+  },
+  {
+    "row": 427,
+    "code": "C26c",
+    "date": "2026-08-27",
+    "desc": "C26c. PPN - PEMBAYARAN PPN PT PSI PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 142035306
+  },
+  {
+    "row": 428,
+    "code": "C26c",
+    "date": "2026-08-27",
+    "desc": "C26c. PPN - PEMBAYARAN PPN PT GRS PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 2235534
+  },
+  {
+    "row": 429,
+    "code": "C26c",
+    "date": "2026-08-27",
+    "desc": "C26c. PPN - PEMBAYARAN PPN PT AED PERIODE JULI 2026",
+    "debit": 0,
+    "credit": 1463167
+  },
+  {
+    "row": 430,
+    "code": "C30",
+    "date": "2026-08-27",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 431,
+    "code": "C1",
+    "date": "2026-08-27",
+    "desc": "C1. TAGIHAN API - TAGIHAN API KINGTECH YIA INTER PERIODE JULI",
+    "debit": 0,
+    "credit": 109905600
+  },
+  {
+    "row": 432,
+    "code": "C28",
+    "date": "2026-08-27",
+    "desc": "C28. B.OPS - PEMBAYARAN DVR KINGTECH BALI",
+    "debit": 0,
+    "credit": 2181000
+  },
+  {
+    "row": 433,
+    "code": "C28",
+    "date": "2026-08-27",
+    "desc": "C28. B.OPS - PEMBAYARAN DVR KINGTECH YIA INTER",
+    "debit": 0,
+    "credit": 2181000
+  },
+  {
+    "row": 434,
+    "code": "C30",
+    "date": "2026-08-27",
+    "desc": "C30. BIAYA BANK - BIAYA ADM BANK KINGTECH BALI",
+    "debit": 0,
+    "credit": 5000
+  },
+  {
+    "row": 436,
+    "code": "B1",
+    "date": "2026-08-28",
+    "desc": "B1. SALES 27 AGUSTUS 2026",
+    "debit": 133439309,
+    "credit": 0
+  },
+  {
+    "row": 437,
+    "code": "B3d",
+    "date": "2026-08-28",
+    "desc": "B3d. PINJAMAN BANK - PINJAMAN BANK PNM",
+    "debit": 100000000,
+    "credit": 0
+  },
+  {
+    "row": 438,
+    "code": "C1",
+    "date": "2026-08-28",
+    "desc": "C1. TAGIHAN API - TAGIHAN API FIRST SECURE T3E/T3A PERIODE JULI",
+    "debit": 0,
+    "credit": 444248797
+  },
+  {
+    "row": 439,
+    "code": "C30",
+    "date": "2026-08-28",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM BANK PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 440,
+    "code": "C30",
+    "date": "2026-08-28",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM BANK FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 441,
+    "code": "C30",
+    "date": "2026-08-28",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM BANK FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 442,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK STARWRAPP MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1225961
+  },
+  {
+    "row": 443,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK GALAXYPORT MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 3677884
+  },
+  {
+    "row": 444,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK ROBUSTPACK T2F MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1225961
+  },
+  {
+    "row": 445,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK ROBUSTPACK T3B MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 2451923
+  },
+  {
+    "row": 446,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK FIRST SECURE T2E MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 2451923
+  },
+  {
+    "row": 447,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK KINGTECH T2F MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 6129806
+  },
+  {
+    "row": 448,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK KINGTECH T2D MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 11033651
+  },
+  {
+    "row": 449,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK KINGTECH HLP MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 7355768
+  },
+  {
+    "row": 450,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK FIRST SECURE T3E MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 30649031
+  },
+  {
+    "row": 451,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK FIRST SECURE T3A MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 15937496
+  },
+  {
+    "row": 452,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK KINGTECH T1A SUB MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 17163458
+  },
+  {
+    "row": 453,
+    "code": "D2a",
+    "date": "2026-08-28",
+    "desc": "D2a. GAJI HO - PEMBAYARAN GAJI HO POKOK KINGTECH BALI MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 23293264
+  },
+  {
+    "row": 454,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT STARWRAPP MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1463667
+  },
+  {
+    "row": 455,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT GALAXYPORT MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 4391001
+  },
+  {
+    "row": 456,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT ROBUSTPACK T2F MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 1463667
+  },
+  {
+    "row": 457,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT ROBUSTPACK T3B MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 2927334
+  },
+  {
+    "row": 458,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT FIRST SECURE T2E MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 2927334
+  },
+  {
+    "row": 459,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT KINGTECH T2F MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 7318336
+  },
+  {
+    "row": 460,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT KINGTECH T2D MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 13173004
+  },
+  {
+    "row": 461,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT KINGTECH HLP MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 8782003
+  },
+  {
+    "row": 462,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT FIRST SECURE T3E MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 36591678
+  },
+  {
+    "row": 463,
+    "code": "C30",
+    "date": "2026-08-28",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 464,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT FIRST SECURE T3A MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 19027672
+  },
+  {
+    "row": 465,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT KINGTECH T1A SUB MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 20491340
+  },
+  {
+    "row": 466,
+    "code": "D2b",
+    "date": "2026-08-28",
+    "desc": "D2b. GAJI HO - PEMBAYARAN GAJI HO SUPPORT KINGTECH BALI MASA AGUSTUS 2026",
+    "debit": 0,
+    "credit": 27809675
+  },
+  {
+    "row": 467,
+    "code": "C20",
+    "date": "2026-08-28",
+    "desc": "C20. BELANJA DISTRIBUTOR - PEMBAYARAN BARANG DAGANG KINGTECH BALI DC WRAPPING",
+    "debit": 0,
+    "credit": 18086216
+  },
+  {
+    "row": 468,
+    "code": "C30",
+    "date": "2026-08-28",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH BALI",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 469,
+    "code": "C28",
+    "date": "2026-08-28",
+    "desc": "C28. B.OPS - PEMBELIAN LISTRIK KINGTECH YIA INTER",
+    "debit": 0,
+    "credit": 1364865
+  },
+  {
+    "row": 471,
+    "code": "B1",
+    "date": "2026-08-31",
+    "desc": "B1. SALES 28,29,30 AGUSTUS 2026",
+    "debit": 502880894,
+    "credit": 0
+  },
+  {
+    "row": 472,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK ROBUSTPACK T3B",
+    "debit": 7250,
+    "credit": 0
+  },
+  {
+    "row": 473,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK PIONER T1C",
+    "debit": 3757,
+    "credit": 0
+  },
+  {
+    "row": 474,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK FIRST SECURE T2E",
+    "debit": 10124,
+    "credit": 0
+  },
+  {
+    "row": 475,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK KINGTECH T2F",
+    "debit": 92118,
+    "credit": 0
+  },
+  {
+    "row": 476,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK KINGTECH T2D",
+    "debit": 1418,
+    "credit": 0
+  },
+  {
+    "row": 477,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK KINGTECH YIA INTER",
+    "debit": 35524,
+    "credit": 0
+  },
+  {
+    "row": 478,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK KINGTECH YIA DOMES",
+    "debit": 11929,
+    "credit": 0
+  },
+  {
+    "row": 479,
+    "code": "B3b",
+    "date": "2026-08-31",
+    "desc": "B3b. PEND BUNGA BANK - BUNGA BANK KINGTECH BALI",
+    "debit": 5596,
+    "credit": 0
+  },
+  {
+    "row": 480,
+    "code": "C1",
+    "date": "2026-08-31",
+    "desc": "C1. TAGIHAN API - TAGIHAN API STARWRAPP T2D PERIODE JULI",
+    "debit": 0,
+    "credit": 32832000
+  },
+  {
+    "row": 481,
+    "code": "C1",
+    "date": "2026-08-31",
+    "desc": "C1. TAGIHAN API - TAGIHAN API KINGTECH YIA DOMES PERIODE JULI",
+    "debit": 0,
+    "credit": 186000000
+  },
+  {
+    "row": 482,
+    "code": "C15a",
+    "date": "2026-08-31",
+    "desc": "C15a. PINJAMAN DEPARTEMEN - PINJAMAN DIVISI REFLEXOLOGY KEPADA DIVISI WRAPPING",
+    "debit": 0,
+    "credit": 60000000
+  },
+  {
+    "row": 483,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN PENGGANTIAN PASS RING 4 KRY PIONER BANDUNG",
+    "debit": 0,
+    "credit": 480000
+  },
+  {
+    "row": 484,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM PIONER T1C",
+    "debit": 0,
+    "credit": 2500
+  },
+  {
+    "row": 485,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN MANUAL/AUTO SWITH MODE DAN MANUAL STATE TURN TABLE",
+    "debit": 0,
+    "credit": 236000
+  },
+  {
+    "row": 486,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN SCUN SC 6 UNTUK WAREHOUSE WRAPPING",
+    "debit": 0,
+    "credit": 30000
+  },
+  {
+    "row": 487,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN GAS LAS UNTUK WAREHOUSE WRAPPING",
+    "debit": 0,
+    "credit": 239000
+  },
+  {
+    "row": 488,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN KEKURANGAN PENGADAAN MEJA UNTUK BUFFER MESIN WRAPPING",
+    "debit": 0,
+    "credit": 775000
+  },
+  {
+    "row": 489,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN POTENSIO DAN BEARING",
+    "debit": 0,
+    "credit": 688000
+  },
+  {
+    "row": 490,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN LINEAR BEARING NGELOST",
+    "debit": 0,
+    "credit": 525000
+  },
+  {
+    "row": 491,
+    "code": "C28",
+    "date": "2026-08-31",
+    "desc": "C28. B.OPS - PEMBAYARAN PEMBELIAN LIMIT SWITCH FORT",
+    "debit": 0,
+    "credit": 180000
+  },
+  {
+    "row": 492,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM STARWRAPP T2D",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 493,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM GALAXYPORT T2E",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 494,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM ROBUSTPACK T2F",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 495,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 496,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK ROBUSTPACK T3B",
+    "debit": 0,
+    "credit": 1450
+  },
+  {
+    "row": 497,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM PIONER T1C",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 498,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK PIONER T1C",
+    "debit": 0,
+    "credit": 748
+  },
+  {
+    "row": 499,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 500,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 501,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK FIRST SECURE T2E",
+    "debit": 0,
+    "credit": 2025
+  },
+  {
+    "row": 502,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH T2F",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 503,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK KINGTECH T2F",
+    "debit": 0,
+    "credit": 18424
+  },
+  {
+    "row": 504,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH T2D",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 505,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK KINGTECH T2D",
+    "debit": 0,
+    "credit": 284
+  },
+  {
+    "row": 506,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH HLP",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 507,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM FIRST SECURE T3E",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 508,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK FIRST SECURE T3A",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 509,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH YIA INTER",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 510,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK KINGTECH YIA INTER",
+    "debit": 0,
+    "credit": 7105
+  },
+  {
+    "row": 511,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH YIA DOMES",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 512,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK KINGTECH YIA DOMES",
+    "debit": 0,
+    "credit": 2386
+  },
+  {
+    "row": 513,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH T1A SUB",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 514,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA ADM KINGTECH BALI",
+    "debit": 0,
+    "credit": 25000
+  },
+  {
+    "row": 515,
+    "code": "C30",
+    "date": "2026-08-31",
+    "desc": "C30. BIAYA BANK -  BIAYA PAJAK KINGTECH BALI",
+    "debit": 0,
+    "credit": 1119
+  }
+]

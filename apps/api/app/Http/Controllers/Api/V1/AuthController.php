@@ -16,6 +16,16 @@ class AuthController extends Controller
         protected AuthService $authService
     ) {}
 
+    // SOP 4 / keamanan: flag Secure hanya aktif di luar local/testing (HTTPS); override via COOKIE_SECURE.
+    protected function cookieIsSecure(): bool
+    {
+        if (($v = env('COOKIE_SECURE')) !== null) {
+            return (bool) $v;
+        }
+
+        return ! app()->environment(['local', 'testing']);
+    }
+
     public function login(LoginRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -28,7 +38,7 @@ class AuthController extends Controller
             expire: time() + (8 * 3600),
             path: '/',
             domain: null,
-            secure: false,
+            secure: $this->cookieIsSecure(),
             httpOnly: true,
             raw: false,
             sameSite: Cookie::SAMESITE_LAX
@@ -48,7 +58,7 @@ class AuthController extends Controller
             expire: time() - 3600,
             path: '/',
             domain: null,
-            secure: false,
+            secure: $this->cookieIsSecure(),
             httpOnly: true,
             raw: false,
             sameSite: Cookie::SAMESITE_LAX

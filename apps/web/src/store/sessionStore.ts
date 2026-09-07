@@ -18,7 +18,7 @@ interface SessionState {
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
-  user: MOCK_SESSIONS.MANAGER,
+  user: MOCK_SESSIONS.MANAGER!,
   _setRoleFn: null,
   _setDivisionFn: null,
   _hydrate: (user, setRole, setDivision) =>

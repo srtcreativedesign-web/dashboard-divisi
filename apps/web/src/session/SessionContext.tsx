@@ -34,14 +34,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const initialRole = loadInitialRole();
     const storedDiv = loadInitialDivision();
     if (storedDiv) return storedDiv;
-    return MOCK_SESSIONS[initialRole].divisionCode;
+    return MOCK_SESSIONS[initialRole]!.divisionCode;
   });
 
   const setRolePersisted = useCallback((next: Role) => {
     setRole(next);
     localStorage.setItem(STORAGE_KEY, next);
     // auto set divisionCode sesuai role default
-    const nextDiv = MOCK_SESSIONS[next].divisionCode;
+    const nextDiv = MOCK_SESSIONS[next]!.divisionCode;
     setDivisionCodeState(nextDiv);
     if (nextDiv) localStorage.setItem(STORAGE_DIVISION_KEY, nextDiv);
     else localStorage.removeItem(STORAGE_DIVISION_KEY);
@@ -54,7 +54,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const user = useMemo<SessionUser>(() => {
-    const base = MOCK_SESSIONS[role];
+    const base = MOCK_SESSIONS[role]!;
     return { ...base, divisionCode: divisionCode ?? base.divisionCode };
   }, [role, divisionCode]);
 

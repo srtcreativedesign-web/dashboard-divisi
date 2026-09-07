@@ -25,7 +25,7 @@ class DivisionConfigController extends Controller
     public function getOne(string $divisionCode): JsonResponse
     {
         $cfg = $this->configService->getConfig($divisionCode);
-        if (!$cfg) {
+        if (! $cfg) {
             throw new ApiException('RESOURCE_NOT_FOUND', "Division {$divisionCode} not found");
         }
 

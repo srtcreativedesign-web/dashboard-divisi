@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'sobathr' => [
+        'base_url' => env('SOBAT_API_BASE_URL', 'https://api.sobat-hr.com/api/v1'),
+        'outlets_endpoint' => env('SOBAT_OUTLETS_ENDPOINT', '/lms/outlets'),
+        'api_key' => env('SOBAT_API_KEY', null),
+        'company_id' => env('SOBAT_COMPANY_ID', null),
+        'timeout' => (int) env('SOBAT_API_TIMEOUT', 10),
+    ],
 ];

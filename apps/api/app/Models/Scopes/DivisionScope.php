@@ -11,13 +11,22 @@ use Illuminate\Database\Eloquent\Scope;
  *
  * User diambil dari request attributes (diisi JwtAuthMiddleware), bukan Auth::user().
  * BOD dengan divisionCode null lintas 7 divisi; role lain strict 1:1.
- * Tanpa konteks request (console/seeder/test factory) scope tidak diterapkan.
+ * Tanpa konteks user terautentikasi → fail-closed (0 rows), kecuali di env testing.
  */
 class DivisionScope implements Scope
 {
     public function apply(Builder $builder, Model $model): void
     {
         $user = request()->attributes->get('user');
+
+        // Fail-closed: tanpa user terautentikasi, jangan kembalikan data apa pun.
+        // Kecuali di env testing (test pakai withoutGlobalScopes() untuk assertion).
+        if (! is_array($user) && ! app()->environment('testing')) {
+            $builder->whereRaw('1 = 0');
+
+            return;
+        }
+
         if (! is_array($user)) {
             return;
         }
@@ -30,7 +39,6 @@ class DivisionScope implements Scope
         }
 
         if ($divisionCode === null) {
-            // Non-BOD tanpa divisi tidak boleh melihat record apa pun
             $builder->whereRaw('1 = 0');
 
             return;

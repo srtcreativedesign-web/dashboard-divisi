@@ -5,27 +5,49 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { RouteGuard } from './components/RouteGuard';
 import { LoadingState } from './components/states';
+import { ToastProvider } from './components/ui/Toast';
+import { DisplayScaleProvider } from './context/DisplayScaleContext';
 import { AppLayout } from './layout/AppLayout';
-import { SessionProvider, useSession } from './session/SessionContext';
-import { homePathForRole } from './mocks/session';
+import { AuthProvider, useAuth } from './session/AuthContext';
 
-// SOP 1B: Pages lazy — DILARANG eager import (anti-pattern). SOP 5: ErrorBoundary per-route + Suspense.
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
-const DemoStatesPage = lazy(() => import('./pages/DemoStatesPage'));
-const KaryawanPage = lazy(() => import('./pages/KaryawanPage'));
-const KonfigurasiPage = lazy(() => import('./pages/KonfigurasiPage'));
 const LaporanPage = lazy(() => import('./pages/LaporanPage'));
-const OmzetPage = lazy(() => import('./pages/OmzetPage'));
-const PenilaianPage = lazy(() => import('./pages/PenilaianPage'));
-const ProfilPage = lazy(() => import('./pages/ProfilPage'));
-const TargetPage = lazy(() => import('./pages/TargetPage'));
-const WorkforcePage = lazy(() => import('./pages/WorkforcePage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const DailyReportPage = lazy(() => import('./pages/DailyReportPage'));
+const TenantRevenuePage = lazy(() => import('./pages/TenantRevenuePage'));
+const BudgetingPage = lazy(() => import('./pages/BudgetingPage'));
+const CashflowPage = lazy(() => import('./pages/CashflowPage'));
+const PnlPage = lazy(() => import('./pages/PnlPage'));
+const AccountingDashboardPage = lazy(() => import('./pages/AccountingDashboardPage'));
+const AccountingJournalPage = lazy(() => import('./pages/AccountingJournalPage'));
+const AccountingPeriodsPage = lazy(() => import('./pages/AccountingPeriodsPage'));
+const AccountingMasterPage = lazy(() => import('./pages/AccountingMasterPage'));
+const AccountingImportPage = lazy(() => import('./pages/AccountingImportPage'));
+const AccountingOutstandingPage = lazy(() => import('./pages/AccountingOutstandingPage'));
+const AccountingCashflowReportPage = lazy(() => import('./pages/AccountingCashflowReportPage'));
+const AccountingReconciliationPage = lazy(() => import('./pages/AccountingReconciliationPage'));
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function HomeRedirect() {
-  const { user } = useSession();
-  return <Navigate to={homePathForRole(user.role)} replace />;
+  const { user, loading } = useAuth();
+  if (loading) return <div className="p-6 text-sm text-slate-500">Memuat sesi...</div>;
+  if (!user) return <Navigate to="/login" replace />;
+  return <Navigate to={user.divisionCode === 'ACC' ? '/accounting' : '/dashboard'} replace />;
+}
+
+function DivisionDashboard() {
+  const { user } = useAuth();
+  if (user?.divisionCode === 'ACC') return <Navigate to="/accounting" replace />;
+  return <RouteSuspense><DashboardPage /></RouteSuspense>;
 }
 
 function RouteSuspense({ children }: { children: React.ReactNode }) {
@@ -39,113 +61,99 @@ function RouteSuspense({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<HomeRedirect />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <RouteGuard capability="view:division">
-                      <RouteSuspense>
-                        <DashboardPage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/omzet"
-                  element={
-                    <RouteGuard capability="write:revenue">
-                      <RouteSuspense>
-                        <OmzetPage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/target"
-                  element={
-                    <RouteGuard capability="write:target">
-                      <RouteSuspense>
-                        <TargetPage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/penilaian"
-                  element={
-                    <RouteGuard capability="write:assessment">
-                      <RouteSuspense>
-                        <PenilaianPage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/karyawan"
-                  element={
-                    <RouteGuard capability="view:workforce">
-                      <RouteSuspense>
-                        <KaryawanPage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/workforce"
-                  element={
-                    <RouteGuard capability="view:workforce">
-                      <RouteSuspense>
-                        <WorkforcePage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/laporan"
-                  element={
-                    <RouteGuard capability="view:report">
-                      <RouteSuspense>
-                        <LaporanPage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/konfigurasi"
-                  element={
-                    <RouteGuard capability="manage:config">
-                      <RouteSuspense>
-                        <KonfigurasiPage />
-                      </RouteSuspense>
-                    </RouteGuard>
-                  }
-                />
-                <Route
-                  path="/profil"
-                  element={
-                    <RouteSuspense>
-                      <ProfilPage />
-                    </RouteSuspense>
-                  }
-                />
-                <Route
-                  path="/demo"
-                  element={
-                    <RouteSuspense>
-                      <DemoStatesPage />
-                    </RouteSuspense>
-                  }
-                />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </SessionProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
+      <DisplayScaleProvider>
+        <ToastProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<RouteSuspense><LoginPage /></RouteSuspense>} />
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<HomeRedirect />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <RouteGuard>
+                        <DivisionDashboard />
+                      </RouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/laporan-harian"
+                    element={
+                      <RouteGuard>
+                        <RouteSuspense>
+                          <DailyReportPage />
+                        </RouteSuspense>
+                      </RouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/rincian-tenant"
+                    element={
+                      <RouteGuard>
+                        <RouteSuspense>
+                          <TenantRevenuePage />
+                        </RouteSuspense>
+                      </RouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/laporan"
+                    element={
+                      <RouteGuard>
+                        <RouteSuspense>
+                          <LaporanPage />
+                        </RouteSuspense>
+                      </RouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/budgeting"
+                    element={
+                      <RouteGuard>
+                        <RouteSuspense>
+                          <BudgetingPage />
+                        </RouteSuspense>
+                      </RouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/cashflow"
+                    element={
+                      <RouteGuard>
+                        <RouteSuspense>
+                          <CashflowPage />
+                        </RouteSuspense>
+                      </RouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/pnl"
+                    element={
+                      <RouteGuard>
+                        <RouteSuspense>
+                          <PnlPage />
+                        </RouteSuspense>
+                      </RouteGuard>
+                    }
+                  />
+                  <Route path="/accounting" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/jurnal" element={<RouteGuard capability="view:acc_journal" divisionCode="ACC"><RouteSuspense><AccountingJournalPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/impor" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingImportPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/outstanding" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingOutstandingPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/cashflow" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingCashflowReportPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/rekonsiliasi" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingReconciliationPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/periode" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingPeriodsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
+                </Route>
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </QueryClientProvider>
+      </ToastProvider>
+    </DisplayScaleProvider>
+  </ErrorBoundary>
+);
 }

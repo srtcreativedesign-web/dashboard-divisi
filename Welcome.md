@@ -1,94 +1,75 @@
 # Catatan Perintah Menjalankan — Dashboard Divisi
 
-> Monorepo `pnpm@11.23.0`, `node >=22` — `C:\Projects\dashboard-divisi`
+> Monorepo `npm 11` workspaces `["apps/*","packages/*"]` + **Laravel 13 / PHP 8.3** — `C:\Projects\dashboard-divisi`
+> Terverifikasi 2026-09-01: `npm` + `Laravel 13` + `Vite 6` + `74 tests` + `29 tests`
 
 ## 1. Prasyarat
 
 ```powershell
 node -v   # >=22
-pnpm -v   # 11.23.0
+npm -v    # >=11
+php -v    # 8.3+
+composer -V
 ```
 
-## 2. Install Dependencies
+## 2. Install
 
 ```powershell
-pnpm install
+npm install                 # root, 330 packages (FE + contracts + db placeholder)
+composer install            # dari apps/api
 ```
 
-## 3. Validasi Environment
+## 3. Env & DB
 
 ```powershell
-pnpm check:env
-# atau
-node scripts/check-env.mjs
+# Laravel (apps/api/.env — APP_KEY + JWT_SECRET wajib)
+copy apps\api\.env.example apps\api\.env
+php artisan key:generate    # dari apps/api
+php artisan migrate --seed  # 7 divisi + 7 outlet + 17 akun + division_configs
+# File .env/.env.local di root = sisa NestJS, tidak dibaca Laravel
 ```
 
-## 4. Menjalankan Web (Vite + React)
+## 4. Menjalankan — dua terminal
 
-Terverifikasi berjalan di `http://localhost:5173`:
+Terminal A — BE Laravel:
+```powershell
+cd apps\api
+php artisan serve --port 3000   # http://localhost:3000/api/v1
+# cek: curl http://localhost:3000/api/v1/health  -> { data: { status: "ok" }, meta: { trace_id } }
+```
+
+Terminal B — FE Vite:
+```powershell
+npm --workspace @dashboard-divisi/web run dev   # http://localhost:5173 (proxy /api/v1 -> :3000)
+```
+
+Login E2E (via FE): `bod1@dashboard.test` / `Password123!` → envelope `trace_id` + httpOnly cookie.
+
+## 5. Gate kualitas
 
 ```powershell
-# dari root
-pnpm --filter @dashboard-divisi/web dev
+npm run lint        # eslint . — 0 errors
+npm run typecheck   # npm --workspaces typecheck
+npm run build       # vite split ~293kB gzip 92kB
+npm run test        # vitest 29/29 + contracts 2/2 (FE)
 
-# atau langsung dari folder web
-cd apps/web
-pnpm dev
+# dari apps/api
+php artisan test    # 74 tests, 335 assertions, sqlite :memory:
+.\vendor\bin\pint --test   # style, ada di CI gate
 ```
 
-```powershell
-# cek build & typecheck web
-pnpm --filter @dashboard-divisi/web build
-pnpm --filter @dashboard-divisi/web typecheck
-pnpm --filter @dashboard-divisi/web test
-```
+CI: `.github/workflows/ci.yml` → `npm ci` + `setup-php 8.3` + `pint` + `php artisan test` + `migrate --pretend` + `migrate --force` (pgsql service).
 
-## 5. Menjalankan API (NestJS)
-
-`apps/api` tidak punya script `dev`, hanya `build` + `start`:
-
-```powershell
-# build dulu
-pnpm --filter @dashboard-divisi/api build
-# atau dari folder api
-cd apps/api
-pnpm build
-
-# jalankan
-pnpm --filter @dashboard-divisi/api start
-# atau
-node dist/main.js
-```
-
-Cek lain:
-
-```powershell
-pnpm --filter @dashboard-divisi/api typecheck
-pnpm --filter @dashboard-divisi/api test
-```
-
-## 6. Perintah Root (Monorepo)
-
-```powershell
-pnpm lint        # eslint .
-pnpm typecheck   # pnpm -r typecheck (semua workspace)
-pnpm test        # pnpm -r test (semua workspace)
-pnpm build       # pnpm -r build (semua workspace)
-```
-
-## 7. URL Lokal
+## 6. URL Lokal
 
 - Web: http://localhost:5173
-- API: cek `apps/api/src/main.ts` (default NestJS biasanya http://localhost:3000/api/v1)
+- API: http://localhost:3000/api/v1 — prefix `api` dari `withRouting`
 
-## 8. Catatan
+## 7. Catatan
 
-- Web dev server continuous → timeout 120s normal, biarkan berjalan.
-- Jika `pnpm dev` di root tidak ada, gunakan `--filter`.
-- Pastikan `pnpm install` sudah dijalankan sebelum `dev`/`build`.
-
----
-*Dibuat otomatis 2026-08-27 — terverifikasi `apps/web` via `pnpm dev` (Vite v6.4.3 ready 652ms)*
+- `packages/db` = **DEPRECATED** peninggalan Prisma — jangan edit, skema kanonik = `apps/api/database/migrations`.
+- `apps/api/CLAUDE.md` + `AGENTS.md` stub — jangan jalankan `boost:install`.
+- Jika `npm run dev` timeout 120s, itu normal (Vite watch); biarkan berjalan.
 
 ---
-**Update 2026-08-27:** 7 divisi (Wrapping, Cellular, Refleksi, Minimarket, FnB, Finance, Money Changer), 17 akun (3 BOD unrestricted identik + 7 Manager + 7 Admin strict 1:1), urutan BOD→Manager→Admin, Fase 0 tetap wajib.
+*Update 2026-09-01 — migrasi pnpm→npm, Laravel 13, rebuild FE real BE + showcase polish (OrgFilters card, Laporan tables, Target run-rate cards)*

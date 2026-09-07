@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<
           <button
             type="button"
             onClick={() => window.location.assign('/')}
-            className="rounded-input bg-primary px-4 py-2 text-sm text-white"
+            className="rounded-input bg-primary-700 hover:bg-primary-800 px-4 py-2 text-sm text-white font-medium transition-colors"
           >
             Kembali ke Beranda
           </button>

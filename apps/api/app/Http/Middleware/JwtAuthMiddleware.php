@@ -19,13 +19,13 @@ class JwtAuthMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $token = $this->extractToken($request);
-        if (!$token) {
+        if (! $token) {
             throw new ApiException('AUTH_REQUIRED', 'Token tidak ditemukan');
         }
 
         $payload = $this->jwtService->verify($token);
 
-        if (!empty($payload['jti']) && $this->tokenRevocation->isRevoked($payload['jti'])) {
+        if (! empty($payload['jti']) && $this->tokenRevocation->isRevoked($payload['jti'])) {
             throw new ApiException('AUTH_REQUIRED', 'Sesi sudah logout');
         }
 

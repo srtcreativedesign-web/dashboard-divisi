@@ -12,6 +12,7 @@ class Outlet extends Model
     protected $table = 'outlets';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

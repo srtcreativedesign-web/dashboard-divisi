@@ -8,6 +8,7 @@ use Tests\TestCase;
 class ApiContractTest extends TestCase
 {
     public const UUID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
+
     public const SECRET_MARKER = 'RAHASIA_DB_TIDAK_BOLEH_BOCOR';
 
     public function test_health_returns_success_envelope_matching_contract(): void
@@ -53,7 +54,7 @@ class ApiContractTest extends TestCase
     public function test_unexpected_error_returns_generic_internal_error_without_leaking_secrets(): void
     {
         Route::get('/api/v1/boom-test', function () {
-            throw new \RuntimeException('koneksi gagal: ' . ApiContractTest::SECRET_MARKER);
+            throw new \RuntimeException('koneksi gagal: '.ApiContractTest::SECRET_MARKER);
         });
 
         $response = $this->getJson('/api/v1/boom-test');

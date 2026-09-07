@@ -48,14 +48,17 @@ export function EmptyState({
 interface ErrorStateProps {
   title?: string;
   description?: string;
+  traceId?: string;
   onRetry?: () => void;
 }
 
 export function ErrorState({
   title = 'Gagal memuat data',
   description = 'Periksa koneksi Anda lalu coba lagi.',
+  traceId,
   onRetry,
 }: ErrorStateProps) {
+  const isAuth = title.includes('Token') || description?.includes('Token') || description?.includes('401');
   return (
     <div
       role="alert"
@@ -63,11 +66,27 @@ export function ErrorState({
     >
       <p className="text-sm font-medium text-danger">{title}</p>
       <p className="max-w-sm text-xs text-slate-500">{description}</p>
-      {onRetry ? (
+      {traceId && (
+        <p className="flex items-center gap-2 max-w-sm text-xs font-mono text-slate-400">
+          trace_id: {traceId}
+          <button
+            type="button"
+            onClick={() => void navigator.clipboard.writeText(traceId)}
+            className="rounded border border-line px-1.5 py-0.5 text-xs hover:bg-surface"
+          >
+            Copy
+          </button>
+        </p>
+      )}
+      {isAuth ? (
+        <a href="/login" className="rounded-input bg-navy px-4 py-2 text-sm text-white">
+          Masuk — sesi habis
+        </a>
+      ) : onRetry ? (
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-input bg-primary px-4 py-2 text-sm text-white"
+          className="rounded-input bg-primary-700 hover:bg-primary-800 px-4 py-2 text-sm text-white font-medium transition-colors"
         >
           Coba Lagi
         </button>

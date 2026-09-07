@@ -6,37 +6,37 @@ Bahasa kerja repo ini **Bahasa Indonesia**: komentar, pesan error API, commit me
 
 ## Bentuk repo
 
-Monorepo pnpm dengan backend PHP:
+Monorepo **npm 11 workspaces** (`package.json` workspaces `["apps/*","packages/*"]`) dengan backend PHP:
 
-- `apps/api` — **Laravel 13 / PHP 8.3+** (hasil migrasi dari NestJS, commit `d24f4c7`). Punya `package.json` tipis supaya ikut `pnpm -r`, tapi isinya proxy ke `php artisan`.
-- `apps/web` — React 19 + Vite + Tailwind v4, masih UI-first (session di-mock, belum memanggil API).
+- `apps/api` — **Laravel 13 / PHP 8.3+** (hasil migrasi dari NestJS, commit `d24f4c7`). Tidak ikut npm workspaces build (no-op), tapi `composer install` + `php artisan`.
+- `apps/web` — React 19 + Vite + Tailwind v4, Real BE via `api/client.ts` + `AuthContext` (`/auth/me` httpOnly cookie, envelope `trace_id`).
 - `packages/contracts` — tipe TS envelope API bersama, dipakai `apps/web`.
-- `packages/db` — **peninggalan Prisma**, sudah tidak jadi sumber kebenaran skema (lihat "Utang migrasi" di bawah).
+- `packages/db` — **DEPRECATED / peninggalan Prisma** — tidak lagi sumber kebenaran skema (lihat "Utang migrasi" di bawah). Jangan edit; skema kanonik = `apps/api/database/migrations`.
 
 ## Perintah
 
 ```bash
-pnpm install
-pnpm lint        # eslint . — hanya menyentuh TS/JS
-pnpm typecheck   # pnpm -r typecheck; api = no-op
-pnpm test        # pnpm -r test; api = php artisan test
-pnpm build       # pnpm -r build; api = no-op
+npm install                  # root, 330 packages (npm 11)
+npm run lint                 # eslint . — hanya TS/JS
+npm run typecheck            # npm --workspaces typecheck; api = no-op
+npm run test                 # npm --workspaces test (FE vitest) ; BE = php artisan test terpisah
+npm run build                # npm --workspaces build; api = no-op
 ```
 
 API (jalankan dari `apps/api`):
 
 ```bash
 composer install
-php artisan serve --port 3000     # atau: pnpm --filter @dashboard-divisi/api start
+php artisan serve --port 3000     # BE :3000/api/v1
 php artisan migrate               # skema kanonik ada di database/migrations
 php artisan db:seed               # DatabaseSeeder: 7 divisi + outlet + 17 akun + DivisionConfig
-php artisan test                            # semua
+php artisan test                            # semua (74 tests, 335 assertions, sqlite :memory:)
 php artisan test tests/Feature/PolicyTest.php          # satu file
 php artisan test --filter=test_bod_lintas_divisi       # satu test
-./vendor/bin/pint                 # formatter (tidak ada di gate CI, jalankan manual)
+./vendor/bin/pint                 # formatter — ada di CI gate (pint --test)
 ```
 
-Web: `pnpm --filter @dashboard-divisi/web dev` → http://localhost:5173. API → http://localhost:3000/api/v1.
+Web: `npm --workspace @dashboard-divisi/web run dev` → http://localhost:5173. API → http://localhost:3000/api/v1.
 
 Env: `apps/api/.env` (Laravel; `APP_KEY` wajib, `JWT_SECRET` dipakai `JwtService`). File `.env`/`.env.local` di root adalah sisa era NestJS dan tidak dibaca Laravel.
 
@@ -77,10 +77,10 @@ Karena test pakai SQLite sementara runtime pakai PostgreSQL (`DB_CONNECTION=pgsq
 
 Sebutkan/perbaiki sadar, jangan tertipu:
 
-- `packages/db` masih berisi schema + migration + seed Prisma yang kini duplikat dari `apps/api/database/migrations`. **Sumber kebenaran skema = migration Laravel.**
-- `.github/workflows/ci.yml` masih pipeline era NestJS (prisma validate/format/generate/migrate diff) dan belum menjalankan `composer install` atau `php artisan test` — gate CI belum mencerminkan backend sekarang.
-- `apps/api/CLAUDE.md` + `AGENTS.md` adalah bootstrap Laravel Boost bawaan; jangan jalankan `boost:install` tanpa persetujuan owner.
-- `Welcome.md` masih instruksi PowerShell/`C:\Projects\...` era NestJS.
+- `packages/db` masih berisi schema + migration + seed Prisma yang kini duplikat dari `apps/api/database/migrations`. **Sumber kebenaran skema = migration Laravel.** — sudah ditandai DEPRECATED; jangan edit (2026-09-01).
+- `.github/workflows/ci.yml` **sudah dimigrasi 2026-09-01** ke `npm ci` + `setup-php 8.3` + `composer install` + `pint --test` + `php artisan test` + `migrate --pretend` + `migrate --force` pgsql — tidak lagi `pnpm`/`prisma validate`.
+- `apps/api/CLAUDE.md` + `AGENTS.md` adalah bootstrap Laravel Boost bawaan; sudah diganti stub 2026-09-01 — jangan jalankan `boost:install` tanpa persetujuan owner.
+- `Welcome.md` sudah rewrite 2026-09-01 ke `npm` + `Laravel 13` + `php artisan serve :3000`.
 
 ## Vault Obsidian (bukan kode)
 

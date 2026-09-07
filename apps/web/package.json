@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@dashboard-divisi/contracts": "workspace:*",
+    "@dashboard-divisi/contracts": "*",
     "@fontsource-variable/inter": "^5.1.0",
     "@tanstack/react-query": "^5.102.8",
     "lucide-react": "^0.469.0",

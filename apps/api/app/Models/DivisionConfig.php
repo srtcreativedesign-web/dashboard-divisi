@@ -11,6 +11,7 @@ class DivisionConfig extends Model
     protected $table = 'division_configs';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

@@ -24,7 +24,8 @@ class BodOverviewTest extends TestCase
         // Find WRAP division
         $wrap = collect($data)->firstWhere('divisionCode', 'WRAP');
         $this->assertNotNull($wrap);
-        $this->assertEquals(0, $wrap['revenue']['gross']);
+        $this->assertNotNull($wrap['revenue']['gross']);
+        $this->assertGreaterThan(0, $wrap['revenue']['gross']);
         $this->assertEquals('revenue.daily', $wrap['revenue']['source']);
         $this->assertArrayHasKey('drillDown', $wrap);
         $this->assertStringContainsString('divisionCode=WRAP', $wrap['drillDown']['href']);

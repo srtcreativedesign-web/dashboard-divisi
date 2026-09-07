@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Exceptions\ApiException;
+use App\Models\Outlet;
 use App\Services\PolicyService;
 use Closure;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class ScopeMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->attributes->get('user');
-        if (!$user) {
+        if (! $user) {
             throw new ApiException('AUTH_REQUIRED', 'Autentikasi diperlukan');
         }
 
@@ -26,8 +27,19 @@ class ScopeMiddleware
             ?? $request->input('divisionCode')
             ?? $request->input('division_code');
 
+        if (! $divisionCode && ($request->input('outletId') || $request->input('outlet_id'))) {
+            $outletId = $request->input('outletId') ?: $request->input('outlet_id');
+            $outlet = Outlet::with('division')->find($outletId);
+            $divisionCode = $outlet?->division?->code;
+        }
+
+        if (! $divisionCode && $request->is('api/v1/accounting*')) {
+            $divisionCode = 'ACC';
+        }
+
         if ($divisionCode) {
-            $this->policy->assertDivisionScope($user, (string) $divisionCode);
+            $isWrite = in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'], true);
+            $this->policy->assertDivisionScope($user, (string) $divisionCode, $isWrite);
         }
 
         return $next($request);

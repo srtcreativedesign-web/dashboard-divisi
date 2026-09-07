@@ -11,6 +11,9 @@ class AuditService
     protected const SENSITIVE_KEYS = [
         'password',
         'passwordhash',
+        'password_hash',
+        'refresh_token',
+        'refreshtoken',
         'token',
         'access_token',
         'accesstoken',
@@ -18,6 +21,8 @@ class AuditService
         'cookie',
         'secret',
         'jwt',
+        'jwt_secret',
+        'pin',
     ];
 
     /**
@@ -36,13 +41,20 @@ class AuditService
         $out = [];
         foreach ($input as $key => $val) {
             $lowerKey = strtolower((string) $key);
-            if (in_array($lowerKey, self::SENSITIVE_KEYS, true)) {
+            $isSensitive = false;
+            foreach (self::SENSITIVE_KEYS as $s) {
+                if (str_contains($lowerKey, $s)) {
+                    $isSensitive = true;
+                    break;
+                }
+            }
+            if ($isSensitive) {
                 continue;
             }
 
             if (is_array($val)) {
                 $sanitized = $this->sanitizeMetadata($val);
-                if (!empty($sanitized)) {
+                if (! empty($sanitized)) {
                     $out[$key] = $sanitized;
                 }
             } else {
@@ -50,7 +62,7 @@ class AuditService
             }
         }
 
-        return !empty($out) ? $out : null;
+        return ! empty($out) ? $out : null;
     }
 
     public function log(array $params): void

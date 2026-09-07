@@ -11,6 +11,7 @@ class UserScope extends Model
     protected $table = 'user_scopes';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     public $timestamps = false;

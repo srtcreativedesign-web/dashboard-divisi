@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Services\JwtService;
+use App\Services\TokenRevocationService;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -84,14 +84,14 @@ class AuthTest extends TestCase
     {
         $token = $this->getJwtTokenForUser('bod1@dashboard.test');
 
-        $logoutRes = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $logoutRes = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/v1/auth/logout');
 
         $logoutRes->assertStatus(200);
         $this->assertEquals('Logout berhasil', $logoutRes->json('data.message'));
 
         // Subsequent access with revoked token should fail with 401
-        $meRes = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $meRes = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/v1/auth/me');
 
         $meRes->assertStatus(401);
@@ -104,7 +104,7 @@ class AuthTest extends TestCase
         $token = $this->getJwtTokenForUser('bod2@dashboard.test');
 
         // Short password fails with 400 VALIDATION_ERROR
-        $shortRes = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $shortRes = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/v1/auth/reset', [
                 'oldPassword' => 'Password123!',
                 'newPassword' => 'short',
@@ -113,7 +113,7 @@ class AuthTest extends TestCase
         $this->assertEquals('VALIDATION_ERROR', $shortRes->json('error.code'));
 
         // Wrong old password fails with 401 AUTH_REQUIRED
-        $wrongOld = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $wrongOld = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/v1/auth/reset', [
                 'oldPassword' => 'WrongOldPassword',
                 'newPassword' => 'NewValidPassword123!',
@@ -122,7 +122,7 @@ class AuthTest extends TestCase
         $this->assertEquals('AUTH_REQUIRED', $wrongOld->json('error.code'));
 
         // Valid reset succeeds
-        $success = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $success = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/v1/auth/reset', [
                 'oldPassword' => 'Password123!',
                 'newPassword' => 'NewValidPassword123!',
@@ -136,5 +136,50 @@ class AuthTest extends TestCase
             'password' => 'NewValidPassword123!',
         ]);
         $loginRes->assertStatus(200);
+    }
+
+    public function test_login_is_rate_limited_after_exceeding_attempts(): void
+    {
+        // throttle:login — 10/menit per email+IP, percobaan ke-11 ditolak 429 (anti brute-force)
+        for ($i = 0; $i < 10; $i++) {
+            $this->postJson('/api/v1/auth/login', [
+                'email' => 'bod1@dashboard.test',
+                'password' => 'WrongPassword',
+            ]);
+        }
+
+        $blocked = $this->postJson('/api/v1/auth/login', [
+            'email' => 'bod1@dashboard.test',
+            'password' => 'WrongPassword',
+        ]);
+
+        $blocked->assertStatus(429);
+
+        // Akun lain dari IP yang sama tidak ikut terblokir (kantor di balik satu IP/NAT)
+        $other = $this->postJson('/api/v1/auth/login', [
+            'email' => 'bod2@dashboard.test',
+            'password' => 'WrongPassword',
+        ]);
+        $other->assertStatus(401);
+    }
+
+    public function test_revoked_token_is_persisted_and_survives_cache_clear(): void
+    {
+        $token = $this->getJwtTokenForUser('bod3@dashboard.test');
+
+        $logout = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->postJson('/api/v1/auth/logout');
+        $logout->assertStatus(200);
+
+        // Simulasi restart multi-proses: buang cache static, hanya andalkan DB
+        TokenRevocationService::clear();
+
+        $revocation = app(TokenRevocationService::class);
+        $decoded = app(JwtService::class)->verify($token);
+        $this->assertNotEmpty($decoded['jti'] ?? null);
+        $this->assertTrue($revocation->isRevoked($decoded['jti']));
+
+        // Pastikan tercatat di DB juga
+        $this->assertDatabaseHas('revoked_tokens', ['token_id' => $decoded['jti']]);
     }
 }

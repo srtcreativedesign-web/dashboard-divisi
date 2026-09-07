@@ -22,12 +22,12 @@ class UserScopeService
     {
         try {
             $user = User::find($userId);
-            if (!$user) {
+            if (! $user) {
                 return false;
             }
 
             // BOD lintas 7 divisi (division_code null) = all
-            if ($user->role === 'BOD' && !$user->division_code) {
+            if ($user->role === 'BOD' && ! $user->division_code) {
                 return true;
             }
 
@@ -37,7 +37,7 @@ class UserScopeService
             }
 
             $division = Division::where('code', $divisionCode)->first();
-            if (!$division) {
+            if (! $division) {
                 return false;
             }
 
@@ -52,7 +52,7 @@ class UserScopeService
         $role = $user['role'] ?? '';
         $userDivision = $user['divisionCode'] ?? $user['division_code'] ?? null;
 
-        if ($role === 'BOD' && !$userDivision) {
+        if ($role === 'BOD' && ! $userDivision) {
             return true;
         }
 

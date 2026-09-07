@@ -26,7 +26,7 @@ abstract class TestCase extends BaseTestCase
     protected function getJwtTokenForUser(string $email): string
     {
         $user = User::where('email', $email)->first();
-        if (!$user) {
+        if (! $user) {
             $user = User::create([
                 'id' => (string) Str::uuid(),
                 'email' => $email,
@@ -53,6 +53,6 @@ abstract class TestCase extends BaseTestCase
     {
         $token = $this->getJwtTokenForUser($email);
 
-        return $this->withHeader('Authorization', 'Bearer ' . $token);
+        return $this->withHeader('Authorization', 'Bearer '.$token);
     }
 }

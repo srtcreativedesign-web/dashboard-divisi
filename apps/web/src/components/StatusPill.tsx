@@ -44,7 +44,7 @@ const TONE_CLASSES: Record<StatusTone, string> = {
   success: 'bg-success/10 text-success',
   warning: 'bg-warning/10 text-warning',
   danger: 'bg-danger/10 text-danger',
-  primary: 'bg-primary/10 text-primary',
+  primary: 'bg-primary-100 text-primary-800',
 };
 
 export function StatusPill({ status }: { status: string }) {

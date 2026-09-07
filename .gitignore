@@ -1,6 +1,7 @@
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json
 .obsidian/plugins/obsidian-git/data.json
+.obsidian/.obsidian/
 .trash/
 .DS_Store
 
@@ -13,3 +14,8 @@ coverage/
 .env
 .env.*
 !.env.example
+cookies.txt
+
+documents/
+Decisions/
+lessons/

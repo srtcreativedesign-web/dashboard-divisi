@@ -10,6 +10,7 @@ class AuditEvent extends Model
     protected $table = 'audit_events';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     public $timestamps = false;

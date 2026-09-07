@@ -1,182 +1,128 @@
+import { useState } from 'react';
 import { StatusPill } from '../components/StatusPill';
-
-const outlets = [
-  { outlet: 'MINI-001', division: 'Minimarket', target: 550, realization: 482, owner: 'Manager Minimarket', status: 'Submitted' },
-  { outlet: 'CELL-001', division: 'Cellular', target: 415, realization: 431, owner: 'Manager Cellular', status: 'Approved' },
-  { outlet: 'FNB-001', division: 'FnB', target: 395, realization: 386, owner: 'Manager FnB', status: 'Draft' },
-  { outlet: 'WRAP-001', division: 'Wrapping', target: 370, realization: 344, owner: 'Manager Wrapping', status: 'Returned' },
-];
-
-const approvals = [
-  { item: 'Target MINI Agustus', requester: 'Manager Minimarket', status: 'Menunggu BOD', age: '2 jam' },
-  { item: 'Revisi WRAP Agustus', requester: 'Manager Wrapping', status: 'Returned', age: '1 hari' },
-  { item: 'Target FNB Agustus', requester: 'Manager FnB', status: 'Draft', age: '3 hari' },
-];
-
-const timeline = [
-  { step: 'Draft', detail: 'Target per outlet diisi manager', state: 'Selesai' },
-  { step: 'Submit', detail: 'Manager mengirim ke BOD', state: 'Aktif' },
-  { step: 'Review', detail: 'BOD approve atau return', state: 'Menunggu' },
-  { step: 'Lock', detail: 'Target terkunci untuk periode berjalan', state: 'Belum' },
-];
-
-const bodQueue = [
-  { request: 'Target MINI Agustus', submitter: 'Manager Minimarket', action: 'Approve', status: 'Ready' },
-  { request: 'Target WRAP Revisi', submitter: 'Manager Wrapping', action: 'Return with note', status: 'Needs note' },
-  { request: 'Target FNB Draft', submitter: 'Manager FnB', action: 'Wait submit', status: 'Blocked' },
-];
-
-const governance = [
-  { title: 'Segregation of duties', detail: 'Pembuat target tidak bisa approve target yang sama.', status: 'Enforced' },
-  { title: 'Append-only approval', detail: 'Approve/return/reopen menjadi event baru, bukan update diam-diam.', status: 'Audit' },
-  { title: 'Privileged reopen', detail: 'Periode locked hanya bisa dibuka ulang oleh BOD/Superadmin.', status: 'Restricted' },
-];
-
-function formatCurrency(value: number) {
-  return `Rp ${value} jt`;
-}
+import { EmptyState, ErrorState, LoadingState } from '../components/states';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { useToast } from '../components/ui/Toast';
+import { useTargetsCurrent, useTargetsRunRate, useUpsertTarget, useApproveTarget, useReturnTarget } from '../hooks/useTargets';
+import { useOrgFilters } from '../components/filters/OrgFilters';
+import { useAuth } from '../session/AuthContext';
 
 export default function TargetPage() {
-  const totalTarget = outlets.reduce((sum, outlet) => sum + outlet.target, 0);
-  const totalRealization = outlets.reduce((sum, outlet) => sum + outlet.realization, 0);
-  const achievement = Math.round((totalRealization / totalTarget) * 1000) / 10;
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const isBod = user?.role === 'BOD';
+  const { divisionCode } = useOrgFilters();
+  const { data, isLoading, error, refetch } = useTargetsCurrent(divisionCode ? { divisionCode } : undefined);
+  const runRate = useTargetsRunRate(divisionCode ? { divisionCode } : undefined);
+  const upsert = useUpsertTarget();
+  const approve = useApproveTarget();
+  const ret = useReturnTarget();
+  const [amount, setAmount] = useState('100');
+  const [periodMonth, setPeriodMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [outletId, setOutletId] = useState('');
+
+  if (isLoading) return <LoadingState label="Memuat target..." />;
+  if (error) {
+    const e = error as unknown as { message?: string; traceId?: string };
+    return <ErrorState description={e.message ?? 'Gagal memuat target'} traceId={e.traceId} onRetry={() => void refetch()} />;
+  }
+
+  const list = Array.isArray(data) ? data as unknown as { id: string; outlet_id: string; amount: number; status: string; period_month: string }[] : [];
+  const handleSubmit = async () => {
+    if (!outletId) return;
+    try {
+      await upsert.mutateAsync({ outletId, periodMonth, amount: Number(amount), action: 'draft' });
+      toast('Draft tersimpan', 'success');
+      void refetch();
+    } catch (e) {
+      const err = e as unknown as { message?: string; traceId?: string };
+      toast(`${err.message ?? 'Gagal simpan'}${err.traceId ? ` — ${err.traceId}` : ''}`, 'error');
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-card border border-line bg-white p-5 shadow-card">
+    <div className="space-y-6 animate-fade-in-up">
+      <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <p className="text-sm font-medium text-primary">Target Planning</p>
-            <h1 className="mt-1 text-2xl font-semibold text-navy">Target & Realisasi</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">Flow mock draft, submit, return, approve, dan lock target tanpa API/DB.</p>
+            <h1 className="mt-1 text-2xl lg:text-3xl font-bold tracking-tight text-navy">Target & Realisasi</h1>
+            <p className="mt-2 max-w-2xl text-sm text-slate-500">Terhubung BE real — /targets/current-month & upsert tenant target (FormRequest).</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" className="rounded-input border border-line px-4 py-2 text-sm font-medium text-navy">Simpan Draft</button>
-            <button type="button" className="rounded-input bg-primary px-4 py-2 text-sm font-medium text-white">Submit ke BOD</button>
+            <Input value={outletId} onChange={(e) => setOutletId(e.target.value)} placeholder="outletId (uuid)" aria-label="Outlet ID" />
+            <Input value={periodMonth} onChange={(e) => setPeriodMonth(e.target.value)} aria-label="Periode" />
+            <Input value={amount} onChange={(e) => setAmount(e.target.value)} className="w-24" aria-label="Amount" />
+            <Button onClick={handleSubmit} disabled={upsert.isPending}>Simpan Draft (BE)</Button>
           </div>
         </div>
+        {upsert.isError && <p className="mt-2 text-sm text-danger">{(upsert.error as Error).message}</p>}
+        {upsert.isSuccess && <p className="mt-2 text-sm text-success">Draft tersimpan</p>}
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-slate-500">Derived total target</p>
-          <p className="mt-3 text-2xl font-semibold text-navy">{formatCurrency(totalTarget)}</p>
-          <p className="mt-2 text-sm text-slate-500">Akumulasi outlet, bukan input manual divisi</p>
-        </article>
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-slate-500">Realisasi</p>
-          <p className="mt-3 text-2xl font-semibold text-success">{formatCurrency(totalRealization)}</p>
-          <p className="mt-2 text-sm text-slate-500">Update mock periode berjalan</p>
-        </article>
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <p className="text-sm text-slate-500">Achievement</p>
-          <p className="mt-3 text-2xl font-semibold text-primary">{achievement}%</p>
-          <p className="mt-2 text-sm text-slate-500">Level A sementara</p>
-        </article>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <h2 className="text-lg font-semibold text-navy">Target per outlet</h2>
-          <div className="mt-4 overflow-x-auto rounded-card border border-line">
+      {list.length === 0 ? <EmptyState title="Belum ada target" description="Buat target per outlet — data akan muncul dari /targets/current-month (scope divisi)." /> : (
+        <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+          <h2 className="text-lg font-semibold text-navy">Target per outlet (real)</h2>
+          <div className="mt-4 overflow-x-auto rounded-card-lg border border-line/40">
             <table className="min-w-[720px] w-full text-left text-sm">
               <thead className="bg-surface text-slate-500">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Outlet</th>
-                  <th className="px-4 py-3 font-medium">Divisi</th>
-                  <th className="px-4 py-3 font-medium">Target</th>
-                  <th className="px-4 py-3 font-medium">Realisasi</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                </tr>
+                <tr><th scope="col" className="px-4 py-3 font-medium">ID</th><th scope="col" className="px-4 py-3 font-medium">Periode</th><th scope="col" className="px-4 py-3 font-medium">Amount</th><th scope="col" className="px-4 py-3 font-medium">Status</th></tr>
               </thead>
-              <tbody className="divide-y divide-line">
-                {outlets.map((outlet) => (
-                  <tr key={outlet.outlet}>
-                    <td className="px-4 py-3 font-medium text-navy">{outlet.outlet}</td>
-                    <td className="px-4 py-3 text-slate-600">{outlet.division}</td>
-                    <td className="px-4 py-3 text-slate-600">{formatCurrency(outlet.target)}</td>
-                    <td className="px-4 py-3 text-slate-600">{formatCurrency(outlet.realization)}</td>
-                    <td className="px-4 py-3"><StatusPill status={outlet.status} /></td>
-                  </tr>
+              <tbody className="divide-y divide-line/40">
+                {list.map((r) => (
+                  <tr key={r.id}><td className="px-4 py-3 font-medium text-navy">{r.id.slice(0, 8)}</td><td className="px-4 py-3 text-slate-600">{r.period_month}</td><td className="px-4 py-3 text-slate-600">{r.amount}</td><td className="px-4 py-3"><StatusPill status={r.status} /></td></tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </article>
+          <p className="mt-2 text-xs text-slate-400 lg:hidden">Geser → untuk lihat kolom</p>
+        </section>
+      )}
 
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <h2 className="text-lg font-semibold text-navy">Timeline status</h2>
-          <div className="mt-4 space-y-3">
-            {timeline.map((item) => (
-              <div key={item.step} className="rounded-card border border-line p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-navy">{item.step}</p>
-                  <StatusPill status={item.state} />
-                </div>
-                <p className="mt-1 text-sm text-slate-500">{item.detail}</p>
-              </div>
-            ))}
-          </div>
-        </article>
+      <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+        <h2 className="text-lg font-semibold text-navy">Run-rate (sisa harian)</h2>
+        {(() => {
+          if (runRate.isLoading) return <p className="text-sm text-slate-500">Memuat run-rate...</p>;
+          if (runRate.error) return <p className="text-sm text-danger">{(runRate.error as Error).message}</p>;
+          const r = runRate.data as unknown as { targetAmount?: string; achievedAmount?: string; remainingAmount?: string; daysRemaining?: number; dailyRequired?: string } | null;
+          if (!r) return <p className="text-sm text-slate-500">Belum ada target periode ini.</p>;
+          return (
+            <div className="mt-3 grid gap-3 md:grid-cols-4">
+              <div className="rounded-card-lg border border-line/40 p-4 bg-surface/30"><p className="text-xs uppercase tracking-wider text-slate-400">Target</p><p className="mt-1 font-semibold text-navy">Rp {r.targetAmount ?? '0'}</p></div>
+              <div className="rounded-card-lg border border-line/40 p-4"><p className="text-xs uppercase tracking-wider text-slate-400">Tercapai</p><p className="mt-1 font-semibold text-success">Rp {r.achievedAmount ?? '0'}</p></div>
+              <div className="rounded-card-lg border border-line/40 p-4"><p className="text-xs uppercase tracking-wider text-slate-400">Sisa</p><p className="mt-1 font-semibold text-danger">Rp {r.remainingAmount ?? '0'}</p></div>
+              <div className="rounded-card-lg border border-line/40 p-4 bg-primary-light/30"><p className="text-xs uppercase tracking-wider text-primary">Per hari</p><p className="mt-1 font-semibold text-primary">Rp {r.dailyRequired ?? '0'}</p><p className="text-xs text-slate-500">{r.daysRemaining ?? 0} hari tersisa</p></div>
+            </div>
+          );
+        })()}
+        <p className="mt-3 text-xs text-slate-400">Scope {divisionCode ?? 'semua'} · Superadmin 1:1, Executive lintas</p>
       </section>
-
-      <section className="rounded-card border border-line bg-white p-5 shadow-card">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-navy">Approval queue</h2>
-            <p className="text-sm text-slate-500">Mock antrian review BOD dan item returned</p>
-          </div>
-          <button type="button" className="rounded-input border border-line px-3 py-2 text-sm font-medium text-navy">Lihat Queue BOD</button>
-        </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {approvals.map((item) => (
-            <article key={item.item} className="rounded-card border border-line p-4">
-              <div className="flex items-start justify-between gap-3">
-                <p className="font-medium text-navy">{item.item}</p>
-                <StatusPill status={item.status} />
-              </div>
-              <p className="mt-2 text-sm text-slate-500">{item.requester}</p>
-              <p className="mt-1 text-sm text-slate-500">{item.age}</p>
-            </article>
-          ))}
-        </div>
+      <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+        <h2 className="text-lg font-semibold text-navy">BOD review detail</h2>
+        <p className="text-sm text-slate-500">Queue draft → approve/return via `POST /targets/{'{id}'}/approve` &amp; `/return` (SOP SoD: hanya BOD).</p>
+        {isBod ? (
+          list.filter((r)=> r.status==='draft').length===0 ? <p className="mt-3 text-sm text-slate-500">Tidak ada draft pending untuk direview.</p> : (
+            <div className="mt-4 overflow-x-auto rounded-card-lg border border-line/40">
+              <table className="min-w-[640px] w-full text-left text-sm">
+                <caption className="sr-only">BOD review queue</caption>
+                <thead className="bg-surface text-slate-500"><tr><th scope="col" className="px-4 py-3">ID</th><th scope="col" className="px-4 py-3">Periode</th><th scope="col" className="px-4 py-3">Amount</th><th scope="col" className="px-4 py-3">Aksi</th></tr></thead>
+                <tbody className="divide-y divide-line/40">{list.filter((r)=> r.status==='draft').map((r)=> (
+                  <tr key={r.id}><td className="px-4 py-3 font-mono text-xs">{r.id.slice(0,8)}</td><td className="px-4 py-3">{r.period_month}</td><td className="px-4 py-3 font-mono text-xs">Rp {r.amount}</td><td className="px-4 py-3 flex gap-2"><Button onClick={async()=>{ try{ await approve.mutateAsync(r.id); toast('Approved','success'); void refetch(); }catch(e){ const err=e as unknown as {message?:string;traceId?:string}; toast(`${err.message ?? 'Gagal approve'}${err.traceId ? ` — ${err.traceId}`:''}`,'error'); } }} disabled={approve.isPending || ret.isPending}>Approve</Button><Button variant="secondary" onClick={async()=>{ try{ await ret.mutateAsync({id:r.id, note:'Need revision'}); toast('Returned','success'); void refetch(); }catch(e){ const err=e as unknown as {message?:string;traceId?:string}; toast(`${err.message ?? 'Gagal return'}${err.traceId ? ` — ${err.traceId}`:''}`,'error'); } }} disabled={approve.isPending || ret.isPending}>Return</Button></td></tr>
+                ))}</tbody>
+              </table>
+            </div>
+          )
+        ) : <p className="mt-3 text-sm text-slate-500">Hanya BOD dapat approve/return — SoD enforced (BE `capability:approve:target`).</p>}
       </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <h2 className="text-lg font-semibold text-navy">BOD review detail</h2>
-          <p className="text-sm text-slate-500">Approve/return action mock dengan catatan wajib untuk return.</p>
-          <div className="mt-4 space-y-3">
-            {bodQueue.map((item) => (
-              <div key={item.request} className="rounded-card border border-line p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-medium text-navy">{item.request}</p>
-                    <p className="mt-1 text-sm text-slate-500">{item.submitter} · {item.action}</p>
-                  </div>
-                  <StatusPill status={item.status} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="rounded-card border border-line bg-white p-5 shadow-card">
-          <h2 className="text-lg font-semibold text-navy">Governance target</h2>
-          <div className="mt-4 space-y-3">
-            {governance.map((item) => (
-              <div key={item.title} className="rounded-card border border-line p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-medium text-navy">{item.title}</p>
-                    <p className="mt-1 text-sm text-slate-500">{item.detail}</p>
-                  </div>
-                  <StatusPill status={item.status} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </article>
+      <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+        <h2 className="text-lg font-semibold text-navy">Governance target</h2>
+        <p className="text-sm text-slate-500">Tetap ditampilkan sebagai SOP — bukan mock data.</p>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <div className="rounded-card-lg border border-line/40 p-4"><p className="font-medium text-navy">Segregation of duties</p><p className="text-sm text-slate-500">Pembuat tidak bisa approve</p><div className="mt-2"><StatusPill status="Enforced" /></div></div>
+          <div className="rounded-card-lg border border-line/40 p-4"><p className="font-medium text-navy">Append-only approval</p><p className="text-sm text-slate-500">Event baru, bukan update diam</p><div className="mt-2"><StatusPill status="Audit" /></div></div>
+          <div className="rounded-card-lg border border-line/40 p-4"><p className="font-medium text-navy">Privileged reopen</p><p className="text-sm text-slate-500">Hanya BOD</p><div className="mt-2"><StatusPill status="Restricted" /></div></div>
+        </div>
       </section>
     </div>
   );

@@ -2,20 +2,91 @@
 @import '@fontsource-variable/inter';
 
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
+  --color-primary: #0ea5e9;
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  --color-primary-950: #082f49;
+  --color-primary-dark: #0284c7;
+  --color-primary-light: #e0f2fe;
+
+  --color-dark: #419cc3;
+  --color-sage: #89b4e1;
+  --color-mint: #ffffff;
+
   --color-navy: #0f172a;
+  --color-navy-light: #1e293b;
   --color-surface: #f8fafc;
-  --color-line: #cbd5e1;
+  --color-surface-2: #f0f9ff;
+  --color-line: #e2e8f0;
+  --color-line-2: #cbd5e1;
   --color-success: #15803d;
+  --color-success-light: #dcfce7;
   --color-warning: #b45309;
+  --color-warning-light: #fef3c7;
   --color-danger: #b91c1c;
-  --color-info: #7c3aed;
+  --color-danger-light: #fee2e2;
+  --color-info: #419cc3;
+  --color-info-light: #e0f2fe;
 
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, Arial, sans-serif;
 
-  --radius-card: 8px;
-  --radius-input: 6px;
+  --radius-card: 12px;
+  --radius-card-lg: 16px;
+  --radius-input: 8px;
+  --radius-pill: 9999px;
 
-  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+  --shadow-card: 0 1px 3px 0 rgb(15 23 42 / 0.08), 0 1px 2px -1px rgb(15 23 42 / 0.08);
+  --shadow-card-hover: 0 4px 12px 0 rgb(15 23 42 / 0.10);
+  --shadow-glass: 0 8px 32px 0 rgb(15 23 42 / 0.06);
+
+  --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in: fade-in 0.4s ease-out forwards;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* Modern scrollbar + focus */
+* { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+*:focus-visible { outline: 2px solid #0284c7; outline-offset: 2px; }
+
+/* Refined Glass effect utility */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-glass);
+}
+
+/* Dynamic background mesh for login/landing */
+.bg-mesh {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.08) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, rgba(137, 180, 225, 0.12) 0, transparent 40%), 
+    radial-gradient(at 100% 100%, rgba(65, 156, 195, 0.08) 0, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(15, 23, 42, 0.03) 0, transparent 50%);
+  background-attachment: fixed;
 }
