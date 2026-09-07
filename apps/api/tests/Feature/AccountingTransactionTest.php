@@ -50,26 +50,22 @@ class AccountingTransactionTest extends TestCase
             'is_active' => true,
         ]);
 
-        $this->draftPeriod = AccountingPeriod::create([
-            'id' => (string) Str::uuid(),
-            'division_id' => $acc->id,
-            'period_month' => '2026-08-01',
-            'status' => 'draft',
-            'version' => 1,
-        ]);
+        $this->draftPeriod = AccountingPeriod::firstOrCreate(
+            ['division_id' => $acc->id, 'period_month' => '2026-08-01'],
+            ['id' => (string) Str::uuid(), 'status' => 'draft', 'version' => 1]
+        );
+        $this->draftPeriod->update(['status' => 'draft', 'version' => 1]);
 
-        $this->approvedPeriod = AccountingPeriod::create([
-            'id' => (string) Str::uuid(),
-            'division_id' => $acc->id,
-            'period_month' => '2026-07-01',
-            'status' => 'approved',
-            'version' => 1,
-        ]);
+        $this->approvedPeriod = AccountingPeriod::firstOrCreate(
+            ['division_id' => $acc->id, 'period_month' => '2026-07-01'],
+            ['id' => (string) Str::uuid(), 'status' => 'approved', 'version' => 1]
+        );
+        $this->approvedPeriod->update(['status' => 'approved', 'version' => 1]);
 
         $this->categoryB = AccountingCategory::where('code', 'B1')->first();
         $this->categoryC25 = AccountingCategory::where('code', 'C25')->first();
         $this->accountBank = AccountingAccount::where('code', 'ACC-1001')->first();
-        AccountingAccountOutlet::create([
+        AccountingAccountOutlet::firstOrCreate([
             'division_id' => $acc->id,
             'account_id' => $this->accountBank->id,
             'outlet_id' => $this->outletA->id,

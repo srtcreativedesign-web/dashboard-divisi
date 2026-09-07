@@ -250,9 +250,14 @@ class DatabaseSeeder extends Seeder
         // 6. Seed Accounting Suite Data (Master COA, August 2026 Transactions, Bank Reconciliations, and Outstanding AR/AP)
         $this->call([
             AccMasterSeeder::class,
-            AccountingAugust2026Seeder::class,
-            AccountingBankReconciliationSeeder::class,
-            AccountingOutstandingSeeder::class,
         ]);
+
+        if (! app()->environment('testing')) {
+            $this->call([
+                AccountingAugust2026Seeder::class,
+                AccountingBankReconciliationSeeder::class,
+                AccountingOutstandingSeeder::class,
+            ]);
+        }
     }
 }
