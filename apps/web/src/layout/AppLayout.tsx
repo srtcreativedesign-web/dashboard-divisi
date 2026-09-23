@@ -23,23 +23,23 @@ import {
   ShieldCheck,
   PanelLeftClose,
   PanelLeftOpen,
-  Search,
   Sparkles,
   Moon,
   Sun,
 } from 'lucide-react';
-import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, roleDisplay } from '../mocks/session';
+import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS } from '../config/menus';
+import { roleDisplay } from '../config/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
 import { hasCapability } from '../session/capability';
 import { EmptyState } from '../components/states';
-import { CommandPalette } from '../components/ui/CommandPalette';
+
 import { DetailSheet } from '../components/ui/DetailSheet';
 import { StickyContextFilterBar } from '../components/filters/StickyContextFilterBar';
 import { ExportReportModal } from '../components/reports/ExportReportModal';
 import { NotificationBell, AuditLogModal } from '../components/notifications';
-import { DisplayScaleControl } from '../components/ui/DisplayScaleControl';
-import { useDisplayScale } from '../context/DisplayScaleContext';
+
+
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
@@ -67,7 +67,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [auditModalOpen, setAuditModalOpen] = useState(false);
@@ -116,29 +116,7 @@ export function AppLayout() {
     });
   };
 
-  const { setScale, zoomIn, zoomOut, resetScale } = useDisplayScale();
 
-  const handleCommandAction = (actionId: string) => {
-    if (actionId === 'act-open-detail-sheet') {
-      setDetailSheetOpen(true);
-    } else if (actionId === 'act-toggle-sidebar') {
-      toggleSidebar();
-    } else if (actionId === 'act-export-summary') {
-      setExportModalOpen(true);
-    } else if (actionId === 'act-open-audit-trail') {
-      setAuditModalOpen(true);
-    } else if (actionId === 'act-scale-comfortable') {
-      setScale(110);
-    } else if (actionId === 'act-scale-large') {
-      setScale(120);
-    } else if (actionId === 'act-scale-standard') {
-      resetScale();
-    } else if (actionId === 'act-scale-zoom-in') {
-      zoomIn();
-    } else if (actionId === 'act-scale-zoom-out') {
-      zoomOut();
-    }
-  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -149,10 +127,7 @@ export function AppLayout() {
         if (isInput) return;
         e.preventDefault();
         toggleSidebar();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        if (isInput) return;
-        e.preventDefault();
-        setCommandPaletteOpen((prev) => !prev);
+
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
         if (isInput) return;
         e.preventDefault();
@@ -336,10 +311,7 @@ export function AppLayout() {
               })}
             </nav>
             <div className="mt-4 border-t border-white/10 pt-4 space-y-3">
-              <div className="flex items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-xs text-white ring-1 ring-white/10">
-                <span className="font-semibold text-sky-100">Ukuran Tampilan</span>
-                <DisplayScaleControl compact />
-              </div>
+
               <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10">
                 <p className="text-xs font-semibold text-white">{user.name}</p>
                 <p className="text-[11px] text-sky-200/80">{roleLabel} · {scopeLabel}</p>
@@ -505,32 +477,7 @@ export function AppLayout() {
             </div>
 
             <div className="flex items-center gap-2.5">
-              {/* Command Palette Trigger Button (Desktop & Tablet) */}
-              <button
-                type="button"
-                onClick={() => setCommandPaletteOpen(true)}
-                aria-label="Cari modul atau aksi (Ctrl+K)"
-                className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs text-slate-500 hover:border-sky-300 hover:bg-sky-50/60 hover:text-sky-900 transition-all shadow-2xs active:scale-95 cursor-pointer"
-                data-testid="navbar-search-btn"
-              >
-                <Search className="h-3.5 w-3.5 text-slate-400" />
-                <span className="hidden md:inline">Cari modul, menu, atau aksi...</span>
-                <span className="md:hidden">Cari...</span>
-                <kbd className="ml-1 inline-flex items-center rounded bg-white px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-600 border border-slate-200 shadow-2xs">
-                  ⌘K
-                </kbd>
-              </button>
 
-              {/* Mobile Search Button */}
-              <button
-                type="button"
-                onClick={() => setCommandPaletteOpen(true)}
-                aria-label="Cari modul (Ctrl+K)"
-                className="sm:hidden rounded-lg border border-line p-2 text-navy hover:bg-primary-50 hover:text-primary-700 transition-colors"
-                data-testid="navbar-mobile-search-btn"
-              >
-                <Search className="h-5 w-5" />
-              </button>
 
               {/* Smart Notification Center Bell & Popover */}
               <NotificationBell onOpenAuditModal={() => setAuditModalOpen(true)} />
@@ -545,8 +492,7 @@ export function AppLayout() {
                 {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
 
-              {/* Universal Display Scale Control (Resize Ukuran Tampilan) */}
-              <DisplayScaleControl />
+
 
               {/* Active Role & Scope Pill */}
               <div className="hidden lg:flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200/60 px-3.5 py-1.5 text-xs shadow-2xs">
@@ -563,7 +509,7 @@ export function AppLayout() {
 
         {/* Sticky Context Filter Bar */}
         <StickyContextFilterBar
-          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+
           onOpenDetailSheet={() => setDetailSheetOpen(true)}
           onOpenExportModal={() => setExportModalOpen(true)}
         />
@@ -573,12 +519,7 @@ export function AppLayout() {
         </main>
       </div>
 
-      {/* Global Command Palette */}
-      <CommandPalette
-        isOpen={commandPaletteOpen}
-        onClose={() => setCommandPaletteOpen(false)}
-        onSelectAction={handleCommandAction}
-      />
+
 
       {/* Sliding Detail Sheet */}
       <DetailSheet

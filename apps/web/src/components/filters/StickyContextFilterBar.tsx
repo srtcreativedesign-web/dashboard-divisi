@@ -4,7 +4,6 @@ import {
   Calendar,
   Building,
   RotateCcw,
-  Search,
   Layers,
   Filter,
   Check,
@@ -20,7 +19,7 @@ export interface StickyContextFilterBarProps {
   division?: string;
   onDivisionChange?: (divisionCode: string) => void;
   onResetFilters?: () => void;
-  onOpenCommandPalette?: () => void;
+
   onOpenDetailSheet?: () => void;
   onOpenExportModal?: () => void;
 }
@@ -38,7 +37,7 @@ export function StickyContextFilterBar({
   division: controlledDivision,
   onDivisionChange,
   onResetFilters,
-  onOpenCommandPalette,
+
   onOpenDetailSheet,
   onOpenExportModal,
 }: StickyContextFilterBarProps) {
@@ -199,22 +198,7 @@ export function StickyContextFilterBar({
             <span className="font-semibold text-slate-700">{activeDivisionName}</span>
           </div>
 
-          {/* Command Palette Trigger */}
-          {onOpenCommandPalette && (
-            <button
-              type="button"
-              onClick={onOpenCommandPalette}
-              title="Buka Command Palette (Ctrl+K)"
-              className="flex items-center gap-1.5 rounded-xl border border-sky-200 bg-sky-50/70 hover:bg-sky-100/80 px-2.5 py-1 text-xs font-medium text-sky-800 transition-all shadow-2xs active:scale-95"
-              data-testid="sticky-filter-open-palette"
-            >
-              <Search className="h-3.5 w-3.5 text-sky-600" />
-              <span className="hidden sm:inline">Perintah</span>
-              <kbd className="hidden md:inline-flex items-center rounded bg-white px-1.5 py-0.5 font-mono text-[10px] font-semibold text-sky-700 border border-sky-200">
-                ⌘K
-              </kbd>
-            </button>
-          )}
+
 
           {/* Detail Sheet Trigger */}
           {onOpenDetailSheet && (

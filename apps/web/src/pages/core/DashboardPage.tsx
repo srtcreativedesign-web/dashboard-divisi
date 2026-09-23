@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../session/AuthContext';
-import { roleDisplay } from '../../mocks/session';
+import { roleDisplay } from '../../config/session';
 import { Button } from '../../components/ui/Button';
 import BodExecutiveDashboard from '../../components/dashboard/BodExecutiveDashboard';
 import { DualToneAreaChart } from '../../components/dashboard/DualToneAreaChart';

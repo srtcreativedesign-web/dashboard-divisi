@@ -1,4 +1,4 @@
-import type { Role } from '../mocks/session';
+import type { Role } from '../config/session';
 
 const ROLE_CAPABILITIES: Record<string, string[]> = {
   BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report'],

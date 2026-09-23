@@ -1,39 +1,10 @@
-export const ROLES = ['BOD', 'MANAGER', 'ADMIN', 'PIC'] as const;
-export const LEGACY_ROLES = ['SUPERADMIN', 'HRD', 'USER'] as const;
-export type Role = (typeof ROLES)[number] | (typeof LEGACY_ROLES)[number];
-
-export const ROLE_LABEL: Record<string, string> = {
-  BOD: 'Executive (BOD)',
-  MANAGER: 'Superadmin (Manager)',
-  ADMIN: 'Admin',
-  PIC: 'PIC',
-  SUPERADMIN: 'Superadmin (Manager)',
-  HRD: 'HRD',
-  USER: 'PIC',
-};
-export function roleDisplay(role: string): string { return ROLE_LABEL[role] ?? role; }
-
-export interface SessionUser {
-  name: string;
-  role: Role;
-  divisionCode: string | null; // null = lintas 7 divisi (BOD)
-}
-
-export const MOCK_SESSIONS: Record<string, SessionUser> = {
-  BOD: { name: 'Bodi Demo', role: 'BOD', divisionCode: null },
-  MANAGER: { name: 'Mina Demo', role: 'MANAGER', divisionCode: 'WRAP' },
-  ADMIN: { name: 'Admin Demo', role: 'ADMIN', divisionCode: 'WRAP' },
-  PIC: { name: 'PIC Demo (View Only)', role: 'USER', divisionCode: 'WRAP' },
-  SUPERADMIN: { name: 'Super Demo', role: 'SUPERADMIN', divisionCode: null },
-  HRD: { name: 'Hera Demo', role: 'HRD', divisionCode: null },
-  USER: { name: 'Usman Demo (PIC)', role: 'USER', divisionCode: null },
-};
+import type { Role } from './session';
 
 export interface MenuItem {
   path: string;
   label: string;
   roles: readonly Role[];
-  capability?: string; // untuk ORG-06: filter per capability, bukan hanya role
+  capability?: string;
 }
 
 export const MENU_ITEMS: MenuItem[] = [
@@ -59,8 +30,4 @@ export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
 
 export function homePathForRole(role: Role): string {
   return role === 'USER' ? '/profil' : '/dashboard';
-}
-
-export function isRole(value: string): value is Role {
-  return (ROLES as readonly string[]).includes(value);
 }

@@ -1,5 +1,5 @@
 import { StatusPill } from '../../components/StatusPill';
-import { roleDisplay } from '../../mocks/session';
+import { roleDisplay } from '../../config/session';
 import { useAuth } from '../../session/AuthContext';
 import { useOrgContext } from '../../hooks/useBod';
 
