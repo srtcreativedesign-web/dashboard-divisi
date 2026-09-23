@@ -2,8 +2,8 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TenantRevenuePage from './TenantRevenuePage';
-import { AuthProvider } from '../session/AuthContext';
-import { sobathrApi, type TenantRecordDto } from '../api/sobathr';
+import { AuthProvider } from '../../session/AuthContext';
+import { sobathrApi, type TenantRecordDto } from '../../api/sobathr';
 
 const MOCK_TENANTS: TenantRecordDto[] = [
   { id: 'TNT-001', name: 'Wrapping Master Outlet 1', division: 'WRAP', category: 'Wrapping', location: 'Lantai 1 - A01', monthlyRevenue: 125000000, monthlyTarget: 100000000, status: 'Over Target', growth: +14.2 },
@@ -78,7 +78,7 @@ describe('TenantRevenuePage - Integrasi Sobat API & Scoping', () => {
 
     const { render: _render } = await import('@testing-library/react');
     const { QueryClientProvider } = await import('@tanstack/react-query');
-    const { AuthProvider } = await import('../session/AuthContext');
+    const { AuthProvider } = await import('../../session/AuthContext');
     const TenantRevenuePage = (await import('./TenantRevenuePage')).default;
 
     vi.spyOn(sobathrApi, 'syncTenants').mockRejectedValue(

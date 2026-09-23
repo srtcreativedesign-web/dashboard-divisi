@@ -1,6 +1,6 @@
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import App from '../App';
+import App from '../../App';
 
 describe('Accounting Multi-Role E2E & Retail Divisions Regression', () => {
   afterEach(() => {

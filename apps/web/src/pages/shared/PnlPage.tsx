@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PieChart, TrendingUp, DollarSign, Award, ArrowUpRight, CheckCircle2, Printer, Calendar } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { PnlComparisonChart } from '../components/pnl/PnlComparisonChart';
-import { useAuth } from '../session/AuthContext';
-import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
-import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
+import { Button } from '../../components/ui/Button';
+import { PnlComparisonChart } from '../../components/pnl/PnlComparisonChart';
+import { useAuth } from '../../session/AuthContext';
+import { WaterfallChart, type WaterfallItem } from '../../components/accounting/WaterfallChart';
+import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
 
 export type PnlPeriod = 'today' | '7d' | 'month' | 'ytd';
 

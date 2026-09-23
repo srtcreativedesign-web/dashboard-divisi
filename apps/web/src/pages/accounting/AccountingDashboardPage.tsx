@@ -1,17 +1,17 @@
 import { CheckCircle2, WalletCards } from "lucide-react";
-import { AccountingQueryState } from "../components/accounting/AccountingStates";
+import { AccountingQueryState } from "../../components/accounting/AccountingStates";
 import {
   useAccountingPeriods,
   useAccountingSummary,
   useAccountingOutstandings,
   useAccountingTransactions,
-} from "../hooks/useAccounting";
-import { useAuth } from "../session/AuthContext";
+} from "../../hooks/useAccounting";
+import { useAuth } from "../../session/AuthContext";
 
-import { DashboardKpisManager } from "../components/accounting/dashboard/DashboardKpisManager";
-import { DashboardKpisAdmin } from "../components/accounting/dashboard/DashboardKpisAdmin";
-import { DashboardRecentTransactions } from "../components/accounting/dashboard/DashboardRecentTransactions";
-import { DashboardQuickActions } from "../components/accounting/dashboard/DashboardQuickActions";
+import { DashboardKpisManager } from "../../components/accounting/dashboard/DashboardKpisManager";
+import { DashboardKpisAdmin } from "../../components/accounting/dashboard/DashboardKpisAdmin";
+import { DashboardRecentTransactions } from "../../components/accounting/dashboard/DashboardRecentTransactions";
+import { DashboardQuickActions } from "../../components/accounting/dashboard/DashboardQuickActions";
 
 export default function AccountingDashboardPage() {
   const { user } = useAuth();

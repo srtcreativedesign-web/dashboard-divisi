@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Calculator, DollarSign, PieChart, TrendingDown, Edit2, Download, CheckCircle2 } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../session/AuthContext';
-import { hasCapability } from '../session/capability';
-import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { useAuth } from '../../session/AuthContext';
+import { hasCapability } from '../../session/capability';
+import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
 
 interface BudgetItem {
   id: string;

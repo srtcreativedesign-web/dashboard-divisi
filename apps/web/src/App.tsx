@@ -10,22 +10,22 @@ import { DisplayScaleProvider } from './context/DisplayScaleContext';
 import { AppLayout } from './layout/AppLayout';
 import { AuthProvider, useAuth } from './session/AuthContext';
 
-const DashboardPage = lazy(() => import('./pages/DashboardPage'));
-const LaporanPage = lazy(() => import('./pages/LaporanPage'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const DailyReportPage = lazy(() => import('./pages/DailyReportPage'));
-const TenantRevenuePage = lazy(() => import('./pages/TenantRevenuePage'));
-const BudgetingPage = lazy(() => import('./pages/BudgetingPage'));
-const CashflowPage = lazy(() => import('./pages/CashflowPage'));
-const PnlPage = lazy(() => import('./pages/PnlPage'));
-const AccountingDashboardPage = lazy(() => import('./pages/AccountingDashboardPage'));
-const AccountingJournalPage = lazy(() => import('./pages/AccountingJournalPage'));
-const AccountingPeriodsPage = lazy(() => import('./pages/AccountingPeriodsPage'));
-const AccountingMasterPage = lazy(() => import('./pages/AccountingMasterPage'));
-const AccountingImportPage = lazy(() => import('./pages/AccountingImportPage'));
-const AccountingOutstandingPage = lazy(() => import('./pages/AccountingOutstandingPage'));
-const AccountingCashflowReportPage = lazy(() => import('./pages/AccountingCashflowReportPage'));
-const AccountingReconciliationPage = lazy(() => import('./pages/AccountingReconciliationPage'));
+const DashboardPage = lazy(() => import('./pages/core/DashboardPage'));
+const LaporanPage = lazy(() => import('./pages/shared/LaporanPage'));
+const LoginPage = lazy(() => import('./pages/core/LoginPage'));
+const DailyReportPage = lazy(() => import('./pages/shared/DailyReportPage'));
+const TenantRevenuePage = lazy(() => import('./pages/shared/TenantRevenuePage'));
+const BudgetingPage = lazy(() => import('./pages/shared/BudgetingPage'));
+const CashflowPage = lazy(() => import('./pages/shared/CashflowPage'));
+const PnlPage = lazy(() => import('./pages/shared/PnlPage'));
+const AccountingDashboardPage = lazy(() => import('./pages/accounting/AccountingDashboardPage'));
+const AccountingJournalPage = lazy(() => import('./pages/accounting/AccountingJournalPage'));
+const AccountingPeriodsPage = lazy(() => import('./pages/accounting/AccountingPeriodsPage'));
+const AccountingMasterPage = lazy(() => import('./pages/accounting/AccountingMasterPage'));
+const AccountingImportPage = lazy(() => import('./pages/accounting/AccountingImportPage'));
+const AccountingOutstandingPage = lazy(() => import('./pages/accounting/AccountingOutstandingPage'));
+const AccountingCashflowReportPage = lazy(() => import('./pages/accounting/AccountingCashflowReportPage'));
+const AccountingReconciliationPage = lazy(() => import('./pages/accounting/AccountingReconciliationPage'));
 
 export const queryClient = new QueryClient({
   defaultOptions: {

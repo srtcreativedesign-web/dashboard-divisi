@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   CheckCircle2,
 } from 'lucide-react';
-import { useAuth } from '../session/AuthContext';
+import { useAuth } from '../../session/AuthContext';
 
 interface QuickRole {
   label: string;

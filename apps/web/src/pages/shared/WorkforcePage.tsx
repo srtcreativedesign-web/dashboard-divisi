@@ -1,6 +1,6 @@
-import { useOrgContext } from '../hooks/useBod';
-import { EmptyState, ErrorState, LoadingState } from '../components/states';
-import { useToast } from '../components/ui/Toast';
+import { useOrgContext } from '../../hooks/useBod';
+import { EmptyState, ErrorState, LoadingState } from '../../components/states';
+import { useToast } from '../../components/ui/Toast';
 
 export default function WorkforcePage() {
   const ctx = useOrgContext();

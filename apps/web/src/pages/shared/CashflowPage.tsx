@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Wallet, Activity, Download, Calendar } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
-import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
+import { Button } from '../../components/ui/Button';
+import { WaterfallChart, type WaterfallItem } from '../../components/accounting/WaterfallChart';
+import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
 
 export type CashflowPeriod = 'today' | '7d' | 'month' | 'ytd';
 

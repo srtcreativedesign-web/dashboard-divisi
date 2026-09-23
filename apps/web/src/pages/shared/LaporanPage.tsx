@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { FileText, Download, Filter, CheckCircle2, CreditCard, Layers, BarChart3 } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { ExportReportModal, type ExportFormatType } from '../components/reports/ExportReportModal';
-import { ScheduledReportManager } from '../components/reports/ScheduledReportManager';
-import { ReportArchiveTable } from '../components/reports/ReportArchiveTable';
-import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
+import { Button } from '../../components/ui/Button';
+import { ExportReportModal, type ExportFormatType } from '../../components/reports/ExportReportModal';
+import { ScheduledReportManager } from '../../components/reports/ScheduledReportManager';
+import { ReportArchiveTable } from '../../components/reports/ReportArchiveTable';
+import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
 
 interface DivisionSummary {
   code: string;

@@ -2,14 +2,14 @@ import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import { AuthProvider } from '../session/AuthContext';
-import { ToastProvider } from '../components/ui/Toast';
+import { AuthProvider } from '../../session/AuthContext';
+import { ToastProvider } from '../../components/ui/Toast';
 import TenantRevenuePage from './TenantRevenuePage';
 import CashflowPage from './CashflowPage';
 import PnlPage from './PnlPage';
 import DailyReportPage from './DailyReportPage';
-import AccountingMasterPage from './AccountingMasterPage';
-import { sobathrApi, type TenantRecordDto } from '../api/sobathr';
+import AccountingMasterPage from '../accounting/AccountingMasterPage';
+import { sobathrApi, type TenantRecordDto } from '../../api/sobathr';
 
 const MOCK_REAL_TENANTS: TenantRecordDto[] = [
   {

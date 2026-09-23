@@ -15,13 +15,13 @@ import {
   Building,
   Paperclip,
 } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { useAuth } from '../session/AuthContext';
-import { hasCapability } from '../session/capability';
-import { useApprovalStore, DailyRecord } from '../store/approvalStore';
-import { ApprovalInboxCentral } from '../components/approvals/ApprovalInboxCentral';
-import { DailyReportInputModal } from '../components/daily/DailyReportInputModal';
-import { DailyReportDetailModal } from '../components/daily/DailyReportDetailModal';
+import { Button } from '../../components/ui/Button';
+import { useAuth } from '../../session/AuthContext';
+import { hasCapability } from '../../session/capability';
+import { useApprovalStore, DailyRecord } from '../../store/approvalStore';
+import { ApprovalInboxCentral } from '../../components/approvals/ApprovalInboxCentral';
+import { DailyReportInputModal } from '../../components/daily/DailyReportInputModal';
+import { DailyReportDetailModal } from '../../components/daily/DailyReportDetailModal';
 
 export default function DailyReportPage() {
   const { user } = useAuth();

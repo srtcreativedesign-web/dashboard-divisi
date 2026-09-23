@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { EmptyState, ErrorState, LoadingState } from '../components/states';
-import { Button } from '../components/ui/Button';
-import { useToast } from '../components/ui/Toast';
-import { useRevenueDaily, useBatchUpload } from '../hooks/useRevenue';
-import { useOrgFilters } from '../components/filters/OrgFilters';
+import { EmptyState, ErrorState, LoadingState } from '../../components/states';
+import { Button } from '../../components/ui/Button';
+import { useToast } from '../../components/ui/Toast';
+import { useRevenueDaily, useBatchUpload } from '../../hooks/useRevenue';
+import { useOrgFilters } from '../../components/filters/OrgFilters';
 
 export default function OmzetPage() {
   const { divisionCode } = useOrgFilters();

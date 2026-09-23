@@ -9,18 +9,18 @@ import {
   Store,
   Layers,
 } from 'lucide-react';
-import { api } from '../api/client';
-import { useDivisionConfigs, useOutlets } from '../hooks/useBod';
-import { useToast } from '../components/ui/Toast';
-import { EmptyState, ErrorState, LoadingState } from '../components/states';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { StatusPill } from '../components/StatusPill';
+import { api } from '../../api/client';
+import { useDivisionConfigs, useOutlets } from '../../hooks/useBod';
+import { useToast } from '../../components/ui/Toast';
+import { EmptyState, ErrorState, LoadingState } from '../../components/states';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { StatusPill } from '../../components/StatusPill';
 import {
   AlertRuleConfigurator,
   IncidentResolutionBoard,
   AlertDryRunSimulator,
-} from '../components/incidents';
+} from '../../components/incidents';
 
 type ConfigTab = 'divisions' | 'rules' | 'incidents' | 'simulator';
 

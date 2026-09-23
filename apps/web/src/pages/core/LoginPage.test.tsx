@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import LoginPage from './LoginPage';
-import { AuthProvider } from '../session/AuthContext';
-import * as authApiModule from '../api/auth';
+import { AuthProvider } from '../../session/AuthContext';
+import * as authApiModule from '../../api/auth';
 
 describe('LoginPage - Glassmorphic, Quick Role Switcher, & Inline Validation', () => {
   afterEach(() => {

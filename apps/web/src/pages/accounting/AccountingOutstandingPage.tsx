@@ -1,22 +1,22 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { useToast } from "../components/ui/Toast";
+import { useToast } from "../../components/ui/Toast";
 import {
   useAccountingOutstandings,
   useOutstandingMutations,
-} from "../hooks/useAccounting";
-import { ACCOUNTING_EXCEL_DATA } from "../data/accountingExcelData";
+} from "../../hooks/useAccounting";
+import { ACCOUNTING_EXCEL_DATA } from "../../data/accountingExcelData";
 import {
   AgingBucketBar,
   type AgingBucketId,
   getItemBucket,
-} from "../components/accounting/AgingBucketBar";
+} from "../../components/accounting/AgingBucketBar";
 
-import { OutstandingKpiCards } from "../components/accounting/outstanding/OutstandingKpiCards";
-import { OutstandingFilterBar } from "../components/accounting/outstanding/OutstandingFilterBar";
-import { OutstandingTable } from "../components/accounting/outstanding/OutstandingTable";
-import { OutstandingCreateDrawer } from "../components/accounting/outstanding/OutstandingCreateDrawer";
-import { OutstandingPayDrawer } from "../components/accounting/outstanding/OutstandingPayDrawer";
+import { OutstandingKpiCards } from "../../components/accounting/outstanding/OutstandingKpiCards";
+import { OutstandingFilterBar } from "../../components/accounting/outstanding/OutstandingFilterBar";
+import { OutstandingTable } from "../../components/accounting/outstanding/OutstandingTable";
+import { OutstandingCreateDrawer } from "../../components/accounting/outstanding/OutstandingCreateDrawer";
+import { OutstandingPayDrawer } from "../../components/accounting/outstanding/OutstandingPayDrawer";
 
 interface OutstandingItem {
   id: string;

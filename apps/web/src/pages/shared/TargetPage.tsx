@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { StatusPill } from '../components/StatusPill';
-import { EmptyState, ErrorState, LoadingState } from '../components/states';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useToast } from '../components/ui/Toast';
-import { useTargetsCurrent, useTargetsRunRate, useUpsertTarget, useApproveTarget, useReturnTarget } from '../hooks/useTargets';
-import { useOrgFilters } from '../components/filters/OrgFilters';
-import { useAuth } from '../session/AuthContext';
+import { StatusPill } from '../../components/StatusPill';
+import { EmptyState, ErrorState, LoadingState } from '../../components/states';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { useToast } from '../../components/ui/Toast';
+import { useTargetsCurrent, useTargetsRunRate, useUpsertTarget, useApproveTarget, useReturnTarget } from '../../hooks/useTargets';
+import { useOrgFilters } from '../../components/filters/OrgFilters';
+import { useAuth } from '../../session/AuthContext';
 
 export default function TargetPage() {
   const { toast } = useToast();

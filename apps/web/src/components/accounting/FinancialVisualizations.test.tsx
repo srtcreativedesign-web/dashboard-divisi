@@ -12,11 +12,11 @@ import {
 } from './AgingBucketBar';
 import { WaterfallChart, type WaterfallItem } from './WaterfallChart';
 import { ReconciliationMatchGauge } from './ReconciliationMatchGauge';
-import AccountingOutstandingPage from '../../pages/AccountingOutstandingPage';
-import AccountingCashflowReportPage from '../../pages/AccountingCashflowReportPage';
-import CashflowPage from '../../pages/CashflowPage';
-import PnlPage from '../../pages/PnlPage';
-import AccountingReconciliationPage from '../../pages/AccountingReconciliationPage';
+import AccountingOutstandingPage from '../../pages/accounting/AccountingOutstandingPage';
+import AccountingCashflowReportPage from '../../pages/accounting/AccountingCashflowReportPage';
+import CashflowPage from '../../pages/shared/CashflowPage';
+import PnlPage from '../../pages/shared/PnlPage';
+import AccountingReconciliationPage from '../../pages/accounting/AccountingReconciliationPage';
 import { AuthProvider } from '../../session/AuthContext';
 import { ToastProvider } from '../ui/Toast';
 

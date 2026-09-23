@@ -1,5 +1,5 @@
-import { useExecutiveReadModel } from '../hooks/useBod';
-import { EmptyState, ErrorState, LoadingState } from '../components/states';
+import { useExecutiveReadModel } from '../../hooks/useBod';
+import { EmptyState, ErrorState, LoadingState } from '../../components/states';
 
 export default function PenilaianPage() {
   const { data, isLoading, error, refetch } = useExecutiveReadModel();

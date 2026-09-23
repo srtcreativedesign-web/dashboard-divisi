@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { ToastProvider } from '../ui/Toast';
 import { AuthProvider } from '../../session/AuthContext';
-import DailyReportPage from '../../pages/DailyReportPage';
+import DailyReportPage from '../../pages/shared/DailyReportPage';
 import { useApprovalStore } from '../../store/approvalStore';
 import {
   ApprovalInboxCentral,

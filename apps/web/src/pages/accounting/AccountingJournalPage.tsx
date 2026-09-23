@@ -1,25 +1,25 @@
 import { useEffect, useState } from "react";
-import type { AccTransaction, TransactionPayload } from "../api/accounting";
-import { accountingApi } from "../api/accounting";
-import { ApiException } from "../api/client";
+import type { AccTransaction, TransactionPayload } from "../../api/accounting";
+import { accountingApi } from "../../api/accounting";
+import { ApiException } from "../../api/client";
 import {
   AccountingQueryState,
   LockedNotice,
-} from "../components/accounting/AccountingStates";
-import { useToast } from "../components/ui/Toast";
+} from "../../components/accounting/AccountingStates";
+import { useToast } from "../../components/ui/Toast";
 import {
   useAccountingAccounts,
   useAccountingCategories,
   useAccountingPeriods,
   useAccountingTransactions,
   useTransactionMutations,
-} from "../hooks/useAccounting";
-import { useAuth } from "../session/AuthContext";
+} from "../../hooks/useAccounting";
+import { useAuth } from "../../session/AuthContext";
 import { Plus } from "lucide-react";
 
-import { JournalTable } from "../components/accounting/JournalTable";
-import { JournalFormDrawer } from "../components/accounting/JournalFormDrawer";
-import { JournalFilterBar } from "../components/accounting/JournalFilterBar";
+import { JournalTable } from "../../components/accounting/JournalTable";
+import { JournalFormDrawer } from "../../components/accounting/JournalFormDrawer";
+import { JournalFilterBar } from "../../components/accounting/JournalFilterBar";
 
 export default function AccountingJournalPage() {
   const { user } = useAuth();

@@ -1,7 +1,7 @@
-import { StatusPill } from '../components/StatusPill';
-import { roleDisplay } from '../mocks/session';
-import { useAuth } from '../session/AuthContext';
-import { useOrgContext } from '../hooks/useBod';
+import { StatusPill } from '../../components/StatusPill';
+import { roleDisplay } from '../../mocks/session';
+import { useAuth } from '../../session/AuthContext';
+import { useOrgContext } from '../../hooks/useBod';
 
 const selfService = [
   { label: 'Jadwal hari ini', value: 'Shift pagi · 08:00-16:00', visibility: 'Hanya data sendiri' },

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { orgApi } from '../api/org';
-import { EmptyState, ErrorState, LoadingState } from '../components/states';
-import { StatusPill } from '../components/StatusPill';
-import { useToast } from '../components/ui/Toast';
+import { orgApi } from '../../api/org';
+import { EmptyState, ErrorState, LoadingState } from '../../components/states';
+import { StatusPill } from '../../components/StatusPill';
+import { useToast } from '../../components/ui/Toast';
 
 export default function KaryawanPage() {
   const { data, isLoading, error, refetch } = useQuery({ queryKey:['org','assignments'], queryFn:()=>orgApi.assignments().then(r=>r.data)});

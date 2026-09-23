@@ -6,7 +6,7 @@ import { ToastProvider } from '../ui/Toast';
 import { AlertRuleConfigurator } from './AlertRuleConfigurator';
 import { IncidentResolutionBoard } from './IncidentResolutionBoard';
 import { AlertDryRunSimulator } from './AlertDryRunSimulator';
-import KonfigurasiPage from '../../pages/KonfigurasiPage';
+import KonfigurasiPage from '../../pages/core/KonfigurasiPage';
 
 // Mock hooks
 vi.mock('../../hooks/useBod', () => ({

@@ -7,16 +7,16 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../session/AuthContext';
-import { roleDisplay } from '../mocks/session';
-import { Button } from '../components/ui/Button';
-import BodExecutiveDashboard from '../components/dashboard/BodExecutiveDashboard';
-import { DualToneAreaChart } from '../components/dashboard/DualToneAreaChart';
-import { DashboardTimeframeBar } from '../components/dashboard/DashboardTimeframeBar';
-import { OperationalKpiCards } from '../components/dashboard/OperationalKpiCards';
-import { ManagerApprovalQueueWidget } from '../components/dashboard/ManagerApprovalQueueWidget';
-import { getPeriodSummary } from '../data/dashboardPeriodData';
-import { type PeriodFilterOption } from '../components/filters/StickyContextFilterBar';
+import { useAuth } from '../../session/AuthContext';
+import { roleDisplay } from '../../mocks/session';
+import { Button } from '../../components/ui/Button';
+import BodExecutiveDashboard from '../../components/dashboard/BodExecutiveDashboard';
+import { DualToneAreaChart } from '../../components/dashboard/DualToneAreaChart';
+import { DashboardTimeframeBar } from '../../components/dashboard/DashboardTimeframeBar';
+import { OperationalKpiCards } from '../../components/dashboard/OperationalKpiCards';
+import { ManagerApprovalQueueWidget } from '../../components/dashboard/ManagerApprovalQueueWidget';
+import { getPeriodSummary } from '../../data/dashboardPeriodData';
+import { type PeriodFilterOption } from '../../components/filters/StickyContextFilterBar';
 
 export default function DashboardPage() {
   const { user } = useAuth();

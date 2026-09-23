@@ -1,4 +1,4 @@
-import { EmptyState, ErrorState, LoadingState, NoAccessState } from '../components/states';
+import { EmptyState, ErrorState, LoadingState, NoAccessState } from '../../components/states';
 
 export default function DemoStatesPage() {
   return (

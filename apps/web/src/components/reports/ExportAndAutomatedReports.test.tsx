@@ -10,7 +10,7 @@ import {
 import { ExportReportModal } from './ExportReportModal';
 import { ScheduledReportManager } from './ScheduledReportManager';
 import { ReportArchiveTable } from './ReportArchiveTable';
-import LaporanPage from '../../pages/LaporanPage';
+import LaporanPage from '../../pages/shared/LaporanPage';
 import { AppLayout } from '../../layout/AppLayout';
 import { AuthProvider } from '../../session/AuthContext';
 import { ToastProvider } from '../ui/Toast';

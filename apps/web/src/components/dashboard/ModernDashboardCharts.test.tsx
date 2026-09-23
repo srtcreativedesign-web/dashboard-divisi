@@ -9,7 +9,7 @@ import { DualToneAreaChart } from './DualToneAreaChart';
 import { DivisionLeaderboard } from './DivisionLeaderboard';
 import { InteractiveDonutChart, type DonutSlice } from './InteractiveDonutChart';
 import BodExecutiveDashboard from './BodExecutiveDashboard';
-import DashboardPage from '../../pages/DashboardPage';
+import DashboardPage from '../../pages/core/DashboardPage';
 import { AuthProvider } from '../../session/AuthContext';
 
 function createTestQueryClient() {

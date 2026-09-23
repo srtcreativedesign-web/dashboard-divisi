@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import App from '../App';
+import App from '../../App';
 
 const ok = (data: unknown) =>
   Promise.resolve(

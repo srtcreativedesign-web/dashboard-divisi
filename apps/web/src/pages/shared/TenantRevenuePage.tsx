@@ -14,12 +14,12 @@ import {
   RefreshCw,
   Calendar,
 } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../session/AuthContext';
-import { hasCapability } from '../session/capability';
-import { useSobatStatus, useSobatTenants } from '../hooks/useSobat';
-import type { TenantRecordDto } from '../api/sobathr';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { useAuth } from '../../session/AuthContext';
+import { hasCapability } from '../../session/capability';
+import { useSobatStatus, useSobatTenants } from '../../hooks/useSobat';
+import type { TenantRecordDto } from '../../api/sobathr';
 
 export type TenantPeriod = 'today' | '7d' | 'month' | 'ytd';
 
