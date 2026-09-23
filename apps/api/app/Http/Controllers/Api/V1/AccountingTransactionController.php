@@ -35,7 +35,7 @@ class AccountingTransactionController extends Controller
             'page' => $request->query('page', 1),
         ]);
 
-        return response()->json($result['data'], 200, [], JSON_UNESCAPED_UNICODE);
+        return response()->json($result, 200, [], JSON_UNESCAPED_UNICODE);
     }
 
     public function create(Request $request): JsonResponse
