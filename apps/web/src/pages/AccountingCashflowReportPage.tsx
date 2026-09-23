@@ -4,6 +4,7 @@ import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 import { useAccountingPeriods, useAccountingCashflowReport } from '../hooks/useAccounting';
 import { useToast } from '../components/ui/Toast';
 import { WaterfallChart, type WaterfallItem } from '../components/accounting/WaterfallChart';
+import { exportToExcel, exportToPDF, type ColumnDef } from '../utils/exportTools';
 
 const rupiah = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
@@ -73,7 +74,31 @@ export default function AccountingCashflowReportPage() {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             type="button"
-            onClick={() => toast('Laporan Cashflow berhasil diekspor dalam format spreadsheet resmi', 'success')}
+            onClick={() => {
+              const columns: ColumnDef[] = [
+                { header: 'Kode', key: 'code' },
+                { header: 'Keterangan', key: 'name' },
+                { header: 'Nominal', key: 'amount' }
+              ];
+              exportToPDF({ title: 'Laporan Penjelasan Arus Kas', filename: 'Cashflow_Report', columns, data: allExpenseCategories });
+              toast('Laporan Cashflow berhasil diekspor dalam format PDF', 'success');
+            }}
+            className="inline-flex items-center gap-1.5 rounded-input border border-line bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm"
+          >
+            <FileText className="h-4 w-4 text-slate-500" />
+            PDF
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const columns: ColumnDef[] = [
+                { header: 'Kode', key: 'code' },
+                { header: 'Keterangan', key: 'name' },
+                { header: 'Nominal', key: 'amount' }
+              ];
+              exportToExcel({ title: 'Laporan Penjelasan Arus Kas', filename: 'Cashflow_Report', columns, data: allExpenseCategories });
+              toast('Laporan Cashflow berhasil diekspor dalam format Excel', 'success');
+            }}
             className="inline-flex items-center gap-1.5 rounded-input border border-line bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm"
           >
             <Download className="h-4 w-4 text-slate-500" />

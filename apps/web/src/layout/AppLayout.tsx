@@ -25,6 +25,8 @@ import {
   PanelLeftOpen,
   Search,
   Sparkles,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, roleDisplay } from '../mocks/session';
 import { useAuth } from '../session/AuthContext';
@@ -76,6 +78,31 @@ export function AppLayout() {
       return false;
     }
   });
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem('dashboard-divisi.dark-mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('dashboard-divisi.dark-mode', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const toggleSidebar = () => {
     setSidebarCollapsed((prev) => {
@@ -210,6 +237,7 @@ export function AppLayout() {
             <NavLink
               key={item.path}
               to={item.path}
+              end={item.path === '/' || item.path === '/accounting' || item.path === '/hr'}
               title={isCollapsed ? item.label : undefined}
               className={({ isActive }) =>
                 isActive
@@ -218,9 +246,11 @@ export function AppLayout() {
                     } rounded-xl bg-gradient-to-r from-primary-600 via-primary-700 to-dark text-sm font-semibold text-white shadow-md ring-1 ring-white/20 transition-all duration-200`
                   : `group relative flex shrink-0 items-center ${
                       isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3.5 py-2.5'
-                    } rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-white/12 hover:shadow-xs transition-all duration-200 ease-out ${
-                      !isCollapsed ? 'hover:translate-x-1.5' : ''
-                    }`
+                    } rounded-xl text-sm font-medium transition-all duration-200 ease-out ${
+                      isSidebar
+                        ? 'text-slate-300 hover:text-white hover:bg-white/12 hover:shadow-xs'
+                        : 'text-slate-500 hover:text-primary-700 hover:bg-primary-50/50'
+                    } ${!isCollapsed ? 'hover:translate-x-1.5' : ''}`
               }
             >
               {({ isActive }) => (
@@ -228,7 +258,7 @@ export function AppLayout() {
                   {isActive && (
                     <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)]" />
                   )}
-                  <Icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                  <Icon className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${!isActive && !isSidebar ? 'text-slate-400 group-hover:text-primary-600' : ''}`} />
                   <span className={isCollapsed ? 'sr-only' : 'truncate'}>{item.label}</span>
                   {isCollapsed && (
                     <div
@@ -291,6 +321,7 @@ export function AppLayout() {
                   <NavLink
                     key={item.path}
                     to={item.path}
+                    end={item.path === '/' || item.path === '/accounting' || item.path === '/hr'}
                     onClick={() => setDrawerOpen(false)}
                     className={({ isActive }) =>
                       isActive
@@ -503,6 +534,16 @@ export function AppLayout() {
 
               {/* Smart Notification Center Bell & Popover */}
               <NotificationBell onOpenAuditModal={() => setAuditModalOpen(true)} />
+
+              {/* Dark Mode Toggle */}
+              <button
+                type="button"
+                onClick={toggleDarkMode}
+                aria-label="Toggle Dark Mode"
+                className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-primary-700 hover:bg-primary-50 transition-colors"
+              >
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
 
               {/* Universal Display Scale Control (Resize Ukuran Tampilan) */}
               <DisplayScaleControl />

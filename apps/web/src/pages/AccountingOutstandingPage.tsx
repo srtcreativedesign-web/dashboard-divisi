@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Plus, Clock, ArrowUpRight, Search, X, Check, XCircle } from 'lucide-react';
+import { ArrowUpRight, Banknote, Check, Download, Info, MoreHorizontal, Plus, Search, ShieldCheck, SearchX, Clock, X, XCircle } from 'lucide-react';
+import { AntiSlopEmptyState } from '../components/ui/AntiSlopEmptyState';
+import { useAccounting } from '../context/AccountingContext';
 import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 import { useToast } from '../components/ui/Toast';
 import { useAccountingOutstandings, useOutstandingMutations } from '../hooks/useAccounting';
@@ -255,8 +257,13 @@ export default function AccountingOutstandingPage() {
             <tbody className="divide-y divide-line">
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-400">
-                    Tidak ada data kewajiban sesuai filter
+                  <td colSpan={8} className="p-0">
+                    <AntiSlopEmptyState 
+                      title="Data Kosong"
+                      description="Tidak ada data kewajiban atau outstanding yang sesuai dengan filter saat ini."
+                      icon={<SearchX className="h-8 w-8 text-slate-400" strokeWidth={1.5} />}
+                      className="border-0 rounded-none bg-transparent"
+                    />
                   </td>
                 </tr>
               ) : (

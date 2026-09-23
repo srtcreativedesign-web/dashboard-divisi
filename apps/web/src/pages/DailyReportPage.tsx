@@ -9,9 +9,6 @@ import {
   ShieldCheck,
   Check,
   X,
-  Lock,
-  CheckCircle,
-  Inbox,
   AlertTriangle,
   ExternalLink,
   Eye,
@@ -19,7 +16,6 @@ import {
   Paperclip,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
 import { useAuth } from '../session/AuthContext';
 import { hasCapability } from '../session/capability';
 import { useApprovalStore, DailyRecord } from '../store/approvalStore';
@@ -135,8 +131,8 @@ export default function DailyReportPage() {
     <div className="space-y-6 relative min-h-full" data-testid="daily-report-page">
       {/* Pop-up Toast Feedback */}
       {toastMsg && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 rounded-card-lg bg-navy text-white px-4 py-3 shadow-2xl border border-primary/30 animate-fade-in-down text-xs font-semibold">
-          <CheckCircle className="h-4 w-4 text-success" />
+        <div className="fixed top-4 right-4 z-[9999] bg-white border border-success/30 rounded-card shadow-lg p-3 text-sm font-semibold flex items-center gap-2 animate-fade-in text-navy">
+          <CheckCircle2 className="h-4 w-4 text-success" />
           <span>{toastMsg}</span>
         </div>
       )}

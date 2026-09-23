@@ -130,6 +130,7 @@ export function DailyReportInputModal({
   const [formNotes, setFormNotes] = useState<string>('');
 
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [shakeForm, setShakeForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const availableOutlets: RealOutlet[] = getRealOutlets(activeDivision);
@@ -200,17 +201,24 @@ export function DailyReportInputModal({
     }
   };
 
+  const triggerShake = () => {
+    setShakeForm(false);
+    setTimeout(() => setShakeForm(true), 10);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
 
     if (numRevenue <= 0) {
       setValidationError('Nominal realisasi omset wajib diisi lebih dari 0.');
+      triggerShake();
       return;
     }
 
     if (!formDate) {
       setValidationError('Tanggal laporan wajib diisi.');
+      triggerShake();
       return;
     }
 
@@ -255,7 +263,9 @@ export function DailyReportInputModal({
     >
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-fade-in-up"
+        className={`relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-fade-in-up ${
+          shakeForm ? 'animate-shake' : ''
+        }`}
       >
         {/* Header - Compact Single Line */}
         <div className="shrink-0 px-5 py-3 border-b border-line bg-slate-50 flex items-center justify-between">
