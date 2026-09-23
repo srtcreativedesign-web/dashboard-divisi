@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FileText, Download, Filter, CheckCircle2, CreditCard, Layers, BarChart3 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
-import { ExportReportModal, type ExportFormatType } from '../../components/reports/ExportReportModal';
+import { ExportReportModal } from '../../components/reports/ExportReportModal';
 import { ScheduledReportManager } from '../../components/reports/ScheduledReportManager';
 import { ReportArchiveTable } from '../../components/reports/ReportArchiveTable';
 
@@ -37,7 +37,6 @@ export default function LaporanPage() {
   const [activeTab, setActiveTab] = useState<'ringkasan' | 'pembayaran' | 'rekonsiliasi' | 'export'>('ringkasan');
   const [selectedDiv, setSelectedDiv] = useState('SEMUA');
   const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [exportInitialFormat, setExportInitialFormat] = useState<ExportFormatType>('csv');
 
   const filteredDivisions = selectedDiv === 'SEMUA' ? DIVISION_REPORTS : DIVISION_REPORTS.filter(d => d.code === selectedDiv);
 
@@ -62,7 +61,6 @@ export default function LaporanPage() {
           <Button
             variant="secondary"
             onClick={() => {
-              setExportInitialFormat('print');
               setExportModalOpen(true);
             }}
             className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs"
@@ -293,7 +291,6 @@ export default function LaporanPage() {
                 <Button
                   size="sm"
                   onClick={() => {
-                    setExportInitialFormat('csv');
                     setExportModalOpen(true);
                   }}
                   data-testid="tab-export-excel-btn"
@@ -311,7 +308,6 @@ export default function LaporanPage() {
                   size="sm"
                   variant="secondary"
                   onClick={() => {
-                    setExportInitialFormat('print');
                     setExportModalOpen(true);
                   }}
                   data-testid="tab-export-pdf-btn"
@@ -334,7 +330,6 @@ export default function LaporanPage() {
       <ExportReportModal
         isOpen={exportModalOpen}
         onClose={() => setExportModalOpen(false)}
-        initialFormat={exportInitialFormat}
         activeDivision={selectedDiv}
       />
     </div>
