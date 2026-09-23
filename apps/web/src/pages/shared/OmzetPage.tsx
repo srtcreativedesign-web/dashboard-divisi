@@ -21,7 +21,7 @@ export default function OmzetPage() {
       void refetch();
     } catch (e) {
       const err = e as unknown as { message?: string; traceId?: string };
-      toast(`${err.message ?? 'Gagal upload'}${err.traceId ? ` — ${err.traceId}` : ''}`, 'error');
+      toast(err.message ?? 'Gagal upload', 'error', err.traceId);
     }
   };
 

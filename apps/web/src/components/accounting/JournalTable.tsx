@@ -1,5 +1,6 @@
 import type { AccTransaction } from "../../api/accounting";
 import { ChevronLeft, ChevronRight, FileUp, FileDown, Edit2, XCircle } from "lucide-react";
+import { useTableNavigation } from "../../hooks/useTableNavigation";
 
 const money = (v: number | string) =>
   new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(Number(v));
@@ -29,14 +30,16 @@ export function JournalTable({
   totalPages,
   totalEntries,
 }: JournalTableProps) {
+  const { focusedIndex, containerRef } = useTableNavigation(transactions.length);
+
   return (
     <div className="rounded-card border border-line bg-white shadow-sm overflow-hidden flex flex-col">
       {/* Desktop Table View */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="min-w-[900px] w-full text-left text-sm">
+      <div className="hidden md:block overflow-x-auto" ref={containerRef}>
+        <table className="min-w-[900px] w-full text-left text-sm relative">
           <thead>
             <tr className="border-b border-line bg-surface">
-              <th className="p-3 font-semibold text-slate-700">Tanggal</th>
+              <th className="p-3 font-semibold text-slate-700 sticky left-0 z-10 bg-surface shadow-[1px_0_0_0_#e2e8f0]">Tanggal</th>
               <th className="font-semibold text-slate-700">Deskripsi</th>
               <th className="text-right font-semibold text-slate-700">Debit</th>
               <th className="text-right font-semibold text-slate-700">Kredit</th>
@@ -46,14 +49,16 @@ export function JournalTable({
             </tr>
           </thead>
           <tbody>
-            {transactions.map((tx) => (
+            {transactions.map((tx, idx) => (
               <tr
                 key={tx.id}
-                className={`border-b border-line hover:bg-slate-50 transition-colors ${
-                  tx.isCancelled ? "opacity-50 bg-slate-50/50" : ""
-                }`}
+                className={`border-b border-line transition-colors ${
+                  idx === focusedIndex ? "bg-primary-light/40" : "hover:bg-slate-50"
+                } ${tx.isCancelled ? "opacity-50 bg-slate-50/50" : ""}`}
               >
-                <td className="p-3 whitespace-nowrap">{tx.transactionDate.slice(0, 10)}</td>
+                <td className={`p-3 whitespace-nowrap sticky left-0 z-10 shadow-[1px_0_0_0_#e2e8f0] ${idx === focusedIndex ? "bg-[#f2f8fc]" : "bg-white"}`}>
+                  {tx.transactionDate.slice(0, 10)}
+                </td>
                 <td className="max-w-xs truncate">
                   {tx.description}
                   {tx.isCancelled && (

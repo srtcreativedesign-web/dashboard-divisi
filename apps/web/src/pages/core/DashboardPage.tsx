@@ -289,18 +289,22 @@ export default function DashboardPage() {
             <span className="text-xs font-bold text-navy group-hover:text-primary-700">Detail Laporan</span>
             <ChevronRight className="h-4 w-4 text-slate-700 group-hover:translate-x-0.5 transition-transform" />
           </Link>
-          <Link to="/budgeting" className="rounded-card border border-line/60 p-3.5 bg-slate-50/50 hover:bg-white hover:border-primary/50 transition-all flex items-center justify-between group">
-            <span className="text-xs font-bold text-navy group-hover:text-primary-700">Format Budgeting</span>
-            <ChevronRight className="h-4 w-4 text-slate-700 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-          <Link to="/cashflow" className="rounded-card border border-line/60 p-3.5 bg-slate-50/50 hover:bg-white hover:border-primary/50 transition-all flex items-center justify-between group">
-            <span className="text-xs font-bold text-navy group-hover:text-primary-700">Cashflow</span>
-            <ChevronRight className="h-4 w-4 text-slate-700 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-          <Link to="/pnl" className="rounded-card border border-line/60 p-3.5 bg-slate-50/50 hover:bg-white hover:border-primary/50 transition-all flex items-center justify-between group">
-            <span className="text-xs font-bold text-navy group-hover:text-primary-700">PNL (Profit & Loss)</span>
-            <ChevronRight className="h-4 w-4 text-slate-700 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          {(isManager || isBod) && (
+            <>
+              <Link to="/budgeting" className="rounded-card border border-line/60 p-3.5 bg-slate-50/50 hover:bg-white hover:border-primary/50 transition-all flex items-center justify-between group">
+                <span className="text-xs font-bold text-navy group-hover:text-primary-700">Format Budgeting</span>
+                <ChevronRight className="h-4 w-4 text-slate-700 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+              <Link to="/cashflow" className="rounded-card border border-line/60 p-3.5 bg-slate-50/50 hover:bg-white hover:border-primary/50 transition-all flex items-center justify-between group">
+                <span className="text-xs font-bold text-navy group-hover:text-primary-700">Cashflow</span>
+                <ChevronRight className="h-4 w-4 text-slate-700 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+              <Link to="/pnl" className="rounded-card border border-line/60 p-3.5 bg-slate-50/50 hover:bg-white hover:border-primary/50 transition-all flex items-center justify-between group">
+                <span className="text-xs font-bold text-navy group-hover:text-primary-700">PNL (Profit & Loss)</span>
+                <ChevronRight className="h-4 w-4 text-slate-700 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </>
+          )}
         </div>
       </section>
     </div>

@@ -12,6 +12,7 @@ export default function TargetPage() {
   const { toast } = useToast();
   const { user } = useAuth();
   const isBod = user?.role === 'BOD';
+  const isManager = user?.role === 'MANAGER' || user?.role === 'SUPERADMIN';
   const { divisionCode } = useOrgFilters();
   const { data, isLoading, error, refetch } = useTargetsCurrent(divisionCode ? { divisionCode } : undefined);
   const runRate = useTargetsRunRate(divisionCode ? { divisionCode } : undefined);
@@ -37,29 +38,31 @@ export default function TargetPage() {
       void refetch();
     } catch (e) {
       const err = e as unknown as { message?: string; traceId?: string };
-      toast(`${err.message ?? 'Gagal simpan'}${err.traceId ? ` — ${err.traceId}` : ''}`, 'error');
+      toast(err.message ?? 'Gagal simpan', 'error', err.traceId);
     }
   };
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-          <div>
-            <p className="text-sm font-medium text-primary">Target Planning</p>
-            <h1 className="mt-1 text-2xl lg:text-3xl font-bold tracking-tight text-navy">Target & Realisasi</h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">Terhubung BE real — /targets/current-month & upsert tenant target (FormRequest).</p>
+      {isManager && (
+        <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+            <div>
+              <p className="text-sm font-medium text-primary">Target Planning</p>
+              <h1 className="mt-1 text-2xl lg:text-3xl font-bold tracking-tight text-navy">Target & Realisasi</h1>
+              <p className="mt-2 max-w-2xl text-sm text-slate-500">Terhubung BE real — /targets/current-month & upsert tenant target (FormRequest).</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Input value={outletId} onChange={(e) => setOutletId(e.target.value)} placeholder="outletId (uuid)" aria-label="Outlet ID" />
+              <Input value={periodMonth} onChange={(e) => setPeriodMonth(e.target.value)} aria-label="Periode" />
+              <Input value={amount} onChange={(e) => setAmount(e.target.value)} className="w-24" aria-label="Amount" />
+              <Button onClick={handleSubmit} disabled={upsert.isPending}>Simpan Draft (BE)</Button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Input value={outletId} onChange={(e) => setOutletId(e.target.value)} placeholder="outletId (uuid)" aria-label="Outlet ID" />
-            <Input value={periodMonth} onChange={(e) => setPeriodMonth(e.target.value)} aria-label="Periode" />
-            <Input value={amount} onChange={(e) => setAmount(e.target.value)} className="w-24" aria-label="Amount" />
-            <Button onClick={handleSubmit} disabled={upsert.isPending}>Simpan Draft (BE)</Button>
-          </div>
-        </div>
-        {upsert.isError && <p className="mt-2 text-sm text-danger">{(upsert.error as Error).message}</p>}
-        {upsert.isSuccess && <p className="mt-2 text-sm text-success">Draft tersimpan</p>}
-      </section>
+          {upsert.isError && <p className="mt-2 text-sm text-danger">{(upsert.error as Error).message}</p>}
+          {upsert.isSuccess && <p className="mt-2 text-sm text-success">Draft tersimpan</p>}
+        </section>
+      )}
 
       {list.length === 0 ? <EmptyState title="Belum ada target" description="Buat target per outlet — data akan muncul dari /targets/current-month (scope divisi)." /> : (
         <section className="rounded-card-lg border border-line/40 bg-white/70 backdrop-blur-md p-6 shadow-sm hover:shadow-lg transition-all duration-300">
@@ -108,7 +111,7 @@ export default function TargetPage() {
                 <caption className="sr-only">BOD review queue</caption>
                 <thead className="bg-surface text-slate-500"><tr><th scope="col" className="px-4 py-3">ID</th><th scope="col" className="px-4 py-3">Periode</th><th scope="col" className="px-4 py-3">Amount</th><th scope="col" className="px-4 py-3">Aksi</th></tr></thead>
                 <tbody className="divide-y divide-line/40">{list.filter((r)=> r.status==='draft').map((r)=> (
-                  <tr key={r.id}><td className="px-4 py-3 font-mono text-xs">{r.id.slice(0,8)}</td><td className="px-4 py-3">{r.period_month}</td><td className="px-4 py-3 font-mono text-xs">Rp {r.amount}</td><td className="px-4 py-3 flex gap-2"><Button onClick={async()=>{ try{ await approve.mutateAsync(r.id); toast('Approved','success'); void refetch(); }catch(e){ const err=e as unknown as {message?:string;traceId?:string}; toast(`${err.message ?? 'Gagal approve'}${err.traceId ? ` — ${err.traceId}`:''}`,'error'); } }} disabled={approve.isPending || ret.isPending}>Approve</Button><Button variant="secondary" onClick={async()=>{ try{ await ret.mutateAsync({id:r.id, note:'Need revision'}); toast('Returned','success'); void refetch(); }catch(e){ const err=e as unknown as {message?:string;traceId?:string}; toast(`${err.message ?? 'Gagal return'}${err.traceId ? ` — ${err.traceId}`:''}`,'error'); } }} disabled={approve.isPending || ret.isPending}>Return</Button></td></tr>
+                  <tr key={r.id}><td className="px-4 py-3 font-mono text-xs">{r.id.slice(0,8)}</td><td className="px-4 py-3">{r.period_month}</td><td className="px-4 py-3 font-mono text-xs">Rp {r.amount}</td><td className="px-4 py-3 flex gap-2"><Button onClick={async()=>{ try{ await approve.mutateAsync(r.id); toast('Approved','success'); void refetch(); }catch(e){ const err=e as unknown as {message?:string;traceId?:string}; toast(err.message ?? 'Gagal approve','error', err.traceId); } }} disabled={approve.isPending || ret.isPending}>Approve</Button><Button variant="secondary" onClick={async()=>{ try{ await ret.mutateAsync({id:r.id, note:'Need revision'}); toast('Returned','success'); void refetch(); }catch(e){ const err=e as unknown as {message?:string;traceId?:string}; toast(err.message ?? 'Gagal return','error', err.traceId); } }} disabled={approve.isPending || ret.isPending}>Return</Button></td></tr>
                 ))}</tbody>
               </table>
             </div>

@@ -12,9 +12,9 @@ export const MENU_ITEMS: MenuItem[] = [
   { path: '/laporan-harian', label: 'Report Harian', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
   { path: '/rincian-tenant', label: 'Rincian Omset Tenant', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
   { path: '/laporan', label: 'Detail Laporan', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
-  { path: '/budgeting', label: 'Format Budgeting', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
-  { path: '/cashflow', label: 'Cashflow', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
-  { path: '/pnl', label: 'PNL', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
+  { path: '/budgeting', label: 'Format Budgeting', roles: ['BOD', 'MANAGER', 'SUPERADMIN'] },
+  { path: '/cashflow', label: 'Cashflow', roles: ['BOD', 'MANAGER', 'SUPERADMIN'] },
+  { path: '/pnl', label: 'PNL', roles: ['BOD', 'MANAGER', 'SUPERADMIN'] },
 ];
 
 export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [

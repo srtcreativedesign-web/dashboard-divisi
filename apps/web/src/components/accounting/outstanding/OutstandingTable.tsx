@@ -1,5 +1,6 @@
 import { ArrowUpRight, Check, Clock, SearchX, X, XCircle } from "lucide-react";
 import { AntiSlopEmptyState } from "../../ui/AntiSlopEmptyState";
+import { useTableNavigation } from "../../../hooks/useTableNavigation";
 
 interface OutstandingItem {
   id: string;
@@ -31,8 +32,10 @@ export function OutstandingTable({
   onPay,
   onCancel,
 }: OutstandingTableProps) {
+  const { focusedIndex, containerRef } = useTableNavigation(items.length);
+
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" ref={containerRef}>
       <table className="w-full text-left text-xs text-slate-600">
         <thead className="bg-surface/60 text-[11px] font-semibold text-slate-500 uppercase border-b border-line">
           <tr>
@@ -59,8 +62,11 @@ export function OutstandingTable({
               </td>
             </tr>
           ) : (
-            items.map((it) => (
-              <tr key={it.id} className="hover:bg-slate-50/80 transition">
+            items.map((it, idx) => (
+              <tr 
+                key={it.id} 
+                className={`transition ${idx === focusedIndex ? 'bg-primary-light/40' : 'hover:bg-slate-50/80'}`}
+              >
                 <td className="px-4 py-3 font-mono text-[11px] text-slate-400">
                   {it.code}
                 </td>

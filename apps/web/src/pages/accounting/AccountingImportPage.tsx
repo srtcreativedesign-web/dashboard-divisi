@@ -188,6 +188,8 @@ export default function AccountingImportPage() {
     }
 
     try {
+      setCommitted(true);
+      toast('Memproses commit transaksi...', 'info');
       await importMutations.commit.mutateAsync({
         period_id: activePeriod?.id,
         rows:
@@ -203,15 +205,17 @@ export default function AccountingImportPage() {
                 status: "VALID",
               })),
       });
-      setCommitted(true);
       toast(
         `Commit atomic sukses! ${stagedRows.length} transaksi resmi masuk ke buku besar jurnal`,
         "success"
       );
-    } catch {
+    } catch (e) {
+      setCommitted(false);
+      const err = e as unknown as { message?: string; traceId?: string };
       toast(
-        "Commit batch gagal di backend (all-or-nothing rollback aman)",
-        "error"
+        err.message ?? "Commit batch gagal di backend (all-or-nothing rollback aman)",
+        "error",
+        err.traceId
       );
     }
   };

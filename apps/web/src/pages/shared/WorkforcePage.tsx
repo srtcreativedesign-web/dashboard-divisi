@@ -8,7 +8,7 @@ export default function WorkforcePage() {
   if (ctx.isLoading) return <LoadingState />;
   if (ctx.error) {
     const err = ctx.error as unknown as { message?: string; traceId?: string };
-    toast(`${err.message ?? 'Gagal muat context'}${err.traceId ? ` — ${err.traceId}` : ''}`, 'error');
+    toast(err.message ?? 'Gagal muat context', 'error', err.traceId);
     return <ErrorState description={err.message ?? 'Gagal muat context'} traceId={err.traceId} onRetry={()=>void ctx.refetch()} />;
   }
   if (!ctx.data) return <EmptyState />;

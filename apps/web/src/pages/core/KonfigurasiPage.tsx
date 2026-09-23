@@ -63,8 +63,9 @@ export default function KonfigurasiPage() {
     onError: () => {
       const err = mut.error as unknown as { message?: string; traceId?: string };
       toast(
-        `${err.message ?? 'Gagal simpan'}${err.traceId ? ` — ${err.traceId}` : ''}`,
+        err.message ?? 'Gagal simpan',
         'error',
+        err.traceId
       );
     },
   });

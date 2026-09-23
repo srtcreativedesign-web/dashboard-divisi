@@ -163,6 +163,19 @@ export default function AccountingJournalPage() {
         error={transactions.error || periods.error}
         empty={!transactionData.length && !search}
         retry={() => void transactions.refetch()}
+        emptyTitle={`Belum ada transaksi di periode ${period?.periodMonth ?? 'ini'}`}
+        emptyDescription="Catat mutasi finansial sekarang. Data akan tercatat dengan trace_id yang immutable."
+        emptyAction={
+          canWrite ? (
+            <button
+              onClick={handleCreateNew}
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-input bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              <Plus className="h-4 w-4" />
+              Buat Entri Jurnal Baru
+            </button>
+          ) : undefined
+        }
       >
         <JournalTable
           transactions={transactionData}

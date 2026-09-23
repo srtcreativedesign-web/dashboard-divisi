@@ -10,7 +10,7 @@ export default function KaryawanPage() {
   if (isLoading) return <LoadingState label="Memuat assignment..." />;
   if (error) {
     const err = error as unknown as { message?: string; traceId?: string };
-    toast(`${err.message ?? 'Gagal muat data'}${err.traceId ? ` — ${err.traceId}` : ''}`, 'error');
+    toast(err.message ?? 'Gagal muat data', 'error', err.traceId);
     return <ErrorState description={err.message ?? 'Gagal muat data'} traceId={err.traceId} onRetry={()=>void refetch()} />;
   }
   const list = (data ?? []) as unknown as { id:string; division_id:string; outlet_id:string; employee_id:string; effective_from:string; effective_to:string|null }[];

@@ -79,6 +79,11 @@
 * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
 *:focus-visible { outline: 2px solid #0284c7; outline-offset: 2px; }
 
+/* Apply tabular-nums globally for financial numbers in tables */
+table td {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Refined Glass effect utility */
 .glass {
   background: rgba(255, 255, 255, 0.75);
