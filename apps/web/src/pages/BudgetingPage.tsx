@@ -221,9 +221,9 @@ export default function BudgetingPage() {
               <div>
                 <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">Alokasi Budget Baru (Rp)</label>
                 <Input
-                  type="number"
-                  value={newAllocated}
-                  onChange={(e) => setNewAllocated(parseFloat(e.target.value) || 0)}
+                  type="text"
+                  value={newAllocated ? newAllocated.toLocaleString('id-ID') : ''}
+                  onChange={(e) => setNewAllocated(parseFloat(e.target.value.replace(/\D/g, '')) || 0)}
                   required
                 />
               </div>

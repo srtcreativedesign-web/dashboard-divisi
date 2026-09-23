@@ -366,12 +366,11 @@ export default function AccountingOutstandingPage() {
               <div>
                 <label className="block font-semibold text-slate-700">Nominal Tagihan (Rp)</label>
                 <input
-                  type="number"
+                  type="text"
                   required
-                  min={1}
-                  placeholder="Contoh: 150000000"
-                  value={newAmount}
-                  onChange={(e) => setNewAmount(e.target.value)}
+                  placeholder="Contoh: 150.000.000"
+                  value={newAmount ? Number(newAmount.replace(/\D/g, '')).toLocaleString('id-ID') : ''}
+                  onChange={(e) => setNewAmount(e.target.value.replace(/\D/g, ''))}
                   className="mt-1 w-full rounded-card border border-line p-2.5 font-mono text-navy focus:border-primary focus:outline-none"
                 />
               </div>
@@ -446,12 +445,15 @@ export default function AccountingOutstandingPage() {
               <div>
                 <label className="block font-semibold text-slate-700">Nominal Pembayaran (Rp)</label>
                 <input
-                  type="number"
+                  type="text"
                   required
-                  min={1}
-                  max={selectedPayItem.remainingAmount}
-                  value={payAmount}
-                  onChange={(e) => setPayAmount(e.target.value)}
+                  value={payAmount ? Number(payAmount.replace(/\D/g, '')).toLocaleString('id-ID') : ''}
+                  onChange={(e) => {
+                    const num = Number(e.target.value.replace(/\D/g, ''));
+                    if (num <= selectedPayItem.remainingAmount) {
+                      setPayAmount(String(num));
+                    }
+                  }}
                   className="mt-1 w-full rounded-card border border-line p-2.5 font-mono text-navy focus:border-primary focus:outline-none font-bold"
                 />
                 <div className="mt-1.5 flex gap-2">

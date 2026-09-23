@@ -323,17 +323,17 @@ export default function DailyReportPage() {
                           <div className="flex items-center justify-end gap-1 mt-1 text-[10px] font-sans">
                             {item.cashAmount ? (
                               <span className="rounded bg-amber-50 text-amber-800 px-1 py-0.5 border border-amber-200" title={`Cash: Rp ${item.cashAmount.toLocaleString('id-ID')}`}>
-                                C: {(item.cashAmount / 1e6).toFixed(0)}Jt
+                                Cash: {(item.cashAmount / 1e6).toFixed(0)}Jt
                               </span>
                             ) : null}
                             {item.edcAmount ? (
                               <span className="rounded bg-blue-50 text-blue-800 px-1 py-0.5 border border-blue-200" title={`EDC: Rp ${item.edcAmount.toLocaleString('id-ID')}`}>
-                                E: {(item.edcAmount / 1e6).toFixed(0)}Jt
+                                EDC: {(item.edcAmount / 1e6).toFixed(0)}Jt
                               </span>
                             ) : null}
                             {item.qrisAmount ? (
                               <span className="rounded bg-emerald-50 text-emerald-800 px-1 py-0.5 border border-emerald-200" title={`QRIS: Rp ${item.qrisAmount.toLocaleString('id-ID')}`}>
-                                Q: {(item.qrisAmount / 1e6).toFixed(0)}Jt
+                                QRIS: {(item.qrisAmount / 1e6).toFixed(0)}Jt
                               </span>
                             ) : null}
                           </div>
@@ -411,7 +411,7 @@ export default function DailyReportPage() {
                         )}
                       </td>
                       <td className="px-4 py-3.5 text-center">
-                        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        <div className="flex items-center justify-center gap-3 flex-wrap">
                           <button
                             onClick={() => handleOpenDetail(item)}
                             className="inline-flex items-center gap-1 rounded-card bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 text-xs font-semibold transition-colors"

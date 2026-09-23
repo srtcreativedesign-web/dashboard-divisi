@@ -391,9 +391,9 @@ export default function TenantRevenuePage() {
               <div>
                 <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">Target Bulanan (Rp)</label>
                 <Input
-                  type="number"
-                  value={newTarget}
-                  onChange={(e) => setNewTarget(parseFloat(e.target.value) || 0)}
+                  type="text"
+                  value={newTarget ? newTarget.toLocaleString('id-ID') : ''}
+                  onChange={(e) => setNewTarget(parseFloat(e.target.value.replace(/\D/g, '')) || 0)}
                   required
                 />
               </div>
