@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { cleanup, render, screen, fireEvent, act } from '@testing-library/react';
+import { cleanup, render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { SessionProvider } from '../session/SessionContext';
 import { AuthProvider } from '../session/AuthContext';

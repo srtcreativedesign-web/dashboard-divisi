@@ -218,7 +218,7 @@ interface ApprovalStoreState {
   resetToInitial: () => void;
 }
 
-export const useApprovalStore = create<ApprovalStoreState>((set, get) => ({
+export const useApprovalStore = create<ApprovalStoreState>((set, _get) => ({
   requests: INITIAL_APPROVAL_REQUESTS,
   dailyReports: INITIAL_DAILY_REPORTS,
 

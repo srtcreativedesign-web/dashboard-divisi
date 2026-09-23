@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   AlertCircle,
-  FileSpreadsheet,
   Calendar,
   Lock,
 } from 'lucide-react';
@@ -188,7 +187,7 @@ export function AuditLogModal({
               <Filter className="h-3.5 w-3.5 text-slate-400 hidden sm:block" />
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'success' | 'warning' | 'error')}
                 aria-label="Filter status audit"
                 className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-sky-500 cursor-pointer"
                 data-testid="audit-status-select"

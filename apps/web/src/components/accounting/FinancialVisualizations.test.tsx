@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -8,7 +8,6 @@ import {
   getItemBucket,
   getDaysPastDue,
   type AgingBucketItem,
-  type AgingBucketId,
 } from './AgingBucketBar';
 import { WaterfallChart, type WaterfallItem } from './WaterfallChart';
 import { ReconciliationMatchGauge } from './ReconciliationMatchGauge';

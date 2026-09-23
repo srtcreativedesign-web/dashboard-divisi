@@ -1,5 +1,5 @@
 import React, { useId } from 'react';
-import { CheckCircle2, AlertTriangle, ShieldCheck, Building, Scale } from 'lucide-react';
+import { ShieldCheck, Building, Scale } from 'lucide-react';
 
 export interface ReconciliationMatchGaugeProps {
   totalBank: number;

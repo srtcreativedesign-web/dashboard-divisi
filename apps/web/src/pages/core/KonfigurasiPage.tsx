@@ -6,8 +6,6 @@ import {
   Sliders,
   AlertOctagon,
   Sparkles,
-  Store,
-  Layers,
 } from 'lucide-react';
 import { api } from '../../api/client';
 import { useDivisionConfigs, useOutlets } from '../../hooks/useBod';

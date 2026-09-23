@@ -11,10 +11,6 @@ import {
   ArrowRight,
   ShieldCheck,
   X,
-  ExternalLink,
-  Clock,
-  Sparkles,
-  Layers,
 } from 'lucide-react';
 import type {
   NotificationItem,

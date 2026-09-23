@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, ShieldCheck, AlertTriangle, Flame, RotateCcw, Filter } from 'lucide-react';
+import { Clock, ShieldCheck, AlertTriangle, Flame, RotateCcw } from 'lucide-react';
 
 export type AgingBucketId = 'bucket_0_30' | 'bucket_31_60' | 'bucket_61_90' | 'bucket_over_90';
 
@@ -9,7 +9,6 @@ export interface AgingBucketItem {
   remainingAmount: number;
   dueDate: string;
   status: string;
-  [key: string]: any;
 }
 
 export interface AgingBucketBarProps {

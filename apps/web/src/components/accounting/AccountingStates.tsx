@@ -1,6 +1,6 @@
 import { AlertTriangle, LockKeyhole } from 'lucide-react';
 import { ApiException } from '../../api/client';
-import { EmptyState, ErrorState, LoadingState, NoAccessState } from '../states';
+import { ErrorState, LoadingState, NoAccessState } from '../states';
 import { AntiSlopEmptyState } from '../ui/AntiSlopEmptyState';
 export function AccountingQueryState({ loading, error, empty, retry, children }: { loading: boolean; error: unknown; empty: boolean; retry: () => void; children: React.ReactNode }) { if (loading) return <LoadingState label="Memuat data Accounting..." />; if (error instanceof ApiException && error.status === 403) return <NoAccessState description="Anda tidak memiliki izin untuk data Accounting ini." />; if (error) return <ErrorState title="Data Accounting gagal dimuat" description={error instanceof Error ? error.message : 'Terjadi kesalahan'} onRetry={retry} />; if (empty) return <AntiSlopEmptyState title="Belum ada data" description="Data akan tampil setelah dicatat melalui proses Accounting." className="my-8 mx-auto max-w-2xl" />; return <>{children}</>; }
 export function LockedNotice() { return <div role="status" className="flex gap-2 rounded-card border border-warning/30 bg-warning-light p-3 text-sm text-warning"><LockKeyhole className="h-5 w-5" />Periode terkunci. Mutasi data dinonaktifkan.</div>; }

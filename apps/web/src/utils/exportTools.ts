@@ -7,14 +7,14 @@ export interface ColumnDef {
   key: string;
 }
 
-export interface ExportDataParams {
+export interface ExportDataParams<T = Record<string, unknown>> {
   title: string;
   filename: string;
   columns: ColumnDef[];
-  data: any[];
+  data: T[];
 }
 
-export const exportToPDF = ({ title, filename, columns, data }: ExportDataParams) => {
+export const exportToPDF = <T = Record<string, unknown>>({ title, filename, columns, data }: ExportDataParams<T>) => {
   const doc = new jsPDF();
   
   // Title
@@ -27,7 +27,7 @@ export const exportToPDF = ({ title, filename, columns, data }: ExportDataParams
   doc.text(`Generated on: ${new Date().toLocaleString('id-ID')}`, 14, 30);
 
   const head = [columns.map(col => col.header)];
-  const body = data.map(row => columns.map(col => row[col.key] ?? '-'));
+  const body = data.map(row => columns.map(col => (row as Record<string, unknown>)[col.key] ?? '-'));
 
   autoTable(doc, {
     startY: 36,
@@ -41,11 +41,11 @@ export const exportToPDF = ({ title, filename, columns, data }: ExportDataParams
   doc.save(`${filename}.pdf`);
 };
 
-export const exportToExcel = ({ filename, columns, data }: ExportDataParams) => {
+export const exportToExcel = <T = Record<string, unknown>>({ filename, columns, data }: ExportDataParams<T>) => {
   const formattedData = data.map(row => {
-    const newRow: any = {};
+    const newRow: Record<string, unknown> = {};
     columns.forEach(col => {
-      newRow[col.header] = row[col.key];
+      newRow[col.header] = (row as Record<string, unknown>)[col.key];
     });
     return newRow;
   });

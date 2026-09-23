@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { DisplayScaleProvider, useDisplayScale, SCALE_STORAGE_KEY } from '../../context/DisplayScaleContext';
+import { DisplayScaleProvider, SCALE_STORAGE_KEY } from '../../context/DisplayScaleContext';
 import { DisplayScaleControl } from './DisplayScaleControl';
 import { ToastProvider } from './Toast';
 

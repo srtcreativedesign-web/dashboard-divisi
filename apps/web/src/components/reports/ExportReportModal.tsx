@@ -10,7 +10,6 @@ import {
   Layers,
   Calendar,
   Building,
-  Check,
   Loader2,
   ShieldCheck,
 } from 'lucide-react';
@@ -18,7 +17,6 @@ import {
   generateCsvBlob,
   downloadBlob,
   getExportDataset,
-  formatCurrencyIDR,
 } from './exportUtils';
 
 export type ExportDatasetType = 'executive' | 'divisions' | 'outstanding' | 'cashflow' | 'reconciliation';

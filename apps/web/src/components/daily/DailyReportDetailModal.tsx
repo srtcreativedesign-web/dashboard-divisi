@@ -3,9 +3,7 @@ import { createPortal } from 'react-dom';
 import {
   X,
   Building,
-  Calendar,
   Clock,
-  DollarSign,
   CreditCard,
   QrCode,
   Wallet,
@@ -14,8 +12,6 @@ import {
   CheckCircle2,
   AlertCircle,
   Paperclip,
-  MapPin,
-  TrendingUp,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import type { DailyRecord } from '../../store/approvalStore';
