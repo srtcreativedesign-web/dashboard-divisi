@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   ExternalLink,
   Eye,
-  Building2,
+  Building,
   Paperclip,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
@@ -301,7 +301,7 @@ export default function DailyReportPage() {
                         </div>
                         {item.outletName ? (
                           <p className="text-xs font-semibold text-primary flex items-center gap-1 mt-0.5">
-                            <Building2 className="w-3 h-3 text-primary/70 shrink-0" />
+                            <Building className="w-3 h-3 text-primary/70 shrink-0" />
                             <span className="truncate max-w-[220px]">
                               {item.outletCode ? `[${item.outletCode}] ` : ''}{item.outletName}
                             </span>

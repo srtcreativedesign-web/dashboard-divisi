@@ -1,5 +1,5 @@
 import React, { useId } from 'react';
-import { CheckCircle2, AlertTriangle, ShieldCheck, Building2, Scale } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, ShieldCheck, Building, Scale } from 'lucide-react';
 
 export interface ReconciliationMatchGaugeProps {
   totalBank: number;
@@ -76,7 +76,7 @@ export function ReconciliationMatchGauge({
         </div>
 
         <div className="flex items-center gap-1.5 text-xs font-bold text-navy self-start sm:self-auto bg-slate-100 px-3 py-1.5 rounded-lg">
-          <Building2 className="h-4 w-4 text-slate-500" />
+          <Building className="h-4 w-4 text-slate-500" />
           <span>{totalAccounts} Rekening Bank Operasional</span>
         </div>
       </div>

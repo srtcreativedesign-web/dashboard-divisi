@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ArrowUpRight, Banknote, Check, Download, Info, MoreHorizontal, Plus, Search, ShieldCheck, SearchX, Clock, X, XCircle } from 'lucide-react';
+import { ArrowUpRight, Check, Plus, Search, SearchX, Clock, X, XCircle } from 'lucide-react';
 import { AntiSlopEmptyState } from '../components/ui/AntiSlopEmptyState';
-import { useAccounting } from '../context/AccountingContext';
+
 import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 import { useToast } from '../components/ui/Toast';
 import { useAccountingOutstandings, useOutstandingMutations } from '../hooks/useAccounting';

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
-  Building2,
   DollarSign,
   CreditCard,
   QrCode,

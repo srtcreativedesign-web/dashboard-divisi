@@ -56,7 +56,7 @@ export const CATEGORY_METADATA: Record<
   bank_reconciliation: {
     label: 'Penyesuaian Bank',
     badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    icon: 'Building2',
+    icon: 'Building',
   },
   period_closing: {
     label: 'Periode Akuntansi',

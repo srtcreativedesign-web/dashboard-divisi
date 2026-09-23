@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
-  Building2,
+  Building,
   Calendar,
   Clock,
   DollarSign,
@@ -130,7 +130,7 @@ export function DailyReportDetailModal({ report, isOpen, onClose }: DailyReportD
           {/* Unit Kerja & Layanan */}
           <div className="rounded-card-lg border border-line p-4 space-y-2 text-xs">
             <h4 className="font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5 text-primary" /> Informasi Unit Outlet & Layanan
+              <Building className="h-3.5 w-3.5 text-primary" /> Informasi Unit Outlet & Layanan
             </h4>
             <div className="grid gap-2 sm:grid-cols-2 pt-1">
               <div>

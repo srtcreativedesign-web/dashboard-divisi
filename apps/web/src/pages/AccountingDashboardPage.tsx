@@ -285,12 +285,12 @@ export default function AccountingDashboardPage() {
                           <div className="flex items-start gap-3">
                             <div
                               className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                                tx.creditAmount > 0
+                                Number(tx.creditAmount) > 0
                                   ? "bg-rose-50 text-rose-600"
                                   : "bg-emerald-50 text-emerald-600"
                               }`}
                             >
-                              {tx.creditAmount > 0 ? (
+                              {Number(tx.creditAmount) > 0 ? (
                                 <ArrowUpRight className="h-4 w-4" />
                               ) : (
                                 <ArrowDownLeft className="h-4 w-4" />
@@ -324,16 +324,16 @@ export default function AccountingDashboardPage() {
                             <div className="text-right">
                               <p
                                 className={`font-mono font-bold ${
-                                  tx.creditAmount > 0
+                                  Number(tx.creditAmount) > 0
                                     ? "text-rose-600"
                                     : "text-emerald-600"
                                 }`}
                               >
-                                {tx.creditAmount > 0 ? "-" : "+"}
+                                {Number(tx.creditAmount) > 0 ? "-" : "+"}
                                 {rupiah(
-                                  tx.creditAmount > 0
-                                    ? tx.creditAmount
-                                    : tx.debitAmount,
+                                  Number(tx.creditAmount) > 0
+                                    ? Number(tx.creditAmount)
+                                    : Number(tx.debitAmount),
                                 )}
                               </p>
                               <p className="text-xs text-slate-400 font-mono mt-0.5">

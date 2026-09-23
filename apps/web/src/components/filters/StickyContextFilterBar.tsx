@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Calendar,
-  Building2,
+  Building,
   RotateCcw,
   Search,
   Layers,
@@ -153,7 +153,7 @@ export function StickyContextFilterBar({
 
           {/* Division Selector */}
           <div className="flex items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white px-2.5 py-1 shadow-2xs">
-            <Building2 className="h-3.5 w-3.5 text-sky-700 shrink-0" />
+            <Building className="h-3.5 w-3.5 text-sky-700 shrink-0" />
             <label htmlFor="sticky-division-select" className="sr-only">
               Pilih Divisi
             </label>

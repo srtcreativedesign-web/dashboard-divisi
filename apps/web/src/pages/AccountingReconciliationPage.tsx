@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, AlertTriangle, Building2, Search, Lock, Check, Send, RotateCcw } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Building, Search, Lock, Check, Send, RotateCcw } from 'lucide-react';
 import { ACCOUNTING_EXCEL_DATA } from '../data/accountingExcelData';
 import { useAuth } from '../session/AuthContext';
 import { useToast } from '../components/ui/Toast';
@@ -301,7 +301,7 @@ export default function AccountingReconciliationPage() {
                 <tr key={b.id} className="hover:bg-slate-50/80 transition">
                   <td className="px-4 py-3 text-slate-400 font-mono text-[11px]">{idx + 1}</td>
                   <td className="px-4 py-3 font-semibold text-navy flex items-center gap-2">
-                    <Building2 className="h-3.5 w-3.5 text-slate-400" />
+                    <Building className="h-3.5 w-3.5 text-slate-400" />
                     {b.outlet}
                   </td>
                   <td className="px-4 py-3 font-mono text-slate-700">{b.accountNumber}</td>

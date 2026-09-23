@@ -9,7 +9,7 @@ import {
   Sparkles,
   Layers,
   Calendar,
-  Building2,
+  Building,
   Check,
   Loader2,
   ShieldCheck,
@@ -51,7 +51,7 @@ const DATASETS: Array<{
     id: 'divisions',
     title: 'Rekapitulasi Kinerja 7 Divisi Ritel',
     desc: 'Omzet harian, bulanan, target, dan ranking performa per divisi',
-    icon: Building2,
+    icon: Building,
     recordCount: '7 Divisi Operasional',
   },
   {
@@ -234,7 +234,7 @@ export function ExportReportModal({
               <span>Periode: <strong>{activePeriod}</strong></span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-600">
-              <Building2 className="h-3.5 w-3.5 text-slate-400" />
+              <Building className="h-3.5 w-3.5 text-slate-400" />
               <span>{activeDivision}</span>
             </div>
           </div>

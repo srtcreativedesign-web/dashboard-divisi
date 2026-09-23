@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   FileCheck2,
   DollarSign,
-  Building2,
+  Building,
   Eye,
   CheckCheck,
   ShieldCheck,
