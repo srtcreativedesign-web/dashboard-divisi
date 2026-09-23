@@ -5,7 +5,7 @@ import {
   useAccountingOutstandings,
   useOutstandingMutations,
 } from "../../hooks/useAccounting";
-import { ACCOUNTING_EXCEL_DATA } from "../../data/accountingExcelData";
+
 import {
   AgingBucketBar,
   type AgingBucketId,
@@ -53,11 +53,7 @@ export default function AccountingOutstandingPage() {
   });
   const mutations = useOutstandingMutations();
 
-  const fallbackItems: OutstandingItem[] =
-    ACCOUNTING_EXCEL_DATA.cashflow.outstandingItems.map((x) => ({
-      ...x,
-      status: x.status as "unpaid" | "partial" | "paid" | "cancelled",
-    }));
+  const fallbackItems: OutstandingItem[] = [];
 
   const items: OutstandingItem[] = serverData?.items
     ? serverData.items.map((it) => ({
@@ -78,9 +74,9 @@ export default function AccountingOutstandingPage() {
       .filter((x) => x.status !== "cancelled" && x.status !== "paid")
       .reduce((sum, x) => sum + x.remainingAmount, 0),
     total_paid: items.reduce((sum, x) => sum + x.paidAmount, 0),
-    actual_cash_balance: ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance,
+    actual_cash_balance: 0,
     projected_ending_balance:
-      ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance -
+      0 -
       items
         .filter((x) => x.status !== "cancelled" && x.status !== "paid")
         .reduce((sum, x) => sum + x.remainingAmount, 0),

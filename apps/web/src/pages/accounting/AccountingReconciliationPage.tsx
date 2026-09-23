@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CheckCircle2, AlertTriangle, Building, Search, Lock, Check, Send, RotateCcw } from 'lucide-react';
-import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
+
 import { useAuth } from '../../session/AuthContext';
 import { useToast } from '../../components/ui/Toast';
 import { useAccountingReconciliations, useReconciliationMutations } from '../../hooks/useAccounting';
@@ -23,11 +23,11 @@ export default function AccountingReconciliationPage() {
   const reconMutations = useReconciliationMutations();
 
   const summary = serverData?.summary ?? {
-    total_bank_accounts: ACCOUNTING_EXCEL_DATA.bankAccounts.length,
-    total_bank_jul: ACCOUNTING_EXCEL_DATA.totalBankJul,
-    total_bank_aug: ACCOUNTING_EXCEL_DATA.totalBankAug,
-    total_mutation: ACCOUNTING_EXCEL_DATA.totalBankAug - ACCOUNTING_EXCEL_DATA.totalBankJul,
-    cashflow_ending_balance: ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance,
+    total_bank_accounts: 0,
+    total_bank_jul: 0,
+    total_bank_aug: 0,
+    total_mutation: 0 - 0,
+    cashflow_ending_balance: 0,
     variance: 0.88,
     is_matched: true,
     unattached_transactions_count: 484,
@@ -43,7 +43,7 @@ export default function AccountingReconciliationPage() {
         augBalance: it.aug_balance,
         mutation: it.mutation,
       }))
-    : ACCOUNTING_EXCEL_DATA.bankAccounts;
+    : [];
 
   const currentPeriod = serverData?.period ?? {
     id: 'aug-2026',

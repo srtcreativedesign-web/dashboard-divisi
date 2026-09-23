@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Download, TrendingUp, FileText, Loader2 } from "lucide-react";
-import { ACCOUNTING_EXCEL_DATA } from "../../data/accountingExcelData";
 import {
   useAccountingPeriods,
   useAccountingCashflowReport,
@@ -48,30 +47,28 @@ export default function AccountingCashflowReportPage() {
         operationalExpenses: reportData.breakdown.operational,
         backofficeExpenses: reportData.breakdown.backoffice,
       }
-    : ACCOUNTING_EXCEL_DATA.cashflow;
+    : {
+        initialBalance: 0,
+        totalRevenue: 0,
+        totalOperational: 0,
+        totalBackoffice: 0,
+        totalEndingBalance: 0,
+        totalAvailable: 0,
+        totalOutstanding: 0,
+        projectedEndingBalance: 0,
+        operationalExpenses: [],
+        backofficeExpenses: [],
+      };
 
   // Gabungkan semua item untuk penjelasan cashflow
+  // Saran: Dapatkan rincian pendapatan dari API. Untuk sementara menggunakan nilai agregat.
   const allExpenseCategories: ExpenseCategory[] = [
     {
       group: "B",
       groupLabel: "Pendapatan",
-      code: "B1",
-      name: "Sales Store Harian",
-      amount: 4760786093,
-    },
-    {
-      group: "B",
-      groupLabel: "Pendapatan",
-      code: "B2",
-      name: "Pendapatan Jasa Manajemen",
-      amount: 0,
-    },
-    {
-      group: "B",
-      groupLabel: "Pendapatan",
-      code: "B3",
-      name: "Pendapatan Lain-lain (Bunga/Koreksi)",
-      amount: 290105479.12,
+      code: "REV-1",
+      name: "Total Pendapatan (Agregat)",
+      amount: cf.totalRevenue,
     },
     ...cf.operationalExpenses.map((x) => ({
       group: "C",

@@ -2,7 +2,7 @@
  * Utilitas Ekspor Data Korporat untuk FINAL DASHBOARD
  * Mendukung pembentukan CSV ber-BOM UTF-8, format angka IDR, JSON, dan Print.
  */
-import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
+
 
 export interface ExportMetadata {
   title: string;
@@ -121,7 +121,7 @@ export function getExportDataset(
         filename: `Division_Performance_${Date.now()}.csv`,
         headers: ['Kode Divisi', 'Nama Divisi', 'Omzet Harian', 'Omzet MTD', 'Target Bulanan', 'Pencapaian (%)', 'Peringkat'],
         rows: [
-          ['WRAP', 'Wrapping Bandara', curr(162931986), curr(ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue), curr(5000000000), '101.0%', '#1'],
+          ['WRAP', 'Wrapping Bandara', curr(162931986), curr(0), curr(5000000000), '101.0%', '#1'],
           ['CELL', 'Cellular & Gadget', curr(45000000), curr(1250000000), curr(1200000000), '104.2%', '#2'],
           ['MINI', 'Minimarket & Retail', curr(65000000), curr(1950000000), curr(2000000000), '97.5%', '#3'],
           ['FNB', 'Food & Beverage', curr(52000000), curr(1560000000), curr(1600000000), '97.5%', '#4'],
@@ -150,13 +150,13 @@ export function getExportDataset(
         filename: `Cashflow_Waterfall_${Date.now()}.csv`,
         headers: ['Komponen Arus Kas', 'Jenis Aliran', 'Nominal (Rp)', 'Kategori', 'Keterangan'],
         rows: [
-          ['Saldo Kas Awal Periode', 'Saldo Awal', curr(ACCOUNTING_EXCEL_DATA.cashflow.initialBalance), 'Kas & Bank', 'Posisi kas awal per Excel'],
-          ['Penerimaan Omset Wrapping', 'Kas Masuk (+)', curr(ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue), 'Operasional', 'Total omset lembar Excel Wrapping'],
+          ['Saldo Kas Awal Periode', 'Saldo Awal', curr(0), 'Kas & Bank', 'Posisi kas awal per Excel'],
+          ['Penerimaan Omset Wrapping', 'Kas Masuk (+)', curr(0), 'Operasional', 'Total omset lembar Excel Wrapping'],
           ['Beban Sewa Angkasa Pura', 'Kas Keluar (-)', curr(-1720636274), 'Beban Sewa', 'Sewa lokasi & gate AP'],
           ['Beban Gaji Karyawan Lapangan', 'Kas Keluar (-)', curr(-521906036), 'Operasional', 'Payroll 58 outlet bandara'],
-          ['Beban Backoffice & Manajemen HO', 'Kas Keluar (-)', curr(-ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice), 'HO', 'Beban manajemen head office'],
+          ['Beban Backoffice & Manajemen HO', 'Kas Keluar (-)', curr(-0), 'HO', 'Beban manajemen head office'],
           ['Beban KSO & Leasing Mesin', 'Kas Keluar (-)', curr(-114036954), 'Kemitraan', 'KSO Halim & angsuran leasing'],
-          ['Saldo Kas Akhir Periode', 'Saldo Akhir', curr(ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance), 'Net Cash', 'Saldo kas akhir klop Excel'],
+          ['Saldo Kas Akhir Periode', 'Saldo Akhir', curr(0), 'Net Cash', 'Saldo kas akhir klop Excel'],
         ],
       };
 
@@ -170,7 +170,7 @@ export function getExportDataset(
           ['BCA STARWRAPP T2D', '551-0490071', curr(1000000), curr(1000000), curr(0), 'Klop (100%)'],
           ['Bank Mandiri GALAXYPORT T2E', '155-00-1243142-8', curr(23824835), curr(23824835), curr(0), 'Klop (100%)'],
           ['Bank Mandiri ROBUSTPACK T2F', '155-00-1268016-4', curr(49961293), curr(49961293), curr(0), 'Klop (100%)'],
-          ['Total 31 Rekening Koran Bank', 'Konsolidasi 31 Akun', curr(ACCOUNTING_EXCEL_DATA.totalBankAug), curr(ACCOUNTING_EXCEL_DATA.totalBankAug), curr(0), 'Klop (100%)'],
+          ['Total 31 Rekening Koran Bank', 'Konsolidasi 31 Akun', curr(0), curr(0), curr(0), 'Klop (100%)'],
         ],
       };
   }

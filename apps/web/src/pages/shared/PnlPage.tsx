@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { PnlComparisonChart } from '../../components/pnl/PnlComparisonChart';
 import { useAuth } from '../../session/AuthContext';
 import { WaterfallChart, type WaterfallItem } from '../../components/accounting/WaterfallChart';
-import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
+
 
 export type PnlPeriod = 'today' | '7d' | 'month' | 'ytd';
 
@@ -17,11 +17,11 @@ interface PnlItem {
 }
 
 const REAL_EXCEL_PNL: PnlItem[] = [
-  { id: '1', section: 'Revenue', label: 'Pendapatan Omset Operasional Wrapping (Excel Sheet)', amount: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue },
+  { id: '1', section: 'Revenue', label: 'Pendapatan Omset Operasional Wrapping (Excel Sheet)', amount: 0 },
   { id: '2', section: 'COGS', label: 'Bagi Hasil & Sewa Lokasi Bandara (PT Angkasa Pura)', amount: 1720636274 },
   { id: '3', section: 'COGS', label: 'Beban Kemitraan KSO Lapangan HLP', amount: 30336954 },
   { id: '4', section: 'Opex', label: 'Gaji, Insentif & Tunjangan Karyawan Lapangan', amount: 521906036 },
-  { id: '5', section: 'Opex', label: 'Beban Operasional Backoffice & Manajemen HO', amount: ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice },
+  { id: '5', section: 'Opex', label: 'Beban Operasional Backoffice & Manajemen HO', amount: 0 },
   { id: '6', section: 'Opex', label: 'Beban Angsuran Leasing & Pinjaman Mesin', amount: 83700000 },
 ];
 

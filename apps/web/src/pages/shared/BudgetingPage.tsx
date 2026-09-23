@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useAuth } from '../../session/AuthContext';
 import { hasCapability } from '../../session/capability';
-import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
+
 
 interface BudgetItem {
   id: string;
@@ -36,7 +36,7 @@ const REAL_EXCEL_BUDGETS: BudgetItem[] = [
     id: 'b-3',
     category: 'Beban Operasional Backoffice & Manajemen Head Office',
     allocated: 1000000000,
-    used: ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice,
+    used: 0,
     division: 'WRAP',
     status: 'Approved',
   },

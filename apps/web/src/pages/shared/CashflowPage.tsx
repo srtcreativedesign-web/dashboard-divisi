@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Wallet, Activity, Download, Calendar } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { WaterfallChart, type WaterfallItem } from '../../components/accounting/WaterfallChart';
-import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
+
 
 export type CashflowPeriod = 'today' | '7d' | 'month' | 'ytd';
 
@@ -22,7 +22,7 @@ const REAL_EXCEL_TRANSACTIONS: CashflowTransaction[] = [
     date: '2026-08-31',
     category: 'Inflow',
     description: 'Penerimaan Omset Operasional Wrapping (Excel Sheet)',
-    amount: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue,
+    amount: 0,
     type: 'Operasional',
   },
   {
@@ -46,7 +46,7 @@ const REAL_EXCEL_TRANSACTIONS: CashflowTransaction[] = [
     date: '2026-08-31',
     category: 'Outflow',
     description: 'Beban Operasional Backoffice & Manajemen Head Office',
-    amount: ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice,
+    amount: 0,
     type: 'Operasional',
   },
   {
@@ -118,13 +118,13 @@ export default function CashflowPage() {
   const netCashflow = totalInflow - totalOutflow;
 
   const waterfallItems: WaterfallItem[] = [
-    { id: 'initial', label: 'Saldo Awal Kas', amount: Math.round(ACCOUNTING_EXCEL_DATA.cashflow.initialBalance * periodFactor) },
-    { id: 'inflow-sales', label: 'Omset Wrapping', amount: Math.round(ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue * periodFactor) },
+    { id: 'initial', label: 'Saldo Awal Kas', amount: Math.round(0 * periodFactor) },
+    { id: 'inflow-sales', label: 'Omset Wrapping', amount: Math.round(0 * periodFactor) },
     { id: 'outflow-ap', label: 'Angkasa Pura', amount: -Math.round(1720636274 * periodFactor) },
     { id: 'outflow-gaji', label: 'Gaji Lapangan', amount: -Math.round(521906036 * periodFactor) },
-    { id: 'outflow-bo', label: 'Backoffice & HO', amount: -Math.round(ACCOUNTING_EXCEL_DATA.cashflow.totalBackoffice * periodFactor) },
+    { id: 'outflow-bo', label: 'Backoffice & HO', amount: -Math.round(0 * periodFactor) },
     { id: 'outflow-misc', label: 'KSO & Leasing', amount: -Math.round(114036954 * periodFactor) },
-    { id: 'net', label: 'Saldo Kas Akhir', amount: Math.round(ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance * periodFactor), isTotal: true },
+    { id: 'net', label: 'Saldo Kas Akhir', amount: Math.round(0 * periodFactor), isTotal: true },
   ];
 
   const transactions = REAL_EXCEL_TRANSACTIONS.map((t) => ({

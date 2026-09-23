@@ -4,7 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { ExportReportModal, type ExportFormatType } from '../../components/reports/ExportReportModal';
 import { ScheduledReportManager } from '../../components/reports/ScheduledReportManager';
 import { ReportArchiveTable } from '../../components/reports/ReportArchiveTable';
-import { ACCOUNTING_EXCEL_DATA } from '../../data/accountingExcelData';
+
 
 interface DivisionSummary {
   code: string;
@@ -17,7 +17,7 @@ interface DivisionSummary {
 }
 
 const DIVISION_REPORTS: DivisionSummary[] = [
-  { code: 'WRAP', name: 'Divisi Wrapping & Bagasi Bandara', omsetHariIni: 162931986, omsetBulanIni: ACCOUNTING_EXCEL_DATA.cashflow.totalRevenue, targetBulanIni: 5000000000, achievementPct: 101.0, status: 'Over Target' },
+  { code: 'WRAP', name: 'Divisi Wrapping & Bagasi Bandara', omsetHariIni: 162931986, omsetBulanIni: 0, targetBulanIni: 5000000000, achievementPct: 101.0, status: 'Over Target' },
   { code: 'CELL', name: 'Divisi Cellular & SIM Card', omsetHariIni: 45000000, omsetBulanIni: 1250000000, targetBulanIni: 1200000000, achievementPct: 104.2, status: 'Over Target' },
   { code: 'REFL', name: 'Divisi Refleksi & Relaksasi Bandara', omsetHariIni: 28000000, omsetBulanIni: 850000000, targetBulanIni: 900000000, achievementPct: 94.4, status: 'On Track' },
   { code: 'MINI', name: 'Divisi Minimarket & Retail', omsetHariIni: 65000000, omsetBulanIni: 1950000000, targetBulanIni: 2000000000, achievementPct: 97.5, status: 'On Track' },
@@ -29,7 +29,7 @@ const DIVISION_REPORTS: DivisionSummary[] = [
 const PAYMENT_METHODS = [
   { method: 'QRIS Statis & Dinamis', amount: 5240000000, count: 28450, share: 40.7 },
   { method: 'EDC Bank Mandiri & BCA', amount: 4420000000, count: 14820, share: 34.3 },
-  { method: 'Transfer Bank Rekening Koran', amount: ACCOUNTING_EXCEL_DATA.totalBankAug, count: 1850, share: 11.0 },
+  { method: 'Transfer Bank Rekening Koran', amount: 0, count: 1850, share: 11.0 },
   { method: 'Cash / Tunai Kasir Outlet', amount: 1800891572, count: 6320, share: 14.0 },
 ];
 
@@ -260,14 +260,14 @@ export default function LaporanPage() {
               <div className="rounded-card-lg border border-line/40 bg-surface/30 p-4">
                 <p className="text-xs font-semibold uppercase text-slate-400">Total Saldo Kas Buku (Excel)</p>
                 <p className="mt-2 text-xl font-bold font-mono text-navy">
-                  Rp {ACCOUNTING_EXCEL_DATA.cashflow.totalEndingBalance.toLocaleString('id-ID')}
+                  Rp {(0).toLocaleString('id-ID')}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">Ending Balance Buku Kas Wrapping</p>
               </div>
               <div className="rounded-card-lg border border-line/40 bg-surface/30 p-4">
                 <p className="text-xs font-semibold uppercase text-slate-400">Total 31 Rekening Koran Bank</p>
                 <p className="mt-2 text-xl font-bold font-mono text-navy">
-                  Rp {ACCOUNTING_EXCEL_DATA.totalBankAug.toLocaleString('id-ID')}
+                  Rp {(0).toLocaleString('id-ID')}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">Saldo Riil 31 Rekening Bank Agustus</p>
               </div>
