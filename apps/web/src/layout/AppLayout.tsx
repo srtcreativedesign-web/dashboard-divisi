@@ -27,7 +27,7 @@ import {
   Moon,
   Sun,
 } from 'lucide-react';
-import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS } from '../config/menus';
+import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS } from '../config/menus';
 import { roleDisplay } from '../config/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
@@ -63,6 +63,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/accounting/rekonsiliasi': ShieldCheck,
   '/accounting/periode': Calendar,
   '/accounting/master': Database,
+  '/projects': ClipboardList,
+  '/projects/vendors': Users,
 };
 
 export function AppLayout() {
@@ -182,7 +184,8 @@ export function AppLayout() {
   }
 
   const isAccounting = user.divisionCode === 'ACC';
-  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : MENU_ITEMS;
+  const isProject = user.divisionCode === 'PROJECT';
+  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : (isProject ? PROJECT_MENU_ITEMS : MENU_ITEMS);
   const activeMenu = menuItems.find((item) => item.path === location.pathname);
   const roleLabel = roleDisplay(user.role);
   const scopeLabel = user.divisionCode ?? 'Semua divisi';

@@ -26,6 +26,9 @@ const AccountingImportPage = lazy(() => import('./pages/accounting/AccountingImp
 const AccountingOutstandingPage = lazy(() => import('./pages/accounting/AccountingOutstandingPage'));
 const AccountingCashflowReportPage = lazy(() => import('./pages/accounting/AccountingCashflowReportPage'));
 const AccountingReconciliationPage = lazy(() => import('./pages/accounting/AccountingReconciliationPage'));
+const ProjectListPage = lazy(() => import('./pages/projects/ProjectListPage'));
+const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage'));
+const ProjectVendorPage = lazy(() => import('./pages/projects/ProjectVendorPage'));
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +44,7 @@ function HomeRedirect() {
   const { user, loading } = useAuth();
   if (loading) return <div className="p-6 text-sm text-slate-500">Memuat sesi...</div>;
   if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={user.divisionCode === 'ACC' ? '/accounting' : '/dashboard'} replace />;
+  return <Navigate to={user.divisionCode === 'ACC' ? '/accounting' : (user.divisionCode === 'PROJECT' ? '/projects' : '/dashboard')} replace />;
 }
 
 function DivisionDashboard() {
@@ -146,6 +149,11 @@ export default function App() {
                   <Route path="/accounting/rekonsiliasi" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingReconciliationPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/periode" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingPeriodsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
+                  
+                  {/* Project Division Routes */}
+                  <Route path="/projects" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectListPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/vendors" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectVendorPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/:id" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDetailPage /></RouteSuspense></RouteGuard>} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>

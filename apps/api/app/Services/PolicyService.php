@@ -35,6 +35,20 @@ class PolicyService
         'submit:acc_period',
     ];
 
+    public const PROJECT_MANAGER_CAPABILITIES = [
+        'view:division',
+        'manage:division',
+        'view:projects',
+        'manage:projects',
+        'view:report',
+    ];
+
+    public const PROJECT_ADMIN_CAPABILITIES = [
+        'view:division',
+        'view:projects',
+        'manage:projects',
+    ];
+
     public function __construct(
         protected AuditService $audit
     ) {}
@@ -60,6 +74,22 @@ class PolicyService
     {
         $role = $user['role'] ?? '';
         $division = $divisionCode ?? $user['divisionCode'] ?? $user['division_code'] ?? null;
+
+        // Domain Project
+        if (str_starts_with($capability, 'view:projects') || str_starts_with($capability, 'manage:projects')) {
+            if ($role === 'BOD') {
+                return $capability === 'view:projects';
+            }
+            if ($division === 'PROJECT') {
+                if ($role === 'MANAGER') {
+                    return in_array($capability, self::PROJECT_MANAGER_CAPABILITIES, true);
+                }
+                if ($role === 'ADMIN') {
+                    return in_array($capability, self::PROJECT_ADMIN_CAPABILITIES, true);
+                }
+            }
+            return false;
+        }
 
         // Domain Accounting (ACC)
         if ($this->isAccountingCapability($capability)) {

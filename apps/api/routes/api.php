@@ -17,6 +17,10 @@ use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\RevenueController;
 use App\Http\Controllers\Api\V1\SobatHrController;
 use App\Http\Controllers\Api\V1\TargetController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectVendorController;
+use App\Http\Controllers\Api\V1\ProjectRabController;
+use App\Http\Controllers\Api\V1\ProjectDocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -209,6 +213,34 @@ Route::prefix('v1')->group(function () {
             // Laporan Cashflow — ISSUE-10
             Route::middleware(['capability:view:acc_report'])->group(function () {
                 Route::get('cashflow/report', [AccountingCashflowController::class, 'report']);
+            });
+        });
+        // Project Division
+        Route::prefix('projects')->middleware(['scope', 'capability:view:projects'])->group(function () {
+            Route::get('/', [ProjectController::class, 'index']);
+            Route::get('/{id}', [ProjectController::class, 'show']);
+            Route::get('/{id}/documents', [ProjectDocumentController::class, 'index']);
+            
+            Route::middleware(['capability:manage:projects'])->group(function () {
+                Route::post('/', [ProjectController::class, 'store']);
+                Route::put('/{id}', [ProjectController::class, 'update']);
+                Route::patch('/{id}/payment-toggle', [ProjectController::class, 'paymentToggle']);
+                Route::post('/{id}/milestones', [ProjectController::class, 'storeMilestone']);
+                Route::post('/{id}/rab', [ProjectRabController::class, 'store']);
+                
+                Route::post('/{id}/documents', [ProjectDocumentController::class, 'store']);
+                Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
+            });
+        });
+
+        Route::prefix('vendors')->middleware(['scope', 'capability:view:projects'])->group(function () {
+            Route::get('/', [ProjectVendorController::class, 'index']);
+            Route::get('/{id}', [ProjectVendorController::class, 'show']);
+            
+            Route::middleware(['capability:manage:projects'])->group(function () {
+                Route::post('/', [ProjectVendorController::class, 'store']);
+                Route::put('/{id}', [ProjectVendorController::class, 'update']);
+                Route::delete('/{id}', [ProjectVendorController::class, 'destroy']);
             });
         });
     });

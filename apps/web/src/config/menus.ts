@@ -28,6 +28,11 @@ export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
   { path: '/accounting/master', label: 'Master Data', roles: ['MANAGER', 'ADMIN'], capability: 'view:acc_master' },
 ];
 
+export const PROJECT_MENU_ITEMS: MenuItem[] = [
+  { path: '/projects', label: 'Proyek Aktif', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects/vendors', label: 'Mitra & Vendor', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+];
+
 export function homePathForRole(role: Role): string {
   return role === 'USER' ? '/profil' : '/dashboard';
 }

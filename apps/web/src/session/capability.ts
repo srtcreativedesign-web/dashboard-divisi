@@ -1,7 +1,7 @@
 import type { Role } from '../config/session';
 
 const ROLE_CAPABILITIES: Record<string, string[]> = {
-  BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report'],
+  BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report', 'view:projects'],
   MANAGER: ['view:division', 'manage:division', 'view:report', 'write:assessment', 'approve:target', 'approve:revenue'],
   ADMIN: ['view:division', 'write:revenue', 'view:report'],
   SUPERADMIN: ['*', 'manage:config'],
@@ -33,6 +33,20 @@ const ACC_ADMIN_CAPABILITIES = [
   'submit:acc_period',
 ];
 
+const PROJECT_MANAGER_CAPABILITIES = [
+  'view:division',
+  'manage:division',
+  'view:projects',
+  'manage:projects',
+  'view:report',
+];
+
+const PROJECT_ADMIN_CAPABILITIES = [
+  'view:division',
+  'view:projects',
+  'manage:projects',
+];
+
 function getStoredDivision(): string | null {
   if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
     try {
@@ -59,12 +73,35 @@ export function hasCapability(role: Role, capability: string, divisionCode?: str
     return false;
   }
 
-  // Pengguna dengan konteks/divisi ACC tidak memiliki capability operasional retail divisi lain
+  // Domain Project
+  if (capability.startsWith('view:projects') || capability.startsWith('manage:projects')) {
+    if (role === 'BOD') {
+      return capability === 'view:projects';
+    }
+    if (activeDivision === 'PROJECT') {
+      if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
+      if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
+    }
+    return false;
+  }
+
+  // Pengguna dengan konteks/divisi ACC atau PROJECT memiliki kapabilitas khusus dan terisolasi
   if (activeDivision === 'ACC') {
     if (role === 'BOD') {
       return capability === 'view:acc_report' || capability === 'view:division';
     }
-    return capability === 'view:division' && (role === 'MANAGER' || role === 'ADMIN');
+    if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
+    if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
+    return false;
+  }
+
+  if (activeDivision === 'PROJECT') {
+    if (role === 'BOD') {
+      return capability === 'view:projects' || capability === 'view:division';
+    }
+    if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
+    if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
+    return false;
   }
 
   const caps = ROLE_CAPABILITIES[role] ?? [];

@@ -50,6 +50,7 @@ Titik masuk utama untuk histori & progres semua pekerjaan yang dicatat via Obsid
 - **2026-09-01** — **Target BOD queue**: `hooks/useTargets:14` `useApproveTarget|useReturnTarget` `POST /targets/{id}/approve|return`, `TargetPage:96` queue draft tabel `Approve/Return` BOD only (SoD `approve:target`), toast `traceId`. Gate `lint 0/typecheck 0/build 4.33s` `29/29` `74/74` hijau; commit `33a802b`.
 - **2026-09-01** — **ProfilPage real BE**: `ProfilPage:18` `GET /auth/me` + `GET /org/me/context` scope pill, card `name/email/id/division` + ctx counts, `securityItems` Mock→Ready. Gate `lint 0/typecheck 0/build 7.05s` `29/29` `74/74` hijau; commit `fd1ea15`.
 - **2026-09-01** — **PERF-01 KPI scoring range terverifikasi**: `KpiCompatibility:82` `resolveKpiMap()` baca dari `DivisionConfig` DB (sinkron dengan `DIVISION_CONFIGS` seeder) + fallback `DIVISION_KPIS` konstanta. Setiap KPI mendapat `bobot` (default 1.0) + `scoring_range` (mis. `0-100`, `0-10`, `0-1000`, `0-5.0%`). `getCompatibleDivisions('revenue.gross')` hasil 6 divisi (WRAP/CELL/REFL/MINI/FIN), `MC` terpisah untuk `forex.*`. `pint` 33 files auto-fix. Gate `lint 0/typecheck 0/build 10.85s` `29/29` `74/74` `pint passed`; commit `e7115fa` (ulang) + `33a802b` + `a83bfdd`.
+- **2026-09-24** — **Rencana Divisi Project Ditambahkan**: Dokumen spesifikasi fungsional dan UI/UX `Documents/PRD_DIVISI_PROJECT.md` selesai dibuat, memuat 7 fitur utama (proyek berjalan, progres, toggle pembayaran, mitra/vendor, dokumentasi, RAB, dan time plan) beserta rancangan skema database dan rute API.
 
 ## Keputusan Penting
 

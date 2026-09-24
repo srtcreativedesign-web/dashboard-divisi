@@ -68,44 +68,27 @@ class AccountingController extends Controller
             }
         }
 
-        // Mock fixture laporan tahap 1 yang sesuai kontrak SOP
-        $allReports = [
-            [
-                'id' => 'rep-acc-2026-08',
-                'period' => '2026-08',
-                'title' => 'Laporan Cashflow Accounting Agustus 2026',
-                'status' => 'Disetujui',
-                'balanceStart' => '1500000000.00',
-                'balanceEnd' => '1750000000.00',
-                'approvedAt' => '2026-08-31T23:59:59Z',
-                'approvedBy' => 'Manager Accounting',
-            ],
-            [
-                'id' => 'rep-acc-2026-07',
-                'period' => '2026-07',
-                'title' => 'Laporan Cashflow Accounting Juli 2026',
-                'status' => 'Ditutup',
-                'balanceStart' => '1200000000.00',
-                'balanceEnd' => '1500000000.00',
-                'closedAt' => '2026-07-31T23:59:59Z',
-                'closedBy' => 'Manager Accounting',
-            ],
-            [
-                'id' => 'rep-acc-2026-09',
-                'period' => '2026-09',
-                'title' => 'Laporan Cashflow Accounting September 2026',
-                'status' => 'Draft',
-                'balanceStart' => '1750000000.00',
-                'balanceEnd' => '1820000000.00',
-                'approvedAt' => null,
-                'approvedBy' => null,
-            ],
-        ];
+        // Fetch dari DB real
+        $periods = \App\Models\AccountingPeriod::with(['approvedBy', 'createdBy'])->orderBy('period_month', 'desc')->get();
+        
+        $availableReports = $periods->map(function ($p) {
+            return [
+                'id' => 'rep-acc-' . $p->period_month->format('Y-m'),
+                'period' => $p->period_month->format('Y-m'),
+                'title' => 'Laporan Cashflow Accounting ' . $p->period_month->format('F Y'),
+                'status' => ucfirst($p->status),
+                'balanceStart' => '0.00', // Placeholder
+                'balanceEnd' => '0.00', // Placeholder
+                'approvedAt' => $p->approved_at ? $p->approved_at->toIso8601String() : null,
+                'approvedBy' => $p->approvedBy ? $p->approvedBy->name : null,
+                'closedAt' => $p->closed_at ? $p->closed_at->toIso8601String() : null,
+                'closedBy' => null, // Tambahkan relasi jika perlu
+            ];
+        })->toArray();
 
-        // Filter visibilitas berdasarkan role: BOD tidak pernah menerima draft
-        $availableReports = $role === 'BOD'
-            ? array_values(array_filter($allReports, fn ($r) => in_array(strtolower($r['status']), ['disetujui', 'ditutup'], true)))
-            : $allReports;
+        if ($role === 'BOD') {
+            $availableReports = array_values(array_filter($availableReports, fn ($r) => in_array(strtolower($r['status']), ['disetujui', 'ditutup'], true)));
+        }
 
         // Terapkan filter query parameter ?status bila disertakan
         if ($statusFilter !== null && $statusFilter !== '') {

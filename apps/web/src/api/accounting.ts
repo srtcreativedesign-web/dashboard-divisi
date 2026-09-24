@@ -1,6 +1,6 @@
 import { api, downloadFile } from './client';
 
-export interface AccPeriod { id: string; periodMonth: string; status: string; notes?: string; version: number }
+export interface AccPeriod { id: string; periodMonth: string; status: string; notes?: string; version: number; transactionCount?: number; updatedAt?: string; }
 export interface AccCategory { id: string; code: string; name: string; parent?: string; isActive: boolean; requiresOutlet: boolean }
 export interface AccAccount { id: string; code: string; displayName: string; type: string; isActive: boolean; outletIds?: string[] }
 export interface AccAttachment { id: string; fileName: string; fileSize: number; mimeType: string }
