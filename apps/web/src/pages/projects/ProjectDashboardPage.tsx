@@ -45,7 +45,7 @@ export default function ProjectDashboardPage() {
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           Dashboard Proyek
         </h1>
-        <p className="text-slate-500 max-w-2xl text-sm leading-relaxed">
+        <p className="text-slate-600 dark:text-slate-300 max-w-2xl text-sm leading-relaxed">
           Pusat kendali portofolio proyek. Pantau ringkasan performa fisik, penyerapan anggaran, dan identifikasi proyek yang membutuhkan intervensi segera.
         </p>
       </div>
@@ -132,7 +132,7 @@ export default function ProjectDashboardPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-base font-bold text-slate-900 dark:text-white">Status Penyerapan Proyek</h2>
-                <p className="text-sm text-slate-500">Distribusi berdasarkan fase pelaksanaan</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Distribusi berdasarkan fase pelaksanaan</p>
               </div>
               <Link to="/projects/list" className="text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 flex items-center gap-1">
                 Lihat Semua <ArrowRight className="h-4 w-4" />
@@ -176,7 +176,7 @@ export default function ProjectDashboardPage() {
                 <div key={project.id || idx} className="p-5 flex items-start justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white">{project.name}</h4>
-                    <p className="text-sm text-slate-500 mt-1 line-clamp-1">{project.description}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 line-clamp-1">{project.description}</p>
                     <div className="flex items-center gap-4 mt-3 text-xs font-medium text-slate-600 dark:text-slate-400">
                       <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-orange-500" /> Deadline dekat</span>
                       <span className="flex items-center gap-1.5"><HardHat className="h-3.5 w-3.5 text-slate-400" /> Vendor: PT Maju Mundur</span>
@@ -210,7 +210,7 @@ export default function ProjectDashboardPage() {
               Aktivitas Divisi Terbaru
             </h2>
             
-            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-2.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-700 before:to-transparent">
+            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-[11px] before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-700 before:to-transparent">
               
               <div className="relative flex items-start gap-4">
                 <div className="relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 ring-4 ring-white dark:ring-slate-900">
@@ -218,8 +218,8 @@ export default function ProjectDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">Termin 3 Dibayarkan</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Proyek Pembangunan Tower A</p>
-                  <span className="text-[10px] font-semibold text-slate-400 mt-1 block">2 JAM YANG LALU</span>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Proyek Pembangunan Tower A</p>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 block tracking-wider">2 JAM YANG LALU</span>
                 </div>
               </div>
 
@@ -229,8 +229,8 @@ export default function ProjectDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">Laporan Fisik Mingguan Masuk</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Revitalisasi Area B - 45% selesai</p>
-                  <span className="text-[10px] font-semibold text-slate-400 mt-1 block">5 JAM YANG LALU</span>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Revitalisasi Area B - 45% selesai</p>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 block tracking-wider">5 JAM YANG LALU</span>
                 </div>
               </div>
 
@@ -240,8 +240,8 @@ export default function ProjectDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">Peringatan Keterlambatan Vendor</p>
-                  <p className="text-xs text-slate-500 mt-0.5">PT Konstruksi Hebat terlambat 3 hari</p>
-                  <span className="text-[10px] font-semibold text-slate-400 mt-1 block">KEMARIN</span>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">PT Konstruksi Hebat terlambat 3 hari</p>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 block tracking-wider">KEMARIN</span>
                 </div>
               </div>
               
@@ -251,8 +251,8 @@ export default function ProjectDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">Proyek Baru Didaftarkan</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Instalasi Jaringan Listrik Baru</p>
-                  <span className="text-[10px] font-semibold text-slate-400 mt-1 block">2 HARI YANG LALU</span>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Instalasi Jaringan Listrik Baru</p>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 block tracking-wider">2 HARI YANG LALU</span>
                 </div>
               </div>
 
