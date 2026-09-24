@@ -389,7 +389,7 @@ export function AppLayout() {
             <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10 shadow-sm">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-dark text-xs font-bold text-white shadow-xs ring-1 ring-white/20">
-                  {user.name.charAt(0).toUpperCase()}
+                  {(user?.name || String.fromCharCode(85)).charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-white">{user.name}</p>

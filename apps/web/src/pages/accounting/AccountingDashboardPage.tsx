@@ -98,16 +98,16 @@ export default function AccountingDashboardPage() {
                 <DashboardKpisManager
                   summary={summary.data}
                   activeOutstanding={
-                    outstandings.data?.kpis.total_active_outstanding ?? 0
+                    outstandings.data?.kpis?.total_active_outstanding ?? 0
                   }
                 />
               ) : (
                 <DashboardKpisAdmin
                   summary={summary.data}
                   activeOutstandingCount={
-                    outstandings.data?.kpis.active_items_count ?? 0
+                    outstandings.data?.kpis?.active_items_count ?? 0
                   }
-                  totalTransactions={transactions.data?.meta.total ?? 0}
+                  totalTransactions={transactions.data?.meta?.total ?? 0}
                 />
               )}
 
