@@ -26,6 +26,8 @@ import {
   Sparkles,
   Moon,
   Sun,
+  FileText,
+  CheckSquare,
 } from 'lucide-react';
 import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS } from '../config/menus';
 import { roleDisplay } from '../config/session';
@@ -63,8 +65,14 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/accounting/rekonsiliasi': ShieldCheck,
   '/accounting/periode': Calendar,
   '/accounting/master': Database,
-  '/projects': ClipboardList,
+  '/projects': LayoutDashboard,
+  '/projects/list': ClipboardList,
+  '/projects/progress': CheckSquare,
+  '/projects/payments': DollarSign,
   '/projects/vendors': Users,
+  '/projects/documents': FileText,
+  '/projects/rab': Calculator,
+  '/projects/timeline': Calendar,
 };
 
 export function AppLayout() {
@@ -211,11 +219,13 @@ export function AppLayout() {
       >
         {visibleMenu.map((item) => {
           const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
+          // Exact match for parent routes so they don't all light up
+          const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
           return (
             <NavLink
               key={item.path}
               to={item.path}
-              end={item.path === '/' || item.path === '/accounting' || item.path === '/hr'}
+              end={isExact}
               title={isCollapsed ? item.label : undefined}
               className={({ isActive }) =>
                 isActive
@@ -272,14 +282,14 @@ export function AppLayout() {
             <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
-                  {isAccounting ? 'AC' : 'DD'}
+                  {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white tracking-tight leading-snug">
-                    {isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}
+                    {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
                   </p>
                   <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5">
-                    {isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}
+                    {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
                   </p>
                 </div>
               </div>
@@ -292,27 +302,9 @@ export function AppLayout() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex flex-col gap-1.5 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
-              {visibleMenu.map((item) => {
-                const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    end={item.path === '/' || item.path === '/accounting' || item.path === '/hr'}
-                    onClick={() => setDrawerOpen(false)}
-                    className={({ isActive }) =>
-                      isActive
-                        ? 'group relative flex items-center gap-3 rounded-xl bg-gradient-to-r from-primary-600 via-primary-700 to-dark px-3.5 py-2.5 text-sm font-semibold text-white shadow-md ring-1 ring-white/20'
-                        : 'group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/12 hover:text-white transition-all duration-200'
-                    }
-                  >
-                    <Icon className="h-5 w-5 shrink-0" />
-                    <span>{item.label}</span>
-                  </NavLink>
-                );
-              })}
-            </nav>
+            <div className="flex flex-col gap-1.5 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
+              {renderMenu('sidebar')}
+            </div>
             <div className="mt-4 border-t border-white/10 pt-4 space-y-3">
 
               <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10">
@@ -344,14 +336,14 @@ export function AppLayout() {
             <>
               <div className="flex items-center gap-3 min-w-0">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
-                  {isAccounting ? 'AC' : 'DD'}
+                  {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
                 </div>
                 <div className="min-w-0 truncate">
                   <p className="text-sm font-bold text-white tracking-tight leading-snug truncate">
-                    {isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}
+                    {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
                   </p>
                   <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5 truncate">
-                    {isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}
+                    {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
                   </p>
                 </div>
               </div>
@@ -374,7 +366,7 @@ export function AppLayout() {
               className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:bg-white/10 transition-all"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30 group-hover:scale-105 transition-transform">
-                {isAccounting ? 'AC' : 'DD'}
+                {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
               </div>
               <PanelLeftOpen className="h-4 w-4 text-sky-200 group-hover:text-white group-hover:scale-110 transition-all" />
             </button>

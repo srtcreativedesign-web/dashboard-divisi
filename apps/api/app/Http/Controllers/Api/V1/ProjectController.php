@@ -48,6 +48,7 @@ class ProjectController extends Controller
             'end_date' => 'nullable|date',
         ]);
 
+        $validated['division_code'] = 'PROJECT';
         $project = Project::create($validated);
 
         return response()->json($project, 201);

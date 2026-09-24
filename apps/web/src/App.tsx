@@ -26,9 +26,15 @@ const AccountingImportPage = lazy(() => import('./pages/accounting/AccountingImp
 const AccountingOutstandingPage = lazy(() => import('./pages/accounting/AccountingOutstandingPage'));
 const AccountingCashflowReportPage = lazy(() => import('./pages/accounting/AccountingCashflowReportPage'));
 const AccountingReconciliationPage = lazy(() => import('./pages/accounting/AccountingReconciliationPage'));
+const ProjectDashboardPage = lazy(() => import('./pages/projects/ProjectDashboardPage'));
 const ProjectListPage = lazy(() => import('./pages/projects/ProjectListPage'));
 const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage'));
 const ProjectVendorPage = lazy(() => import('./pages/projects/ProjectVendorPage'));
+const ProjectProgressPage = lazy(() => import('./pages/projects/ProjectProgressPage'));
+const ProjectPaymentsPage = lazy(() => import('./pages/projects/ProjectPaymentsPage'));
+const ProjectDocumentsPage = lazy(() => import('./pages/projects/ProjectDocumentsPage'));
+const ProjectRabPage = lazy(() => import('./pages/projects/ProjectRabPage'));
+const ProjectTimelinePage = lazy(() => import('./pages/projects/ProjectTimelinePage'));
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -151,8 +157,14 @@ export default function App() {
                   <Route path="/accounting/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
                   
                   {/* Project Division Routes */}
-                  <Route path="/projects" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectListPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/list" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectListPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/progress" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectProgressPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/payments" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectPaymentsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/vendors" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectVendorPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/documents" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDocumentsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/rab" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectRabPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/timeline" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectTimelinePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/:id" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDetailPage /></RouteSuspense></RouteGuard>} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -29,8 +29,14 @@ export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
 ];
 
 export const PROJECT_MENU_ITEMS: MenuItem[] = [
-  { path: '/projects', label: 'Proyek Aktif', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects', label: 'Dashboard Proyek', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects/list', label: 'Proyek Berjalan', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects/progress', label: 'Progres Proyek', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects/payments', label: 'Progres Pembayaran', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
   { path: '/projects/vendors', label: 'Mitra & Vendor', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects/documents', label: 'Dokumentasi', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects/rab', label: 'Anggaran & RAB', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
+  { path: '/projects/timeline', label: 'Time Plan', roles: ['MANAGER', 'ADMIN', 'BOD'], capability: 'view:projects' },
 ];
 
 export function homePathForRole(role: Role): string {

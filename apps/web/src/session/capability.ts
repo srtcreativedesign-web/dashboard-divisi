@@ -61,11 +61,14 @@ function getStoredDivision(): string | null {
 export function hasCapability(role: Role, capability: string, divisionCode?: string | null): boolean {
   const activeDivision = divisionCode !== undefined ? divisionCode : getStoredDivision();
 
+  // SUPERADMIN selalu diizinkan mengakses apapun
+  if (role === 'SUPERADMIN') {
+    return true;
+  }
+
   // Domain Accounting (ACC)
   if (capability.startsWith('acc:') || capability.includes(':acc_')) {
-    if (role === 'BOD') {
-      return capability === 'view:acc_report';
-    }
+    if (role === 'BOD') return capability === 'view:acc_report';
     if (activeDivision === 'ACC') {
       if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
       if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
@@ -75,9 +78,7 @@ export function hasCapability(role: Role, capability: string, divisionCode?: str
 
   // Domain Project
   if (capability.startsWith('view:projects') || capability.startsWith('manage:projects')) {
-    if (role === 'BOD') {
-      return capability === 'view:projects';
-    }
+    if (role === 'BOD') return capability === 'view:projects';
     if (activeDivision === 'PROJECT') {
       if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
       if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
@@ -86,19 +87,17 @@ export function hasCapability(role: Role, capability: string, divisionCode?: str
   }
 
   // Pengguna dengan konteks/divisi ACC atau PROJECT memiliki kapabilitas khusus dan terisolasi
+  // Blok ini memastikan bahwa meskipun tidak memanggil capability dengan prefix acc_ atau projects 
+  // (misalnya 'view:division' atau 'view:report'), mereka tetap difilter secara spesifik.
   if (activeDivision === 'ACC') {
-    if (role === 'BOD') {
-      return capability === 'view:acc_report' || capability === 'view:division';
-    }
+    if (role === 'BOD') return capability === 'view:acc_report' || capability === 'view:division';
     if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
     if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
     return false;
   }
 
   if (activeDivision === 'PROJECT') {
-    if (role === 'BOD') {
-      return capability === 'view:projects' || capability === 'view:division';
-    }
+    if (role === 'BOD') return capability === 'view:projects' || capability === 'view:division';
     if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
     if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
     return false;
