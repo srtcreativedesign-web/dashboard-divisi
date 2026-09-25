@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectVendorController;
 use App\Http\Controllers\Api\V1\ProjectRabController;
 use App\Http\Controllers\Api\V1\ProjectDocumentController;
+use App\Http\Controllers\Api\V1\AccAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -177,6 +178,23 @@ Route::prefix('v1')->group(function () {
                 Route::put('transactions/{id}', [AccountingTransactionController::class, 'update']);
                 Route::post('transactions/{id}/cancel', [AccountingTransactionController::class, 'cancel']);
                 Route::post('transactions/{id}/attachments', [AccountingTransactionController::class, 'uploadAttachment']);
+            });
+
+            // Admin Accounting Remodeled Module Endpoints
+            Route::prefix('acc-admin')->group(function () {
+                Route::get('dashboard', [AccAdminController::class, 'dashboard']);
+                Route::get('storan', [AccAdminController::class, 'getStoran']);
+                Route::post('storan', [AccAdminController::class, 'saveStoran']);
+                Route::get('cashless', [AccAdminController::class, 'getCashless']);
+                Route::post('cashless', [AccAdminController::class, 'saveCashless']);
+                Route::get('laundry', [AccAdminController::class, 'getLaundry']);
+                Route::post('laundry', [AccAdminController::class, 'saveLaundry']);
+                Route::get('stok', [AccAdminController::class, 'getStok']);
+                Route::post('stok', [AccAdminController::class, 'saveStok']);
+                Route::get('utilisasi', [AccAdminController::class, 'getUtilisasi']);
+                Route::post('utilisasi', [AccAdminController::class, 'saveUtilisasi']);
+                Route::get('komisi', [AccAdminController::class, 'getKomisi']);
+                Route::post('komisi', [AccAdminController::class, 'hitungKomisi']);
             });
 
             // Outstanding Accounting — ISSUE-9
