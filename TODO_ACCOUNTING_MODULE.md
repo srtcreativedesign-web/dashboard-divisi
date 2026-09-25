@@ -12,12 +12,12 @@
 - [x] Bangun modul perhitungan otomatis komisi terapis (`CommissionController`).
 
 ## Fase 3: Pengembangan Frontend (React + TypeScript)
-- [ ] Implementasikan tata letak sidebar dan rute navigasi baru sesuai `docs/ui-spec-admin-acc.md`.
-- [ ] Bangun halaman Dashboard utama dengan KPI Cards dan tren analitik.
-- [ ] Selesaikan form input spreadsheet untuk Pemasukan, Persediaan, dan Log CCTV.
-- [ ] Selesaikan halaman kalkulasi komisi dan ekspor file rekap bulanan.
+- [x] Implementasikan tata letak sidebar dan rute navigasi baru sesuai `docs/ui-spec-admin-acc.md`.
+- [x] Bangun halaman Dashboard utama dengan KPI Cards dan tren analitik.
+- [x] Selesaikan form input spreadsheet untuk Pemasukan, Persediaan, dan Log CCTV.
+- [x] Selesaikan halaman kalkulasi komisi dan ekspor file rekap bulanan.
 
 ## Fase 4: Pengujian & Penyelesaian (QA & Launch)
-- [ ] Jalankan uji coba fungsionalitas backend mengacu pada skenario di `docs/test-plan-acc.md`.
-- [ ] Lakukan verifikasi pemblokiran hak akses lintas divisi (RBAC testing).
+- [x] Jalankan uji coba fungsionalitas backend mengacu pada skenario di `docs/test-plan-acc.md`.
+- [x] Lakukan verifikasi pemblokiran hak akses lintas divisi (RBAC testing).
 - [ ] Lakukan demo fungsional bersama tim Accounting dan serahkan dokumentasi SOP.

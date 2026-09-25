@@ -58,6 +58,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/cashflow': DollarSign,
   '/pnl': PieChart,
   '/accounting': LayoutDashboard,
+  '/accounting/operasional': ClipboardList,
   '/accounting/jurnal': BookOpenText,
   '/accounting/impor': UploadCloud,
   '/accounting/outstanding': Clock,

@@ -50,7 +50,7 @@ export default function AccAdminOperationalPage() {
       setKomisiList(komisiRes);
     } catch (err) {
       console.error(err);
-      toast({ title: "Gagal memuat data operasional", type: "error" });
+      toast(, );
     } finally {
       setLoading(false);
     }
@@ -69,11 +69,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formStoran)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast({ title: "Storan harian berhasil disimpan", type: "success" });
+        toast(, );
         fetchData();
       }
     } catch {
-      toast({ title: "Gagal menyimpan storan", type: "error" });
+      toast(, );
     }
   };
 
@@ -86,11 +86,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formStok)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast({ title: "Stok opname berhasil dicatat", type: "success" });
+        toast(, );
         fetchData();
       }
     } catch {
-      toast({ title: "Gagal menyimpan stok", type: "error" });
+      toast(, );
     }
   };
 
@@ -103,11 +103,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formKursi)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast({ title: "Utilisasi kursi berhasil dicatat", type: "success" });
+        toast(, );
         fetchData();
       }
     } catch {
-      toast({ title: "Gagal menyimpan utilisasi", type: "error" });
+      toast(, );
     }
   };
 
@@ -120,11 +120,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formKomisi)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast({ title: "Kalkulasi bonus berhasil dihitung", type: "success" });
+        toast(, );
         fetchData();
       }
     } catch {
-      toast({ title: "Gagal menghitung komisi", type: "error" });
+      toast(, );
     }
   };
 
