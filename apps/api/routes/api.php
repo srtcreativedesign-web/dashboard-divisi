@@ -181,7 +181,7 @@ Route::prefix('v1')->group(function () {
             });
 
             // Admin Accounting Remodeled Module Endpoints
-            Route::prefix('acc-admin')->group(function () {
+            Route::prefix('acc-admin')->middleware(['scope', 'capability:view:acc_report'])->group(function () {
                 Route::get('dashboard', [AccAdminController::class, 'dashboard']);
                 Route::get('storan', [AccAdminController::class, 'getStoran']);
                 Route::post('storan', [AccAdminController::class, 'saveStoran']);

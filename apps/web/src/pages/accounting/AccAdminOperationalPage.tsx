@@ -50,7 +50,7 @@ export default function AccAdminOperationalPage() {
       setKomisiList(komisiRes);
     } catch (err) {
       console.error(err);
-      toast(, );
+      toast("Operasi berhasil", "success")
     } finally {
       setLoading(false);
     }
@@ -69,11 +69,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formStoran)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast(, );
+        toast("Operasi berhasil", "success")
         fetchData();
       }
     } catch {
-      toast(, );
+      toast("Operasi berhasil", "success")
     }
   };
 
@@ -86,11 +86,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formStok)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast(, );
+        toast("Operasi berhasil", "success")
         fetchData();
       }
     } catch {
-      toast(, );
+      toast("Operasi berhasil", "success")
     }
   };
 
@@ -103,11 +103,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formKursi)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast(, );
+        toast("Operasi berhasil", "success")
         fetchData();
       }
     } catch {
-      toast(, );
+      toast("Operasi berhasil", "success")
     }
   };
 
@@ -120,11 +120,11 @@ export default function AccAdminOperationalPage() {
         body: JSON.stringify(formKomisi)
       }).then(r => r.json());
       if (res.status === "success") {
-        toast(, );
+        toast("Operasi berhasil", "success")
         fetchData();
       }
     } catch {
-      toast(, );
+      toast("Operasi berhasil", "success")
     }
   };
 
@@ -177,25 +177,25 @@ export default function AccAdminOperationalPage() {
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Omset</span>
               <div className="text-2xl font-bold text-slate-900 mt-1">
-                Rp {Number(dashboardData.kpis.total_omset).toLocaleString("id-ID")}
+                Rp {Number(dashboardData?.kpis?.total_omset || 0).toLocaleString("id-ID")}
               </div>
             </div>
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Okupansi Kursi</span>
               <div className="text-2xl font-bold text-blue-600 mt-1">
-                {dashboardData.kpis.okupansi}%
+                {dashboardData?.kpis?.okupansi || 0}%
               </div>
             </div>
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Pengeluaran</span>
               <div className="text-2xl font-bold text-red-600 mt-1">
-                Rp {Number(dashboardData.kpis.total_pengeluaran).toLocaleString("id-ID")}
+                Rp {Number(dashboardData?.kpis?.total_pengeluaran || 0).toLocaleString("id-ID")}
               </div>
             </div>
             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Estimasi Profit</span>
               <div className="text-2xl font-bold text-emerald-600 mt-1">
-                Rp {Number(dashboardData.kpis.estimasi_profit).toLocaleString("id-ID")}
+                Rp {Number(dashboardData?.kpis?.estimasi_profit || 0).toLocaleString("id-ID")}
               </div>
             </div>
           </div>
@@ -205,11 +205,11 @@ export default function AccAdminOperationalPage() {
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <ShieldAlert className="w-5 h-5 text-amber-500" /> Sistem Peringatan & Anomali (Fraud / Stock Alert)
             </h2>
-            {dashboardData.alerts.length === 0 ? (
+            {dashboardData?.alerts?.length || 0 === 0 ? (
               <p className="text-sm text-slate-500">Tidak ada anomali atau peringatan stok kritis saat ini.</p>
             ) : (
               <div className="space-y-2">
-                {dashboardData.alerts.map((alert: any, idx: number) => (
+                {dashboardData?.alerts?.map((alert: any, idx: number) => (
                   <div key={idx} className={`p-4 rounded-lg text-sm flex items-center gap-3 ${
                     alert.type === "danger" ? "bg-red-50 text-red-700 border border-red-200" : "bg-amber-50 text-amber-700 border border-amber-200"
                   }`}>
@@ -392,7 +392,7 @@ export default function AccAdminOperationalPage() {
                     <td className="p-3">{item.tanggal}</td>
                     <td className="p-3 font-bold">Kursi {item.no_kursi}</td>
                     <td className="p-3">{item.jam_mulai} ({item.durasi_menit}m)</td>
-                    <td className="p-3">{item.terapis_nama || "<span class='text-red-500'>Tidak Tercatat</span>"}</td>
+                    <td className="p-3">{item.terapis_nama || <span className="text-red-500">Tidak Tercatat</span>}</td>
                     <td className="p-3">
                       {item.utilisasi_cctv ? (
                         <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-full font-medium">Valid</span>
