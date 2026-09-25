@@ -1,4 +1,4 @@
-export const ROLES = ['BOD', 'MANAGER', 'ADMIN', 'PIC'] as const;
+export const ROLES = ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'ACCOUNTING', 'FINANCE'] as const;
 export const LEGACY_ROLES = ['SUPERADMIN', 'HRD', 'USER'] as const;
 export type Role = (typeof ROLES)[number] | (typeof LEGACY_ROLES)[number];
 
@@ -7,6 +7,8 @@ export const ROLE_LABEL: Record<string, string> = {
   MANAGER: 'Superadmin (Manager)',
   ADMIN: 'Admin',
   PIC: 'PIC',
+  ACCOUNTING: 'Accounting',
+  FINANCE: 'Finance',
   SUPERADMIN: 'Superadmin (Manager)',
   HRD: 'HRD',
   USER: 'PIC',

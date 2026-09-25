@@ -61,6 +61,9 @@ class DatabaseSeeder extends Seeder
         ['email' => 'admin.mc@dashboard.test', 'name' => 'Admin Money Changer', 'role' => 'ADMIN', 'division_code' => 'MC'],
         ['email' => 'admin.acc@dashboard.test', 'name' => 'Admin Accounting', 'role' => 'ADMIN', 'division_code' => 'ACC'],
         ['email' => 'admin.project@dashboard.test', 'name' => 'Admin Project', 'role' => 'ADMIN', 'division_code' => 'PROJECT'],
+        // Accounting specific roles
+        ['email' => 'accounting@dashboard.test', 'name' => 'Accounting Officer', 'role' => 'ACCOUNTING', 'division_code' => 'ACC'],
+        ['email' => 'finance@dashboard.test', 'name' => 'Finance Officer', 'role' => 'FINANCE', 'division_code' => 'FIN'],
         // PIC (View Only)
         ['email' => 'pic.wrap@dashboard.test', 'name' => 'PIC Wrapping (View Only)', 'role' => 'USER', 'division_code' => 'WRAP'],
         ['email' => 'pic.cell@dashboard.test', 'name' => 'PIC Cellular (View Only)', 'role' => 'USER', 'division_code' => 'CELL'],

@@ -31,6 +31,30 @@ const ACC_ADMIN_CAPABILITIES = [
   'write:acc_outstanding',
   'write:acc_bank',
   'submit:acc_period',
+  'manage:acc_master',
+  'approve:acc_period',
+];
+
+const ACCOUNTING_CAPABILITIES = [
+  'view:division',
+  'manage:division',
+  'view:acc_report',
+  'view:acc_journal',
+  'view:acc_master',
+  'view:acc_pnl',
+  'view:acc_balance_sheet',
+  'write:acc_outstanding',
+  'write:acc_bank',
+  'submit:acc_period',
+];
+
+const FINANCE_CAPABILITIES = [
+  'view:division',
+  'view:acc_report',
+  'view:acc_journal',
+  'write:acc_transaction',
+  'import:acc_transaction',
+  'write:acc_outstanding',
 ];
 
 const PROJECT_MANAGER_CAPABILITIES = [
@@ -69,9 +93,11 @@ export function hasCapability(role: Role, capability: string, divisionCode?: str
   // Domain Accounting (ACC)
   if (capability.startsWith('acc:') || capability.includes(':acc_')) {
     if (role === 'BOD') return capability === 'view:acc_report';
+    if (role === 'FINANCE' && activeDivision === 'FIN') return FINANCE_CAPABILITIES.includes(capability);
     if (activeDivision === 'ACC') {
       if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
       if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
+      if (role === 'ACCOUNTING') return ACCOUNTING_CAPABILITIES.includes(capability);
     }
     return false;
   }
@@ -93,7 +119,15 @@ export function hasCapability(role: Role, capability: string, divisionCode?: str
     if (role === 'BOD') return capability === 'view:acc_report' || capability === 'view:division';
     if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
     if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
+    if (role === 'ACCOUNTING') return ACCOUNTING_CAPABILITIES.includes(capability);
     return false;
+  }
+
+  if (activeDivision === 'FIN') {
+    if (role === 'MANAGER') return ROLE_CAPABILITIES['MANAGER'].includes(capability);
+    if (role === 'ADMIN') return ROLE_CAPABILITIES['ADMIN'].includes(capability);
+    if (role === 'FINANCE') return FINANCE_CAPABILITIES.includes(capability);
+    // fallback for others
   }
 
   if (activeDivision === 'PROJECT') {

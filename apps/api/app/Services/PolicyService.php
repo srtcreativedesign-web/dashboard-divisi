@@ -33,6 +33,30 @@ class PolicyService
         'write:acc_outstanding',
         'write:acc_bank',
         'submit:acc_period',
+        'manage:acc_master',
+        'approve:acc_period',
+    ];
+
+    public const ACCOUNTING_CAPABILITIES = [
+        'view:division',
+        'manage:division',
+        'view:acc_report',
+        'view:acc_journal',
+        'view:acc_master',
+        'view:acc_pnl',
+        'view:acc_balance_sheet',
+        'write:acc_outstanding',
+        'write:acc_bank',
+        'submit:acc_period',
+    ];
+
+    public const FINANCE_CAPABILITIES = [
+        'view:division',
+        'view:acc_report',
+        'view:acc_journal',
+        'write:acc_transaction',
+        'import:acc_transaction',
+        'write:acc_outstanding',
     ];
 
     public const PROJECT_MANAGER_CAPABILITIES = [
@@ -98,6 +122,10 @@ class PolicyService
                 return $capability === 'view:acc_report';
             }
 
+            if ($role === 'FINANCE' && $division === 'FIN') {
+                return in_array($capability, self::FINANCE_CAPABILITIES, true);
+            }
+
             // Scope ACC: Admin dan Manager ACC memiliki capability khusus masing-masing
             if ($division === 'ACC') {
                 if ($role === 'MANAGER') {
@@ -105,6 +133,9 @@ class PolicyService
                 }
                 if ($role === 'ADMIN') {
                     return in_array($capability, self::ACC_ADMIN_CAPABILITIES, true);
+                }
+                if ($role === 'ACCOUNTING') {
+                    return in_array($capability, self::ACCOUNTING_CAPABILITIES, true);
                 }
             }
 
@@ -119,7 +150,7 @@ class PolicyService
             }
 
             return in_array($capability, ['view:division'], true)
-                && ($role === 'MANAGER' || $role === 'ADMIN');
+                && ($role === 'MANAGER' || $role === 'ADMIN' || $role === 'ACCOUNTING' || $role === 'FINANCE');
         }
 
         $caps = self::ROLE_CAPABILITIES[$role] ?? [];
