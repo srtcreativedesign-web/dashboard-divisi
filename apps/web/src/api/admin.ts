@@ -94,30 +94,86 @@ export interface Voucher {
   created_by: number;
 }
 
+export interface CashlessRecord {
+  id: number;
+  division_code?: string;
+  outlet_id?: number;
+  date: string;
+  shift: number;
+  nominal_qris: number;
+  nominal_edc: number;
+  total_cashless?: number;
+  no_storan_finance?: string;
+}
+
+export interface LaundryRecord {
+  id: number;
+  division_code?: string;
+  outlet_id?: number;
+  date: string;
+  weight_kg: number;
+  cost_per_kg: number;
+  total_bill: number;
+  vendor_name?: string;
+}
+
+export interface PnlSupportData {
+  date: string;
+  revenue_cash: number;
+  revenue_qris: number;
+  revenue_edc: number;
+  total_revenue: number;
+  total_hbp: number;
+  laundry_cost: number;
+  gross_margin: number;
+}
+
 export interface BonusRecord {
   id: number;
-  employee_id: number;
+  employee_name?: string;
+  employee_id?: number;
   division_code: string;
   period_start: string;
   period_end: string;
-  total_treatments: number;
-  basic_bonus: number;
-  extra_bonus: number;
-  grand_total: number;
+  sesi_30m?: number;
+  sesi_60m?: number;
+  sesi_90m?: number;
+  rate_30m?: number;
+  rate_60m?: number;
+  rate_90m?: number;
+  total_treatments?: number;
+  basic_bonus?: number;
+  extra_bonus?: number;
+  grand_total?: number;
 }
 
 // API Functions
 export const adminApi = {
   // Leaves
-  getLeaves: (params?: { division_code?: string; employee_id?: number }) =>
-    api.get<LeaveRecord[]>('/admin/leaves', params),
+  getLeaves: (params?: { division_code?: string; employee_id?: number | string }) =>
+    api.get<LeaveRecord[]>('/admin/leaves', {
+      division_code: params?.division_code,
+      employee_id: params?.employee_id !== undefined ? String(params.employee_id) : undefined,
+    }),
 
   createLeave: (data: Omit<LeaveRecord, 'id' | 'status'>) =>
     api.post<LeaveRecord>('/admin/leaves', data),
 
+  updateLeaveStatus: (id: number, status: 'PENDING' | 'APPROVED' | 'REJECTED') =>
+    api.patch<LeaveRecord>(`/admin/leaves/${id}/status`, { status }),
+
   // Attendance Realizations
+  getAttendanceRealizations: (params?: { division_code?: string; employee_id?: number | string }) =>
+    api.get<AttendanceRealization[]>('/admin/attendance-realizations', {
+      division_code: params?.division_code,
+      employee_id: params?.employee_id !== undefined ? String(params.employee_id) : undefined,
+    }),
+
   createAttendanceRealization: (data: Omit<AttendanceRealization, 'id' | 'status'>) =>
     api.post<AttendanceRealization>('/admin/attendance-realizations', data),
+
+  updateAttendanceStatus: (id: number, status: 'DRAFT' | 'SUBMITTED' | 'LOCKED') =>
+    api.patch<AttendanceRealization>(`/admin/attendance-realizations/${id}/status`, { status }),
 
   // Therapist Revenue
   createTherapistRevenue: (data: Omit<TherapistRevenue, 'id'>) =>
@@ -128,10 +184,16 @@ export const adminApi = {
     api.post<ChairUsageAudit>('/admin/chair-usage-audits', data),
 
   // Deposits
+  getDeposits: (params?: { division_code?: string }) =>
+    api.get<Deposit[]>('/admin/deposits', params),
+
   createDeposit: (data: Omit<Deposit, 'id' | 'status' | 'proof_file'>) =>
     api.post<Deposit>('/admin/deposits', data),
 
   // Stock Cards
+  getStockCards: (params?: { division_code?: string }) =>
+    api.get<StockCard[]>('/admin/stock-cards', params),
+
   createStockCard: (data: Omit<StockCard, 'id' | 'cogs'>) =>
     api.post<StockCard>('/admin/stock-cards', data),
 
@@ -139,7 +201,28 @@ export const adminApi = {
   createVoucher: (data: Omit<Voucher, 'id' | 'voucher_no' | 'status' | 'created_by'>) =>
     api.post<Voucher>('/admin/vouchers', data),
 
+  // Cashless
+  getCashless: (params?: { division_code?: string }) =>
+    api.get<CashlessRecord[]>('/admin/cashless', params),
+
+  createCashless: (data: Omit<CashlessRecord, 'id' | 'total_cashless'>) =>
+    api.post<CashlessRecord>('/admin/cashless', data),
+
+  // Laundry
+  getLaundry: (params?: { division_code?: string }) =>
+    api.get<LaundryRecord[]>('/admin/laundry', params),
+
+  createLaundry: (data: Omit<LaundryRecord, 'id' | 'total_bill'>) =>
+    api.post<LaundryRecord>('/admin/laundry', data),
+
+  // PnL Support Data
+  getPnlSupport: (params?: { date?: string; division_code?: string }) =>
+    api.get<PnlSupportData>('/admin/pnl-support', params),
+
   // Bonus Records
+  getBonusRecords: (params?: { division_code?: string }) =>
+    api.get<BonusRecord[]>('/admin/bonus-records', params),
+
   createBonusRecord: (data: Omit<BonusRecord, 'id' | 'grand_total'>) =>
     api.post<BonusRecord>('/admin/bonus-records', data),
 };

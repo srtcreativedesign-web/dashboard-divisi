@@ -262,28 +262,41 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/{id}', [ProjectVendorController::class, 'destroy']);
             });
         });
-    });
 
-    // Admin Division Module (Modul 14 Tugas Admin)
-    Route::prefix('admin')->middleware(['scope'])->group(function () {
-        Route::middleware(['capability:view:leave_records'])->group(function () {
-            Route::get('leaves', [AdminController::class, 'listLeaves']);
-        });
+        // Admin Division Module (Modul 14 Tugas Admin)
+        Route::prefix('admin')->middleware(['scope'])->group(function () {
+            Route::middleware(['capability:view:leave_records'])->group(function () {
+                Route::get('leaves', [AdminController::class, 'listLeaves']);
+                Route::post('leaves', [AdminController::class, 'storeLeave']);
+                Route::patch('leaves/{id}/status', [AdminController::class, 'updateLeaveStatus']);
+            });
 
-        Route::middleware(['capability:manage:attendance_realization'])->group(function () {
-            Route::post('attendance-realizations', [AdminController::class, 'storeAttendanceRealization']);
-        });
+            Route::middleware(['capability:manage:attendance_realization'])->group(function () {
+                Route::get('attendance-realizations', [AdminController::class, 'listAttendanceRealizations']);
+                Route::post('attendance-realizations', [AdminController::class, 'storeAttendanceRealization']);
+                Route::patch('attendance-realizations/{id}/status', [AdminController::class, 'updateAttendanceStatus']);
+            });
 
-        Route::middleware(['capability:write:purchase_voucher'])->group(function () {
-            Route::post('vouchers', [AdminController::class, 'storeVoucher']);
-        });
-        Route::middleware(['capability:write:chair_audit'])->group(function () {
-            Route::post('chair-usage-audits', [AdminController::class, 'storeChairAudit']);
-            Route::post('therapist-revenues', [AdminController::class, 'storeTherapistRevenue']);
-        });
-        Route::middleware(['capability:write:finance_admin'])->group(function () {
-            Route::post('stock-cards', [AdminController::class, 'storeStockCard']);
-            Route::post('deposits', [AdminController::class, 'storeDeposit']);
+            Route::middleware(['capability:write:purchase_voucher'])->group(function () {
+                Route::post('vouchers', [AdminController::class, 'storeVoucher']);
+            });
+            Route::middleware(['capability:write:chair_audit'])->group(function () {
+                Route::post('chair-usage-audits', [AdminController::class, 'storeChairAudit']);
+                Route::post('therapist-revenues', [AdminController::class, 'storeTherapistRevenue']);
+            });
+            Route::middleware(['capability:write:finance_admin'])->group(function () {
+                Route::get('stock-cards', [AdminController::class, 'listStockCards']);
+                Route::post('stock-cards', [AdminController::class, 'storeStockCard']);
+                Route::get('deposits', [AdminController::class, 'listDeposits']);
+                Route::post('deposits', [AdminController::class, 'storeDeposit']);
+                Route::get('cashless', [AdminController::class, 'listCashless']);
+                Route::post('cashless', [AdminController::class, 'storeCashless']);
+                Route::get('laundry', [AdminController::class, 'listLaundry']);
+                Route::post('laundry', [AdminController::class, 'storeLaundry']);
+                Route::get('pnl-support', [AdminController::class, 'getPnlSupport']);
+                Route::get('bonus-records', [AdminController::class, 'listBonusRecords']);
+                Route::post('bonus-records', [AdminController::class, 'storeBonusRecord']);
+            });
         });
     });
 });

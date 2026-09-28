@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { 
-  TrendingUp, ShieldAlert, DollarSign, Package, Users, 
-  CheckCircle, Plus, RefreshCw, BarChart3, Database 
+import {
+  TrendingUp, ShieldAlert, DollarSign, Package, Users,
+  CheckCircle, Plus, RefreshCw, BarChart3, Database
 } from "lucide-react";
 import { useToast } from "../../components/ui/Toast";
 
-export default function AccAdminOperationalPage() {
+interface AccAdminOperationalPageProps {
+  initialTab?: "dashboard" | "storan" | "stok" | "kursi" | "komisi";
+}
+
+export default function AccAdminOperationalPage({ initialTab = "dashboard" }: AccAdminOperationalPageProps) {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<"dashboard" | "storan" | "stok" | "kursi" | "komisi">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "storan" | "stok" | "kursi" | "komisi">(initialTab);
   const [loading, setLoading] = useState(false);
 
   // Data states
@@ -262,7 +266,7 @@ export default function AccAdminOperationalPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {storanList.map(item => (
+                {(Array.isArray(storanList) ? storanList : []).map(item => (
                   <tr key={item.id}>
                     <td className="p-3">{item.tanggal}</td>
                     <td className="p-3">Shift {item.shift}</td>
@@ -324,7 +328,7 @@ export default function AccAdminOperationalPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {stokList.map(item => (
+                {(Array.isArray(stokList) ? stokList : []).map(item => (
                   <tr key={item.id}>
                     <td className="p-3">{item.tanggal}</td>
                     <td className="p-3 font-medium">{item.barang_nama}</td>
@@ -387,7 +391,7 @@ export default function AccAdminOperationalPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {utilisasiList.map(item => (
+                {(Array.isArray(utilisasiList) ? utilisasiList : []).map(item => (
                   <tr key={item.id}>
                     <td className="p-3">{item.tanggal}</td>
                     <td className="p-3 font-bold">Kursi {item.no_kursi}</td>
@@ -456,7 +460,7 @@ export default function AccAdminOperationalPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {komisiList.map(item => (
+                {(Array.isArray(komisiList) ? komisiList : []).map(item => (
                   <tr key={item.id}>
                     <td className="p-3 text-xs">{item.periode_awal} s/d {item.periode_akhir}</td>
                     <td className="p-3 font-medium">{item.karyawan_nama}</td>

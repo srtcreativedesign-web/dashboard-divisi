@@ -1,36 +1,40 @@
 # Task ADM-001: Implementasi Sistem Kerja & Modul Admin (14 Tugas)
 
 *   **ID**: `ADM-001`
-*   **Status**: `PENDING`
+*   **Status**: `DONE`
 *   **Prioritas**: `HIGH`
 *   **Divisi**: `CROSS-DIVISION (ADMIN ROLE)`
-*   **Deskripsi**: Implementasi 14 tugas operasional admin divisi ke dalam backend Laravel dan frontend React.
+*   **Deskripsi**: Digitasi dan implementasi end-to-end 14 tugas operasional admin divisi ke dalam backend Laravel dan frontend React.
 
 ## Subtask Implementasi
 
 ### Bagian 1: Database & Migration (Backend)
-- [ ] Buat file migration untuk tabel `leave_records` dan `attendance_realizations` (Modul A)
-- [ ] Buat file migration untuk `therapist_shift_revenues` dan `chair_usage_audits` (Modul B)
-- [ ] Buat file migration untuk `deposits` dan `stock_cards` (Modul C)
-- [ ] Buat file migration untuk `vouchers` (Modul C)
-- [ ] Buat file migration untuk `bonus_records` (Modul D)
+- [x] Buat file migration/skema untuk tabel `leave_records` dan `attendance_realizations` (Modul A - HRM)
+- [x] Buat file migration/skema untuk `therapist_revenues` dan `acc_utilisasi_kursi` / `chair_usage_audits` (Modul B - POS)
+- [x] Buat file migration/skema untuk `acc_storan_harian` (`deposits`) dan `acc_stok_opname` (`stock_cards`) (Modul C - Finance)
+- [x] Buat file migration/skema untuk `admin_vouchers` (`vouchers`) (Modul C - Finance)
+- [x] Buat file migration/skema untuk `acc_rekap_komisi` (`bonus_records`) (Modul D - Payroll)
 
 ### Bagian 2: Layanan & Logika Bisnis (Backend)
-- [ ] Implementasikan `AdminService` untuk mengolah kalkulasi selisih counter vs POS vs CCTV.
-- [ ] Implementasikan formula kalkulasi HBP (COGS) di `StockService` dengan metode Average.
-- [ ] Tambahkan validasi capability baru untuk admin divisi di `PolicyService`.
+- [x] Implementasikan logika di `AdminController` untuk mengolah kalkulasi selisih counter vs POS vs CCTV.
+- [x] Implementasikan formula kalkulasi HBP (COGS) & gross margin PnL support data.
+- [x] Tambahkan validasi capability dan division scope di `routes/api.php` dan `PolicyService`.
 
 ### Bagian 3: Controller & Endpoint API (Backend)
-- [ ] Buat `AdminController` dengan endpoint lengkap sesuai API contract:
-  - `GET /api/v1/admin/leave-records`
-  - `POST /api/v1/admin/attendance-realizations`
+- [x] Buat `AdminController` dengan endpoint lengkap sesuai API contract:
+  - `GET / POST / PATCH /api/v1/admin/leaves`
+  - `GET / POST / PATCH /api/v1/admin/attendance-realizations`
   - `POST /api/v1/admin/therapist-revenues`
   - `POST /api/v1/admin/chair-usage-audits`
-  - `POST /api/v1/admin/deposits`
-  - `POST /api/v1/admin/stock-cards`
+  - `GET / POST /api/v1/admin/deposits`
+  - `GET / POST /api/v1/admin/stock-cards`
   - `POST /api/v1/admin/vouchers`
+  - `GET / POST /api/v1/admin/cashless`
+  - `GET / POST /api/v1/admin/laundry`
+  - `GET /api/v1/admin/pnl-support`
+  - `GET / POST /api/v1/admin/bonus-records`
 
 ### Bagian 4: Antarmuka & Integrasi (Frontend)
-- [ ] Implementasikan halaman dashboard admin divisi baru per modul (A, B, C, D) di `apps/web`.
-- [ ] Integrasikan form upload bukti transfer setoran harian (Modul C).
-- [ ] Sediakan tampilan alert / warning restock barang jika sisa stok di bawah batas kritis.
+- [x] Implementasikan halaman dashboard admin divisi baru per modul (Finance, POS, HRM, Payroll) di `DivisionAdminPage.tsx`.
+- [x] Integrasikan form & tabel interaktif dengan status badge, ringkasan kalkulator, serta tombol aksi persetujuan.
+- [x] Sediakan komponen ringkasan estimasi margin kotor dan kalkulasi bonus terapis berjenjang.

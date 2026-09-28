@@ -20,6 +20,15 @@ class AdminController extends Controller
         return $query->with('employee')->get();
     }
 
+    public function listAttendanceRealizations(Request $request)
+    {
+        $query = AdminAttendanceRealization::query();
+        if ($request->has('employee_id')) {
+            $query->where('employee_id', $request->input('employee_id'));
+        }
+        return $query->with('employee')->get();
+    }
+
     public function storeLeave(Request $request)
     {
         $validated = $request->validate([
@@ -33,6 +42,18 @@ class AdminController extends Controller
         ]);
 
         return AdminLeaveRecord::create($validated);
+    }
+
+    public function updateLeaveStatus(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:PENDING,APPROVED,REJECTED',
+        ]);
+
+        $leave = AdminLeaveRecord::findOrFail($id);
+        $leave->update(['status' => $validated['status']]);
+
+        return $leave;
     }
 
     public function storeAttendanceRealization(Request $request)
@@ -51,6 +72,18 @@ class AdminController extends Controller
         ]);
 
         return AdminAttendanceRealization::create($validated);
+    }
+
+    public function updateAttendanceStatus(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:DRAFT,SUBMITTED,LOCKED',
+        ]);
+
+        $attendance = AdminAttendanceRealization::findOrFail($id);
+        $attendance->update(['status' => $validated['status']]);
+
+        return $attendance;
     }
 
     public function storeChairAudit(Request $request)
@@ -203,5 +236,166 @@ class AdminController extends Controller
         ]);
 
         return $voucher;
+    }
+
+    public function listStockCards(Request $request)
+    {
+        return DB::table('acc_stok_opname')->orderByDesc('id')->get();
+    }
+
+    public function listDeposits(Request $request)
+    {
+        return DB::table('acc_storan_harian')->orderByDesc('id')->get();
+    }
+
+    public function listCashless(Request $request)
+    {
+        return DB::table('acc_detail_cashless')->orderByDesc('id')->get();
+    }
+
+    public function storeCashless(Request $request)
+    {
+        $validated = $request->validate([
+            'division_code' => 'required|string|max:10',
+            'outlet_id' => 'required|exists:outlets,id',
+            'date' => 'required|date',
+            'shift' => 'required|integer|in:1,2',
+            'nominal_qris' => 'required|numeric|min:0',
+            'nominal_edc' => 'required|numeric|min:0',
+            'no_storan_finance' => 'nullable|string',
+        ]);
+
+        $id = DB::table('acc_detail_cashless')->insertGetId([
+            'tanggal' => $validated['date'],
+            'shift' => $validated['shift'],
+            'nominal_qris' => $validated['nominal_qris'],
+            'nominal_edc' => $validated['nominal_edc'],
+            'no_storan_finance' => $validated['no_storan_finance'] ?? ('CSH-' . date('Ymd', strtotime($validated['date'])) . '-SH' . $validated['shift']),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return [
+            'id' => $id,
+            'total_cashless' => $validated['nominal_qris'] + $validated['nominal_edc'],
+            ...$validated,
+        ];
+    }
+
+    public function listLaundry(Request $request)
+    {
+        return DB::table('acc_laundry_logs')->orderByDesc('id')->get();
+    }
+
+    public function storeLaundry(Request $request)
+    {
+        $validated = $request->validate([
+            'division_code' => 'required|string|max:10',
+            'outlet_id' => 'required|exists:outlets,id',
+            'date' => 'required|date',
+            'weight_kg' => 'required|numeric|min:0',
+            'cost_per_kg' => 'required|numeric|min:0',
+            'vendor_name' => 'nullable|string|max:100',
+        ]);
+
+        $totalBill = $validated['weight_kg'] * $validated['cost_per_kg'];
+
+        $id = DB::table('acc_laundry_logs')->insertGetId([
+            'tanggal' => $validated['date'],
+            'berat_kg' => $validated['weight_kg'],
+            'harga_per_kg' => $validated['cost_per_kg'],
+            'total_tagihan' => $totalBill,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return [
+            'id' => $id,
+            'total_bill' => $totalBill,
+            ...$validated,
+        ];
+    }
+
+    public function getPnlSupport(Request $request)
+    {
+        $date = $request->input('date', date('Y-m-d'));
+
+        $cash = DB::table('acc_storan_harian')->whereDate('tanggal', $date)->sum('pendapatan_tunai') ?? 0;
+        $qris = DB::table('acc_detail_cashless')->whereDate('tanggal', $date)->sum('nominal_qris') ?? 0;
+        $edc = DB::table('acc_detail_cashless')->whereDate('tanggal', $date)->sum('nominal_edc') ?? 0;
+        $totalRevenue = $cash + $qris + $edc;
+
+        $totalHbp = DB::table('acc_stok_opname')->whereDate('tanggal', $date)->sum(DB::raw('pemakaian * 15000')) ?? 0;
+        $laundry = DB::table('acc_laundry_logs')->whereDate('tanggal', $date)->sum('total_tagihan') ?? 0;
+        $grossMargin = $totalRevenue - ($totalHbp + $laundry);
+
+        return [
+            'date' => $date,
+            'revenue_cash' => $cash,
+            'revenue_qris' => $qris,
+            'revenue_edc' => $edc,
+            'total_revenue' => $totalRevenue,
+            'total_hbp' => $totalHbp,
+            'laundry_cost' => $laundry,
+            'gross_margin' => $grossMargin,
+        ];
+    }
+
+    public function listBonusRecords(Request $request)
+    {
+        return DB::table('acc_rekap_komisi')->orderByDesc('id')->get();
+    }
+
+    public function storeBonusRecord(Request $request)
+    {
+        $validated = $request->validate([
+            'division_code' => 'required|string|max:10',
+            'employee_name' => 'required|string|max:100',
+            'period_start' => 'required|date',
+            'period_end' => 'required|date|after_or_equal:period_start',
+            'sesi_30m' => 'required|integer|min:0',
+            'sesi_60m' => 'required|integer|min:0',
+            'sesi_90m' => 'required|integer|min:0',
+            'rate_30m' => 'nullable|numeric|min:0',
+            'rate_60m' => 'nullable|numeric|min:0',
+            'rate_90m' => 'nullable|numeric|min:0',
+            'extra_bonus' => 'nullable|numeric|min:0',
+        ]);
+
+        $r30 = $validated['rate_30m'] ?? 10000;
+        $r60 = $validated['rate_60m'] ?? 20000;
+        $r90 = $validated['rate_90m'] ?? 30000;
+        $extra = $validated['extra_bonus'] ?? 0;
+
+        $basicBonus = ($validated['sesi_30m'] * $r30) + ($validated['sesi_60m'] * $r60) + ($validated['sesi_90m'] * $r90);
+        $totalBonus = $basicBonus + $extra;
+        $totalTreatments = $validated['sesi_30m'] + $validated['sesi_60m'] + $validated['sesi_90m'];
+
+        $id = DB::table('acc_rekap_komisi')->insertGetId([
+            'periode_awal' => $validated['period_start'],
+            'periode_akhir' => $validated['period_end'],
+            'karyawan_nama' => $validated['employee_name'],
+            'sesi_30m' => $validated['sesi_30m'],
+            'sesi_60m' => $validated['sesi_60m'],
+            'sesi_90m' => $validated['sesi_90m'],
+            'total_bonus' => $totalBonus,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return [
+            'id' => $id,
+            'division_code' => $validated['division_code'],
+            'employee_name' => $validated['employee_name'],
+            'period_start' => $validated['period_start'],
+            'period_end' => $validated['period_end'],
+            'sesi_30m' => $validated['sesi_30m'],
+            'sesi_60m' => $validated['sesi_60m'],
+            'sesi_90m' => $validated['sesi_90m'],
+            'total_treatments' => $totalTreatments,
+            'basic_bonus' => $basicBonus,
+            'extra_bonus' => $extra,
+            'grand_total' => $totalBonus,
+        ];
     }
 }

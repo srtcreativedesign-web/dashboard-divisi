@@ -51,6 +51,7 @@ export interface Project {
   division_code: string;
   name: string;
   client_name?: string;
+  description?: string;
   contract_value: number;
   status: 'planning' | 'in_progress' | 'on_hold' | 'completed';
   start_date?: string;

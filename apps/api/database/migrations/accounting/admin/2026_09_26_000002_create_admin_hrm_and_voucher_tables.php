@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('admin_leave_records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
+            $table->string('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete();
             $table->string('division_code', 10);
             $table->string('leave_type', 50); // TAHUNAN, SAKIT, IZIN
             $table->date('start_date');
@@ -23,7 +24,8 @@ return new class extends Migration
 
         Schema::create('admin_attendance_realizations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
+            $table->string('employee_id');
+            $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete();
             $table->string('division_code', 10);
             $table->date('period_start');
             $table->date('period_end');
@@ -46,7 +48,8 @@ return new class extends Migration
             $table->decimal('amount', 15, 2);
             $table->text('description')->nullable();
             $table->string('status', 20)->default('DRAFT'); // DRAFT, APPROVED, PAID, CANCELLED
-            $table->foreignId('created_by')->constrained('users');
+            $table->string('created_by');
+            $table->foreign('created_by')->references('id')->on('users');
             $table->timestamps();
         });
     }

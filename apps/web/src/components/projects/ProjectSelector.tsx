@@ -28,7 +28,7 @@ export function ProjectSelector({ selectedProjectId, onSelectProject }: ProjectS
     }
   };
 
-  const selectedProject = projects.find(p => p.id === selectedProjectId);
+  const selectedProject = projects.find(p => String(p.id) === String(selectedProjectId));
 
   return (
     <div className="relative group min-w-[300px]">

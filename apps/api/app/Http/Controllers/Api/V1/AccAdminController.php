@@ -110,9 +110,11 @@ class AccAdminController extends Controller
             "no_storan_finance" => "nullable|string",
         ]);
 
+        $data['division_code'] = Auth::user()?->division_code ?? 'ACC';
+
         $cashless = DB::transaction(function () use ($data) {
             return AccDetailCashless::updateOrCreate(
-                ["tanggal" => $data["tanggal"], "shift" => $data["shift"]],
+                ["tanggal" => $data["tanggal"], "shift" => $data["shift"], "division_code" => $data['division_code']],
                 $data
             );
         });
@@ -133,6 +135,7 @@ class AccAdminController extends Controller
             "harga_per_kg" => "required|numeric|min:0",
         ]);
 
+        $data['division_code'] = Auth::user()?->division_code ?? 'ACC';
         $data["total_tagihan"] = $data["berat_kg"] * $data["harga_per_kg"];
 
         $laundry = DB::transaction(function () use ($data) {
@@ -157,6 +160,7 @@ class AccAdminController extends Controller
             "pemakaian" => "required|integer|min:0",
         ]);
 
+        $data['division_code'] = Auth::user()?->division_code ?? 'ACC';
         $data["stok_akhir"] = $data["stok_awal"] + $data["barang_datang"] - $data["pemakaian"];
 
         $stok = DB::transaction(function () use ($data) {
@@ -183,6 +187,8 @@ class AccAdminController extends Controller
             "utilisasi_cctv" => "required|boolean",
         ]);
 
+        $data['division_code'] = Auth::user()?->division_code ?? 'ACC';
+
         $utilisasi = DB::transaction(function () use ($data) {
             return AccUtilisasiKursi::create($data);
         });
@@ -206,6 +212,7 @@ class AccAdminController extends Controller
             "sesi_90m" => "required|integer|min:0",
         ]);
 
+        $data['division_code'] = Auth::user()?->division_code ?? 'ACC';
         $data["total_bonus"] = ($data["sesi_30m"] * 2500)
             + ($data["sesi_60m"] * 5000)
             + ($data["sesi_90m"] * 7500);

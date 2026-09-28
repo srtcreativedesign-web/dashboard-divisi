@@ -21,6 +21,8 @@ import {
   UploadCloud,
   Clock,
   ShieldCheck,
+  ShieldAlert,
+  CreditCard,
   PanelLeftClose,
   PanelLeftOpen,
   Sparkles,
@@ -28,6 +30,12 @@ import {
   Sun,
   FileText,
   CheckSquare,
+  Receipt,
+  Package,
+  Eye,
+  Coins,
+  FolderKanban,
+  ClipboardCheck,
 } from 'lucide-react';
 import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS } from '../config/menus';
 import { roleDisplay } from '../config/session';
@@ -45,6 +53,7 @@ import { NotificationBell, AuditLogModal } from '../components/notifications';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
+  '/admin': ClipboardCheck,
   '/omzet': TrendingUp,
   '/target': Target,
   '/penilaian': Award,
@@ -57,17 +66,23 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/budgeting': Calculator,
   '/cashflow': DollarSign,
   '/pnl': PieChart,
+  // Accounting routes
   '/accounting': LayoutDashboard,
-  '/accounting/operasional': ClipboardList,
+  '/accounting/dashboard': LayoutDashboard,
+  '/accounting/pemasukan': DollarSign,
+  '/accounting/stok': Package,
+  '/accounting/audit': ShieldAlert,
+  '/accounting/komisi': Coins,
   '/accounting/jurnal': BookOpenText,
   '/accounting/impor': UploadCloud,
-  '/accounting/outstanding': Clock,
+  '/accounting/outstanding': CreditCard,
   '/accounting/cashflow': DollarSign,
   '/accounting/rekonsiliasi': ShieldCheck,
   '/accounting/periode': Calendar,
   '/accounting/master': Database,
+  // Project routes
   '/projects': LayoutDashboard,
-  '/projects/list': ClipboardList,
+  '/projects/list': FolderKanban,
   '/projects/progress': CheckSquare,
   '/projects/payments': DollarSign,
   '/projects/vendors': Users,

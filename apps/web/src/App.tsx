@@ -26,7 +26,10 @@ const AccountingImportPage = lazy(() => import('./pages/accounting/AccountingImp
 const AccountingOutstandingPage = lazy(() => import('./pages/accounting/AccountingOutstandingPage'));
 const AccountingCashflowReportPage = lazy(() => import('./pages/accounting/AccountingCashflowReportPage'));
 const AccountingReconciliationPage = lazy(() => import('./pages/accounting/AccountingReconciliationPage'));
-const AccAdminOperationalPage = lazy(() => import('./pages/accounting/AccAdminOperationalPage'));
+const AccPemasukanPage = lazy(() => import('./pages/accounting/AccPemasukanPage'));
+const AccStokPage = lazy(() => import('./pages/accounting/AccStokPage'));
+const AccAuditKursiPage = lazy(() => import('./pages/accounting/AccAuditKursiPage'));
+const AccKomisiPage = lazy(() => import('./pages/accounting/AccKomisiPage'));
 const DivisionAdminPage = lazy(() => import('./pages/shared/DivisionAdminPage'));
 const ProjectDashboardPage = lazy(() => import('./pages/projects/ProjectDashboardPage'));
 const ProjectListPage = lazy(() => import('./pages/projects/ProjectListPage'));
@@ -150,6 +153,11 @@ export default function App() {
                     }
                   />
                   <Route path="/accounting" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dashboard" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/pemasukan" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccPemasukanPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/stok" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccStokPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/audit" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccAuditKursiPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/komisi" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccKomisiPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/jurnal" element={<RouteGuard capability="view:acc_journal" divisionCode="ACC"><RouteSuspense><AccountingJournalPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/impor" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingImportPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/outstanding" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingOutstandingPage /></RouteSuspense></RouteGuard>} />
@@ -157,7 +165,6 @@ export default function App() {
                   <Route path="/accounting/rekonsiliasi" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingReconciliationPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/periode" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingPeriodsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/operasional" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccAdminOperationalPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/admin" element={<RouteGuard capability="view:division"><RouteSuspense><DivisionAdminPage /></RouteSuspense></RouteGuard>} />
 
                   {/* Project Division Routes */}

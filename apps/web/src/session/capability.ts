@@ -40,6 +40,12 @@ const ACC_ADMIN_CAPABILITIES = [
   'submit:acc_period',
   'manage:acc_master',
   'approve:acc_period',
+  // Admin divisi (14 tugas) — sinkron dengan PolicyService::ROLE_CAPABILITIES
+  'view:leave_records',
+  'manage:attendance_realization',
+  'write:purchase_voucher',
+  'write:chair_audit',
+  'write:finance_admin',
 ];
 
 const ACCOUNTING_CAPABILITIES = [
@@ -131,8 +137,8 @@ export function hasCapability(role: Role, capability: string, divisionCode?: str
   }
 
   if (activeDivision === 'FIN') {
-    if (role === 'MANAGER') return ROLE_CAPABILITIES['MANAGER'].includes(capability);
-    if (role === 'ADMIN') return ROLE_CAPABILITIES['ADMIN'].includes(capability);
+    if (role === 'MANAGER') return (ROLE_CAPABILITIES['MANAGER'] ?? []).includes(capability);
+    if (role === 'ADMIN') return (ROLE_CAPABILITIES['ADMIN'] ?? []).includes(capability);
     if (role === 'FINANCE') return FINANCE_CAPABILITIES.includes(capability);
     // fallback for others
   }

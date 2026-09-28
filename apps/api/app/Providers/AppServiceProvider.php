@@ -35,5 +35,15 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('reset', fn (Request $request) => Limit::perMinute(10)
             ->by(($request->attributes->get('user')['sub'] ?? '').'|'.$request->ip()));
+
+        $migrationsPath = database_path('migrations');
+        $directories = glob($migrationsPath . '/*' , GLOB_ONLYDIR);
+        foreach ($directories ?: [] as $path) {
+            $this->loadMigrationsFrom($path);
+            $subDirectories = glob($path . '/*' , GLOB_ONLYDIR);
+            foreach ($subDirectories ?: [] as $subPath) {
+                $this->loadMigrationsFrom($subPath);
+            }
+        }
     }
 }

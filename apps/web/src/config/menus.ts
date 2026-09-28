@@ -19,11 +19,19 @@ export const MENU_ITEMS: MenuItem[] = [
 ];
 
 export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
-  { path: '/accounting/dashboard', label: 'Dashboard Accounting', roles: ['MANAGER', 'ADMIN', 'ACCOUNTING', 'FINANCE'], capability: 'view:acc_report' },
-  { path: '/accounting/pemasukan', label: 'Pemasukan & Operasional', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
-  { path: '/accounting/stok', label: 'Persediaan & Stok', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
-  { path: '/accounting/audit', label: 'Audit Kursi & CCTV', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
-  { path: '/accounting/komisi', label: 'Komisi & Bonus', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
+  { path: '/accounting/dashboard', label: 'Dashboard Accounting', roles: ['MANAGER', 'ADMIN', 'ACCOUNTING', 'FINANCE', 'BOD'], capability: 'view:acc_report' },
+  { path: '/admin', label: 'Admin Divisi (14 Tugas)', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:division' },
+  { path: '/accounting/pemasukan', label: 'Pemasukan & Storan', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/stok', label: 'Persediaan & Stok', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/audit', label: 'Audit Kursi & CCTV', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/komisi', label: 'Komisi & Bonus', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/jurnal', label: 'Jurnal Transaksi', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/cashflow', label: 'Laporan Cashflow', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/outstanding', label: 'Hutang & Piutang', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/rekonsiliasi', label: 'Rekonsiliasi Bank', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/impor', label: 'Impor Excel', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/periode', label: 'Periode Akuntansi', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_report' },
+  { path: '/accounting/master', label: 'Master Data & COA', roles: ['ADMIN', 'MANAGER', 'BOD'], capability: 'view:acc_master' },
 ];
 
 export const PROJECT_MENU_ITEMS: MenuItem[] = [
