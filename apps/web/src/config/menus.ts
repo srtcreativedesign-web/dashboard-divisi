@@ -12,14 +12,18 @@ export const MENU_ITEMS: MenuItem[] = [
   { path: '/laporan-harian', label: 'Report Harian', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
   { path: '/rincian-tenant', label: 'Rincian Omset Tenant', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
   { path: '/laporan', label: 'Detail Laporan', roles: ['BOD', 'MANAGER', 'ADMIN', 'PIC', 'SUPERADMIN', 'HRD', 'USER'] },
+  { path: '/admin', label: 'Dashboard Admin Divisi', roles: ['ADMIN', 'MANAGER'], capability: 'view:division' },
   { path: '/budgeting', label: 'Format Budgeting', roles: ['BOD', 'MANAGER', 'SUPERADMIN'] },
   { path: '/cashflow', label: 'Cashflow', roles: ['BOD', 'MANAGER', 'SUPERADMIN'] },
   { path: '/pnl', label: 'PNL', roles: ['BOD', 'MANAGER', 'SUPERADMIN'] },
 ];
 
 export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
-  { path: '/accounting', label: 'Dashboard Accounting', roles: ['MANAGER', 'ADMIN', 'ACCOUNTING', 'FINANCE'], capability: 'view:acc_report' },
-  { path: '/accounting/operasional', label: 'Operasional Harian', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
+  { path: '/accounting/dashboard', label: 'Dashboard Accounting', roles: ['MANAGER', 'ADMIN', 'ACCOUNTING', 'FINANCE'], capability: 'view:acc_report' },
+  { path: '/accounting/pemasukan', label: 'Pemasukan & Operasional', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
+  { path: '/accounting/stok', label: 'Persediaan & Stok', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
+  { path: '/accounting/audit', label: 'Audit Kursi & CCTV', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
+  { path: '/accounting/komisi', label: 'Komisi & Bonus', roles: ['ADMIN', 'MANAGER'], capability: 'view:acc_report' },
 ];
 
 export const PROJECT_MENU_ITEMS: MenuItem[] = [

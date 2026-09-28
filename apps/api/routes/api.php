@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\AccountingMasterController;
 use App\Http\Controllers\Api\V1\AccountingOutstandingController;
 use App\Http\Controllers\Api\V1\AccountingReconciliationController;
 use App\Http\Controllers\Api\V1\AccountingTransactionController;
+use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\BudgetingController;
@@ -260,6 +261,29 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}', [ProjectVendorController::class, 'update']);
                 Route::delete('/{id}', [ProjectVendorController::class, 'destroy']);
             });
+        });
+    });
+
+    // Admin Division Module (Modul 14 Tugas Admin)
+    Route::prefix('admin')->middleware(['scope'])->group(function () {
+        Route::middleware(['capability:view:leave_records'])->group(function () {
+            Route::get('leaves', [AdminController::class, 'listLeaves']);
+        });
+
+        Route::middleware(['capability:manage:attendance_realization'])->group(function () {
+            Route::post('attendance-realizations', [AdminController::class, 'storeAttendanceRealization']);
+        });
+
+        Route::middleware(['capability:write:purchase_voucher'])->group(function () {
+            Route::post('vouchers', [AdminController::class, 'storeVoucher']);
+        });
+        Route::middleware(['capability:write:chair_audit'])->group(function () {
+            Route::post('chair-usage-audits', [AdminController::class, 'storeChairAudit']);
+            Route::post('therapist-revenues', [AdminController::class, 'storeTherapistRevenue']);
+        });
+        Route::middleware(['capability:write:finance_admin'])->group(function () {
+            Route::post('stock-cards', [AdminController::class, 'storeStockCard']);
+            Route::post('deposits', [AdminController::class, 'storeDeposit']);
         });
     });
 });

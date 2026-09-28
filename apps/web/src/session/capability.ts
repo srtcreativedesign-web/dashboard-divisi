@@ -3,7 +3,14 @@ import type { Role } from '../config/session';
 const ROLE_CAPABILITIES: Record<string, string[]> = {
   BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report', 'view:projects'],
   MANAGER: ['view:division', 'manage:division', 'view:report', 'write:assessment', 'approve:target', 'approve:revenue'],
-  ADMIN: ['view:division', 'write:revenue', 'view:report'],
+  ADMIN: [
+    'view:division',
+    'view:leave_records',
+    'manage:attendance_realization',
+    'write:purchase_voucher',
+    'write:chair_audit',
+    'write:finance_admin',
+  ],
   SUPERADMIN: ['*', 'manage:config'],
   HRD: ['view:workforce', 'manage:workforce'],
   PIC: ['view:own'],

@@ -9,7 +9,14 @@ class PolicyService
     public const ROLE_CAPABILITIES = [
         'BOD' => ['*'],
         'MANAGER' => ['view:division', 'manage:division', 'view:report', 'write:revenue', 'write:target', 'write:assessment'],
-        'ADMIN' => ['view:division', 'write:revenue', 'write:target', 'view:report'],
+        'ADMIN' => [
+            'view:division',
+            'view:leave_records',
+            'manage:attendance_realization',
+            'write:purchase_voucher',
+            'write:chair_audit',
+            'write:finance_admin',
+        ],
     ];
 
     public const ACC_MANAGER_CAPABILITIES = [
