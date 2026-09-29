@@ -21,26 +21,39 @@ import {
   UploadCloud,
   Clock,
   ShieldCheck,
+  ShieldAlert,
+  CreditCard,
   PanelLeftClose,
   PanelLeftOpen,
-  Search,
   Sparkles,
+  Moon,
+  Sun,
+  FileText,
+  CheckSquare,
+  Receipt,
+  Package,
+  Eye,
+  Coins,
+  FolderKanban,
+  ClipboardCheck,
 } from 'lucide-react';
-import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, roleDisplay } from '../mocks/session';
+import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS } from '../config/menus';
+import { roleDisplay } from '../config/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
 import { hasCapability } from '../session/capability';
 import { EmptyState } from '../components/states';
-import { CommandPalette } from '../components/ui/CommandPalette';
+
 import { DetailSheet } from '../components/ui/DetailSheet';
 import { StickyContextFilterBar } from '../components/filters/StickyContextFilterBar';
 import { ExportReportModal } from '../components/reports/ExportReportModal';
 import { NotificationBell, AuditLogModal } from '../components/notifications';
-import { DisplayScaleControl } from '../components/ui/DisplayScaleControl';
-import { useDisplayScale } from '../context/DisplayScaleContext';
+
+
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
+  '/admin': ClipboardCheck,
   '/omzet': TrendingUp,
   '/target': Target,
   '/penilaian': Award,
@@ -53,19 +66,34 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/budgeting': Calculator,
   '/cashflow': DollarSign,
   '/pnl': PieChart,
+  // Accounting routes
   '/accounting': LayoutDashboard,
+  '/accounting/dashboard': LayoutDashboard,
+  '/accounting/pemasukan': DollarSign,
+  '/accounting/stok': Package,
+  '/accounting/audit': ShieldAlert,
+  '/accounting/komisi': Coins,
   '/accounting/jurnal': BookOpenText,
   '/accounting/impor': UploadCloud,
-  '/accounting/outstanding': Clock,
+  '/accounting/outstanding': CreditCard,
   '/accounting/cashflow': DollarSign,
   '/accounting/rekonsiliasi': ShieldCheck,
   '/accounting/periode': Calendar,
   '/accounting/master': Database,
+  // Project routes
+  '/projects': LayoutDashboard,
+  '/projects/list': FolderKanban,
+  '/projects/progress': CheckSquare,
+  '/projects/payments': DollarSign,
+  '/projects/vendors': Users,
+  '/projects/documents': FileText,
+  '/projects/rab': Calculator,
+  '/projects/timeline': Calendar,
 };
 
 export function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
   const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [auditModalOpen, setAuditModalOpen] = useState(false);
@@ -76,6 +104,31 @@ export function AppLayout() {
       return false;
     }
   });
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      return localStorage.getItem('dashboard-divisi.dark-mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('dashboard-divisi.dark-mode', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const toggleSidebar = () => {
     setSidebarCollapsed((prev) => {
@@ -89,29 +142,7 @@ export function AppLayout() {
     });
   };
 
-  const { setScale, zoomIn, zoomOut, resetScale } = useDisplayScale();
 
-  const handleCommandAction = (actionId: string) => {
-    if (actionId === 'act-open-detail-sheet') {
-      setDetailSheetOpen(true);
-    } else if (actionId === 'act-toggle-sidebar') {
-      toggleSidebar();
-    } else if (actionId === 'act-export-summary') {
-      setExportModalOpen(true);
-    } else if (actionId === 'act-open-audit-trail') {
-      setAuditModalOpen(true);
-    } else if (actionId === 'act-scale-comfortable') {
-      setScale(110);
-    } else if (actionId === 'act-scale-large') {
-      setScale(120);
-    } else if (actionId === 'act-scale-standard') {
-      resetScale();
-    } else if (actionId === 'act-scale-zoom-in') {
-      zoomIn();
-    } else if (actionId === 'act-scale-zoom-out') {
-      zoomOut();
-    }
-  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -122,10 +153,7 @@ export function AppLayout() {
         if (isInput) return;
         e.preventDefault();
         toggleSidebar();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        if (isInput) return;
-        e.preventDefault();
-        setCommandPaletteOpen((prev) => !prev);
+
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
         if (isInput) return;
         e.preventDefault();
@@ -180,7 +208,8 @@ export function AppLayout() {
   }
 
   const isAccounting = user.divisionCode === 'ACC';
-  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : MENU_ITEMS;
+  const isProject = user.divisionCode === 'PROJECT';
+  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : (isProject ? PROJECT_MENU_ITEMS : MENU_ITEMS);
   const activeMenu = menuItems.find((item) => item.path === location.pathname);
   const roleLabel = roleDisplay(user.role);
   const scopeLabel = user.divisionCode ?? 'Semua divisi';
@@ -206,10 +235,13 @@ export function AppLayout() {
       >
         {visibleMenu.map((item) => {
           const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
+          // Exact match for parent routes so they don't all light up
+          const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
           return (
             <NavLink
               key={item.path}
               to={item.path}
+              end={isExact}
               title={isCollapsed ? item.label : undefined}
               className={({ isActive }) =>
                 isActive
@@ -218,9 +250,11 @@ export function AppLayout() {
                     } rounded-xl bg-gradient-to-r from-primary-600 via-primary-700 to-dark text-sm font-semibold text-white shadow-md ring-1 ring-white/20 transition-all duration-200`
                   : `group relative flex shrink-0 items-center ${
                       isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3.5 py-2.5'
-                    } rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-white/12 hover:shadow-xs transition-all duration-200 ease-out ${
-                      !isCollapsed ? 'hover:translate-x-1.5' : ''
-                    }`
+                    } rounded-xl text-sm font-medium transition-all duration-200 ease-out ${
+                      isSidebar
+                        ? 'text-slate-300 hover:text-white hover:bg-white/12 hover:shadow-xs'
+                        : 'text-slate-500 hover:text-primary-700 hover:bg-primary-50/50'
+                    } ${!isCollapsed ? 'hover:translate-x-1.5' : ''}`
               }
             >
               {({ isActive }) => (
@@ -228,7 +262,7 @@ export function AppLayout() {
                   {isActive && (
                     <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)]" />
                   )}
-                  <Icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                  <Icon className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${!isActive && !isSidebar ? 'text-slate-400 group-hover:text-primary-600' : ''}`} />
                   <span className={isCollapsed ? 'sr-only' : 'truncate'}>{item.label}</span>
                   {isCollapsed && (
                     <div
@@ -264,14 +298,14 @@ export function AppLayout() {
             <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
-                  {isAccounting ? 'AC' : 'DD'}
+                  {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white tracking-tight leading-snug">
-                    {isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}
+                    {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
                   </p>
                   <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5">
-                    {isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}
+                    {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
                   </p>
                 </div>
               </div>
@@ -284,31 +318,11 @@ export function AppLayout() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex flex-col gap-1.5 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
-              {visibleMenu.map((item) => {
-                const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setDrawerOpen(false)}
-                    className={({ isActive }) =>
-                      isActive
-                        ? 'group relative flex items-center gap-3 rounded-xl bg-gradient-to-r from-primary-600 via-primary-700 to-dark px-3.5 py-2.5 text-sm font-semibold text-white shadow-md ring-1 ring-white/20'
-                        : 'group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-200 hover:bg-white/12 hover:text-white transition-all duration-200'
-                    }
-                  >
-                    <Icon className="h-5 w-5 shrink-0" />
-                    <span>{item.label}</span>
-                  </NavLink>
-                );
-              })}
-            </nav>
+            <div className="flex flex-col gap-1.5 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
+              {renderMenu('sidebar')}
+            </div>
             <div className="mt-4 border-t border-white/10 pt-4 space-y-3">
-              <div className="flex items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-xs text-white ring-1 ring-white/10">
-                <span className="font-semibold text-sky-100">Ukuran Tampilan</span>
-                <DisplayScaleControl compact />
-              </div>
+
               <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10">
                 <p className="text-xs font-semibold text-white">{user.name}</p>
                 <p className="text-[11px] text-sky-200/80">{roleLabel} · {scopeLabel}</p>
@@ -338,14 +352,14 @@ export function AppLayout() {
             <>
               <div className="flex items-center gap-3 min-w-0">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
-                  {isAccounting ? 'AC' : 'DD'}
+                  {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
                 </div>
                 <div className="min-w-0 truncate">
                   <p className="text-sm font-bold text-white tracking-tight leading-snug truncate">
-                    {isAccounting ? 'Accounting Center' : 'Dashboard Divisi'}
+                    {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
                   </p>
                   <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5 truncate">
-                    {isAccounting ? 'Kontrol jurnal & periode' : '7 divisi · Real BE'}
+                    {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
                   </p>
                 </div>
               </div>
@@ -368,7 +382,7 @@ export function AppLayout() {
               className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:bg-white/10 transition-all"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30 group-hover:scale-105 transition-transform">
-                {isAccounting ? 'AC' : 'DD'}
+                {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
               </div>
               <PanelLeftOpen className="h-4 w-4 text-sky-200 group-hover:text-white group-hover:scale-110 transition-all" />
             </button>
@@ -386,7 +400,7 @@ export function AppLayout() {
             <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10 shadow-sm">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-dark text-xs font-bold text-white shadow-xs ring-1 ring-white/20">
-                  {user.name.charAt(0).toUpperCase()}
+                  {(user?.name || String.fromCharCode(85)).charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-white">{user.name}</p>
@@ -474,38 +488,22 @@ export function AppLayout() {
             </div>
 
             <div className="flex items-center gap-2.5">
-              {/* Command Palette Trigger Button (Desktop & Tablet) */}
-              <button
-                type="button"
-                onClick={() => setCommandPaletteOpen(true)}
-                aria-label="Cari modul atau aksi (Ctrl+K)"
-                className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-1.5 text-xs text-slate-500 hover:border-sky-300 hover:bg-sky-50/60 hover:text-sky-900 transition-all shadow-2xs active:scale-95 cursor-pointer"
-                data-testid="navbar-search-btn"
-              >
-                <Search className="h-3.5 w-3.5 text-slate-400" />
-                <span className="hidden md:inline">Cari modul, menu, atau aksi...</span>
-                <span className="md:hidden">Cari...</span>
-                <kbd className="ml-1 inline-flex items-center rounded bg-white px-1.5 py-0.5 font-mono text-[10px] font-semibold text-slate-600 border border-slate-200 shadow-2xs">
-                  ⌘K
-                </kbd>
-              </button>
 
-              {/* Mobile Search Button */}
-              <button
-                type="button"
-                onClick={() => setCommandPaletteOpen(true)}
-                aria-label="Cari modul (Ctrl+K)"
-                className="sm:hidden rounded-lg border border-line p-2 text-navy hover:bg-primary-50 hover:text-primary-700 transition-colors"
-                data-testid="navbar-mobile-search-btn"
-              >
-                <Search className="h-5 w-5" />
-              </button>
 
               {/* Smart Notification Center Bell & Popover */}
               <NotificationBell onOpenAuditModal={() => setAuditModalOpen(true)} />
 
-              {/* Universal Display Scale Control (Resize Ukuran Tampilan) */}
-              <DisplayScaleControl />
+              {/* Dark Mode Toggle */}
+              <button
+                type="button"
+                onClick={toggleDarkMode}
+                aria-label="Toggle Dark Mode"
+                className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-primary-700 hover:bg-primary-50 transition-colors"
+              >
+                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+
+
 
               {/* Active Role & Scope Pill */}
               <div className="hidden lg:flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200/60 px-3.5 py-1.5 text-xs shadow-2xs">
@@ -522,7 +520,7 @@ export function AppLayout() {
 
         {/* Sticky Context Filter Bar */}
         <StickyContextFilterBar
-          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+
           onOpenDetailSheet={() => setDetailSheetOpen(true)}
           onOpenExportModal={() => setExportModalOpen(true)}
         />
@@ -532,12 +530,7 @@ export function AppLayout() {
         </main>
       </div>
 
-      {/* Global Command Palette */}
-      <CommandPalette
-        isOpen={commandPaletteOpen}
-        onClose={() => setCommandPaletteOpen(false)}
-        onSelectAction={handleCommandAction}
-      />
+
 
       {/* Sliding Detail Sheet */}
       <DetailSheet

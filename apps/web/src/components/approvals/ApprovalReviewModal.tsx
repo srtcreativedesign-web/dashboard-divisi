@@ -3,11 +3,10 @@ import {
   X,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   FileText,
   Clock,
   User,
-  Building2,
+  Building,
   ArrowRight,
   ShieldAlert,
   Check,
@@ -165,7 +164,7 @@ export function ApprovalReviewModal({
               </div>
             </div>
             <div className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 flex items-start gap-3">
-              <Building2 className="w-4 h-4 text-sky-600 mt-0.5" />
+              <Building className="w-4 h-4 text-sky-600 mt-0.5" />
               <div>
                 <span className="text-[11px] text-slate-500 font-medium">Divisi Operasional</span>
                 <p className="text-xs font-bold text-navy">{request.divisionName} ({request.divisionCode})</p>

@@ -40,8 +40,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<ApiEnve
   };
   const res = await fetch(url, {
     credentials: 'include', // httpOnly cookie access_token
-    headers,
     ...init,
+    headers,
   });
 
   const traceId = res.headers.get('X-Trace-Id') ?? '';

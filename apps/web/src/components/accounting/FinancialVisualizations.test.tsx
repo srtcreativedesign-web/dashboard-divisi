@@ -1,5 +1,5 @@
 import React from 'react';
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -8,15 +8,14 @@ import {
   getItemBucket,
   getDaysPastDue,
   type AgingBucketItem,
-  type AgingBucketId,
 } from './AgingBucketBar';
 import { WaterfallChart, type WaterfallItem } from './WaterfallChart';
 import { ReconciliationMatchGauge } from './ReconciliationMatchGauge';
-import AccountingOutstandingPage from '../../pages/AccountingOutstandingPage';
-import AccountingCashflowReportPage from '../../pages/AccountingCashflowReportPage';
-import CashflowPage from '../../pages/CashflowPage';
-import PnlPage from '../../pages/PnlPage';
-import AccountingReconciliationPage from '../../pages/AccountingReconciliationPage';
+import AccountingOutstandingPage from '../../pages/accounting/AccountingOutstandingPage';
+import AccountingCashflowReportPage from '../../pages/accounting/AccountingCashflowReportPage';
+import CashflowPage from '../../pages/shared/CashflowPage';
+import PnlPage from '../../pages/shared/PnlPage';
+import AccountingReconciliationPage from '../../pages/accounting/AccountingReconciliationPage';
 import { AuthProvider } from '../../session/AuthContext';
 import { ToastProvider } from '../ui/Toast';
 

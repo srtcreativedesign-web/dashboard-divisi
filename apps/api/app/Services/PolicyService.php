@@ -9,7 +9,14 @@ class PolicyService
     public const ROLE_CAPABILITIES = [
         'BOD' => ['*'],
         'MANAGER' => ['view:division', 'manage:division', 'view:report', 'write:revenue', 'write:target', 'write:assessment'],
-        'ADMIN' => ['view:division', 'write:revenue', 'write:target', 'view:report'],
+        'ADMIN' => [
+            'view:division',
+            'view:leave_records',
+            'manage:attendance_realization',
+            'write:purchase_voucher',
+            'write:chair_audit',
+            'write:finance_admin',
+        ],
     ];
 
     public const ACC_MANAGER_CAPABILITIES = [
@@ -33,6 +40,44 @@ class PolicyService
         'write:acc_outstanding',
         'write:acc_bank',
         'submit:acc_period',
+        'manage:acc_master',
+        'approve:acc_period',
+    ];
+
+    public const ACCOUNTING_CAPABILITIES = [
+        'view:division',
+        'manage:division',
+        'view:acc_report',
+        'view:acc_journal',
+        'view:acc_master',
+        'view:acc_pnl',
+        'view:acc_balance_sheet',
+        'write:acc_outstanding',
+        'write:acc_bank',
+        'submit:acc_period',
+    ];
+
+    public const FINANCE_CAPABILITIES = [
+        'view:division',
+        'view:acc_report',
+        'view:acc_journal',
+        'write:acc_transaction',
+        'import:acc_transaction',
+        'write:acc_outstanding',
+    ];
+
+    public const PROJECT_MANAGER_CAPABILITIES = [
+        'view:division',
+        'manage:division',
+        'view:projects',
+        'manage:projects',
+        'view:report',
+    ];
+
+    public const PROJECT_ADMIN_CAPABILITIES = [
+        'view:division',
+        'view:projects',
+        'manage:projects',
     ];
 
     public function __construct(
@@ -61,11 +106,31 @@ class PolicyService
         $role = $user['role'] ?? '';
         $division = $divisionCode ?? $user['divisionCode'] ?? $user['division_code'] ?? null;
 
+        // Domain Project
+        if (str_starts_with($capability, 'view:projects') || str_starts_with($capability, 'manage:projects')) {
+            if ($role === 'BOD') {
+                return $capability === 'view:projects';
+            }
+            if ($division === 'PROJECT') {
+                if ($role === 'MANAGER') {
+                    return in_array($capability, self::PROJECT_MANAGER_CAPABILITIES, true);
+                }
+                if ($role === 'ADMIN') {
+                    return in_array($capability, self::PROJECT_ADMIN_CAPABILITIES, true);
+                }
+            }
+            return false;
+        }
+
         // Domain Accounting (ACC)
         if ($this->isAccountingCapability($capability)) {
             // BOD hanya memiliki capability baca laporan ACC
             if ($role === 'BOD') {
                 return $capability === 'view:acc_report';
+            }
+
+            if ($role === 'FINANCE' && $division === 'FIN') {
+                return in_array($capability, self::FINANCE_CAPABILITIES, true);
             }
 
             // Scope ACC: Admin dan Manager ACC memiliki capability khusus masing-masing
@@ -75,6 +140,9 @@ class PolicyService
                 }
                 if ($role === 'ADMIN') {
                     return in_array($capability, self::ACC_ADMIN_CAPABILITIES, true);
+                }
+                if ($role === 'ACCOUNTING') {
+                    return in_array($capability, self::ACCOUNTING_CAPABILITIES, true);
                 }
             }
 
@@ -89,7 +157,7 @@ class PolicyService
             }
 
             return in_array($capability, ['view:division'], true)
-                && ($role === 'MANAGER' || $role === 'ADMIN');
+                && ($role === 'MANAGER' || $role === 'ADMIN' || $role === 'ACCOUNTING' || $role === 'FINANCE');
         }
 
         $caps = self::ROLE_CAPABILITIES[$role] ?? [];

@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { NotificationPopover } from './NotificationPopover';
 import { INITIAL_NOTIFICATIONS, type NotificationItem } from './notificationTypes';
+import { useAuth } from '../../session/AuthContext';
 
 export interface NotificationBellProps {
   notifications?: NotificationItem[];
@@ -16,7 +17,21 @@ export function NotificationBell({
   onOpenAuditModal,
   className = '',
 }: NotificationBellProps) {
-  const [internalNotifications, setInternalNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const { user } = useAuth();
+  
+  const [internalNotifications, setInternalNotifications] = useState<NotificationItem[]>([]);
+  
+  // Filter initial notifications based on user role and division
+  useEffect(() => {
+    if (user) {
+      const filtered = INITIAL_NOTIFICATIONS.filter((n) => {
+        if (user.role === 'SUPERADMIN' || user.role === 'BOD') return true;
+        return n.divisionCode === user.divisionCode;
+      });
+      setInternalNotifications(filtered);
+    }
+  }, [user]);
+
   const [isOpen, setIsOpen] = useState(false);
 
   const notifications = controlledNotifications ?? internalNotifications;

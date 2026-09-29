@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\AccountingMasterController;
 use App\Http\Controllers\Api\V1\AccountingOutstandingController;
 use App\Http\Controllers\Api\V1\AccountingReconciliationController;
 use App\Http\Controllers\Api\V1\AccountingTransactionController;
+use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\BudgetingController;
@@ -17,6 +18,11 @@ use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\RevenueController;
 use App\Http\Controllers\Api\V1\SobatHrController;
 use App\Http\Controllers\Api\V1\TargetController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectVendorController;
+use App\Http\Controllers\Api\V1\ProjectRabController;
+use App\Http\Controllers\Api\V1\ProjectDocumentController;
+use App\Http\Controllers\Api\V1\AccAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -175,6 +181,23 @@ Route::prefix('v1')->group(function () {
                 Route::post('transactions/{id}/attachments', [AccountingTransactionController::class, 'uploadAttachment']);
             });
 
+            // Admin Accounting Remodeled Module Endpoints
+            Route::prefix('acc-admin')->middleware(['scope', 'capability:view:acc_report'])->group(function () {
+                Route::get('dashboard', [AccAdminController::class, 'dashboard']);
+                Route::get('storan', [AccAdminController::class, 'getStoran']);
+                Route::post('storan', [AccAdminController::class, 'saveStoran']);
+                Route::get('cashless', [AccAdminController::class, 'getCashless']);
+                Route::post('cashless', [AccAdminController::class, 'saveCashless']);
+                Route::get('laundry', [AccAdminController::class, 'getLaundry']);
+                Route::post('laundry', [AccAdminController::class, 'saveLaundry']);
+                Route::get('stok', [AccAdminController::class, 'getStok']);
+                Route::post('stok', [AccAdminController::class, 'saveStok']);
+                Route::get('utilisasi', [AccAdminController::class, 'getUtilisasi']);
+                Route::post('utilisasi', [AccAdminController::class, 'saveUtilisasi']);
+                Route::get('komisi', [AccAdminController::class, 'getKomisi']);
+                Route::post('komisi', [AccAdminController::class, 'hitungKomisi']);
+            });
+
             // Outstanding Accounting — ISSUE-9
             Route::middleware(['capability:view:acc_report'])->group(function () {
                 Route::get('outstandings', [AccountingOutstandingController::class, 'list']);
@@ -209,6 +232,70 @@ Route::prefix('v1')->group(function () {
             // Laporan Cashflow — ISSUE-10
             Route::middleware(['capability:view:acc_report'])->group(function () {
                 Route::get('cashflow/report', [AccountingCashflowController::class, 'report']);
+            });
+        });
+        // Project Division
+        Route::prefix('projects')->middleware(['scope', 'capability:view:projects'])->group(function () {
+            Route::get('/', [ProjectController::class, 'index']);
+            Route::get('/{id}', [ProjectController::class, 'show']);
+            Route::get('/{id}/documents', [ProjectDocumentController::class, 'index']);
+            
+            Route::middleware(['capability:manage:projects'])->group(function () {
+                Route::post('/', [ProjectController::class, 'store']);
+                Route::put('/{id}', [ProjectController::class, 'update']);
+                Route::patch('/{id}/payment-toggle', [ProjectController::class, 'paymentToggle']);
+                Route::post('/{id}/milestones', [ProjectController::class, 'storeMilestone']);
+                Route::post('/{id}/rab', [ProjectRabController::class, 'store']);
+                
+                Route::post('/{id}/documents', [ProjectDocumentController::class, 'store']);
+                Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
+            });
+        });
+
+        Route::prefix('vendors')->middleware(['scope', 'capability:view:projects'])->group(function () {
+            Route::get('/', [ProjectVendorController::class, 'index']);
+            Route::get('/{id}', [ProjectVendorController::class, 'show']);
+            
+            Route::middleware(['capability:manage:projects'])->group(function () {
+                Route::post('/', [ProjectVendorController::class, 'store']);
+                Route::put('/{id}', [ProjectVendorController::class, 'update']);
+                Route::delete('/{id}', [ProjectVendorController::class, 'destroy']);
+            });
+        });
+
+        // Admin Division Module (Modul 14 Tugas Admin)
+        Route::prefix('admin')->middleware(['scope'])->group(function () {
+            Route::middleware(['capability:view:leave_records'])->group(function () {
+                Route::get('leaves', [AdminController::class, 'listLeaves']);
+                Route::post('leaves', [AdminController::class, 'storeLeave']);
+                Route::patch('leaves/{id}/status', [AdminController::class, 'updateLeaveStatus']);
+            });
+
+            Route::middleware(['capability:manage:attendance_realization'])->group(function () {
+                Route::get('attendance-realizations', [AdminController::class, 'listAttendanceRealizations']);
+                Route::post('attendance-realizations', [AdminController::class, 'storeAttendanceRealization']);
+                Route::patch('attendance-realizations/{id}/status', [AdminController::class, 'updateAttendanceStatus']);
+            });
+
+            Route::middleware(['capability:write:purchase_voucher'])->group(function () {
+                Route::post('vouchers', [AdminController::class, 'storeVoucher']);
+            });
+            Route::middleware(['capability:write:chair_audit'])->group(function () {
+                Route::post('chair-usage-audits', [AdminController::class, 'storeChairAudit']);
+                Route::post('therapist-revenues', [AdminController::class, 'storeTherapistRevenue']);
+            });
+            Route::middleware(['capability:write:finance_admin'])->group(function () {
+                Route::get('stock-cards', [AdminController::class, 'listStockCards']);
+                Route::post('stock-cards', [AdminController::class, 'storeStockCard']);
+                Route::get('deposits', [AdminController::class, 'listDeposits']);
+                Route::post('deposits', [AdminController::class, 'storeDeposit']);
+                Route::get('cashless', [AdminController::class, 'listCashless']);
+                Route::post('cashless', [AdminController::class, 'storeCashless']);
+                Route::get('laundry', [AdminController::class, 'listLaundry']);
+                Route::post('laundry', [AdminController::class, 'storeLaundry']);
+                Route::get('pnl-support', [AdminController::class, 'getPnlSupport']);
+                Route::get('bonus-records', [AdminController::class, 'listBonusRecords']);
+                Route::post('bonus-records', [AdminController::class, 'storeBonusRecord']);
             });
         });
     });

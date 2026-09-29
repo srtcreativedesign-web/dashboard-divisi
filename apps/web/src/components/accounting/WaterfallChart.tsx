@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingDown, TrendingUp, DollarSign, Info } from 'lucide-react';
+import { DollarSign } from 'lucide-react';
 
 export interface WaterfallItem {
   id: string;

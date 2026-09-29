@@ -10,22 +10,36 @@ import { DisplayScaleProvider } from './context/DisplayScaleContext';
 import { AppLayout } from './layout/AppLayout';
 import { AuthProvider, useAuth } from './session/AuthContext';
 
-const DashboardPage = lazy(() => import('./pages/DashboardPage'));
-const LaporanPage = lazy(() => import('./pages/LaporanPage'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const DailyReportPage = lazy(() => import('./pages/DailyReportPage'));
-const TenantRevenuePage = lazy(() => import('./pages/TenantRevenuePage'));
-const BudgetingPage = lazy(() => import('./pages/BudgetingPage'));
-const CashflowPage = lazy(() => import('./pages/CashflowPage'));
-const PnlPage = lazy(() => import('./pages/PnlPage'));
-const AccountingDashboardPage = lazy(() => import('./pages/AccountingDashboardPage'));
-const AccountingJournalPage = lazy(() => import('./pages/AccountingJournalPage'));
-const AccountingPeriodsPage = lazy(() => import('./pages/AccountingPeriodsPage'));
-const AccountingMasterPage = lazy(() => import('./pages/AccountingMasterPage'));
-const AccountingImportPage = lazy(() => import('./pages/AccountingImportPage'));
-const AccountingOutstandingPage = lazy(() => import('./pages/AccountingOutstandingPage'));
-const AccountingCashflowReportPage = lazy(() => import('./pages/AccountingCashflowReportPage'));
-const AccountingReconciliationPage = lazy(() => import('./pages/AccountingReconciliationPage'));
+const DashboardPage = lazy(() => import('./pages/core/DashboardPage'));
+const LaporanPage = lazy(() => import('./pages/shared/LaporanPage'));
+const LoginPage = lazy(() => import('./pages/core/LoginPage'));
+const DailyReportPage = lazy(() => import('./pages/shared/DailyReportPage'));
+const TenantRevenuePage = lazy(() => import('./pages/shared/TenantRevenuePage'));
+const BudgetingPage = lazy(() => import('./pages/shared/BudgetingPage'));
+const CashflowPage = lazy(() => import('./pages/shared/CashflowPage'));
+const PnlPage = lazy(() => import('./pages/shared/PnlPage'));
+const AccountingDashboardPage = lazy(() => import('./pages/accounting/AccountingDashboardPage'));
+const AccountingJournalPage = lazy(() => import('./pages/accounting/AccountingJournalPage'));
+const AccountingPeriodsPage = lazy(() => import('./pages/accounting/AccountingPeriodsPage'));
+const AccountingMasterPage = lazy(() => import('./pages/accounting/AccountingMasterPage'));
+const AccountingImportPage = lazy(() => import('./pages/accounting/AccountingImportPage'));
+const AccountingOutstandingPage = lazy(() => import('./pages/accounting/AccountingOutstandingPage'));
+const AccountingCashflowReportPage = lazy(() => import('./pages/accounting/AccountingCashflowReportPage'));
+const AccountingReconciliationPage = lazy(() => import('./pages/accounting/AccountingReconciliationPage'));
+const AccPemasukanPage = lazy(() => import('./pages/accounting/AccPemasukanPage'));
+const AccStokPage = lazy(() => import('./pages/accounting/AccStokPage'));
+const AccAuditKursiPage = lazy(() => import('./pages/accounting/AccAuditKursiPage'));
+const AccKomisiPage = lazy(() => import('./pages/accounting/AccKomisiPage'));
+const DivisionAdminPage = lazy(() => import('./pages/shared/DivisionAdminPage'));
+const ProjectDashboardPage = lazy(() => import('./pages/projects/ProjectDashboardPage'));
+const ProjectListPage = lazy(() => import('./pages/projects/ProjectListPage'));
+const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage'));
+const ProjectVendorPage = lazy(() => import('./pages/projects/ProjectVendorPage'));
+const ProjectProgressPage = lazy(() => import('./pages/projects/ProjectProgressPage'));
+const ProjectPaymentsPage = lazy(() => import('./pages/projects/ProjectPaymentsPage'));
+const ProjectDocumentsPage = lazy(() => import('./pages/projects/ProjectDocumentsPage'));
+const ProjectRabPage = lazy(() => import('./pages/projects/ProjectRabPage'));
+const ProjectTimelinePage = lazy(() => import('./pages/projects/ProjectTimelinePage'));
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +55,7 @@ function HomeRedirect() {
   const { user, loading } = useAuth();
   if (loading) return <div className="p-6 text-sm text-slate-500">Memuat sesi...</div>;
   if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={user.divisionCode === 'ACC' ? '/accounting' : '/dashboard'} replace />;
+  return <Navigate to={user.divisionCode === 'ACC' ? '/accounting' : (user.divisionCode === 'PROJECT' ? '/projects' : '/dashboard')} replace />;
 }
 
 function DivisionDashboard() {
@@ -139,6 +153,11 @@ export default function App() {
                     }
                   />
                   <Route path="/accounting" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dashboard" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/pemasukan" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccPemasukanPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/stok" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccStokPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/audit" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccAuditKursiPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/komisi" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccKomisiPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/jurnal" element={<RouteGuard capability="view:acc_journal" divisionCode="ACC"><RouteSuspense><AccountingJournalPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/impor" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingImportPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/outstanding" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingOutstandingPage /></RouteSuspense></RouteGuard>} />
@@ -146,6 +165,18 @@ export default function App() {
                   <Route path="/accounting/rekonsiliasi" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingReconciliationPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/periode" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingPeriodsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/admin" element={<RouteGuard capability="view:division"><RouteSuspense><DivisionAdminPage /></RouteSuspense></RouteGuard>} />
+
+                  {/* Project Division Routes */}
+                  <Route path="/projects" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/list" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectListPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/progress" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectProgressPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/payments" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectPaymentsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/vendors" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectVendorPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/documents" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDocumentsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/rab" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectRabPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/timeline" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectTimelinePage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/:id" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDetailPage /></RouteSuspense></RouteGuard>} />
                 </Route>
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>

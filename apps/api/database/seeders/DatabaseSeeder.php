@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         ['code' => 'FIN', 'name' => 'Finance', 'sort_order' => 6],
         ['code' => 'MC', 'name' => 'Money Changer', 'sort_order' => 7],
         ['code' => 'ACC', 'name' => 'Accounting', 'sort_order' => 8],
+        ['code' => 'PROJECT', 'name' => 'Project', 'sort_order' => 9],
     ];
 
     public const DIVISION_CONFIGS = [
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
         'FIN' => ['modules' => ['dashboard', 'revenue', 'workforce'], 'kpis' => ['revenue.gross', 'workforce.count']],
         'MC' => ['modules' => ['dashboard', 'forex'], 'kpis' => ['forex.volume', 'forex.spread']],
         'ACC' => ['modules' => ['dashboard', 'accounting'], 'kpis' => ['accounting.balance']],
+        'PROJECT' => ['modules' => ['dashboard', 'projects'], 'kpis' => ['projects.active', 'projects.contract_value']],
     ];
 
     public const USERS = [
@@ -48,6 +50,7 @@ class DatabaseSeeder extends Seeder
         ['email' => 'manager.fin@dashboard.test', 'name' => 'Manager Finance', 'role' => 'MANAGER', 'division_code' => 'FIN'],
         ['email' => 'manager.mc@dashboard.test', 'name' => 'Manager Money Changer', 'role' => 'MANAGER', 'division_code' => 'MC'],
         ['email' => 'manager.acc@dashboard.test', 'name' => 'Manager Accounting', 'role' => 'MANAGER', 'division_code' => 'ACC'],
+        ['email' => 'manager.project@dashboard.test', 'name' => 'Manager Project', 'role' => 'MANAGER', 'division_code' => 'PROJECT'],
         // Admin 8
         ['email' => 'admin.wrap@dashboard.test', 'name' => 'Admin Wrapping', 'role' => 'ADMIN', 'division_code' => 'WRAP'],
         ['email' => 'admin.cell@dashboard.test', 'name' => 'Admin Cellular', 'role' => 'ADMIN', 'division_code' => 'CELL'],
@@ -57,6 +60,10 @@ class DatabaseSeeder extends Seeder
         ['email' => 'admin.fin@dashboard.test', 'name' => 'Admin Finance', 'role' => 'ADMIN', 'division_code' => 'FIN'],
         ['email' => 'admin.mc@dashboard.test', 'name' => 'Admin Money Changer', 'role' => 'ADMIN', 'division_code' => 'MC'],
         ['email' => 'admin.acc@dashboard.test', 'name' => 'Admin Accounting', 'role' => 'ADMIN', 'division_code' => 'ACC'],
+        ['email' => 'admin.project@dashboard.test', 'name' => 'Admin Project', 'role' => 'ADMIN', 'division_code' => 'PROJECT'],
+        // Accounting specific roles
+        ['email' => 'accounting@dashboard.test', 'name' => 'Accounting Officer', 'role' => 'ACCOUNTING', 'division_code' => 'ACC'],
+        ['email' => 'finance@dashboard.test', 'name' => 'Finance Officer', 'role' => 'FINANCE', 'division_code' => 'FIN'],
         // PIC (View Only)
         ['email' => 'pic.wrap@dashboard.test', 'name' => 'PIC Wrapping (View Only)', 'role' => 'USER', 'division_code' => 'WRAP'],
         ['email' => 'pic.cell@dashboard.test', 'name' => 'PIC Cellular (View Only)', 'role' => 'USER', 'division_code' => 'CELL'],

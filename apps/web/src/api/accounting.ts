@@ -1,12 +1,20 @@
 import { api, downloadFile } from './client';
 
-export interface AccPeriod { id: string; periodMonth: string; status: string; notes?: string; version: number }
+export interface AccPeriod { id: string; periodMonth: string; status: string; notes?: string; version: number; transactionCount?: number; updatedAt?: string; }
 export interface AccCategory { id: string; code: string; name: string; parent?: string; isActive: boolean; requiresOutlet: boolean }
 export interface AccAccount { id: string; code: string; displayName: string; type: string; isActive: boolean; outletIds?: string[] }
 export interface AccAttachment { id: string; fileName: string; fileSize: number; mimeType: string }
 export interface AccTransaction { id: string; periodId: string; accountId: string; categoryId: string; outletId?: string; transactionDate: string; description: string; referenceNo?: string; debitAmount: number | string; creditAmount: number | string; runningBalance?: number | string; isDraft: boolean; isCancelled: boolean; cancellationReason?: string; version: number; attachments?: AccAttachment[] }
 export interface AccSummary { totalDebit: number | string; totalCredit: number | string; runningBalance: number | string; missingAttachmentCount: number; isReadyForSubmission: boolean }
 
+export interface AccTransactionResponse {
+  data: AccTransaction[];
+  meta: {
+    total: number;
+    per_page: number;
+    current_page: number;
+  };
+}
 export interface TransactionPayload { period_id: string; account_id: string; category_id: string; outlet_id?: string; transaction_date: string; description: string; reference_no?: string; debit_amount: number; credit_amount: number; is_draft: boolean; version?: number }
 export interface CategoryPayload { code: string; name: string; parent?: string; requires_outlet?: boolean }
 export interface AccountPayload { code: string; display_name: string; type: string; outlet_ids?: string[] }
@@ -135,7 +143,7 @@ export const accountingApi = {
   periods: () => api.get<AccPeriod[]>(`${base}/periods`),
   categories: () => api.get<AccCategory[]>(`${base}/categories`, { per_page: '100' }),
   accounts: () => api.get<AccAccount[]>(`${base}/accounts`, { per_page: '100' }),
-  transactions: (filters: Record<string, string | undefined>) => api.get<AccTransaction[]>(`${base}/transactions`, filters),
+  transactions: (filters: Record<string, string | undefined>) => api.get<AccTransactionResponse>(`${base}/transactions`, filters),
   summary: (periodId: string) => api.get<AccSummary>(`${base}/transactions/summary`, { period_id: periodId }),
   createTransaction: (payload: TransactionPayload) => api.post<AccTransaction>(`${base}/transactions`, payload),
   updateTransaction: (id: string, payload: TransactionPayload) => api.put<AccTransaction>(`${base}/transactions/${id}`, payload),

@@ -41,10 +41,10 @@ export function useAccountingAccounts() {
   });
 }
 
-export function useAccountingTransactions(periodId: string, search = '') {
+export function useAccountingTransactions(periodId: string, search = '', page = 1) {
   return useQuery({
-    queryKey: ['accounting', 'transactions', periodId, search],
-    queryFn: async () => (await accountingApi.transactions({ period_id: periodId, search })).data,
+    queryKey: ['accounting', 'transactions', periodId, search, page],
+    queryFn: async () => (await accountingApi.transactions({ period_id: periodId, search, page: page.toString() })).data,
     enabled: Boolean(periodId),
   });
 }

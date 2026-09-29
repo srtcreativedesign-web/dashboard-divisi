@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
-  Building2,
   DollarSign,
   CreditCard,
   QrCode,
@@ -95,6 +94,11 @@ const DIVISION_NAMES: Record<string, string> = {
   ACC: 'Accounting Center',
 };
 
+const formatNumber = (val: string | number) => {
+  const str = String(val).replace(/\D/g, '');
+  return str ? parseInt(str, 10).toLocaleString('id-ID') : '';
+};
+
 export function DailyReportInputModal({
   isOpen,
   onClose,
@@ -125,6 +129,7 @@ export function DailyReportInputModal({
   const [formNotes, setFormNotes] = useState<string>('');
 
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [shakeForm, setShakeForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const availableOutlets: RealOutlet[] = getRealOutlets(activeDivision);
@@ -195,17 +200,24 @@ export function DailyReportInputModal({
     }
   };
 
+  const triggerShake = () => {
+    setShakeForm(false);
+    setTimeout(() => setShakeForm(true), 10);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setValidationError(null);
 
     if (numRevenue <= 0) {
       setValidationError('Nominal realisasi omset wajib diisi lebih dari 0.');
+      triggerShake();
       return;
     }
 
     if (!formDate) {
       setValidationError('Tanggal laporan wajib diisi.');
+      triggerShake();
       return;
     }
 
@@ -250,7 +262,9 @@ export function DailyReportInputModal({
     >
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-fade-in-up"
+        className={`relative w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-fade-in-up ${
+          shakeForm ? 'animate-shake' : ''
+        }`}
       >
         {/* Header - Compact Single Line */}
         <div className="shrink-0 px-5 py-3 border-b border-line bg-slate-50 flex items-center justify-between">
@@ -402,10 +416,10 @@ export function DailyReportInputModal({
                   <span className="text-[10px] text-slate-500 font-mono">Rp {numTarget.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
-                  type="number"
-                  value={formTarget}
-                  onChange={(e) => setFormTarget(e.target.value)}
-                  placeholder="40000000"
+                  type="text"
+                  value={formatNumber(formTarget)}
+                  onChange={(e) => setFormTarget(e.target.value.replace(/\D/g, ''))}
+                  placeholder="40.000.000"
                   data-testid="input-target"
                   className="h-8 text-xs font-mono"
                 />
@@ -417,11 +431,11 @@ export function DailyReportInputModal({
                   <span className="text-[10px] text-primary font-bold font-mono">Rp {numRevenue.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
-                  type="number"
-                  value={formRevenue}
-                  onChange={(e) => setFormRevenue(e.target.value)}
+                  type="text"
+                  value={formatNumber(formRevenue)}
+                  onChange={(e) => setFormRevenue(e.target.value.replace(/\D/g, ''))}
                   required
-                  placeholder="45000000"
+                  placeholder="45.000.000"
                   data-testid="input-revenue"
                   className="h-8 text-xs font-mono font-bold"
                 />
@@ -464,9 +478,9 @@ export function DailyReportInputModal({
                   <span className="text-[10px] text-slate-400 font-mono">Rp {numCash.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
-                  type="number"
-                  value={formCash}
-                  onChange={(e) => setFormCash(e.target.value)}
+                  type="text"
+                  value={formatNumber(formCash)}
+                  onChange={(e) => setFormCash(e.target.value.replace(/\D/g, ''))}
                   placeholder="0"
                   className="h-8 text-xs font-mono"
                   data-testid="input-cash"
@@ -481,9 +495,9 @@ export function DailyReportInputModal({
                   <span className="text-[10px] text-slate-400 font-mono">Rp {numEdc.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
-                  type="number"
-                  value={formEdc}
-                  onChange={(e) => setFormEdc(e.target.value)}
+                  type="text"
+                  value={formatNumber(formEdc)}
+                  onChange={(e) => setFormEdc(e.target.value.replace(/\D/g, ''))}
                   placeholder="0"
                   className="h-8 text-xs font-mono"
                   data-testid="input-edc"
@@ -498,9 +512,9 @@ export function DailyReportInputModal({
                   <span className="text-[10px] text-slate-400 font-mono">Rp {numQris.toLocaleString('id-ID')}</span>
                 </div>
                 <Input
-                  type="number"
-                  value={formQris}
-                  onChange={(e) => setFormQris(e.target.value)}
+                  type="text"
+                  value={formatNumber(formQris)}
+                  onChange={(e) => setFormQris(e.target.value.replace(/\D/g, ''))}
                   placeholder="0"
                   className="h-8 text-xs font-mono"
                   data-testid="input-qris"
@@ -531,9 +545,9 @@ export function DailyReportInputModal({
                 Jumlah Transaksi (Pax / Struk)
               </label>
               <Input
-                type="number"
-                value={formTxCount}
-                onChange={(e) => setFormTxCount(e.target.value)}
+                type="text"
+                value={formatNumber(formTxCount)}
+                onChange={(e) => setFormTxCount(e.target.value.replace(/\D/g, ''))}
                 placeholder="150"
                 data-testid="input-tx-count"
                 className="h-8 text-xs"

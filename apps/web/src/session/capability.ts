@@ -1,9 +1,16 @@
-import type { Role } from '../mocks/session';
+import type { Role } from '../config/session';
 
 const ROLE_CAPABILITIES: Record<string, string[]> = {
-  BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report'],
-  MANAGER: ['view:division', 'manage:division', 'view:report', 'write:target', 'write:assessment', 'write:revenue'],
-  ADMIN: ['view:division', 'write:revenue', 'write:target', 'view:report'],
+  BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report', 'view:projects'],
+  MANAGER: ['view:division', 'manage:division', 'view:report', 'write:assessment', 'approve:target', 'approve:revenue'],
+  ADMIN: [
+    'view:division',
+    'view:leave_records',
+    'manage:attendance_realization',
+    'write:purchase_voucher',
+    'write:chair_audit',
+    'write:finance_admin',
+  ],
   SUPERADMIN: ['*', 'manage:config'],
   HRD: ['view:workforce', 'manage:workforce'],
   PIC: ['view:own'],
@@ -31,6 +38,50 @@ const ACC_ADMIN_CAPABILITIES = [
   'write:acc_outstanding',
   'write:acc_bank',
   'submit:acc_period',
+  'manage:acc_master',
+  'approve:acc_period',
+  // Admin divisi (14 tugas) — sinkron dengan PolicyService::ROLE_CAPABILITIES
+  'view:leave_records',
+  'manage:attendance_realization',
+  'write:purchase_voucher',
+  'write:chair_audit',
+  'write:finance_admin',
+];
+
+const ACCOUNTING_CAPABILITIES = [
+  'view:division',
+  'manage:division',
+  'view:acc_report',
+  'view:acc_journal',
+  'view:acc_master',
+  'view:acc_pnl',
+  'view:acc_balance_sheet',
+  'write:acc_outstanding',
+  'write:acc_bank',
+  'submit:acc_period',
+];
+
+const FINANCE_CAPABILITIES = [
+  'view:division',
+  'view:acc_report',
+  'view:acc_journal',
+  'write:acc_transaction',
+  'import:acc_transaction',
+  'write:acc_outstanding',
+];
+
+const PROJECT_MANAGER_CAPABILITIES = [
+  'view:division',
+  'manage:division',
+  'view:projects',
+  'manage:projects',
+  'view:report',
+];
+
+const PROJECT_ADMIN_CAPABILITIES = [
+  'view:division',
+  'view:projects',
+  'manage:projects',
 ];
 
 function getStoredDivision(): string | null {
@@ -47,24 +98,56 @@ function getStoredDivision(): string | null {
 export function hasCapability(role: Role, capability: string, divisionCode?: string | null): boolean {
   const activeDivision = divisionCode !== undefined ? divisionCode : getStoredDivision();
 
+  // SUPERADMIN selalu diizinkan mengakses apapun
+  if (role === 'SUPERADMIN') {
+    return true;
+  }
+
   // Domain Accounting (ACC)
   if (capability.startsWith('acc:') || capability.includes(':acc_')) {
-    if (role === 'BOD') {
-      return capability === 'view:acc_report';
-    }
+    if (role === 'BOD') return capability === 'view:acc_report';
+    if (role === 'FINANCE' && activeDivision === 'FIN') return FINANCE_CAPABILITIES.includes(capability);
     if (activeDivision === 'ACC') {
       if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
       if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
+      if (role === 'ACCOUNTING') return ACCOUNTING_CAPABILITIES.includes(capability);
     }
     return false;
   }
 
-  // Pengguna dengan konteks/divisi ACC tidak memiliki capability operasional retail divisi lain
-  if (activeDivision === 'ACC') {
-    if (role === 'BOD') {
-      return capability === 'view:acc_report' || capability === 'view:division';
+  // Domain Project
+  if (capability.startsWith('view:projects') || capability.startsWith('manage:projects')) {
+    if (role === 'BOD') return capability === 'view:projects';
+    if (activeDivision === 'PROJECT') {
+      if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
+      if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
     }
-    return capability === 'view:division' && (role === 'MANAGER' || role === 'ADMIN');
+    return false;
+  }
+
+  // Pengguna dengan konteks/divisi ACC atau PROJECT memiliki kapabilitas khusus dan terisolasi
+  // Blok ini memastikan bahwa meskipun tidak memanggil capability dengan prefix acc_ atau projects 
+  // (misalnya 'view:division' atau 'view:report'), mereka tetap difilter secara spesifik.
+  if (activeDivision === 'ACC') {
+    if (role === 'BOD') return capability === 'view:acc_report' || capability === 'view:division';
+    if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
+    if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
+    if (role === 'ACCOUNTING') return ACCOUNTING_CAPABILITIES.includes(capability);
+    return false;
+  }
+
+  if (activeDivision === 'FIN') {
+    if (role === 'MANAGER') return (ROLE_CAPABILITIES['MANAGER'] ?? []).includes(capability);
+    if (role === 'ADMIN') return (ROLE_CAPABILITIES['ADMIN'] ?? []).includes(capability);
+    if (role === 'FINANCE') return FINANCE_CAPABILITIES.includes(capability);
+    // fallback for others
+  }
+
+  if (activeDivision === 'PROJECT') {
+    if (role === 'BOD') return capability === 'view:projects' || capability === 'view:division';
+    if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
+    if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
+    return false;
   }
 
   const caps = ROLE_CAPABILITIES[role] ?? [];

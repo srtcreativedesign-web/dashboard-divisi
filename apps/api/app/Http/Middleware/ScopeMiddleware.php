@@ -37,6 +37,10 @@ class ScopeMiddleware
             $divisionCode = 'ACC';
         }
 
+        if (! $divisionCode && ($request->is('api/v1/projects*') || $request->is('api/v1/vendors*'))) {
+            $divisionCode = 'PROJECT';
+        }
+
         if ($divisionCode) {
             $isWrite = in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'], true);
             $this->policy->assertDivisionScope($user, (string) $divisionCode, $isWrite);
