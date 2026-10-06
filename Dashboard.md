@@ -16,6 +16,8 @@ Titik masuk utama untuk histori & progres semua pekerjaan yang dicatat via Obsid
 
 ## Log Progres
 
+- **2026-10-06** — **REQ / perbaikan UI terblokir**: sebagai Senior Fullstack Programmer, memperbaiki useLayoutEffect AppLayout yang berada setelah early return sesi sehingga terjadi error jumlah hook saat loading selesai. Dua regresi layout dan tiga tes dashboard lulus, typecheck/build lulus. Detail: `dokumen/47_PERBAIKAN_HOOK_LAYOUT_SESI.md`.
+
 - **2026-10-06** — **Project / REQ**: dashboard memakai endpoint agregat PROJECT; KPI/aktivitas fiktif dihapus, progres hanya untuk bobot lengkap dengan cakupan, perhatian dari milestone melewati tenggat WIB, error/retry dan tren pencatatan nyata. Peran: Senior Product Manager, Senior Product Designer, Senior Fullstack Programmer, Application Security Engineer. Verifikasi: 15 tes backend/84 assertions, 3 tes frontend, typecheck/build dan lint halaman baru lulus; 15 lint any lama pada API/types masih terbuka. Acuan: `dokumen/46_IMPLEMENTASI_DASHBOARD_PROJECT_REQ.md`. Branch commit/push kini REQ, PR ke development. Pagination daftar, keamanan berkas/relasi dan integrasi Finance belum selesai.
 
 - **2026-08-24** — Setup awal: git init di vault, Dashboard dibuat, sinkronisasi GitHub dikonfigurasi.

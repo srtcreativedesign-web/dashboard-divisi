@@ -206,22 +206,13 @@ export function AppLayout() {
     ready: false,
   });
 
-  if (authLoading) {
-    return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const isAccounting = user.divisionCode === 'ACC';
-  const isProject = user.divisionCode === 'PROJECT';
+  const isAccounting = user?.divisionCode === 'ACC';
+  const isProject = user?.divisionCode === 'PROJECT';
   const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : (isProject ? PROJECT_MENU_ITEMS : MENU_ITEMS);
   const activeMenu = menuItems.find((item) => item.path === location.pathname);
-  const roleLabel = roleDisplay(user.role);
-  const scopeLabel = user.divisionCode ?? 'Semua divisi';
 
   const visibleMenu = menuItems.filter((item) => {
+    if (!user) return false;
     if (!item.roles.includes(user.role as never)) return false;
     if (item.capability && !hasCapability(user.role as never, item.capability, user.divisionCode)) return false;
     return true;
@@ -253,6 +244,17 @@ export function AppLayout() {
       window.removeEventListener('resize', updateIndicator);
     };
   }, [location.pathname, sidebarCollapsed, visibleMenu.length]);
+
+  if (authLoading) {
+    return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const roleLabel = roleDisplay(user.role);
+  const scopeLabel = user.divisionCode ?? 'Semua divisi';
 
   const renderMenu = (variant: 'desktop' | 'drawer' | 'mobile') => {
     if (variant === 'mobile') {
