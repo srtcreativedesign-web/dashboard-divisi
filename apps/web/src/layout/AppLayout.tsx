@@ -206,27 +206,6 @@ export function AppLayout() {
     ready: false,
   });
 
-  if (authLoading) {
-    return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const isAccounting = user.divisionCode === 'ACC';
-  const isProject = user.divisionCode === 'PROJECT';
-  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : (isProject ? PROJECT_MENU_ITEMS : MENU_ITEMS);
-  const activeMenu = menuItems.find((item) => item.path === location.pathname);
-  const roleLabel = roleDisplay(user.role);
-  const scopeLabel = user.divisionCode ?? 'Semua divisi';
-
-  const visibleMenu = menuItems.filter((item) => {
-    if (!item.roles.includes(user.role as never)) return false;
-    if (item.capability && !hasCapability(user.role as never, item.capability, user.divisionCode)) return false;
-    return true;
-  });
-
   useLayoutEffect(() => {
     const updateIndicator = () => {
       if (!desktopNavRef.current) return;
@@ -252,7 +231,28 @@ export function AppLayout() {
       clearTimeout(timer);
       window.removeEventListener('resize', updateIndicator);
     };
-  }, [location.pathname, sidebarCollapsed, visibleMenu.length]);
+  }, [location.pathname, sidebarCollapsed, user?.divisionCode, user?.role]);
+
+  if (authLoading) {
+    return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const isAccounting = user.divisionCode === 'ACC';
+  const isProject = user.divisionCode === 'PROJECT';
+  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : (isProject ? PROJECT_MENU_ITEMS : MENU_ITEMS);
+  const activeMenu = menuItems.find((item) => item.path === location.pathname);
+  const roleLabel = roleDisplay(user.role);
+  const scopeLabel = user.divisionCode ?? 'Semua divisi';
+
+  const visibleMenu = menuItems.filter((item) => {
+    if (!item.roles.includes(user.role as never)) return false;
+    if (item.capability && !hasCapability(user.role as never, item.capability, user.divisionCode)) return false;
+    return true;
+  });
 
   const renderMenu = (variant: 'desktop' | 'drawer' | 'mobile') => {
     if (variant === 'mobile') {
