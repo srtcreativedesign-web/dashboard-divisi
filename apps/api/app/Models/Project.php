@@ -9,17 +9,21 @@ class Project extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('project_module', function (\Illuminate\Database\Eloquent\Builder $query) {
+            $query->where('projects.division_code', 'PROJECT');
+        });
+    }
+
     protected $fillable = [
         'division_code',
-        'project_code',
         'name',
         'client_name',
-        'location',
         'contract_value',
         'status',
         'start_date',
         'end_date',
-        'description',
     ];
 
     public function milestones()
@@ -35,20 +39,5 @@ class Project extends Model
     public function documents()
     {
         return $this->hasMany(ProjectDocument::class);
-    }
-
-    public function photos()
-    {
-        return $this->hasMany(ProjectProgressPhoto::class);
-    }
-
-    public function expenses()
-    {
-        return $this->hasMany(ProjectExpense::class);
-    }
-
-    public function invoices()
-    {
-        return $this->hasMany(ProjectInvoice::class);
     }
 }

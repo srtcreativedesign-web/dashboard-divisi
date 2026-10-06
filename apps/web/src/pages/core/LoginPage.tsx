@@ -17,18 +17,17 @@ interface QuickRole {
   label: string;
   badge: string;
   email: string;
-  password: string;
   role: string;
   division: string | null;
 }
 
 const QUICK_ROLES: QuickRole[] = [
-  { label: 'BOD (Direksi)', badge: '👑 BOD', email: 'bod1@dashboard.test', password: 'Password123!', role: 'BOD', division: null },
-  { label: 'Manager ACC', badge: '⚡ Manager', email: 'manager.acc@dashboard.test', password: 'Password123!', role: 'MANAGER', division: 'ACC' },
-  { label: 'Admin ACC', badge: '📘 ACC', email: 'admin.acc@dashboard.test', password: 'Password123!', role: 'ADMIN', division: 'ACC' },
-  { label: 'Admin Wrapping', badge: '📦 WRAP', email: 'admin.wrap@dashboard.test', password: 'Password123!', role: 'ADMIN', division: 'WRAP' },
-  { label: 'Admin FnB', badge: '🍔 FNB', email: 'admin.fnb@dashboard.test', password: 'Password123!', role: 'ADMIN', division: 'FNB' },
-  { label: 'PIC View-Only', badge: '👁️ PIC', email: 'pic.wrap@dashboard.test', password: 'Password123!', role: 'USER', division: 'WRAP' },
+  { label: 'BOD (Direksi)', badge: '👑 BOD', email: 'bod1@dashboard.test', role: 'BOD', division: null },
+  { label: 'Manager ACC', badge: '⚡ Manager', email: 'manager.acc@dashboard.test', role: 'MANAGER', division: 'ACC' },
+  { label: 'Admin ACC', badge: '📘 ACC', email: 'admin.acc@dashboard.test', role: 'ADMIN', division: 'ACC' },
+  { label: 'Manager Project', badge: 'Project', email: 'manager.project@dashboard.test', role: 'MANAGER', division: 'PROJECT' },
+  { label: 'Manager Cellular', badge: 'Cellular', email: 'manager.cell@dashboard.test', role: 'MANAGER', division: 'CELL' },
+  { label: 'Staff Accounting', badge: 'Accounting', email: 'accounting@dashboard.test', role: 'ACCOUNTING', division: 'ACC' },
 ];
 
 export default function LoginPage() {
@@ -82,7 +81,7 @@ export default function LoginPage() {
 
   const applyQuickRole = (roleItem: QuickRole) => {
     setEmail(roleItem.email);
-    setPassword(roleItem.password);
+    setPassword('');
     setEmailError(null);
     setPasswordError(null);
     setMsg(null);
@@ -140,18 +139,18 @@ export default function LoginPage() {
             Dashboard Divisi
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-sky-100/80 font-medium">
-            Portal Terpadu 7 Divisi Ritel & Accounting
+            Accounting, Project, dan Cellular
           </p>
         </div>
 
-        {/* Quick Role Switcher Chips */}
-        <div className="mb-6 rounded-2xl bg-black/20 border border-white/10 p-3 backdrop-blur-md">
+        {/* Pemilihan email akun uji; password tetap dimasukkan pengguna. */}
+        {import.meta.env.DEV && (<div className="mb-6 rounded-2xl bg-black/20 border border-white/10 p-3 backdrop-blur-md">
           <div className="mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-xs font-semibold text-sky-200">
               <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
               Pilih Akun Demo Cepat
             </span>
-            <span className="text-[10px] text-sky-200/60 font-medium">Klik untuk isi otomatis</span>
+            <span className="text-[10px] text-sky-200/60 font-medium">Klik untuk mengisi email</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {QUICK_ROLES.map((item) => {
@@ -177,7 +176,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Login Form */}
+        )}
+          {/* Login Form */}
         <form onSubmit={submit} noValidate className="space-y-4">
           {/* Email Field */}
           <div>
@@ -291,7 +291,7 @@ export default function LoginPage() {
         {/* Security Footer Badge */}
         <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-center gap-1.5 text-[11px] text-sky-200/70">
           <ShieldCheck className="h-3.5 w-3.5 text-cyan-300" />
-          <span>Sesi Aman httpOnly · Audit Trace ID · TLS Enkripsi</span>
+          <span>Gunakan akun sesuai tugas dan kewenangan Anda</span>
         </div>
       </div>
     </div>

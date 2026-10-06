@@ -152,6 +152,12 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // Fixture legacy hanya dipakai oleh tes, bukan data operasional ERP.
+        if (! app()->environment('testing')) {
+            $this->call(MvpMasterSeeder::class);
+
+            return;
+        }
         // SOP: Zero Hardcoded Secrets — default password hanya dibolehkan untuk testing.
         // Non-testing WAJIB menyetel SEED_DEFAULT_PASSWORD eksplisit; tanpa itu seeder gagal keras
         // (mencegah akun produksi memakai password publik yang sudah diketahui).
@@ -266,12 +272,8 @@ class DatabaseSeeder extends Seeder
                 AccountingAugust2026Seeder::class,
                 AccountingBankReconciliationSeeder::class,
                 AccountingOutstandingSeeder::class,
+                ExcelDataSeeder::class,
             ]);
         }
-
-        // 7. Seed Project Division (Projects, Milestones, Vendors, RAB, Expenses, Invoices, Photos)
-        $this->call([
-            ProjectSeeder::class,
-        ]);
     }
 }

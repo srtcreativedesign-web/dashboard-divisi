@@ -1,0 +1,58 @@
+# TODO implementasi ERP
+
+Tanggal mulai: 6 Oktober 2026. Acuan: paket dokumen 00–20 yang ditetapkan pengguna sebagai acuan kerja. Keputusan terbuka tetap memerlukan definisi bisnis; penetapan acuan tidak mengisi rumus/format yang belum diketahui.
+
+## Urutan dan status
+
+Ringkasan terbaru 6 Oktober 2026: 01–03 selesai teknis; 04 parsial (retensi/delegasi/matriks final terbuka); 05 selesai lokal (produksi terpisah); 06 paket UAT siap, penerimaan pengguna belum dilakukan; 07a laporan omzet tahunan selesai tetapi PNL/bonus belum ditetapkan; 08a/b integritas dan UI dasar Project selesai, workflow lengkap terbuka; 09a Cellular manual selesai teknis, transfer/retur/settlement/margin terbuka; 10a rekap cuti/absensi manual selesai teknis; parent 10–13 masih parsial/belum selesai. Bukti terbaru: 250 backend/97 web, typecheck/lint/build/pint lulus; 36 cek privilege; smoke HR 25 akun/125 pemeriksaan dan enam probe constraint native lulus. [Penutupan teknis dan sisa](40_HASIL_IMPLEMENTASI_DAN_PEKERJAAN_TERBUKA.md). Tidak menyamakan tes teknis dengan penerimaan bisnis.
+
+- [x] TODO-01 / BL-01 — tetapkan paket dokumen sebagai acuan dan buat tracker. Peran: Senior Product Manager.
+- [x] TODO-02 / BL-02/03/06 — perbaiki regresi fondasi laporan Accounting: fixture eksplisit, status, scope dan saldo belum tersedia. Peran: Senior Fullstack Programmer + Application Security Engineer. Status: selesai teknis; 54 tes terkait lulus (593 assertions), formatter selesai. Penerimaan bisnis tetap terpisah.
+- [x] TODO-03a / BL-02 — inventaris suite backend penuh: 149/212 lulus, 61 gagal, 2 error. Rincian: [inventaris regresi](22_INVENTARIS_REGRESI_BACKEND.md). Peran: Senior Fullstack Programmer.
+- [x] TODO-03b / BL-02 — backend legacy yatim dikeluarkan; ringkasan BOD dibangun ulang; kontrak role/fixture diselaraskan. 175/175 tes backend lulus (1261 assertions). Peran: Senior Fullstack Programmer + Application Security Engineer. [Rincian](23_RESTRUKTURISASI_BACKEND_MVP.md).
+- [ ] TODO-04 / BL-03 — keamanan keseluruhan; bagian berikut memisahkan hasil dan sisa pekerjaan. Peran: Application Security Engineer.
+- [x] TODO-04a — validitas akun/snapshot JWT, scope penugasan/outlet dan path dokumen Project; UI dokumen mengikuti role. 184/184 tes backend lulus (1290 assertions); dua tes UI baru. [Bukti](24_KEAMANAN_AKSES_DAN_DOKUMEN.md). Peran: Application Security Engineer + Senior Fullstack Programmer + Senior Product Designer.
+- [x] TODO-04b — cookie HttpOnly/CSRF, reset seluruh sesi, revocation fail-closed dan UI logout jujur. 193 backend, 73 web, 2 contracts lulus; migrasi PostgreSQL diterapkan. [Bukti](25_SESI_CSRF_DAN_MIGRASI_DOKUMEN.md). Peran: Application Security Engineer + Senior Fullstack Programmer + Senior Product Designer.
+- [x] TODO-04c — inventaris/migrasi berkas Project publik pada database MVP: 0 record/berkas publik, command backup/checksum teruji dan diterapkan. [Bukti/batas](25_SESI_CSRF_DAN_MIGRASI_DOKUMEN.md). Peran: Application Security Engineer + Senior Fullstack Programmer.
+- [ ] TODO-04d — keamanan lanjutan; rincian di bawah tetap terbuka. Peran: Application Security Engineer + Senior Product Manager.
+- [x] TODO-04d-1 — audit wajib auth/omzet/voucher dan mutasi API terlindungi, rollback database/kompensasi berkas, histori master append-only runtime. 204 backend tests (1378 assertions) dan 30 cek privilege lulus; smoke PostgreSQL membuktikan audit/trace tersimpan. [Bukti/batas](27_AUDIT_WAJIB_AKSI_KRITIS.md). Peran: Application Security Engineer + Senior Fullstack Programmer.
+- [ ] TODO-04d-2 — klasifikasi data pribadi, retensi dan prosedur koreksi/penghapusan. Aturan retensi perlu keputusan pemilik data; jangan menghapus histori otomatis tanpa aturan. Peran: Senior Product Manager + Application Security Engineer.
+- [x] TODO-04d-2a — klasifikasi awal dan prosedur koreksi/permintaan penghapusan didokumentasikan; retensi final dan implementasi penghapusan tetap terbuka. [Acuan](32_KLASIFIKASI_DAN_KOREKSI_DATA.md). Peran: Senior Product Manager + Application Security Engineer.
+- [ ] TODO-04d-3 — review hak baca rinci per role/objek/field dan uji akses negatif. Scope/capability fondasi sudah ada; delegasi dan akses data sensitif belum disepakati rinci. Peran: Application Security Engineer + Senior Product Manager + Senior Product Designer.
+- [x] TODO-04d-3a — izin API/service jurnal diselaraskan dengan view:acc_journal, batas objek/periode/rekening ACC, preview impor dan UI mengikuti izin commit. 208 backend/75 web lulus. [Bukti/batas](28_HAK_BACA_JURNAL_DAN_BATAS_OBJEK.md). Peran: Application Security Engineer + Senior Fullstack Programmer + Senior Product Designer. Matriks field sensitif belum final; TODO-04d-3 tetap terbuka.
+- [x] TODO-04d-4 — scanner ClamAV native untuk tiga endpoint unggahan, karantina privat, penolakan error/timeout/deteksi, audit dan command readiness. 218 backend tests (1503 assertions) lulus; engine dan API aktif menolak EICAR. [Bukti/batas](29_SCANNER_UNGGAHAN_DAN_KARANTINA.md). Peran: Application Security Engineer + Senior Fullstack Programmer.
+- [x] TODO-04d-3b — proyeksi field ringkasan, capability detail Accounting, menu/route/API, batas periode dan pembersihan cache lintas login; aturan awal konservatif, matriks bisnis final tetap terbuka. [Bukti](31_PROYEKSI_AKSES_ACCOUNTING.md). Peran: keempat peran.
+- [x] TODO-04d-3c — kontak/rekening vendor Project dibatasi pada list/detail; uji enam role pembaca, pengelola, BOD dan domain lain. [Bukti/batas](35_INTEGRITAS_PROJECT_DAN_VENDOR.md). Peran: Application Security Engineer + Senior Fullstack Programmer + Senior Product Designer. Hak nilai kontrak/RAB, delegasi/PIC dan matriks final tetap terbuka.
+- [x] TODO-04d-4-ops — jadwal update/probe scanner native, monitoring hasil, lock satu host dan rekonsiliasi sisa karantina; task Windows berhasil diuji. [Bukti/batas deployment](30_OPERASI_SCANNER_NATIVE.md). Peran: Application Security Engineer + Senior Fullstack Programmer + Senior Product Manager. Kapasitas multi-host produksi tetap memerlukan rancangan deployment.
+- [x] TODO-05 / BL-04 — backup terenkripsi/restore database terpisah, runtime/migrator/read-only; 28 cek privilege dan 3 tes guard lulus. [Bukti/batas lokal](26_BACKUP_RESTORE_DAN_ROLE_DATABASE.md). Peran: Senior Fullstack Programmer + Application Security Engineer.
+- [ ] TODO-05-prod — jadwal/retensi/offsite/key recovery, RPO/RTO dan latihan recovery server baru; keputusan produksi belum ditetapkan. Peran: Senior Product Manager + Application Security Engineer.
+- [x] TODO-05a — backup terenkripsi otomatis Windows lokal harian/login; task dan restore 54 tabel/empat berkas ke database latihan berhasil. [Bukti/batas](34_BACKUP_OTOMATIS_NATIVE.md). Peran: Senior Fullstack Programmer + Application Security Engineer. Offsite/retensi/key recovery dan SLA produksi tetap terbuka.
+- [ ] TODO-06 / BL-05 — UAT omzet H+1 dan voucher semua aktor, error/koreksi/selisih. Peran: Senior Product Designer + Senior Fullstack Programmer.
+- [x] TODO-06a — paket skenario UAT omzet/voucher, mapping bukti tes dan format pencatatan hasil siap. [Acuan](33_UAT_TEKNIS_OMZET_DAN_VOUCHER.md). Peran: Senior Product Designer + Senior Fullstack Programmer + Senior Product Manager. Pelaksanaan/penerimaan pengguna tetap terbuka.
+- [ ] TODO-07 / BL-06/10 — COA/periode/jurnal/outstanding/cashflow dan formula PNL. Peran: Senior Product Manager + Senior Fullstack Programmer. Dependensi: DEC-05.
+- [ ] TODO-08 / BL-07 — detail/penerimaan Project, RAB/progres/termin/dokumen. Peran: Senior Product Manager + Senior Product Designer + Senior Fullstack Programmer. Dependensi: DEC-07.
+- [x] TODO-08a — validasi induk RAB/tanggal efektif/search/pagination dan form vendor tambah/edit mengikuti role; 230 backend/80 web lulus. [Bukti](35_INTEGRITAS_PROJECT_DAN_VENDOR.md). Peran: keempat peran. Workflow bisnis lengkap dan penerimaan tetap terbuka.
+- [ ] TODO-09 / BL-08 — alur Cellular lengkap; discovery produk, sumber manual dan stok jumlah sudah dijawab pengguna. Peran: Senior Product Manager + Senior Product Designer + Senior Fullstack Programmer. Dependensi: DEC-08.
+- [ ] TODO-10 / BL-09 — cuti/absensi/bonus/persediaan/setoran Accounting. Peran: Senior Product Manager + Senior Fullstack Programmer. Dependensi: formula/sumber/master.
+- [ ] TODO-11 / BL-11 — Ecsys/AP, kontrak, pas dan surat. Peran: Senior Product Manager + Senior Fullstack Programmer + Application Security Engineer. Dependensi: DEC-09 dan format data.
+- [ ] TODO-12 / BL-12 — definisi CMO dan verifikasi pajak; implementasi setelah bukti tersedia. Peran: Senior Product Manager. Dependensi: DEC-02/06.
+- [ ] TODO-13 — release gate, UAT pengguna, operasional dan dokumentasi hasil. Peran: keempat peran.
+
+- [x] TODO-04d-3d — UI tambah Project/RAB/milestone/penandaan/dokumen mengikuti role; metadata dokumen tidak mengirim path privat. [Bukti](38_UI_PROJECT_DAN_BATAS_AKSI.md). Peran: Senior Product Designer + Senior Fullstack Programmer + Application Security Engineer.
+- [x] TODO-07a / ACC-S10 — tracking omzet validated 12 bulan dan komparasi outlet, desimal eksak dan nol/null dibedakan. [Bukti](37_TRACKING_OMZET_TAHUNAN.md). Peran: Senior Product Manager + Senior Product Designer + Senior Fullstack Programmer.
+- [x] TODO-08b / PRJ-01 — form tambah proyek berfungsi; nominal/tanggal tervalidasi; penandaan pembayaran dijelaskan sebagai administratif. [Bukti](38_UI_PROJECT_DAN_BATAS_AKSI.md). Peran: Senior Product Designer + Senior Fullstack Programmer + Application Security Engineer.
+- [x] TODO-09a / CEL-02/03/04 — katalog SIM/aksesori, mutasi jumlah, penjualan manual dan pembatalan sekali. Migrasi native diterapkan; ledger append-only, stok negatif ditolak dan audit wajib. [Bukti/batas](39_CELLULAR_MANUAL_DAN_STOK_JUMLAH.md). Peran: keempat peran. Tidak menutup CEL-05–08, HPP/margin, atau integrasi Accounting.
+- [x] TODO-11a / ACC-A06/ACC-S07 — lampiran privat voucher dengan scan, version/parent/checksum, audit dan UI upload/download. [Bukti](36_LAMPIRAN_VOUCHER_ACCOUNTING.md). Peran: keempat peran. Tidak menutup integrasi AP/Ecsys atau kontrak/pas/surat.
+
+- [x] TODO-10a / ACC-A01/ACC-A02 — master pegawai minimal, rekap cuti dan absensi manual, histori koreksi/void, version/overlap/duplikasi dan capability HR terpisah. [Bukti/batas](41_REKAP_CUTI_DAN_REALISASI_ABSENSI.md). Peran: keempat peran. Kalender/hak cuti/approval internal/gaji/bonus dan UAT pengguna tetap terbuka.
+
+- [x] TODO-10b / ACC-A10 tahap manual — setoran per omzet/kanal tervalidasi, penerimaan bertahap Finance, referensi bukti, pembatalan catatan, histori/version/duplikasi/alokasi dan audit wajib. [Bukti/batas](42_REKAP_SETORAN_MANUAL.md). Peran: keempat peran. Unggahan bukti setoran, deposit gabungan, settlement/fee/jurnal otomatis dan UAT pengguna tetap terbuka.
+
+## Penerimaan pekerjaan
+
+Checklist selesai hanya jika hasil dan bukti dicatat. Tes teknis bukan sign-off bisnis. Tracker rinci dan log tetap disimpan pada Tasks/dashboard-divisi-mvp serta Dashboard.md. Tidak ada estimasi tanggal yang belum didukung scope/dependensi.
+
+## Jalur UI atas arahan pengguna — 6 Oktober 2026
+
+- [x] TODO-UI-01 — tahap pertama Accounting: dashboard, omzet, voucher, setoran dan navigasi. [Bukti/batas](43_AUDIT_DAN_PERBAIKAN_UI_ACCOUNTING.md). Peran: keempat peran. Selesai teknis dan inspeksi Admin; bukan UAT semua role.
+- [ ] TODO-UI-02 — audit/perapihan HR, Project dan Cellular; data terisi/tabel panjang, tema gelap, responsivitas dan UAT per role. Peran: Senior Product Designer + Senior Product Manager + Senior Fullstack Programmer + Application Security Engineer.

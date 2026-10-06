@@ -12,7 +12,8 @@ class DivisionConfigTest extends TestCase
             ->getJson('/api/v1/division-configs');
 
         $response->assertStatus(200);
-        $this->assertCount(8, $response->json('data'));
+        $this->assertCount(9, $response->json('data'));
+        $this->assertContains('PROJECT', array_column($response->json('data'), 'divisionCode'));
     }
 
     public function test_get_acc_division_config(): void
@@ -50,7 +51,7 @@ class DivisionConfigTest extends TestCase
         $this->assertEquals('RESOURCE_NOT_FOUND', $response->json('error.code'));
     }
 
-    public function test_upsert_division_config_with_manage_permission(): void
+    public function test_manager_cannot_change_domain_configuration(): void
     {
         $response = $this->authenticated('manager.wrap@dashboard.test')
             ->postJson('/api/v1/division-configs/WRAP', [
@@ -58,8 +59,7 @@ class DivisionConfigTest extends TestCase
                 'enabledKpis' => ['revenue.gross', 'custom.kpi'],
             ]);
 
-        $response->assertStatus(200);
-        $this->assertEquals('WRAP', $response->json('data.divisionCode'));
-        $this->assertContains('custom_module', $response->json('data.enabledModules'));
+        $response->assertStatus(403);
+        $this->assertEquals('FORBIDDEN_CAPABILITY', $response->json('error.code'));
     }
 }

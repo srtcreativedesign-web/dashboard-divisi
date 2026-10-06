@@ -16,6 +16,7 @@ class AccRekapKomisi extends Model
         "sesi_60m",
         "sesi_90m",
         "total_bonus",
+        "division_code",
     ];
 
     protected $casts = [

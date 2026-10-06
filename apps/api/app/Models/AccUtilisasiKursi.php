@@ -16,6 +16,7 @@ class AccUtilisasiKursi extends Model
         "durasi_menit",
         "terapis_nama",
         "utilisasi_cctv",
+        "division_code",
     ];
 
     protected $casts = [

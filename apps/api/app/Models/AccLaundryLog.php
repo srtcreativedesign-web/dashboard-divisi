@@ -14,6 +14,7 @@ class AccLaundryLog extends Model
         "harga_per_kg",
         "total_tagihan",
         "status_pembayaran",
+        "division_code",
     ];
 
     protected $casts = [

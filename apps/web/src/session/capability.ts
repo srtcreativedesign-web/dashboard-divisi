@@ -1,172 +1,163 @@
 import type { Role } from '../config/session';
+import { normalizeDivisionCode } from '../config/mvp';
 
-const ROLE_CAPABILITIES: Record<string, string[]> = {
-  BOD: ['view:division', 'view:report', 'view:workforce', 'view:acc_report', 'view:projects'],
-  MANAGER: ['view:division', 'manage:division', 'view:report', 'write:assessment', 'approve:target', 'approve:revenue'],
-  ADMIN: [
-    'view:division',
-    'view:leave_records',
-    'manage:attendance_realization',
-    'write:purchase_voucher',
-    'write:chair_audit',
-    'write:finance_admin',
-  ],
-  SUPERADMIN: ['*', 'manage:config'],
-  HRD: ['view:workforce', 'manage:workforce'],
-  PIC: ['view:own'],
-  USER: ['view:own'],
+export const DOMAIN_CAPABILITIES: Record<string, Partial<Record<Role, readonly string[]>>> = {
+  "ACC": {
+    "MANAGER": ["view:division",
+      "view:acc_report",
+      "view:acc_detail",
+      "view:acc_journal",
+      "view:acc_master",
+      "manage:acc_master",
+      "manage:acc_period",
+      "approve:acc_period",
+      "approve:pnl",
+      "approve:voucher",
+      "approve:omzet",
+      "manage:omzet_unlock", "view:acc_hr", "manage:acc_employees", "view:acc_deposits", "void:acc_deposits"],
+    "HEAD_OPS": [
+      "view:division",
+      "view:acc_report"
+    ],
+    "SPV": [
+      "view:division",
+      "view:acc_report"
+    ],
+    "LEADER": [
+      "view:division",
+      "view:acc_report"
+    ],
+    "ADMIN": ["view:division",
+      "view:acc_report",
+      "view:acc_detail",
+      "view:acc_journal",
+      "view:acc_master",
+      "write:acc_transaction",
+      "import:acc_transaction",
+      "write:acc_outstanding",
+      "write:acc_bank",
+      "submit:acc_period",
+      "write:leave_records",
+      "write:attendance",
+      "write:omzet",
+      "write:voucher",
+      "attach:voucher",
+      "write:stock",
+      "view:bonus", "view:acc_hr", "manage:acc_employees", "write:acc_hr", "view:acc_deposits", "write:acc_deposits"],
+    "ADMIN_GUDANG": [
+      "view:division",
+      "view:acc_report",
+      "write:inventory",
+      "view:inventory"
+    ],
+    "ACCOUNTING": ["view:division",
+      "view:acc_report",
+      "view:acc_detail",
+      "view:acc_journal",
+      "view:acc_master",
+      "view:acc_pnl",
+      "view:acc_balance_sheet",
+      "write:acc_outstanding",
+      "write:acc_bank",
+      "submit:acc_period",
+      "view:omzet",
+      "validate:omzet",
+      "validate:voucher",
+      "attach:voucher",
+      "write:pnl",
+      "view:pnl",
+      "write:tax",
+      "write:contract",
+      "view:debt",
+      "write:ecsys", "view:acc_hr", "view:acc_deposits"],
+    "FINANCE": [
+      "view:division",
+      "view:acc_report",
+      "view:acc_detail",
+      "view:acc_journal",
+      "view:acc_master",
+      "write:acc_transaction",
+      "import:acc_transaction",
+      "write:acc_outstanding",
+      "submit:acc_period",
+      "write:cashflow",
+      "view:cashflow",
+      "execute:payment"
+    , "view:acc_deposits", "receive:acc_deposits"]
+  },
+  "PROJECT": {
+    "MANAGER": [
+      "view:division",
+      "view:projects",
+      "manage:projects"
+    ],
+    "HEAD_OPS": [
+      "view:division",
+      "view:projects"
+    ],
+    "SPV": [
+      "view:division",
+      "view:projects"
+    ],
+    "LEADER": [
+      "view:division",
+      "view:projects"
+    ],
+    "ADMIN": [
+      "view:division",
+      "view:projects",
+      "manage:projects"
+    ],
+    "ADMIN_GUDANG": [
+      "view:division",
+      "view:projects"
+    ],
+    "ACCOUNTING": [
+      "view:division",
+      "view:projects"
+    ],
+    "FINANCE": [
+      "view:division",
+      "view:projects"
+    ]
+  },
+  "CELL": {
+    "MANAGER": ["view:division","view:cellular","manage:cellular_catalog","write:cellular_stock","view:cellular_sales","void:cellular_sale"],
+    "HEAD_OPS": [
+      "view:division",
+      "view:cellular"
+    ],
+    "SPV": [
+      "view:division",
+      "view:cellular"
+    ],
+    "LEADER": [
+      "view:division",
+      "view:cellular"
+    ],
+    "ADMIN": ["view:division","view:cellular","manage:cellular_catalog","view:cellular_sales","write:cellular_sale"],
+    "ADMIN_GUDANG": ["view:division","view:cellular","write:cellular_stock"],
+    "ACCOUNTING": ["view:division","view:cellular","view:cellular_sales"],
+    "FINANCE": ["view:division","view:cellular","view:cellular_sales"]
+  }
 };
 
-const ACC_MANAGER_CAPABILITIES = [
-  'view:division',
-  'manage:division',
-  'view:acc_report',
-  'view:acc_journal',
-  'view:acc_master',
-  'manage:acc_master',
-  'manage:acc_period',
-  'approve:acc_period',
-];
-
-const ACC_ADMIN_CAPABILITIES = [
-  'view:division',
-  'view:acc_report',
-  'view:acc_journal',
-  'view:acc_master',
-  'write:acc_transaction',
-  'import:acc_transaction',
-  'write:acc_outstanding',
-  'write:acc_bank',
-  'submit:acc_period',
-  'manage:acc_master',
-  'approve:acc_period',
-  // Admin divisi (14 tugas) — sinkron dengan PolicyService::ROLE_CAPABILITIES
-  'view:leave_records',
-  'manage:attendance_realization',
-  'write:purchase_voucher',
-  'write:chair_audit',
-  'write:finance_admin',
-];
-
-const ACCOUNTING_CAPABILITIES = [
-  'view:division',
-  'manage:division',
-  'view:acc_report',
-  'view:acc_journal',
-  'view:acc_master',
-  'view:acc_pnl',
-  'view:acc_balance_sheet',
-  'write:acc_outstanding',
-  'write:acc_bank',
-  'submit:acc_period',
-];
-
-const FINANCE_CAPABILITIES = [
-  'view:division',
-  'view:acc_report',
-  'view:acc_journal',
-  'write:acc_transaction',
-  'import:acc_transaction',
-  'write:acc_outstanding',
-];
-
-const PROJECT_MANAGER_CAPABILITIES = [
-  'view:division',
-  'manage:division',
-  'view:projects',
-  'manage:projects',
-  'view:report',
-];
-
-const PROJECT_ADMIN_CAPABILITIES = [
-  'view:division',
-  'view:projects',
-  'manage:projects',
-];
-
-function getStoredDivision(): string | null {
-  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-    try {
-      return localStorage.getItem('dashboard-divisi.division-demo');
-    } catch {
-      return null;
-    }
-  }
-  return null;
+export function hasCapability(role: string, capability: string, divisionCode?: string | null): boolean {
+  if (role === 'BOD') return ['view:division', 'view:report', 'view:acc_report', 'view:acc_detail', 'view:projects', 'view:cellular', 'view:cellular_sales'].includes(capability);
+  const division = normalizeDivisionCode(divisionCode);
+  const domain = division === 'FIN' && role === 'FINANCE' ? 'ACC' : division;
+  return !!domain && (DOMAIN_CAPABILITIES[domain]?.[role as Role] ?? []).includes(capability);
 }
 
-export function hasCapability(role: Role, capability: string, divisionCode?: string | null): boolean {
-  const activeDivision = divisionCode !== undefined ? divisionCode : getStoredDivision();
-
-  // SUPERADMIN selalu diizinkan mengakses apapun
-  if (role === 'SUPERADMIN') {
-    return true;
-  }
-
-  // Domain Accounting (ACC)
-  if (capability.startsWith('acc:') || capability.includes(':acc_')) {
-    if (role === 'BOD') return capability === 'view:acc_report';
-    if (role === 'FINANCE' && activeDivision === 'FIN') return FINANCE_CAPABILITIES.includes(capability);
-    if (activeDivision === 'ACC') {
-      if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
-      if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
-      if (role === 'ACCOUNTING') return ACCOUNTING_CAPABILITIES.includes(capability);
-    }
-    return false;
-  }
-
-  // Domain Project
-  if (capability.startsWith('view:projects') || capability.startsWith('manage:projects')) {
-    if (role === 'BOD') return capability === 'view:projects';
-    if (activeDivision === 'PROJECT') {
-      if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
-      if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
-    }
-    return false;
-  }
-
-  // Pengguna dengan konteks/divisi ACC atau PROJECT memiliki kapabilitas khusus dan terisolasi
-  // Blok ini memastikan bahwa meskipun tidak memanggil capability dengan prefix acc_ atau projects 
-  // (misalnya 'view:division' atau 'view:report'), mereka tetap difilter secara spesifik.
-  if (activeDivision === 'ACC') {
-    if (role === 'BOD') return capability === 'view:acc_report' || capability === 'view:division';
-    if (role === 'MANAGER') return ACC_MANAGER_CAPABILITIES.includes(capability);
-    if (role === 'ADMIN') return ACC_ADMIN_CAPABILITIES.includes(capability);
-    if (role === 'ACCOUNTING') return ACCOUNTING_CAPABILITIES.includes(capability);
-    return false;
-  }
-
-  if (activeDivision === 'FIN') {
-    if (role === 'MANAGER') return (ROLE_CAPABILITIES['MANAGER'] ?? []).includes(capability);
-    if (role === 'ADMIN') return (ROLE_CAPABILITIES['ADMIN'] ?? []).includes(capability);
-    if (role === 'FINANCE') return FINANCE_CAPABILITIES.includes(capability);
-    // fallback for others
-  }
-
-  if (activeDivision === 'PROJECT') {
-    if (role === 'BOD') return capability === 'view:projects' || capability === 'view:division';
-    if (role === 'MANAGER') return PROJECT_MANAGER_CAPABILITIES.includes(capability);
-    if (role === 'ADMIN') return PROJECT_ADMIN_CAPABILITIES.includes(capability);
-    return false;
-  }
-
-  const caps = ROLE_CAPABILITIES[role] ?? [];
-  return caps.includes('*') || caps.includes(capability);
-}
-
-export function canAccessDivision(
-  user: { role: Role; divisionCode: string | null },
-  divisionCode: string | null | undefined,
-): boolean {
+export function canAccessDivision(user: { role: string; divisionCode: string | null }, divisionCode: string | null | undefined): boolean {
   if (!divisionCode) return true;
   if (user.role === 'BOD' && !user.divisionCode) return true;
-  // SUPERADMIN juga lintas (untuk kompatibilitas lama)
-  if (user.role === 'SUPERADMIN' && !user.divisionCode) return true;
-  return user.divisionCode === divisionCode;
+  const own = normalizeDivisionCode(user.divisionCode);
+  const target = normalizeDivisionCode(divisionCode);
+  if (user.role === 'FINANCE' && own === 'FIN' && target === 'ACC') return true;
+  return own === target;
 }
 
-// New helper: Determines if a role can edit reporting data. PIC users (role 'USER') are view‑only.
 export function canEditReporting(role: Role): boolean {
-  // Assuming 'USER' is the PIC role; adjust if different.
-  return role !== 'USER';
+  return ['ADMIN', 'ACCOUNTING', 'FINANCE'].includes(role);
 }

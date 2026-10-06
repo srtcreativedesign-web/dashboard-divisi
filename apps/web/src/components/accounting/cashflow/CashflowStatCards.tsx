@@ -1,6 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 
 interface CashflowStatCardsProps {
+  isReconciled?: boolean;
   initialBalance: number;
   totalRevenue: number;
   totalOperational: number;
@@ -16,6 +17,7 @@ const rupiah = (val: number) =>
   }).format(val);
 
 export function CashflowStatCards({
+  isReconciled,
   initialBalance,
   totalRevenue,
   totalOperational,
@@ -59,8 +61,8 @@ export function CashflowStatCards({
           TOTAL SALDO AKHIR KAS
         </p>
         <p className="mt-1 text-xl font-bold">{rupiah(totalEndingBalance)}</p>
-        <p className="mt-1 text-xs text-emerald-400 flex items-center gap-1 font-medium">
-          <ShieldCheck className="h-3.5 w-3.5" /> Rekonsiliasi Bank 100% Cocok
+        <p className="mt-1 text-xs text-slate-300 flex items-center gap-1 font-medium">
+          <ShieldCheck className="h-3.5 w-3.5" /> {isReconciled ? 'Saldo bank sesuai' : 'Perlu rekonsiliasi bank'}
         </p>
       </article>
     </div>

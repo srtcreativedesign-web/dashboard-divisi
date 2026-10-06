@@ -20,7 +20,7 @@ class AccOutstandingService
         $periodId = $filters['period_id'] ?? null;
         if (! $periodId) {
             $period = AccountingPeriod::where('division_id', $division->id)
-                ->where('period_month', '2026-08-01')
+                ->latest('period_month')
                 ->first();
             $periodId = $period?->id;
         }
@@ -56,20 +56,8 @@ class AccOutstandingService
         $totalActiveOutstanding = (int) $activeItems->sum('remaining_amount');
         $totalPaid = (int) $allItems->sum('paid_amount');
 
-        // Total actual cash balance (from sheet / cashflow: Rp 1.411.157.668)
-        $initialBalance = 941786679;
-        $actualNetTransactions = (int) AccountingTransaction::where('division_id', $division->id)
-            ->when($periodId, fn ($q) => $q->where('period_id', $periodId))
-            ->whereNull('cancelled_at')
-            ->selectRaw('COALESCE(SUM(debit_amount - credit_amount), 0) as net')
-            ->value('net');
-
-        // If journal is seeded with 484 transactions, calculate real cash balance
-        $actualCashBalance = $initialBalance + $actualNetTransactions;
-        if ($actualCashBalance <= $initialBalance) {
-            // fallback to verified Excel August ending cash
-            $actualCashBalance = 1411157668;
-        }
+        $period = AccountingPeriod::where('division_id', $division->id)->find($periodId);
+        $actualCashBalance = $period ? app(AccCashflowReportService::class)->getCashflowReport($division, $period->period_month->format('Y-m-d'))['kpis']['ending_cash_balance'] : 0;
 
         $projectedBalance = $actualCashBalance - $totalActiveOutstanding;
 

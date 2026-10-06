@@ -38,8 +38,7 @@ function applyScaleToDocument(scaleValue: DisplayScaleLevel) {
   document.documentElement.style.zoom = `${scaleValue}%`;
 
   // 2. Terapkan base font-size untuk rem scaling konsisten (1rem = 16px standar)
-  const basePx = (16 * scaleValue) / 100;
-  document.documentElement.style.fontSize = `${basePx}px`;
+  document.documentElement.style.fontSize = '16px';
 
   // 3. Set data-attribute untuk styling atau verifikasi tes otomatis
   document.documentElement.setAttribute('data-display-scale', `${scaleValue}%`);

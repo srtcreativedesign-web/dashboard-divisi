@@ -9,6 +9,8 @@ class ProjectDocument extends Model
 {
     use HasFactory;
 
+    protected $hidden = ['file_path'];
+
     protected $fillable = [
         'project_id',
         'title',

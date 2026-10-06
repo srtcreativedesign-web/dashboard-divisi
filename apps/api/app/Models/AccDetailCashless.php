@@ -14,6 +14,7 @@ class AccDetailCashless extends Model
         "nominal_qris",
         "nominal_edc",
         "no_storan_finance",
+        "division_code",
     ];
 
     protected $casts = [

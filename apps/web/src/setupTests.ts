@@ -1,3 +1,4 @@
+import { afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
 // Mock fetch untuk test tanpa BE real — kembalikan envelope mock
@@ -114,6 +115,12 @@ globalThis.fetch = async (input: RequestInfo | URL, _init?: RequestInit) => {
       meta: { trace_id: 'test-trace' },
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
+  if (url.includes('/accounting/cashflow/summary')) {
+    return new Response(JSON.stringify({ data: {
+      period: { period_month: '2026-08', status: 'draft' },
+      kpis: { total_revenue: 5050891572.12, total_expenses: 4581520583, ending_cash_balance: 1411157667.88 },
+    }, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
   if (url.includes('/accounting/cashflow/report')) {
     return new Response(JSON.stringify({
       data: {
@@ -177,3 +184,10 @@ Object.defineProperty(globalThis, 'localStorage', {
 });
 
 window.HTMLElement.prototype.scrollIntoView = () => {};
+
+// Bersihkan cache dan mock setelah setiap test.
+afterEach(async () => {
+  const { queryClient } = await import('./App');
+  queryClient.clear();
+  vi.unstubAllGlobals();
+});

@@ -2,41 +2,26 @@
 
 namespace Tests\Feature;
 
+use App\Models\Division;
+use App\Models\DivisionConfig;
 use Tests\TestCase;
 
 class BodReadModelTest extends TestCase
 {
-    public function test_executive_read_model_returns_metrics_and_compatible_divisions(): void
+    public function test_read_model_uses_configuration_without_inventing_values_or_compatibility(): void
     {
-        $response = $this->authenticated('bod1@dashboard.test')
-            ->getJson('/api/v1/bod/executive-read-model');
-
-        $response->assertStatus(200);
-        $data = $response->json('data');
-        $this->assertCount(7, $data);
-
-        $wrap = collect($data)->firstWhere('divisionCode', 'WRAP');
-        $this->assertNotNull($wrap);
-        $this->assertArrayHasKey('metrics', $wrap);
-        $this->assertArrayHasKey('compatibleDivisions', $wrap);
-
-        // WRAP revenue.gross is compatible with CELL, MINI, FNB, FIN, etc.
-        $this->assertContains('CELL', $wrap['compatibleDivisions']['revenue.gross']);
-        $this->assertNotContains('MC', $wrap['compatibleDivisions']['revenue.gross']);
+        $acc = Division::where('code', 'ACC')->firstOrFail();
+        DivisionConfig::where('division_id', $acc->id)->update(['enabled_kpis' => ['accounting.balance']]);
+        $data = $this->authenticated('bod1@dashboard.test')->getJson('/api/v1/bod/executive-read-model')->assertOk()->json('data');
+        $this->assertEqualsCanonicalizing(['ACC', 'PROJECT', 'CELL'], array_column($data, 'divisionCode'));
+        $row = collect($data)->firstWhere('divisionCode', 'ACC');
+        $this->assertSame([['kpiCode' => 'accounting.balance', 'value' => null, 'compatible' => false]], $row['metrics']);
+        $this->assertSame([], $row['compatibleDivisions']);
     }
 
-    public function test_kpi_compatibility_endpoint(): void
+    public function test_legacy_division_kpi_is_not_comparable(): void
     {
-        // WRAP and CELL revenue.gross -> compatible
-        $res1 = $this->authenticated('bod1@dashboard.test')
-            ->getJson('/api/v1/bod/kpi-compatibility?a=WRAP&b=CELL&kpi=revenue.gross');
-        $res1->assertStatus(200);
-        $this->assertTrue($res1->json('data.compatible'));
-
-        // WRAP and MC revenue.gross -> not compatible (MC uses forex)
-        $res2 = $this->authenticated('bod1@dashboard.test')
-            ->getJson('/api/v1/bod/kpi-compatibility?a=WRAP&b=MC&kpi=revenue.gross');
-        $res2->assertStatus(200);
-        $this->assertFalse($res2->json('data.compatible'));
+        $this->authenticated('bod1@dashboard.test')->getJson('/api/v1/bod/kpi-compatibility?a=WRAP&b=CELL&kpi=revenue.gross')
+            ->assertOk()->assertJsonPath('data.compatible', false);
     }
 }

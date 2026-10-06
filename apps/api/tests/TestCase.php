@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Contracts\MalwareScanner;
 use App\Models\User;
 use App\Services\AuditService;
 use App\Services\JwtService;
@@ -9,6 +10,7 @@ use App\Services\TokenRevocationService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 abstract class TestCase extends BaseTestCase
@@ -21,6 +23,13 @@ abstract class TestCase extends BaseTestCase
         TokenRevocationService::clear();
         AuditService::clearMemory();
         $this->seed(DatabaseSeeder::class);
+        // Fixture scanner bersih untuk regresi; tes scanner menguji implementasi nyata dengan process fake.
+        $this->app->instance(MalwareScanner::class, new class implements MalwareScanner
+        {
+            public function assertClean(string $path): void {}
+        });
+        Storage::fake('quarantine');
+        config(['uploads.scanner_lock_store' => 'array']);
     }
 
     protected function getJwtTokenForUser(string $email): string
@@ -46,6 +55,7 @@ abstract class TestCase extends BaseTestCase
             'role' => $user->role,
             'divisionCode' => $user->division_code,
             'jti' => (string) Str::uuid(),
+            'sessionVersion' => (int) $user->session_version,
         ]);
     }
 

@@ -6,172 +6,71 @@ use App\Exceptions\ApiException;
 
 class PolicyService
 {
-    public const ROLE_CAPABILITIES = [
-        'BOD' => ['*'],
-        'MANAGER' => ['view:division', 'manage:division', 'view:report', 'write:revenue', 'write:target', 'write:assessment'],
-        'ADMIN' => [
-            'view:division',
-            'view:leave_records',
-            'manage:attendance_realization',
-            'write:purchase_voucher',
-            'write:chair_audit',
-            'write:finance_admin',
+    public const DOMAIN_CAPABILITIES = [
+        'ACC' => [
+            'MANAGER' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'manage:acc_master', 'manage:acc_period', 'approve:acc_period', 'approve:pnl', 'approve:voucher', 'approve:omzet', 'manage:omzet_unlock', 'view:acc_hr', 'manage:acc_employees', 'view:acc_deposits', 'void:acc_deposits'],
+            'HEAD_OPS' => ['view:division', 'view:acc_report'],
+            'SPV' => ['view:division', 'view:acc_report'],
+            'LEADER' => ['view:division', 'view:acc_report'],
+            'ADMIN' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'write:acc_transaction', 'import:acc_transaction', 'write:acc_outstanding', 'write:acc_bank', 'submit:acc_period', 'write:leave_records', 'write:attendance', 'write:omzet', 'write:voucher', 'attach:voucher', 'write:stock', 'view:bonus', 'view:acc_hr', 'manage:acc_employees', 'write:acc_hr', 'view:acc_deposits', 'write:acc_deposits'],
+            'ADMIN_GUDANG' => ['view:division', 'view:acc_report', 'write:inventory', 'view:inventory'],
+            'ACCOUNTING' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'view:acc_pnl', 'view:acc_balance_sheet', 'write:acc_outstanding', 'write:acc_bank', 'submit:acc_period', 'view:omzet', 'validate:omzet', 'validate:voucher', 'attach:voucher', 'write:pnl', 'view:pnl', 'write:tax', 'write:contract', 'view:debt', 'write:ecsys', 'view:acc_hr', 'view:acc_deposits'],
+            'FINANCE' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'write:acc_transaction', 'import:acc_transaction', 'write:acc_outstanding', 'submit:acc_period', 'write:cashflow', 'view:cashflow', 'execute:payment', 'view:acc_deposits', 'receive:acc_deposits'],
         ],
-    ];
-
-    public const ACC_MANAGER_CAPABILITIES = [
-        'view:division',
-        'manage:division',
-        'view:acc_report',
-        'view:acc_journal',
-        'view:acc_master',
-        'manage:acc_master',
-        'manage:acc_period',
-        'approve:acc_period',
-    ];
-
-    public const ACC_ADMIN_CAPABILITIES = [
-        'view:division',
-        'view:acc_report',
-        'view:acc_journal',
-        'view:acc_master',
-        'write:acc_transaction',
-        'import:acc_transaction',
-        'write:acc_outstanding',
-        'write:acc_bank',
-        'submit:acc_period',
-        'manage:acc_master',
-        'approve:acc_period',
-    ];
-
-    public const ACCOUNTING_CAPABILITIES = [
-        'view:division',
-        'manage:division',
-        'view:acc_report',
-        'view:acc_journal',
-        'view:acc_master',
-        'view:acc_pnl',
-        'view:acc_balance_sheet',
-        'write:acc_outstanding',
-        'write:acc_bank',
-        'submit:acc_period',
-    ];
-
-    public const FINANCE_CAPABILITIES = [
-        'view:division',
-        'view:acc_report',
-        'view:acc_journal',
-        'write:acc_transaction',
-        'import:acc_transaction',
-        'write:acc_outstanding',
-    ];
-
-    public const PROJECT_MANAGER_CAPABILITIES = [
-        'view:division',
-        'manage:division',
-        'view:projects',
-        'manage:projects',
-        'view:report',
-    ];
-
-    public const PROJECT_ADMIN_CAPABILITIES = [
-        'view:division',
-        'view:projects',
-        'manage:projects',
+        'PROJECT' => [
+            'MANAGER' => ['view:division', 'view:projects', 'manage:projects'],
+            'HEAD_OPS' => ['view:division', 'view:projects'],
+            'SPV' => ['view:division', 'view:projects'],
+            'LEADER' => ['view:division', 'view:projects'],
+            'ADMIN' => ['view:division', 'view:projects', 'manage:projects'],
+            'ADMIN_GUDANG' => ['view:division', 'view:projects'],
+            'ACCOUNTING' => ['view:division', 'view:projects'],
+            'FINANCE' => ['view:division', 'view:projects'],
+        ],
+        'CELL' => [
+            'MANAGER' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'write:cellular_stock', 'view:cellular_sales', 'void:cellular_sale'],
+            'HEAD_OPS' => ['view:division', 'view:cellular'],
+            'SPV' => ['view:division', 'view:cellular'],
+            'LEADER' => ['view:division', 'view:cellular'],
+            'ADMIN' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'view:cellular_sales', 'write:cellular_sale'],
+            'ADMIN_GUDANG' => ['view:division', 'view:cellular', 'write:cellular_stock'],
+            'ACCOUNTING' => ['view:division', 'view:cellular', 'view:cellular_sales'],
+            'FINANCE' => ['view:division', 'view:cellular', 'view:cellular_sales'],
+        ],
     ];
 
     public function __construct(
         protected AuditService $audit
     ) {}
 
-    public function isAccountingCapability(string $capability): bool
-    {
-        return str_starts_with($capability, 'acc:') || str_contains($capability, ':acc_');
-    }
-
     public function isWriteOrMutationCapability(string $capability): bool
     {
         return str_starts_with($capability, 'write:')
             || str_starts_with($capability, 'manage:')
             || str_starts_with($capability, 'approve:')
-            || str_starts_with($capability, 'reject:')
-            || str_starts_with($capability, 'input:')
-            || str_starts_with($capability, 'upload:')
-            || str_starts_with($capability, 'lock:')
-            || str_starts_with($capability, 'delete:');
+            || str_starts_with($capability, 'review:')
+            || str_starts_with($capability, 'validate:')
+            || str_starts_with($capability, 'execute:');
     }
 
     public function hasCapability(array $user, string $capability, ?string $divisionCode = null): bool
     {
-        $role = $user['role'] ?? '';
-        $division = $divisionCode ?? $user['divisionCode'] ?? $user['division_code'] ?? null;
-
-        // Domain Project
-        if (str_starts_with($capability, 'view:projects') || str_starts_with($capability, 'manage:projects')) {
-            if ($role === 'BOD') {
-                return $capability === 'view:projects';
-            }
-            if ($division === 'PROJECT') {
-                if ($role === 'MANAGER') {
-                    return in_array($capability, self::PROJECT_MANAGER_CAPABILITIES, true);
-                }
-                if ($role === 'ADMIN') {
-                    return in_array($capability, self::PROJECT_ADMIN_CAPABILITIES, true);
-                }
-            }
-            return false;
+        $role = strtoupper($user['role'] ?? '');
+        if ($role === 'BOD') {
+            return in_array($capability, ['view:division', 'view:report', 'view:acc_report', 'view:acc_detail', 'view:projects', 'view:cellular', 'view:cellular_sales'], true);
+        }
+        // Hak akses berasal dari identitas pengguna, bukan divisi pada payload.
+        $division = $this->normalizeDivisionCode($user['divisionCode'] ?? $user['division_code'] ?? null);
+        if ($role === 'FINANCE' && $division === 'FIN') {
+            $division = 'ACC';
         }
 
-        // Domain Accounting (ACC)
-        if ($this->isAccountingCapability($capability)) {
-            // BOD hanya memiliki capability baca laporan ACC
-            if ($role === 'BOD') {
-                return $capability === 'view:acc_report';
-            }
+        return in_array($capability, self::DOMAIN_CAPABILITIES[$division][$role] ?? [], true);
+    }
 
-            if ($role === 'FINANCE' && $division === 'FIN') {
-                return in_array($capability, self::FINANCE_CAPABILITIES, true);
-            }
-
-            // Scope ACC: Admin dan Manager ACC memiliki capability khusus masing-masing
-            if ($division === 'ACC') {
-                if ($role === 'MANAGER') {
-                    return in_array($capability, self::ACC_MANAGER_CAPABILITIES, true);
-                }
-                if ($role === 'ADMIN') {
-                    return in_array($capability, self::ACC_ADMIN_CAPABILITIES, true);
-                }
-                if ($role === 'ACCOUNTING') {
-                    return in_array($capability, self::ACCOUNTING_CAPABILITIES, true);
-                }
-            }
-
-            return false;
-        }
-
-        // Pengguna atau konteks divisi ACC
-        if ($division === 'ACC') {
-            // BOD strictly read-only untuk Accounting
-            if ($role === 'BOD') {
-                return in_array($capability, ['view:acc_report', 'view:division'], true);
-            }
-
-            return in_array($capability, ['view:division'], true)
-                && ($role === 'MANAGER' || $role === 'ADMIN' || $role === 'ACCOUNTING' || $role === 'FINANCE');
-        }
-
-        $caps = self::ROLE_CAPABILITIES[$role] ?? [];
-
-        if (in_array('*', $caps, true)) {
-            // Wildcard '*' BOD tidak boleh mengizinkan mutasi data pada divisi ACC
-            if ($division === 'ACC' && $this->isWriteOrMutationCapability($capability)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return in_array($capability, $caps, true);
+    private function normalizeDivisionCode(?string $division): ?string
+    {
+        return $division === 'CELLULAR' ? 'CELL' : $division;
     }
 
     public function assertCapability(array $user, string $capability, ?string $divisionCode = null): void
@@ -198,39 +97,27 @@ class PolicyService
             return true;
         }
 
-        $role = $user['role'] ?? '';
-        $userDivision = $user['divisionCode'] ?? $user['division_code'] ?? null;
+        $role = strtoupper($user['role'] ?? '');
+        $userDivision = $this->normalizeDivisionCode($user['divisionCode'] ?? $user['division_code'] ?? null);
+        $divisionCode = $this->normalizeDivisionCode($divisionCode);
 
-        // BOD tidak boleh melakukan operasi write pada divisi ACC (BOD strictly read-only)
-        if ($divisionCode === 'ACC' && $forWrite && $role === 'BOD') {
-            return false;
+        // BOD lintas divisi (divisionCode null = all)
+        if ($role === 'BOD' && $userDivision === null) {
+            return ! $forWrite;
         }
 
-        // BOD lintas 7 divisi (divisionCode null = all)
-        if ($role === 'BOD' && $userDivision === null) {
+        if ($role === 'BOD' && $forWrite) {
+            return false;
+        }
+        if ($role === 'FINANCE' && $userDivision === 'FIN' && $divisionCode === 'ACC') {
             return true;
         }
 
-        // Manager / Admin strict 1:1
         return $userDivision === $divisionCode;
     }
 
     public function assertDivisionScope(array $user, ?string $divisionCode, bool $forWrite = false): void
     {
-        if ($divisionCode === 'ACC' && $forWrite && ($user['role'] ?? '') === 'BOD') {
-            $this->audit->log([
-                'actorId' => $user['sub'] ?? $user['id'] ?? null,
-                'actorEmail' => $user['email'] ?? null,
-                'actorRole' => 'BOD',
-                'action' => 'policy.scope_violation',
-                'entity' => 'Division',
-                'divisionCode' => 'ACC',
-                'metadata' => ['requested' => 'ACC', 'reason' => 'BOD read-only on ACC'],
-            ]);
-
-            throw new ApiException('SCOPE_VIOLATION', 'BOD hanya memiliki akses read-only untuk divisi Accounting (ACC)');
-        }
-
         if (! $this->canAccessDivision($user, $divisionCode, $forWrite)) {
             $role = $user['role'] ?? 'UNKNOWN';
             $userDivision = $user['divisionCode'] ?? $user['division_code'] ?? null;

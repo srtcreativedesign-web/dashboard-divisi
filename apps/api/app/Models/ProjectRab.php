@@ -19,19 +19,8 @@ class ProjectRab extends Model
         'total_price',
     ];
 
-    protected $casts = [
-        'volume' => 'decimal:2',
-        'unit_price' => 'decimal:2',
-        'total_price' => 'decimal:2',
-    ];
-
     public function project()
     {
         return $this->belongsTo(Project::class);
-    }
-
-    public function expenses()
-    {
-        return $this->hasMany(ProjectExpense::class, 'project_rab_id');
     }
 }

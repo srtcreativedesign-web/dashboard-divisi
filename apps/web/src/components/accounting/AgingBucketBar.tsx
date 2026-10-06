@@ -25,7 +25,7 @@ const rupiah = (val: number) =>
     maximumFractionDigits: 0,
   }).format(val);
 
-export function getDaysPastDue(dueDateStr: string, refDateStr: string = '2026-09-01'): number {
+export function getDaysPastDue(dueDateStr: string, refDateStr: string = new Date().toLocaleDateString('en-CA')): number {
   try {
     const due = new Date(dueDateStr).getTime();
     const ref = new Date(refDateStr).getTime();
@@ -38,7 +38,7 @@ export function getDaysPastDue(dueDateStr: string, refDateStr: string = '2026-09
 
 export function getItemBucket(
   item: AgingBucketItem,
-  refDateStr: string = '2026-09-01'
+  refDateStr: string = new Date().toLocaleDateString('en-CA')
 ): AgingBucketId {
   const days = getDaysPastDue(item.dueDate, refDateStr);
   if (days <= 30) return 'bucket_0_30';
@@ -115,7 +115,7 @@ export function AgingBucketBar({
   items,
   selectedBucket,
   onSelectBucket,
-  referenceDate = '2026-09-01',
+  referenceDate = new Date().toLocaleDateString('en-CA'),
 }: AgingBucketBarProps) {
   // Hanya hitung kewajiban aktif yang belum lunas dan belum dibatalkan
   const activeItems = items.filter(
@@ -155,7 +155,7 @@ export function AgingBucketBar({
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-navy flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary-600" />
-              Aging Bucket Distribution Bar (Distribusi Umur Tagihan)
+              Umur tagihan
             </h3>
             <span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[10px] font-bold text-primary-700 border border-primary-200">
               Analisis Piutang &amp; Hutang
@@ -216,7 +216,7 @@ export function AgingBucketBar({
       </div>
 
       {/* 4 Interactive Bucket Cards */}
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
         {bucketStats.map((b) => {
           const isSelected = selectedBucket === b.id;
           const IconComponent = b.icon;

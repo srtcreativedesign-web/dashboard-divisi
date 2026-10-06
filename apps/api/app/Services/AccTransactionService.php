@@ -15,6 +15,7 @@ use App\Models\Outlet;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AccTransactionService
@@ -27,7 +28,7 @@ class AccTransactionService
     {
         $this->assertAccScope($user);
 
-        $query = AccountingTransaction::query()
+        $query = AccountingTransaction::where('division_id', $this->resolveAccDivisionId())
             ->with(['period', 'account', 'category', 'outlet', 'attachments']);
 
         if (! empty($params['period_id'])) {
@@ -106,7 +107,7 @@ class AccTransactionService
     {
         $this->assertAccScope($user);
 
-        $tx = AccountingTransaction::with(['period', 'account', 'category', 'outlet', 'attachments'])->find($id);
+        $tx = AccountingTransaction::where('division_id', $this->resolveAccDivisionId())->with(['period', 'account', 'category', 'outlet', 'attachments'])->find($id);
         if (! $tx) {
             throw new ApiException('RESOURCE_NOT_FOUND', 'Transaksi tidak ditemukan');
         }
@@ -140,14 +141,14 @@ class AccTransactionService
             }
 
             $periodId = $data['period_id'];
-            $period = AccountingPeriod::find($periodId);
+            $period = AccountingPeriod::where('division_id', $this->resolveAccDivisionId())->find($periodId);
             if (! $period) {
                 throw new ApiException('RESOURCE_NOT_FOUND', 'Periode tidak ditemukan');
             }
             $this->assertPeriodMutable($period);
 
             $accountId = $data['account_id'];
-            $account = AccountingAccount::find($accountId);
+            $account = AccountingAccount::where('division_id', $this->resolveAccDivisionId())->find($accountId);
             if (! $account || ! $account->is_active) {
                 throw new ApiException('RESOURCE_NOT_FOUND', 'Rekening tidak valid atau tidak aktif');
             }
@@ -209,7 +210,7 @@ class AccTransactionService
         $this->assertAccScope($user);
 
         return DB::transaction(function () use ($user, $id, $data) {
-            $tx = AccountingTransaction::lockForUpdate()->find($id);
+            $tx = AccountingTransaction::where('division_id', $this->resolveAccDivisionId())->lockForUpdate()->find($id);
             if (! $tx) {
                 throw new ApiException('RESOURCE_NOT_FOUND', 'Transaksi tidak ditemukan');
             }
@@ -321,7 +322,7 @@ class AccTransactionService
         $this->assertAccScope($user);
 
         return DB::transaction(function () use ($user, $id, $reason) {
-            $tx = AccountingTransaction::lockForUpdate()->find($id);
+            $tx = AccountingTransaction::where('division_id', $this->resolveAccDivisionId())->lockForUpdate()->find($id);
             if (! $tx) {
                 throw new ApiException('RESOURCE_NOT_FOUND', 'Transaksi tidak ditemukan');
             }
@@ -380,6 +381,10 @@ class AccTransactionService
 
             $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
             $path = $file->storeAs('attachments/accounting', $filename, 'local');
+            if (! is_string($path)) {
+                throw new \RuntimeException('Penyimpanan bukti gagal');
+            }
+            MutationFileRollback::register(fn () => Storage::disk('local')->delete($path));
 
             $attachment = AccountingTransactionAttachment::create([
                 'id' => (string) Str::uuid(),
@@ -401,12 +406,12 @@ class AccTransactionService
     {
         $this->assertAccScope($user);
 
-        $period = AccountingPeriod::find($periodId);
+        $period = AccountingPeriod::where('division_id', $this->resolveAccDivisionId())->find($periodId);
         if (! $period) {
             throw new ApiException('RESOURCE_NOT_FOUND', 'Periode tidak ditemukan');
         }
 
-        $activeTx = AccountingTransaction::where('period_id', $periodId)->whereNull('cancelled_at')->get();
+        $activeTx = AccountingTransaction::where('division_id', $this->resolveAccDivisionId())->where('period_id', $periodId)->whereNull('cancelled_at')->get();
 
         $totalDebit = 0;
         $totalCredit = 0;
@@ -496,6 +501,8 @@ class AccTransactionService
             throw new ApiException('FORBIDDEN_CAPABILITY', 'BOD tidak diizinkan mengakses transaksi Accounting');
         }
 
+        app(PolicyService::class)->assertCapability($user, 'view:acc_journal', 'ACC');
+
         if ($divisionCode !== 'ACC') {
             throw new ApiException('SCOPE_VIOLATION', "Akses ditolak untuk divisi Accounting (user {$role}/{$divisionCode})");
         }
@@ -517,7 +524,7 @@ class AccTransactionService
             return 0;
         }
 
-        $query = AccountingTransaction::query()->whereNull('cancelled_at');
+        $query = AccountingTransaction::where('division_id', $this->resolveAccDivisionId())->whereNull('cancelled_at');
 
         if (! empty($params['period_id'])) {
             $query->where('period_id', $params['period_id']);

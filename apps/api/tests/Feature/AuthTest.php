@@ -128,7 +128,7 @@ class AuthTest extends TestCase
                 'newPassword' => 'NewValidPassword123!',
             ]);
         $success->assertStatus(200);
-        $this->assertEquals('Password berhasil direset', $success->json('data.message'));
+        $this->assertEquals('Password berhasil direset; silakan login kembali', $success->json('data.message'));
 
         // Login with new password succeeds
         $loginRes = $this->postJson('/api/v1/auth/login', [

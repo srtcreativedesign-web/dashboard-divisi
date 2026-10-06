@@ -593,7 +593,7 @@ class AccountingMasterDataTest extends TestCase
     public function test_regression_existing_divisions_unaffected(): void
     {
         $divisions = Division::all();
-        $this->assertCount(8, $divisions);
+        $this->assertCount(count(\Database\Seeders\DatabaseSeeder::DIVISIONS), $divisions);
 
         $fin = Division::where('code', 'FIN')->first();
         $this->assertEquals('Finance', $fin->name);

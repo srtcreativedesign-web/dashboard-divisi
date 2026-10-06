@@ -11,7 +11,8 @@ class OrgTest extends TestCase
         // BOD sees 7 active divisions (WRAP, CELL, REFL, MINI, FNB, MC, ACC - without decommissioned FIN)
         $bodRes = $this->authenticated('bod1@dashboard.test')->getJson('/api/v1/org/divisions');
         $bodRes->assertStatus(200);
-        $this->assertCount(7, $bodRes->json('data'));
+        $this->assertCount(8, $bodRes->json('data'));
+        $this->assertContains('PROJECT', array_column($bodRes->json('data'), 'code'));
         $this->assertContains('ACC', collect($bodRes->json('data'))->pluck('code')->all());
         $this->assertNotContains('FIN', collect($bodRes->json('data'))->pluck('code')->all());
 
@@ -55,7 +56,7 @@ class OrgTest extends TestCase
         $bodRes = $this->authenticated('bod1@dashboard.test')->getJson('/api/v1/org/me/context');
         $bodRes->assertStatus(200);
         $this->assertEquals('ALL_7_DIVISI', $bodRes->json('data.scope'));
-        $this->assertCount(7, $bodRes->json('data.divisions'));
+        $this->assertCount(8, $bodRes->json('data.divisions'));
 
         $mgrRes = $this->authenticated('manager.mini@dashboard.test')->getJson('/api/v1/org/me/context');
         $mgrRes->assertStatus(200);

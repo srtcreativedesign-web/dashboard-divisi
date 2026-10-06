@@ -29,13 +29,19 @@ export class ApiException extends Error {
   }
 }
 
+function csrfToken(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const value = document.cookie.split('; ').find(cookie => cookie.startsWith('csrf_token='))?.slice('csrf_token='.length);
+  try { return value ? decodeURIComponent(value) : undefined; } catch { return undefined; }
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<ApiEnvelope<T>> {
   const url = path.startsWith('http') ? path : `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
   const isForm = init.body instanceof FormData;
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const csrf = csrfToken();
   const headers: Record<string, string> = {
     ...(isForm ? {} : { 'Content-Type': 'application/json' }),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(csrf && !['GET', 'HEAD', 'OPTIONS'].includes(init.method ?? 'GET') ? { 'X-CSRF-Token': csrf } : {}),
     ...((init.headers as Record<string, string> | undefined) ?? {}),
   };
   const res = await fetch(url, {
@@ -57,6 +63,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<ApiEnve
     }
     throw new ApiException(res.status, err);
   }
+
+  if (res.status === 204) return { data: undefined as T, meta: { trace_id: traceId } };
 
   // 2xx — ApiEnvelopeMiddleware membungkus jadi {data, meta, links}
   const json = (await res.json()) as ApiEnvelope<T> | T;
@@ -82,8 +90,7 @@ export const api = {
 };
 
 export async function downloadFile(path: string): Promise<Blob> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  const response = await fetch(`${API_BASE}${path}`, { credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  const response = await fetch(`${API_BASE}${path}`, { credentials: 'include', headers: {} });
   if (!response.ok) throw new Error('Bukti transaksi gagal diunduh');
   return response.blob();
 }

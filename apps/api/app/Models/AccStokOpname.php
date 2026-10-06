@@ -15,6 +15,7 @@ class AccStokOpname extends Model
         "barang_datang",
         "pemakaian",
         "stok_akhir",
+        "division_code",
     ];
 
     protected $casts = [

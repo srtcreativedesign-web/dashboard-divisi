@@ -100,7 +100,6 @@ export function JournalFormDrawer({
       is_draft: true,
       version: editingTx?.version,
     });
-    onClose();
   };
 
   return (

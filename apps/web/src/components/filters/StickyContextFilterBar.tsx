@@ -27,8 +27,8 @@ export interface StickyContextFilterBarProps {
 const PERIOD_OPTIONS: Array<{ id: PeriodFilterOption; label: string; shortLabel: string }> = [
   { id: 'today', label: 'Hari Ini', shortLabel: 'Hari Ini' },
   { id: '7d', label: '7 Hari Terakhir', shortLabel: '7 Hari' },
-  { id: 'month', label: 'Bulan Ini (Sep 2026)', shortLabel: 'Bulan Ini' },
-  { id: 'ytd', label: 'Tahun Berjalan (YTD)', shortLabel: 'Q3 YTD' },
+  { id: 'month', label: 'Bulan Ini', shortLabel: 'Bulan Ini' },
+  { id: 'ytd', label: 'Tahun Berjalan (YTD)', shortLabel: 'Tahun Ini' },
 ];
 
 export function StickyContextFilterBar({

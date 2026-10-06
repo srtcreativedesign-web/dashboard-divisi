@@ -1,0 +1,144 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Accounting\OmzetRecord;
+use App\Models\Outlet;
+use App\Models\User;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
+
+class AccountingDepositTest extends TestCase
+{
+    private function payload(): array
+    {
+        $this->authenticated('admin.acc@dashboard.test');
+        $r = $this->postJson('/api/v1/accounting/omzet', ['outlet_id' => Outlet::where('is_active', true)->firstOrFail()->id, 'business_date' => now('Asia/Jakarta')->subDay()->toDateString(), 'shift' => '1', 'outlet_amount' => '1000.50', 'cash_amount' => '500.25', 'qris_amount' => '500.25', 'edc_amount' => '0', 'transfer_amount' => '0', 'other_amount' => '0', 'requires_ap' => false, 'source_reference' => 'OMZ-ANONIM'])->assertCreated()->json('data');
+        $r = $this->postJson('/api/v1/accounting/omzet/'.$r['id'].'/submit', ['version' => $r['version']])->assertOk()->json('data');
+        $this->authenticated('accounting@dashboard.test')->postJson('/api/v1/accounting/omzet/'.$r['id'].'/review', ['version' => $r['version'], 'decision' => 'validate'])->assertOk();
+        $this->authenticated('admin.acc@dashboard.test');
+
+        return ['omzet_id' => $r['id'], 'channel' => 'cash', 'deposit_date' => now('Asia/Jakarta')->toDateString(), 'amount' => '500.25', 'destination' => 'Tujuan anonim', 'source_reference' => 'SETOR-UJI-1', 'evidence_reference' => 'BUKTI-SETOR-1'];
+    }
+
+    private function receipt(int $version, string $amount = '200.10', string $ref = 'BANK-UJI-1'): array
+    {
+        return ['version' => $version, 'amount' => $amount, 'received_date' => now('Asia/Jakarta')->toDateString(), 'evidence_reference' => $ref];
+    }
+
+    public function test_partial_receipts_void_history_and_stale_versions(): void
+    {
+        $d = $this->payload();
+        $id = $this->postJson('/api/v1/accounting/deposits', $d)->assertCreated()->assertJsonPath('data.remaining_amount', '500.25')->json('data.id');
+        $this->authenticated('finance@dashboard.test');
+        $r = $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(1))->assertOk()->assertJsonPath('data.remaining_amount', '300.15')->json('data');
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(1))->assertStatus(409);
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(2, '300.16', 'BANK-UJI-2'))->assertStatus(409);
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(2, '300.15', 'BANK-UJI-2'))->assertOk()->assertJsonPath('data.remaining_amount', '0.00');
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/receipts/'.$r['receipts'][0]['id'].'/void', ['version' => 3, 'reason' => 'Referensi sumber penerimaan keliru'])->assertOk()->assertJsonPath('data.remaining_amount', '200.10')->assertJsonPath('data.events.3.snapshot.received_amount', '300.15');
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(4))->assertStatus(409);
+        $this->authenticated('manager.acc@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$id.'/void', ['version' => 4, 'reason' => 'Catatan setoran akan dibatalkan'])->assertStatus(409);
+        $this->assertDatabaseCount('acc_deposit_events', 4);
+    }
+
+    public function test_allocation_reference_and_source_validation(): void
+    {
+        $d = $this->payload();
+        $d['amount'] = '300.00';
+        $id = $this->postJson('/api/v1/accounting/deposits', $d)->assertCreated()->json('data.id');
+        $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['amount' => '200.26', 'source_reference' => 'SETOR-2']))->assertStatus(409);
+        $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['channel' => 'qris', 'source_reference' => '  setor-uji-1  ']))->assertStatus(409);
+        $this->getJson('/api/v1/accounting/deposits/sources?month='.now('Asia/Jakarta')->format('Y-m'))->assertOk()->assertJsonPath('data.items.0.cash_available', '200.25');
+        foreach ([['amount' => '0'], ['amount' => '1.123'], ['amount' => '1000000000000'], ['amount' => 1], ['deposit_date' => now('Asia/Jakarta')->addDay()->toDateString()], ['deposit_date' => '2020-01-01'], ['evidence_reference' => '']] as $bad) {
+            $this->postJson('/api/v1/accounting/deposits', array_replace($d, $bad))->assertStatus(400);
+        }
+        OmzetRecord::where('id', $d['omzet_id'])->update(['status' => 'draft']);
+        $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['source_reference' => 'SETOR-NEW']))->assertStatus(400);
+        OmzetRecord::where('id', $d['omzet_id'])->update(['status' => 'validated']);
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/void', ['version' => 1, 'reason' => 'Sumber keliru dan perlu dibuat ulang'])->assertOk()->assertJsonPath('data.status', 'voided')->assertJsonPath('data.remaining_amount', '0.00');
+        $this->postJson('/api/v1/accounting/deposits', $d)->assertStatus(409);
+        $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['amount' => '500.25', 'source_reference' => 'SETOR-NEW']))->assertCreated();
+    }
+
+    public function test_read_write_scope_and_separate_actor(): void
+    {
+        $d = $this->payload();
+        $id = $this->postJson('/api/v1/accounting/deposits', $d)->assertCreated()->json('data.id');
+        foreach (['bod1@dashboard.test', 'manager.cell@dashboard.test', 'manager.project@dashboard.test'] as $email) {
+            $this->authenticated($email);
+            $this->getJson('/api/v1/accounting/deposits/'.$id)->assertForbidden()->assertDontSee('Tujuan anonim');
+            $this->postJson('/api/v1/accounting/deposits', $d)->assertForbidden();
+        }
+        foreach (['HEAD_OPS', 'SPV', 'LEADER', 'ADMIN_GUDANG'] as $role) {
+            User::where('email', 'manager.acc@dashboard.test')->update(['role' => $role]);
+            $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/deposits?month=2026-10')->assertForbidden();
+        }
+        $this->authenticated('accounting@dashboard.test')->getJson('/api/v1/accounting/deposits/'.$id)->assertOk();
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/void', ['version' => 1, 'reason' => 'Pembatalan oleh pemeriksa'])->assertForbidden();
+        $this->authenticated('admin.acc@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(1))->assertForbidden();
+        User::where('email', 'admin.acc@dashboard.test')->update(['role' => 'FINANCE']);
+        $this->authenticated('admin.acc@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(1))->assertForbidden();
+    }
+
+    public function test_receipt_reference_date_and_parent_ownership(): void
+    {
+        $d = $this->payload();
+        $d['amount'] = '250';
+        $id = $this->postJson('/api/v1/accounting/deposits', $d)->assertCreated()->json('data.id');
+        $id2 = $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['source_reference' => 'SETOR-2']))->assertCreated()->json('data.id');
+        $this->authenticated('finance@dashboard.test');
+        foreach ([['received_date' => '2020-01-01'], ['received_date' => now('Asia/Jakarta')->addDay()->toDateString()], ['amount' => '0']] as $bad) {
+            $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', array_replace($this->receipt(1), $bad))->assertStatus(400);
+        }
+        $r = $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(1))->assertOk()->json('data.receipts.0.id');
+        $this->postJson('/api/v1/accounting/deposits/'.$id2.'/receive', $this->receipt(1, '1', ' bank-uji-1 '))->assertStatus(409);
+        $this->postJson('/api/v1/accounting/deposits/'.$id2.'/receipts/'.$r.'/void', ['version' => 1, 'reason' => 'Penerimaan pada induk keliru'])->assertNotFound();
+        $this->assertDatabaseCount('acc_deposit_receipts', 1);
+        $this->assertDatabaseCount('acc_deposit_events', 3);
+    }
+
+    public function test_audit_failure_rolls_back_creation_and_receipt(): void
+    {
+        $d = $this->payload();
+        Schema::drop('audit_events');
+        $this->postJson('/api/v1/accounting/deposits', $d)->assertStatus(500);
+        $this->assertDatabaseCount('acc_deposits', 0);
+        $this->assertDatabaseCount('acc_deposit_events', 0);
+    }
+
+    public function test_receipt_audit_failure_rolls_back_version_and_receipt(): void
+    {
+        $d = $this->payload();
+        $id = $this->postJson('/api/v1/accounting/deposits', $d)->assertCreated()->json('data.id');
+        $this->authenticated('finance@dashboard.test');
+        Schema::drop('audit_events');
+        $this->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(1))->assertStatus(500);
+        $this->assertDatabaseCount('acc_deposit_receipts', 0);
+        $this->assertDatabaseCount('acc_deposit_events', 1);
+        $this->assertDatabaseHas('acc_deposits', ['id' => $id, 'version' => 1]);
+    }
+
+    public function test_admin_and_finance_cannot_void_another_creators_records(): void
+    {
+        $d = $this->payload();
+        $id = $this->postJson('/api/v1/accounting/deposits', $d)->assertCreated()->json('data.id');
+        User::where('email', 'accounting@dashboard.test')->update(['role' => 'ADMIN']);
+        $this->authenticated('accounting@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$id.'/void', ['version' => 1, 'reason' => 'Pembatalan bukan oleh pembuat'])->assertForbidden();
+        $r = $this->authenticated('finance@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$id.'/receive', $this->receipt(1))->assertOk()->json('data.receipts.0.id');
+        User::where('email', 'accounting@dashboard.test')->update(['role' => 'FINANCE']);
+        $this->authenticated('accounting@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$id.'/receipts/'.$r.'/void', ['version' => 2, 'reason' => 'Pembatalan bukan oleh penerima'])->assertForbidden();
+        $this->authenticated('manager.acc@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$id.'/receipts/'.$r.'/void', ['version' => 2, 'reason' => 'Manager mengoreksi catatan sumber'])->assertOk()->assertJsonPath('data.received_amount', '0.00');
+    }
+
+    public function test_filters_and_exact_large_amount(): void
+    {
+        $d = $this->payload();
+        OmzetRecord::where('id', $d['omzet_id'])->update(['cash_amount' => '999999999999.99', 'outlet_amount' => '999999999999.99']);
+        $d['amount'] = '999999999999.99';
+        $this->postJson('/api/v1/accounting/deposits', $d)->assertCreated()->assertJsonPath('data.amount', '999999999999.99');
+        foreach (['month=2026-13', 'month=2026-10&page=0'] as $query) {
+            $this->getJson('/api/v1/accounting/deposits?'.$query)->assertStatus(400);
+            $this->getJson('/api/v1/accounting/deposits/sources?'.$query)->assertStatus(400);
+        }
+    }
+}

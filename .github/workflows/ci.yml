@@ -45,6 +45,12 @@ jobs:
       - name: Lint (eslint)
         run: npm run lint
 
+      - name: Test guard konfigurasi database
+        run: npm run db:test
+
+      - name: Test guard pemeliharaan scanner
+        run: npm run scan:test
+
       - name: Typecheck
         run: npm run typecheck
 

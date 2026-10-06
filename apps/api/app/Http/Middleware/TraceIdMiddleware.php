@@ -13,7 +13,9 @@ class TraceIdMiddleware
 
     public function handle(Request $request, Closure $next): Response
     {
-        $traceId = $request->header(self::TRACE_ID_HEADER) ?: (string) Str::uuid();
+        $incoming = $request->header(self::TRACE_ID_HEADER);
+        $traceId = is_string($incoming) && preg_match('/^[a-zA-Z0-9_-]{1,100}$/D', $incoming)
+            ? $incoming : (string) Str::uuid();
         $request->attributes->set('trace_id', $traceId);
 
         $response = $next($request);

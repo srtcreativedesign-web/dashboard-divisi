@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Services\Sobat\Contracts\SobatClientInterface;
-use App\Services\SobatHrClientService;
+use App\Contracts\MalwareScanner;
+use App\Services\ClamavScanner;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -17,10 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(
-            SobatClientInterface::class,
-            SobatHrClientService::class,
-        );
+        $this->app->bind(MalwareScanner::class, ClamavScanner::class);
     }
 
     /**
@@ -37,10 +34,10 @@ class AppServiceProvider extends ServiceProvider
             ->by(($request->attributes->get('user')['sub'] ?? '').'|'.$request->ip()));
 
         $migrationsPath = database_path('migrations');
-        $directories = glob($migrationsPath . '/*' , GLOB_ONLYDIR);
+        $directories = glob($migrationsPath.'/*', GLOB_ONLYDIR);
         foreach ($directories ?: [] as $path) {
             $this->loadMigrationsFrom($path);
-            $subDirectories = glob($path . '/*' , GLOB_ONLYDIR);
+            $subDirectories = glob($path.'/*', GLOB_ONLYDIR);
             foreach ($subDirectories ?: [] as $subPath) {
                 $this->loadMigrationsFrom($subPath);
             }

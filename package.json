@@ -14,7 +14,16 @@
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "db:backup": "node scripts/database/erp-db-backup.mjs backup",
+    "db:restore-check": "node scripts/database/erp-db-backup.mjs restore-check",
+    "db:verify": "node scripts/database/erp-db-verify.mjs",
+    "db:migrate": "node scripts/database/erp-db-migrate.mjs",
+    "db:roles": "node scripts/database/erp-db-roles.mjs",
+    "db:test": "node --test scripts/database/erp-db-common.test.mjs",
+    "scan:test": "node --test scripts/security/erp-upload-ops.test.mjs",
+    "scan:maintain": "node scripts/security/erp-upload-ops.mjs maintain",
+    "scan:status": "node scripts/security/erp-upload-ops.mjs status"
   },
   "devDependencies": {
     "eslint": "^9.18.0",
