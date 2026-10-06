@@ -36,4 +36,9 @@ class ProjectMilestone extends Model
     {
         return $this->hasMany(ProjectProgressPhoto::class, 'milestone_id');
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(ProjectInvoice::class, 'project_milestone_id');
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccAdminController;
 use App\Http\Controllers\Api\V1\AccountingCashflowController;
 use App\Http\Controllers\Api\V1\AccountingController;
 use App\Http\Controllers\Api\V1\AccountingImportController;
@@ -14,16 +15,17 @@ use App\Http\Controllers\Api\V1\BudgetingController;
 use App\Http\Controllers\Api\V1\DivisionConfigController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectDocumentController;
+use App\Http\Controllers\Api\V1\ProjectExpenseController;
+use App\Http\Controllers\Api\V1\ProjectInvoiceController;
+use App\Http\Controllers\Api\V1\ProjectPhotoController;
+use App\Http\Controllers\Api\V1\ProjectRabController;
+use App\Http\Controllers\Api\V1\ProjectVendorController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\RevenueController;
 use App\Http\Controllers\Api\V1\SobatHrController;
 use App\Http\Controllers\Api\V1\TargetController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\ProjectVendorController;
-use App\Http\Controllers\Api\V1\ProjectRabController;
-use App\Http\Controllers\Api\V1\ProjectDocumentController;
-use App\Http\Controllers\Api\V1\ProjectPhotoController;
-use App\Http\Controllers\Api\V1\AccAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -239,9 +241,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix('projects')->middleware(['scope', 'capability:view:projects'])->group(function () {
             Route::get('/', [ProjectController::class, 'index']);
             Route::get('/{id}', [ProjectController::class, 'show']);
+            Route::get('/{id}/financial-summary', [ProjectController::class, 'financialSummary']);
             Route::get('/{id}/documents', [ProjectDocumentController::class, 'index']);
             Route::get('/{id}/photos', [ProjectPhotoController::class, 'index']);
-            
+            Route::get('/{id}/rab', [ProjectRabController::class, 'index']);
+            Route::get('/{id}/expenses', [ProjectExpenseController::class, 'index']);
+            Route::get('/{id}/invoices', [ProjectInvoiceController::class, 'index']);
+
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectController::class, 'store']);
                 Route::put('/{id}', [ProjectController::class, 'update']);
@@ -249,8 +255,20 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{id}/milestones', [ProjectController::class, 'storeMilestone']);
                 Route::put('/{id}/milestones/{milestoneId}', [ProjectController::class, 'updateMilestone']);
                 Route::delete('/{id}/milestones/{milestoneId}', [ProjectController::class, 'destroyMilestone']);
+
                 Route::post('/{id}/rab', [ProjectRabController::class, 'store']);
-                
+                Route::put('/{id}/rab/{rabId}', [ProjectRabController::class, 'update']);
+                Route::delete('/{id}/rab/{rabId}', [ProjectRabController::class, 'destroy']);
+
+                Route::post('/{id}/expenses', [ProjectExpenseController::class, 'store']);
+                Route::put('/{id}/expenses/{expenseId}', [ProjectExpenseController::class, 'update']);
+                Route::delete('/{id}/expenses/{expenseId}', [ProjectExpenseController::class, 'destroy']);
+
+                Route::post('/{id}/invoices', [ProjectInvoiceController::class, 'store']);
+                Route::put('/{id}/invoices/{invoiceId}', [ProjectInvoiceController::class, 'update']);
+                Route::patch('/{id}/invoices/{invoiceId}/pay', [ProjectInvoiceController::class, 'markPaid']);
+                Route::delete('/{id}/invoices/{invoiceId}', [ProjectInvoiceController::class, 'destroy']);
+
                 Route::post('/{id}/documents', [ProjectDocumentController::class, 'store']);
                 Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
 
@@ -262,7 +280,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('vendors')->middleware(['scope', 'capability:view:projects'])->group(function () {
             Route::get('/', [ProjectVendorController::class, 'index']);
             Route::get('/{id}', [ProjectVendorController::class, 'show']);
-            
+
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectVendorController::class, 'store']);
                 Route::put('/{id}', [ProjectVendorController::class, 'update']);

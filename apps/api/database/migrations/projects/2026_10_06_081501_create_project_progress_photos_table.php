@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('project_progress_photos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
-            $table->foreignId('milestone_id')->nullable()->constrained('project_milestones')->nullOnDelete();
-            $table->enum('stage', ['before', 'in_progress', 'after'])->default('before');
-            $table->string('area_name')->nullable();
-            $table->string('caption')->nullable();
-            $table->string('photo_path');
-            $table->date('taken_at')->nullable();
-            $table->foreignId('uploaded_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('project_progress_photos')) {
+            Schema::create('project_progress_photos', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
+                $table->foreignId('milestone_id')->nullable()->constrained('project_milestones')->nullOnDelete();
+                $table->enum('stage', ['before', 'in_progress', 'after'])->default('before');
+                $table->string('area_name')->nullable();
+                $table->string('caption')->nullable();
+                $table->string('photo_path');
+                $table->date('taken_at')->nullable();
+                $table->foreignId('uploaded_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

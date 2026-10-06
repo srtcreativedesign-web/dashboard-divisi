@@ -38,6 +38,45 @@ export interface ProjectMilestone {
   completion_date?: string;
   notes?: string;
   photos?: ProjectProgressPhoto[];
+  invoices?: ProjectInvoice[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectExpense {
+  id: number;
+  project_id: number;
+  project_rab_id?: number | null;
+  project_vendor_id?: number | null;
+  item_name: string;
+  category: string;
+  amount: number;
+  expense_date: string;
+  receipt_path?: string | null;
+  notes?: string | null;
+  created_by?: string | null;
+  rab?: ProjectRab;
+  vendor?: ProjectVendor;
+  creator?: { id: string; name: string };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectInvoice {
+  id: number;
+  project_id: number;
+  project_milestone_id?: number | null;
+  invoice_number: string;
+  term_name: string;
+  amount: number;
+  status: 'draft' | 'invoiced' | 'paid' | 'overdue' | 'cancelled';
+  due_date?: string | null;
+  paid_date?: string | null;
+  payment_reference?: string | null;
+  notes?: string | null;
+  created_by?: string | null;
+  milestone?: ProjectMilestone;
+  creator?: { id: string; name: string };
   created_at: string;
   updated_at: string;
 }
@@ -51,8 +90,43 @@ export interface ProjectRab {
   unit?: string;
   unit_price: number;
   total_price: number;
+  expenses_sum_amount?: number;
+  expenses?: ProjectExpense[];
   created_at: string;
   updated_at: string;
+}
+
+export interface FinancialCategoryBreakdown {
+  category: string;
+  budget: number;
+  actual: number;
+  variance: number;
+  absorption_percentage: number;
+  is_over_budget: boolean;
+}
+
+export interface OverBudgetItem {
+  id: number;
+  item_name: string;
+  category: string;
+  budget: number;
+  actual: number;
+  overrun: number;
+}
+
+export interface FinancialSummary {
+  contract_value: number;
+  total_rab_budget: number;
+  total_actual_expense: number;
+  budget_variance: number;
+  budget_absorption_percentage: number;
+  realized_gross_profit: number;
+  realized_margin_percentage: number;
+  invoiced_amount: number;
+  paid_amount: number;
+  outstanding_receivable: number;
+  category_breakdown: FinancialCategoryBreakdown[];
+  over_budget_items: OverBudgetItem[];
 }
 
 export interface ProjectDocument {
@@ -82,6 +156,8 @@ export interface Project {
   updated_at: string;
   milestones?: ProjectMilestone[];
   rabs?: ProjectRab[];
+  expenses?: ProjectExpense[];
+  invoices?: ProjectInvoice[];
   documents?: ProjectDocument[];
   vendors?: ProjectVendor[];
   photos?: ProjectProgressPhoto[];

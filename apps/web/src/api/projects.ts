@@ -1,4 +1,4 @@
-import { Project, PaginatedResponse, ProjectVendor } from '../types/project';
+import { Project, PaginatedResponse, ProjectVendor, ProjectRab, ProjectExpense, ProjectInvoice, FinancialSummary } from '../types/project';
 import { api } from './client';
 
 export const projectApi = {
@@ -22,6 +22,11 @@ export const projectApi = {
     return response.data;
   },
 
+  getFinancialSummary: async (projectId: number) => {
+    const response = await api.get<FinancialSummary>(`/projects/${projectId}/financial-summary`);
+    return response.data;
+  },
+
   togglePayment: async (projectId: number, milestoneId: number, paymentStatus: boolean) => {
     const response = await api.patch<any>(`/projects/${projectId}/payment-toggle`, {
       milestone_id: milestoneId,
@@ -30,11 +35,75 @@ export const projectApi = {
     return response.data;
   },
 
-  addRab: async (projectId: number, data: any) => {
-    const response = await api.post<any>(`/projects/${projectId}/rab`, data);
+  // RAB Endpoints
+  getRab: async (projectId: number) => {
+    const response = await api.get<ProjectRab[]>(`/projects/${projectId}/rab`);
     return response.data;
   },
 
+  addRab: async (projectId: number, data: Partial<ProjectRab>) => {
+    const response = await api.post<ProjectRab>(`/projects/${projectId}/rab`, data);
+    return response.data;
+  },
+
+  updateRab: async (projectId: number, rabId: number, data: Partial<ProjectRab>) => {
+    const response = await api.put<ProjectRab>(`/projects/${projectId}/rab/${rabId}`, data);
+    return response.data;
+  },
+
+  deleteRab: async (projectId: number, rabId: number) => {
+    const response = await api.delete<{ message: string }>(`/projects/${projectId}/rab/${rabId}`);
+    return response.data;
+  },
+
+  // Expenses Endpoints
+  getExpenses: async (projectId: number, params?: { category?: string; project_rab_id?: number; search?: string }) => {
+    const response = await api.get<ProjectExpense[]>(`/projects/${projectId}/expenses`, params as Record<string, any>);
+    return response.data;
+  },
+
+  addExpense: async (projectId: number, form: FormData) => {
+    const response = await api.upload<ProjectExpense>(`/projects/${projectId}/expenses`, form);
+    return response.data;
+  },
+
+  updateExpense: async (projectId: number, expenseId: number, form: FormData) => {
+    const response = await api.upload<ProjectExpense>(`/projects/${projectId}/expenses/${expenseId}`, form);
+    return response.data;
+  },
+
+  deleteExpense: async (projectId: number, expenseId: number) => {
+    const response = await api.delete<{ message: string }>(`/projects/${projectId}/expenses/${expenseId}`);
+    return response.data;
+  },
+
+  // Invoices (Termin) Endpoints
+  getInvoices: async (projectId: number, params?: { status?: string }) => {
+    const response = await api.get<ProjectInvoice[]>(`/projects/${projectId}/invoices`, params as Record<string, string | undefined>);
+    return response.data;
+  },
+
+  addInvoice: async (projectId: number, data: Partial<ProjectInvoice>) => {
+    const response = await api.post<ProjectInvoice>(`/projects/${projectId}/invoices`, data);
+    return response.data;
+  },
+
+  updateInvoice: async (projectId: number, invoiceId: number, data: Partial<ProjectInvoice>) => {
+    const response = await api.put<ProjectInvoice>(`/projects/${projectId}/invoices/${invoiceId}`, data);
+    return response.data;
+  },
+
+  markInvoicePaid: async (projectId: number, invoiceId: number, data: { paid_date?: string; payment_reference?: string; notes?: string }) => {
+    const response = await api.patch<ProjectInvoice>(`/projects/${projectId}/invoices/${invoiceId}/pay`, data);
+    return response.data;
+  },
+
+  deleteInvoice: async (projectId: number, invoiceId: number) => {
+    const response = await api.delete<{ message: string }>(`/projects/${projectId}/invoices/${invoiceId}`);
+    return response.data;
+  },
+
+  // Documents
   uploadDocument: async (projectId: number, form: FormData) => {
     const response = await api.upload<any>(`/projects/${projectId}/documents`, form);
     return response.data;
@@ -45,6 +114,7 @@ export const projectApi = {
     return response.data;
   },
 
+  // Milestones
   addMilestone: async (projectId: number, data: any) => {
     const response = await api.post<any>(`/projects/${projectId}/milestones`, data);
     return response.data;
@@ -60,6 +130,7 @@ export const projectApi = {
     return response.data;
   },
 
+  // Photos
   getPhotos: async (projectId: number, params?: { stage?: string; area_name?: string }) => {
     const response = await api.get<any[]>(`/projects/${projectId}/photos`, params as Record<string, string | undefined>);
     return response.data;
@@ -82,4 +153,3 @@ export const vendorApi = {
     return response.data;
   }
 };
-

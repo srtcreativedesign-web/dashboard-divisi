@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectMilestone;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
@@ -19,7 +18,7 @@ class ProjectController extends Controller
         }
 
         if ($request->has('search')) {
-            $query->where('name', 'ilike', '%' . $request->search . '%');
+            $query->where('name', 'ilike', '%'.$request->search.'%');
         }
 
         $projects = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 15));
@@ -31,11 +30,16 @@ class ProjectController extends Controller
     {
         $project = Project::with([
             'milestones.photos',
-            'rabs',
+            'milestones.invoices',
+            'rabs.expenses',
             'documents.uploader',
             'photos.uploader',
-            'photos.milestone'
+            'photos.milestone',
+            'expenses.vendor',
+            'expenses.rab',
+            'invoices.milestone',
         ])->findOrFail($id);
+
         return response()->json($project);
     }
 
@@ -64,7 +68,7 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
 
         $validated = $request->validate([
-            'project_code' => 'nullable|string|max:50|unique:projects,project_code,' . $project->id,
+            'project_code' => 'nullable|string|max:50|unique:projects,project_code,'.$project->id,
             'name' => 'string|max:255',
             'client_name' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
@@ -84,7 +88,7 @@ class ProjectController extends Controller
     {
         $request->validate([
             'milestone_id' => 'required|exists:project_milestones,id',
-            'payment_status' => 'required|boolean'
+            'payment_status' => 'required|boolean',
         ]);
 
         $milestone = ProjectMilestone::where('project_id', $id)->findOrFail($request->milestone_id);
@@ -97,7 +101,7 @@ class ProjectController extends Controller
     public function storeMilestone(Request $request, $id)
     {
         $project = Project::findOrFail($id);
-        
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'weight_percentage' => 'required|numeric|min:0|max:100',
@@ -148,5 +152,75 @@ class ProjectController extends Controller
         $milestone->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function financialSummary($id)
+    {
+        $project = Project::with(['rabs.expenses', 'expenses', 'invoices'])->findOrFail($id);
+
+        $contractValue = (float) $project->contract_value;
+        $totalRabBudget = (float) $project->rabs->sum('total_price');
+        $totalActualExpense = (float) $project->expenses->sum('amount');
+        $budgetVariance = $totalRabBudget - $totalActualExpense;
+        $budgetAbsorptionPct = $totalRabBudget > 0 ? round(($totalActualExpense / $totalRabBudget) * 100, 2) : 0;
+
+        $realizedGrossProfit = $contractValue - $totalActualExpense;
+        $realizedMarginPct = $contractValue > 0 ? round(($realizedGrossProfit / $contractValue) * 100, 2) : 0;
+
+        $invoicedAmount = (float) $project->invoices->whereIn('status', ['invoiced', 'paid', 'overdue'])->sum('amount');
+        $paidAmount = (float) $project->invoices->where('status', 'paid')->sum('amount');
+        $outstandingReceivable = max(0, $invoicedAmount - $paidAmount);
+
+        // Kategori RAB vs Aktual
+        $categoryBreakdown = [];
+        $rabByCategory = $project->rabs->groupBy('category');
+        $expensesByCategory = $project->expenses->groupBy('category');
+
+        $allCategories = $rabByCategory->keys()->merge($expensesByCategory->keys())->unique();
+
+        foreach ($allCategories as $cat) {
+            $budget = (float) ($rabByCategory->get($cat)?->sum('total_price') ?? 0);
+            $actual = (float) ($expensesByCategory->get($cat)?->sum('amount') ?? 0);
+            $categoryBreakdown[] = [
+                'category' => $cat,
+                'budget' => $budget,
+                'actual' => $actual,
+                'variance' => $budget - $actual,
+                'absorption_percentage' => $budget > 0 ? round(($actual / $budget) * 100, 2) : 0,
+                'is_over_budget' => $actual > $budget,
+            ];
+        }
+
+        // Over-budget RAB items
+        $overBudgetItems = [];
+        foreach ($project->rabs as $rab) {
+            $actualItem = (float) $rab->expenses->sum('amount');
+            $budgetItem = (float) $rab->total_price;
+            if ($actualItem > $budgetItem) {
+                $overBudgetItems[] = [
+                    'id' => $rab->id,
+                    'item_name' => $rab->item_name,
+                    'category' => $rab->category,
+                    'budget' => $budgetItem,
+                    'actual' => $actualItem,
+                    'overrun' => $actualItem - $budgetItem,
+                ];
+            }
+        }
+
+        return response()->json([
+            'contract_value' => $contractValue,
+            'total_rab_budget' => $totalRabBudget,
+            'total_actual_expense' => $totalActualExpense,
+            'budget_variance' => $budgetVariance,
+            'budget_absorption_percentage' => $budgetAbsorptionPct,
+            'realized_gross_profit' => $realizedGrossProfit,
+            'realized_margin_percentage' => $realizedMarginPct,
+            'invoiced_amount' => $invoicedAmount,
+            'paid_amount' => $paidAmount,
+            'outstanding_receivable' => $outstandingReceivable,
+            'category_breakdown' => $categoryBreakdown,
+            'over_budget_items' => $overBudgetItems,
+        ]);
     }
 }

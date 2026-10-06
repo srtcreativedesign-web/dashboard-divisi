@@ -6,6 +6,7 @@ import { Project, ProjectMilestone } from '../../types/project';
 import { LoadingState, EmptyState } from '../../components/states';
 import { BeforeAfterGallery } from '../../components/projects/BeforeAfterGallery';
 import { MilestoneUpdateModal } from '../../components/projects/MilestoneUpdateModal';
+import { ProjectCostControl } from '../../components/projects/ProjectCostControl';
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -15,11 +16,6 @@ export default function ProjectDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   
-  // RAB State
-  const [showRabModal, setShowRabModal] = useState(false);
-  const [rabForm, setRabForm] = useState({ item_name: '', category: 'Material', volume: 1, unit: 'ls', unit_price: 0 });
-  const [submittingRab, setSubmittingRab] = useState(false);
-
   // Document State
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -45,22 +41,6 @@ export default function ProjectDetailPage() {
       setError(err.message || 'Gagal memuat detail proyek');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleAddRab = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    try {
-      setSubmittingRab(true);
-      await projectApi.addRab(Number(id), rabForm);
-      await fetchProject();
-      setShowRabModal(false);
-      setRabForm({ item_name: '', category: 'Material', volume: 1, unit: 'ls', unit_price: 0 });
-    } catch (err) {
-      alert('Gagal menambah RAB');
-    } finally {
-      setSubmittingRab(false);
     }
   };
 
@@ -135,8 +115,7 @@ export default function ProjectDetailPage() {
   const tabs = [
     { id: 'overview', label: 'Overview & Milestone', icon: CheckSquare },
     { id: 'visuals', label: 'Foto Before - After', icon: Camera },
-    { id: 'payment', label: 'Pembayaran & Termin', icon: CreditCard },
-    { id: 'rab', label: 'RAB & Anggaran', icon: Calculator },
+    { id: 'finance', label: 'Kontrol Biaya & Termin', icon: Calculator },
     { id: 'timeplan', label: 'Time Plan', icon: Calendar },
     { id: 'docs', label: 'Dokumentasi', icon: FileText },
   ];
@@ -297,88 +276,8 @@ export default function ProjectDetailPage() {
           <BeforeAfterGallery projectId={project.id} milestones={project.milestones} />
         )}
 
-        {activeTab === 'payment' && (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Status Pembayaran Termin</h3>
-            <div className="space-y-6">
-              {project.milestones && project.milestones.length > 0 ? (
-                project.milestones.map((ms) => (
-                  <div key={ms.id} className="flex items-center justify-between p-4 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                    <div>
-                      <div className="font-semibold text-slate-900 dark:text-white">{ms.title}</div>
-                      <div className="text-sm text-slate-500">
-                        Bobot Tagihan: <span className="font-medium text-slate-700 dark:text-slate-300">{ms.weight_percentage}%</span> dari kontrak
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${ms.payment_status ? 'bg-green-100 text-green-800' : 'bg-slate-200 text-slate-600'}`}>
-                        {ms.payment_status ? 'LUNAS' : 'BELUM LUNAS'}
-                      </span>
-                      <button
-                        onClick={async () => {
-                          try {
-                            await projectApi.togglePayment(project.id, ms.id, !ms.payment_status);
-                            fetchProject();
-                          } catch (e) {
-                            alert('Gagal update status pembayaran');
-                          }
-                        }}
-                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2 ${ms.payment_status ? 'bg-green-500' : 'bg-slate-200'}`}
-                      >
-                        <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${ms.payment_status ? 'translate-x-5' : 'translate-x-0'}`} />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-sm text-slate-500 italic">Belum ada termin tagihan / milestone.</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'rab' && (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Rencana Anggaran Biaya (RAB)</h3>
-              <button 
-                onClick={() => setShowRabModal(true)}
-                className="text-sm font-semibold text-primary-600 hover:text-primary-500"
-              >
-                + Tambah Item RAB
-              </button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-                <thead className="bg-slate-50 dark:bg-slate-800/50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Item</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Kategori</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Vol</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Harga Satuan</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                  {project.rabs && project.rabs.length > 0 ? (
-                    project.rabs.map((rab) => (
-                      <tr key={rab.id}>
-                        <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{rab.item_name}</td>
-                        <td className="px-4 py-3 text-sm text-slate-500">{rab.category}</td>
-                        <td className="px-4 py-3 text-sm text-right text-slate-900 dark:text-white">{rab.volume} {rab.unit}</td>
-                        <td className="px-4 py-3 text-sm text-right text-slate-900 dark:text-white">Rp {parseFloat(rab.unit_price.toString()).toLocaleString('id-ID')}</td>
-                        <td className="px-4 py-3 text-sm text-right font-semibold text-slate-900 dark:text-white">Rp {parseFloat(rab.total_price.toString()).toLocaleString('id-ID')}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-4 text-center text-sm text-slate-500">RAB kosong.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        {activeTab === 'finance' && (
+          <ProjectCostControl project={project} onRefresh={fetchProject} />
         )}
 
         {activeTab === 'timeplan' && (
@@ -476,50 +375,6 @@ export default function ProjectDetailPage() {
           </div>
         )}
       </div>
-
-      {/* RAB Modal */}
-      {showRabModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Tambah Item RAB</h3>
-              <button onClick={() => setShowRabModal(false)} className="text-slate-400 hover:text-slate-500">&times;</button>
-            </div>
-            <form onSubmit={handleAddRab} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Item</label>
-                <input required type="text" value={rabForm.item_name} onChange={(e) => setRabForm({ ...rabForm, item_name: e.target.value })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kategori</label>
-                <input required type="text" value={rabForm.category} onChange={(e) => setRabForm({ ...rabForm, category: e.target.value })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Volume</label>
-                  <input required type="number" min="0.01" step="0.01" value={rabForm.volume} onChange={(e) => setRabForm({ ...rabForm, volume: parseFloat(e.target.value) })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Satuan</label>
-                  <input required type="text" value={rabForm.unit} onChange={(e) => setRabForm({ ...rabForm, unit: e.target.value })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Harga Satuan (Rp)</label>
-                <input required type="number" min="0" value={rabForm.unit_price} onChange={(e) => setRabForm({ ...rabForm, unit_price: parseInt(e.target.value) })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" />
-              </div>
-              <div className="pt-4 flex justify-end gap-3">
-                <button type="button" onClick={() => setShowRabModal(false)} className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">
-                  Batal
-                </button>
-                <button type="submit" disabled={submittingRab} className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50">
-                  {submittingRab ? 'Menyimpan...' : 'Simpan'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Milestone Modal */}
       {showMilestoneModal && (
