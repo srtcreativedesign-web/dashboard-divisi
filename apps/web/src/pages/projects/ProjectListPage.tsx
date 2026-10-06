@@ -20,16 +20,22 @@ import {
 import { LoadingState, EmptyState } from '../../components/states';
 import { CreateProjectModal } from '../../components/projects/CreateProjectModal';
 import { Button } from '../../components/ui/Button';
+import { BarChart } from '../../components/charts';
 
 export default function ProjectListPage() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    projectApi.getProjects({ per_page: 100 }).then(res => setAllProjects(res.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetchProjects();
@@ -44,6 +50,9 @@ export default function ProjectListPage() {
         per_page: 50,
       });
       setProjects(data.data);
+      if (!search && !statusFilter) {
+        setAllProjects(data.data);
+      }
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Gagal memuat data proyek');
@@ -52,18 +61,52 @@ export default function ProjectListPage() {
     }
   };
 
-  const activeProjectsCount = projects.filter(p => p.status === 'in_progress').length;
-  const completedProjectsCount = projects.filter(p => p.status === 'completed').length;
-  const totalValue = projects.reduce((acc, curr) => acc + parseFloat(curr.contract_value.toString()), 0);
+  const portfolioSource = allProjects.length > 0 ? allProjects : projects;
+  const activeProjectsCount = portfolioSource.filter(p => p.status === 'in_progress').length;
+  const completedProjectsCount = portfolioSource.filter(p => p.status === 'completed').length;
+  const totalValue = portfolioSource.reduce((acc, curr) => acc + parseFloat(curr.contract_value.toString()), 0);
 
-  const formatCurrency = (val: number | undefined | null) => {
+  const statusConfig = [
+    { key: 'planning', label: 'Planning', idLabel: 'Perencanaan', color: '#94a3b8' },
+    { key: 'in_progress', label: 'In Progress', idLabel: 'Sedang Berjalan', color: '#0284c7' },
+    { key: 'on_hold', label: 'On Hold', idLabel: 'Ditunda', color: '#f59e0b' },
+    { key: 'completed', label: 'Completed', idLabel: 'Selesai', color: '#16a34a' },
+  ];
+
+  const totalCount = portfolioSource.length;
+
+  const statusBreakdown = statusConfig.map(cfg => {
+    const matched = portfolioSource.filter(p => p.status === cfg.key);
+    const count = matched.length;
+    const value = matched.reduce((sum, p) => sum + parseFloat(p.contract_value?.toString() || '0'), 0);
+    const percentage = totalCount > 0 ? Math.round((count / totalCount) * 100) : 0;
+    return {
+      ...cfg,
+      count,
+      value,
+      percentage,
+      formattedValue: formatCurrency(value),
+    };
+  });
+
+  const statusChart = statusBreakdown.map(s => ({
+    label: s.label,
+    value: s.count,
+    color: s.color,
+    subLabel: `${s.percentage}%`,
+  }));
+
+  const activeStatusConfig = statusConfig.find(s => s.key === statusFilter);
+  const activeStatusLabel = activeStatusConfig ? activeStatusConfig.label : undefined;
+
+  function formatCurrency(val: number | undefined | null) {
     if (val === undefined || val === null) return 'Rp 0';
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       maximumFractionDigits: 0,
     }).format(val);
-  };
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -133,7 +176,7 @@ export default function ProjectListPage() {
         <div className="rounded-card border border-line bg-white p-5 shadow-card flex items-center justify-between">
           <div>
             <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Portofolio</p>
-            <h3 className="mt-1 text-2xl font-bold text-navy">{projects.length}</h3>
+            <h3 className="mt-1 text-2xl font-bold text-navy">{totalCount}</h3>
             <p className="text-[11px] text-slate-400 mt-0.5">Semua proyek terdaftar</p>
           </div>
           <div className="h-10 w-10 rounded-input bg-surface flex items-center justify-center text-slate-600 border border-line">
@@ -173,6 +216,109 @@ export default function ProjectListPage() {
           </div>
           <div className="h-10 w-10 rounded-input bg-warning-light flex items-center justify-center text-warning border border-warning/30">
             <DollarSign className="h-5 w-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* Chart Overview & Portfolio Distribution */}
+      <div className="rounded-card border border-line bg-white p-5 shadow-card space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-bold text-navy">Distribusi Status Proyek</h2>
+              <span className="text-[11px] font-semibold text-slate-500 bg-surface px-2 py-0.5 rounded-pill border border-line">
+                {totalCount} Total Proyek
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">Ringkasan proporsi portofolio berdasarkan fase pelaksanaan</p>
+          </div>
+          {statusFilter && (
+            <button
+              type="button"
+              onClick={() => setStatusFilter('')}
+              className="inline-flex items-center gap-1.5 text-xs text-primary-600 hover:text-primary-700 font-semibold bg-primary-50 px-2.5 py-1 rounded-input border border-primary-200 transition-colors self-start sm:self-auto"
+            >
+              Tampilkan Semua ({totalCount})
+            </button>
+          )}
+        </div>
+
+        {/* 2-Column Responsive Layout: Visual Bar Chart (Left) + Interactive Distribution Breakdown (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          {/* Left Column: Responsive Bar Chart */}
+          <div className="lg:col-span-7 bg-surface/50 rounded-card p-4 border border-line/60">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Grafik Jumlah Proyek</span>
+              <span className="text-[11px] text-slate-400">Klik batang untuk memfilter</span>
+            </div>
+            <BarChart
+              data={statusChart}
+              height={140}
+              showValues={true}
+              activeLabel={activeStatusLabel}
+              onBarClick={(item) => {
+                const matched = statusConfig.find(s => s.label.toLowerCase() === item.label.toLowerCase());
+                if (matched) {
+                  setStatusFilter(statusFilter === matched.key ? '' : matched.key);
+                }
+              }}
+            />
+          </div>
+
+          {/* Right Column: Macro Progress Bar + Status Cards */}
+          <div className="lg:col-span-5 space-y-3">
+            {/* Horizontal Macro Distribution Bar */}
+            <div>
+              <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium mb-1.5">
+                <span>Proporsi Portofolio</span>
+                <span className="font-mono text-navy font-bold">100%</span>
+              </div>
+              <div className="h-2.5 w-full bg-slate-100 rounded-pill overflow-hidden flex gap-0.5 p-0.5 border border-line/60">
+                {statusBreakdown.map((s) => (
+                  s.percentage > 0 && (
+                    <div
+                      key={s.key}
+                      className="h-full rounded-pill transition-all duration-500"
+                      style={{ width: `${s.percentage}%`, backgroundColor: s.color }}
+                      title={`${s.label}: ${s.count} proyek (${s.percentage}%)`}
+                    />
+                  )
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Status Chips / Filter Badges */}
+            <div className="grid grid-cols-2 gap-2">
+              {statusBreakdown.map((s) => {
+                const isActive = statusFilter === s.key;
+                return (
+                  <button
+                    key={s.key}
+                    type="button"
+                    onClick={() => setStatusFilter(isActive ? '' : s.key)}
+                    className={`flex flex-col text-left p-2.5 rounded-card border transition-all ${
+                      isActive
+                        ? 'border-primary-500 bg-primary-50/70 shadow-xs ring-1 ring-primary-500'
+                        : 'border-line bg-white hover:bg-surface hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                        <span className="text-xs font-semibold text-navy truncate">{s.label}</span>
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-700 tabular-nums">
+                        {s.count}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-[10px] text-slate-400">
+                      <span>{s.percentage}%</span>
+                      <span className="font-medium text-slate-500 truncate ml-1">{s.formattedValue}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -382,7 +528,10 @@ export default function ProjectListPage() {
       <CreateProjectModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onSuccess={() => fetchProjects()}
+        onSuccess={() => {
+          fetchProjects();
+          projectApi.getProjects({ per_page: 100 }).then(res => setAllProjects(res.data)).catch(() => {});
+        }}
       />
     </div>
   );

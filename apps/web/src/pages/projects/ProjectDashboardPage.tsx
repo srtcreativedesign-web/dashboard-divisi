@@ -13,7 +13,36 @@ import {
   Wallet 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { Button } from '../../components/ui/Button';
+
+const axisTick = { fontSize: 11, fill: '#64748b' };
+
+function buildMonthlyTrend(projects: Project[], months = 6) {
+  const now = new Date();
+  const created = projects.map(p => new Date(p.created_at));
+  return Array.from({ length: months }, (_, i) => {
+    const start = new Date(now.getFullYear(), now.getMonth() - (months - 1 - i), 1);
+    const end = new Date(start.getFullYear(), start.getMonth() + 1, 1);
+    return {
+      label: start.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }),
+      baru: created.filter(d => d >= start && d < end).length,
+      total: created.filter(d => d < end).length,
+    };
+  });
+}
 
 export default function ProjectDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -37,18 +66,47 @@ export default function ProjectDashboardPage() {
 
   const activeProjects = projects.filter(p => p.status === 'in_progress');
   const delayedProjects = projects.filter(p => p.status === 'on_hold' || (p.status === 'in_progress' && Math.random() > 0.7)); // Simulated risk
+
   const totalValue = activeProjects.reduce((acc, curr) => acc + parseFloat(curr.contract_value.toString()), 0);
 
+  // Chart data
+  const statusDistribution = [
+    { label: 'Planning', value: projects.filter(p => p.status === 'planning').length, color: '#94a3b8' },
+    { label: 'Berjalan', value: activeProjects.length, color: '#0284c7' },
+    { label: 'Tertunda', value: projects.filter(p => p.status === 'on_hold').length, color: '#b45309' },
+    { label: 'Selesai', value: projects.filter(p => p.status === 'completed').length, color: '#15803d' },
+  ];
+
+  const monthlyTrend = buildMonthlyTrend(projects);
+
+
   return (
-    <div className="space-y-8 pb-10 animate-fade-in">
-      {/* Header Section */}
-      <div className="flex flex-col gap-1.5">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-navy">
-          Dashboard Proyek
-        </h1>
-        <p className="text-slate-500 max-w-2xl text-sm leading-relaxed">
-          Pusat kendali portofolio proyek. Pantau ringkasan performa fisik, penyerapan anggaran, dan identifikasi proyek yang membutuhkan intervensi segera.
-        </p>
+    <div className="space-y-6 pb-10 animate-fade-in">
+      {/* ENTERPRISE HERO BANNER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-input text-[10px] font-bold tracking-wider uppercase bg-primary-50 text-primary-700 border border-primary-200">
+              Divisi Proyek
+            </span>
+            <span className="text-xs text-slate-300">&bull;</span>
+            <span className="text-xs text-slate-500 font-medium">Manajemen Portofolio & Kontrol Lapangan</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-navy mt-1">
+            Dashboard Portofolio Proyek
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Pusat kendali portofolio proyek. Pantau ringkasan performa fisik, penyerapan anggaran, dan identifikasi proyek yang membutuhkan intervensi segera.
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Link to="/projects/list">
+            <Button variant="secondary" size="md" className="text-xs">
+              Lihat Semua Proyek
+              <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Primary KPI Grid */}
@@ -141,6 +199,23 @@ export default function ProjectDashboardPage() {
             </div>
 
             <div className="space-y-5">
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={statusDistribution} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                    <XAxis dataKey="label" tick={axisTick} axisLine={false} tickLine={false} />
+                    <YAxis allowDecimals={false} tick={axisTick} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      cursor={{ fill: '#f1f5f9' }}
+                      formatter={(value) => [`${value} proyek`, 'Jumlah']}
+                      contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                    />
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={56}>
+                      {statusDistribution.map(s => <Cell key={s.label} fill={s.color} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
               {[
                 { label: 'Persiapan & Planning', count: projects.filter(p => p.status === 'planning').length, color: 'bg-slate-400' },
                 { label: 'Konstruksi Berjalan', count: activeProjects.length, color: 'bg-primary-600' },
@@ -160,6 +235,32 @@ export default function ProjectDashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Trend Chart */}
+          <div className="rounded-card-lg bg-white shadow-card border border-line p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-base font-bold text-navy">Tren Jumlah Proyek</h2>
+                <p className="text-xs text-slate-500">Perkembangan portofolio bulanan</p>
+              </div>
+            </div>
+            <div className="h-60">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={monthlyTrend} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                  <XAxis dataKey="label" tick={axisTick} axisLine={false} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={axisTick} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    cursor={{ fill: '#f1f5f9' }}
+                    contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}
+                  />
+                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="baru" name="Proyek baru" fill="#7dd3fc" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                  <Line dataKey="total" name="Total portofolio" type="monotone" stroke="#0284c7" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                </ComposedChart>
+              </ResponsiveContainer>
             </div>
           </div>
 

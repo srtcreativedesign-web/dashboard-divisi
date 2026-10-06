@@ -1,9 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
   CheckSquare,
   Calculator,
   Calendar,
@@ -12,16 +8,11 @@ import {
   Edit3,
   Trash2,
   Printer,
-  Building2,
-  MapPin,
-  DollarSign,
-  TrendingUp,
-  AlertCircle,
-  Plus
+  Plus,
 } from 'lucide-react';
 import { projectApi } from '../../api/projects';
-import { Project, ProjectMilestone } from '../../types/project';
-import { LoadingState, EmptyState } from '../../components/states';
+import { ProjectMilestone } from '../../types/project';
+import { ProjectPageLayout } from '../../layout/ProjectPageLayout';
 import { BeforeAfterGallery } from '../../components/projects/BeforeAfterGallery';
 import { MilestoneUpdateModal } from '../../components/projects/MilestoneUpdateModal';
 import { ProjectCostControl } from '../../components/projects/ProjectCostControl';
@@ -29,11 +20,6 @@ import { ProjectReportsExport } from '../../components/projects/ProjectReportsEx
 import { Button } from '../../components/ui/Button';
 
 export default function ProjectDetailPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
 
   // Document State
@@ -46,99 +32,14 @@ export default function ProjectDetailPage() {
   const [milestoneForm, setMilestoneForm] = useState({ title: '', weight_percentage: 0, due_date: '' });
   const [submittingMilestone, setSubmittingMilestone] = useState(false);
 
-  useEffect(() => {
-    fetchProject();
-  }, [id]);
-
-  const fetchProject = async () => {
-    if (!id) return;
-    try {
-      setLoading(true);
-      const data = await projectApi.getProject(Number(id));
-      setProject(data);
-      setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Gagal memuat detail proyek');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!id || !e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('document_type', 'General');
-    formData.append('title', file.name);
-
-    try {
-      setUploadingDoc(true);
-      await projectApi.uploadDocument(Number(id), formData);
-      await fetchProject();
-    } catch (err) {
-      alert('Gagal mengunggah dokumen');
-    } finally {
-      setUploadingDoc(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleDeleteDocument = async (docId: number) => {
-    if (!id) return;
-    if (!confirm('Hapus dokumen ini?')) return;
-    try {
-      await projectApi.deleteDocument(Number(id), docId);
-      await fetchProject();
-    } catch (err) {
-      alert('Gagal menghapus dokumen');
-    }
-  };
-
-  const handleAddMilestone = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    try {
-      setSubmittingMilestone(true);
-      await projectApi.addMilestone(Number(id), {
-        title: milestoneForm.title,
-        weight_percentage: milestoneForm.weight_percentage,
-        due_date: milestoneForm.due_date || null,
-        actual_percentage: 0,
-        status: 'pending',
-      });
-      await fetchProject();
-      setShowMilestoneModal(false);
-      setMilestoneForm({ title: '', weight_percentage: 0, due_date: '' });
-    } catch (err) {
-      alert('Gagal menambah milestone');
-    } finally {
-      setSubmittingMilestone(false);
-    }
-  };
-
-  const handleUpdateMilestone = async (data: any) => {
-    if (!id || !editingMilestone) return;
-    try {
-      await projectApi.updateMilestone(Number(id), editingMilestone.id, data);
-      await fetchProject();
-      setEditingMilestone(null);
-    } catch (err) {
-      alert('Gagal memperbarui milestone');
-    }
-  };
-
-  const handleDeleteMilestone = async (milestoneId: number) => {
-    if (!id) return;
-    if (!confirm('Hapus tahapan milestone ini?')) return;
-    try {
-      await projectApi.deleteMilestone(Number(id), milestoneId);
-      await fetchProject();
-    } catch (err) {
-      alert('Gagal menghapus milestone');
-    }
-  };
+  const tabs = [
+    { id: 'overview', label: 'Overview & Milestone', icon: CheckSquare },
+    { id: 'visuals', label: 'Foto Before - After', icon: Camera },
+    { id: 'finance', label: 'Kontrol Biaya & Termin', icon: Calculator },
+    { id: 'timeplan', label: 'Time Plan', icon: Calendar },
+    { id: 'reports', label: 'Laporan & BAST', icon: Printer },
+    { id: 'docs', label: 'Dokumentasi', icon: FileText },
+  ];
 
   const formatCurrency = (val: number | undefined | null) => {
     if (val === undefined || val === null) return 'Rp 0';
@@ -149,137 +50,113 @@ export default function ProjectDetailPage() {
     }).format(val);
   };
 
-  if (loading) return <LoadingState label="Memuat detail data proyek..." />;
-  if (error || !project) return <EmptyState title="Proyek Tidak Ditemukan" description={error || 'Data proyek tidak dapat diakses.'} />;
-
-  // Calculate Cumulative Physical Progress
-  let totalCumulativeProgress = 0;
-  if (project.milestones && project.milestones.length > 0) {
-    project.milestones.forEach((m) => {
-      const weight = m.weight_percentage || 0;
-      const actual = m.actual_percentage || 0;
-      totalCumulativeProgress += (actual / 100) * weight;
-    });
-  }
-  totalCumulativeProgress = Math.min(100, Math.round(totalCumulativeProgress * 10) / 10);
-
-  const tabs = [
-    { id: 'overview', label: 'Overview & Milestone', icon: CheckSquare },
-    { id: 'visuals', label: 'Foto Before - After', icon: Camera },
-    { id: 'finance', label: 'Kontrol Biaya & Termin', icon: Calculator },
-    { id: 'timeplan', label: 'Time Plan', icon: Calendar },
-    { id: 'reports', label: 'Laporan & BAST', icon: Printer },
-    { id: 'docs', label: 'Dokumentasi', icon: FileText },
-  ];
-
   return (
-    <div className="space-y-6">
-      {/* HERO HEADER CARD */}
-      <div className="rounded-card-lg border border-line bg-white p-6 sm:p-8 shadow-card">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3">
-            {/* Breadcrumb Navigation */}
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <button
-                type="button"
-                onClick={() => navigate('/projects')}
-                className="inline-flex items-center gap-1 font-semibold text-primary-600 hover:text-primary-700 transition-colors"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" />
-                Daftar Proyek
-              </button>
-              <span className="text-slate-300">/</span>
-              <span className="font-mono bg-surface border border-line px-2 py-0.5 rounded-input text-[11px] font-bold text-slate-700">
-                {project.project_code || `PRJ-${project.id}`}
-              </span>
-            </div>
+    <ProjectPageLayout
+      title="Detail & Tabular Proyek"
+      description="Spesifikasi teknis proyek, linimasa tahapan milestone, kontrol anggaran, dan laporan serah terima."
+    >
+      {(project, refreshProject) => {
+        const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
+          if (!project.id || !e.target.files || e.target.files.length === 0) return;
+          const file = e.target.files[0];
+          if (!file) return;
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('document_type', 'General');
+          formData.append('title', file.name);
 
-            {/* Title & Status */}
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-bold text-navy tracking-tight">
-                {project.name}
-              </h1>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-pill text-xs font-bold uppercase tracking-wider ${
-                project.status === 'in_progress' ? 'bg-primary-50 text-primary-700 border border-primary-200' :
-                project.status === 'completed' ? 'bg-success-light text-success border border-success/30' :
-                project.status === 'on_hold' ? 'bg-danger-light text-danger border border-danger/30' :
-                'bg-surface text-slate-700 border border-line'
-              }`}>
-                <span className={`h-2 w-2 rounded-full ${
-                  project.status === 'in_progress' ? 'bg-primary-600 animate-pulse' :
-                  project.status === 'completed' ? 'bg-success' : 'bg-slate-400'
-                }`} />
-                {project.status.replace('_', ' ')}
-              </span>
-            </div>
+          try {
+            setUploadingDoc(true);
+            await projectApi.uploadDocument(project.id, formData);
+            await refreshProject();
+          } catch (err) {
+            alert('Gagal mengunggah dokumen');
+          } finally {
+            setUploadingDoc(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+          }
+        };
 
-            {/* Metadata Badges */}
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
-              <div className="flex items-center gap-1.5">
-                <Building2 className="h-4 w-4 text-slate-400" />
-                <span className="font-semibold text-navy">{project.client_name || 'Klien Internal'}</span>
-              </div>
-              {project.location && (
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4 text-slate-400" />
-                  <span>{project.location}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1.5">
-                <DollarSign className="h-4 w-4 text-slate-400" />
-                <span className="font-bold text-navy">{formatCurrency(Number(project.contract_value))}</span>
-              </div>
-            </div>
-          </div>
+        const handleDeleteDocument = async (docId: number) => {
+          if (!confirm('Hapus dokumen ini?')) return;
+          try {
+            await projectApi.deleteDocument(project.id, docId);
+            await refreshProject();
+          } catch (err) {
+            alert('Gagal menghapus dokumen');
+          }
+        };
 
-          {/* Overall Physical Progress Box */}
-          <div className="lg:w-72 p-5 rounded-card bg-surface border border-line space-y-2.5 shrink-0">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-600">Progres Fisik Lapangan</span>
-              <span className="text-base font-bold text-primary-600">{totalCumulativeProgress}%</span>
-            </div>
-            <div className="w-full h-2.5 bg-line rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-700 ${
-                  totalCumulativeProgress === 100 ? 'bg-success' : 'bg-primary-600'
-                }`}
-                style={{ width: `${totalCumulativeProgress}%` }}
-              />
-            </div>
-            <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span>{project.milestones?.length || 0} Tahapan Milestone</span>
-              <span>{project.status === 'completed' ? 'Selesai 100%' : 'Sedang Berjalan'}</span>
-            </div>
-          </div>
-        </div>
+        const handleAddMilestone = async (e: React.FormEvent) => {
+          e.preventDefault();
+          try {
+            setSubmittingMilestone(true);
+            await projectApi.addMilestone(project.id, {
+              title: milestoneForm.title,
+              weight_percentage: milestoneForm.weight_percentage,
+              due_date: milestoneForm.due_date || null,
+              actual_percentage: 0,
+              status: 'pending',
+            });
+            await refreshProject();
+            setShowMilestoneModal(false);
+            setMilestoneForm({ title: '', weight_percentage: 0, due_date: '' });
+          } catch (err) {
+            alert('Gagal menambah milestone');
+          } finally {
+            setSubmittingMilestone(false);
+          }
+        };
 
-        {/* TABS NAVIGATION */}
-        <div className="mt-8 border-t border-line pt-4">
-          <nav className="flex space-x-2 overflow-x-auto scrollbar-none" aria-label="Tabs">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    flex items-center gap-2 px-4 py-2 rounded-input text-xs font-semibold whitespace-nowrap transition-all duration-150
-                    ${isActive
-                      ? 'bg-primary-600 text-white shadow-card'
-                      : 'text-slate-600 hover:bg-surface hover:text-navy border border-transparent'
-                    }
-                  `}
-                >
-                  <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-      </div>
+        const handleUpdateMilestone = async (data: any) => {
+          if (!editingMilestone) return;
+          try {
+            await projectApi.updateMilestone(project.id, editingMilestone.id, data);
+            await refreshProject();
+            setEditingMilestone(null);
+          } catch (err) {
+            alert('Gagal memperbarui milestone');
+          }
+        };
+
+        const handleDeleteMilestone = async (milestoneId: number) => {
+          if (!confirm('Hapus tahapan milestone ini?')) return;
+          try {
+            await projectApi.deleteMilestone(project.id, milestoneId);
+            await refreshProject();
+          } catch (err) {
+            alert('Gagal menghapus milestone');
+          }
+        };
+
+        return (
+          <div className="space-y-6">
+            {/* SUB-TABS NAVIGATION */}
+            <div className="rounded-card border border-line bg-white p-2 shadow-xs">
+              <nav className="flex space-x-1.5 overflow-x-auto scrollbar-none" aria-label="Tabs">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`
+                        flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold whitespace-nowrap transition-all duration-150
+                        ${isActive
+                          ? 'bg-primary-600 text-white shadow-card'
+                          : 'text-slate-600 hover:bg-surface hover:text-navy border border-transparent'
+                        }
+                      `}
+                    >
+                      <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
 
       {/* TAB CONTENT AREA */}
       <div className="min-h-[450px]">
@@ -429,7 +306,7 @@ export default function ProjectDetailPage() {
 
         {/* 3. KONTROL BIAYA & TERMIN */}
         {activeTab === 'finance' && (
-          <ProjectCostControl project={project} onRefresh={fetchProject} />
+          <ProjectCostControl project={project} onRefresh={refreshProject} />
         )}
 
         {/* 4. TIME PLAN */}
@@ -624,5 +501,8 @@ export default function ProjectDetailPage() {
         />
       )}
     </div>
+  );
+}}
+</ProjectPageLayout>
   );
 }

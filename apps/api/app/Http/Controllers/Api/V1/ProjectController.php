@@ -31,6 +31,7 @@ class ProjectController extends Controller
         $project = Project::with([
             'milestones.photos',
             'milestones.invoices',
+            'milestones.progressLogs',
             'rabs.expenses',
             'documents.uploader',
             'photos.uploader',

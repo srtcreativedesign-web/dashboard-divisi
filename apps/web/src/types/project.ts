@@ -5,6 +5,9 @@ export interface ProjectVendor {
   contact_person?: string;
   phone?: string;
   email?: string;
+  address?: string;
+  bank_name?: string;
+  bank_account?: string;
   bank_details?: string;
   created_at: string;
   updated_at: string;
@@ -39,6 +42,7 @@ export interface ProjectMilestone {
   notes?: string;
   photos?: ProjectProgressPhoto[];
   invoices?: ProjectInvoice[];
+  progress_logs?: { log_date: string; actual_percentage: number }[];
   created_at: string;
   updated_at: string;
 }
@@ -134,6 +138,7 @@ export interface ProjectDocument {
   project_id: number;
   title: string;
   file_path: string;
+  document_type?: string;
   file_type?: string;
   uploaded_by?: string;
   created_at: string;

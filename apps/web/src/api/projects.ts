@@ -162,5 +162,20 @@ export const vendorApi = {
   getVendors: async (params?: { search?: string; per_page?: number }) => {
     const response = await api.get<PaginatedResponse<ProjectVendor>>(`/vendors`, params as Record<string, string | undefined>);
     return response.data;
-  }
+  },
+
+  createVendor: async (data: Partial<ProjectVendor>) => {
+    const response = await api.post<ProjectVendor>(`/vendors`, data);
+    return response.data;
+  },
+
+  updateVendor: async (id: number, data: Partial<ProjectVendor>) => {
+    const response = await api.put<ProjectVendor>(`/vendors/${id}`, data);
+    return response.data;
+  },
+
+  deleteVendor: async (id: number) => {
+    const response = await api.delete<{ message: string }>(`/vendors/${id}`);
+    return response.data;
+  },
 };

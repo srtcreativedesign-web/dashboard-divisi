@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Project;
+use App\Models\ProjectMilestoneProgressLog;
 use Database\Seeders\ProjectSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -79,6 +80,29 @@ class ProjectFeatureTest extends TestCase
             'actual_percentage' => 75.5,
             'status' => 'in_progress',
         ]);
+    }
+
+    public function test_milestone_progress_update_is_logged_daily()
+    {
+        $project = Project::first();
+        $milestone = $project->milestones()->first();
+        $user = 'manager.project@dashboard.test';
+        $url = "/api/v1/projects/{$project->id}/milestones/{$milestone->id}";
+
+        $this->authenticated($user)->putJson($url, ['actual_percentage' => 40])->assertStatus(200);
+        $this->authenticated($user)->putJson($url, ['actual_percentage' => 55])->assertStatus(200);
+
+        $this->assertSame(1, ProjectMilestoneProgressLog::where('milestone_id', $milestone->id)->count());
+        $this->assertDatabaseHas('project_milestone_progress_logs', [
+            'milestone_id' => $milestone->id,
+            'actual_percentage' => 55,
+        ]);
+
+        $milestones = $this->authenticated($user)->getJson("/api/v1/projects/{$project->id}")
+            ->assertStatus(200)
+            ->json('data.milestones');
+        $logs = collect($milestones)->firstWhere('id', $milestone->id)['progress_logs'];
+        $this->assertSame(now('Asia/Jakarta')->toDateString(), end($logs)['log_date']);
     }
 
     public function test_can_upload_and_delete_progress_photo()
