@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -199,6 +199,13 @@ export function AppLayout() {
 
   const location = useLocation();
 
+  const desktopNavRef = useRef<HTMLElement>(null);
+  const [indicator, setIndicator] = useState<{ top: number; height: number; ready: boolean }>({
+    top: 0,
+    height: 0,
+    ready: false,
+  });
+
   if (authLoading) {
     return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
   }
@@ -220,22 +227,134 @@ export function AppLayout() {
     return true;
   });
 
-  const renderMenu = (variant: 'sidebar' | 'mobile') => {
-    const isSidebar = variant === 'sidebar';
-    const isCollapsed = isSidebar && sidebarCollapsed;
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      if (!desktopNavRef.current) return;
+      const activeEl = desktopNavRef.current.querySelector<HTMLElement>('.liquid-active');
+      if (activeEl) {
+        setIndicator({
+          top: activeEl.offsetTop,
+          height: activeEl.offsetHeight,
+          ready: true,
+        });
+      } else {
+        setIndicator((prev) => ({ ...prev, ready: false }));
+      }
+    };
+
+    updateIndicator();
+    const raf = requestAnimationFrame(updateIndicator);
+    const timer = setTimeout(updateIndicator, 320);
+
+    window.addEventListener('resize', updateIndicator);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [location.pathname, sidebarCollapsed, visibleMenu.length]);
+
+  const renderMenu = (variant: 'desktop' | 'drawer' | 'mobile') => {
+    if (variant === 'mobile') {
+      return (
+        <nav className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-thin" aria-label="Navigasi mobile">
+          {visibleMenu.map((item) => {
+            const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
+            const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={isExact}
+                className={({ isActive }) =>
+                  `flex shrink-0 items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                    isActive ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900 hover:bg-white/80'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-900' : 'text-slate-500'}`} />
+                    <span>{item.label}</span>
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
+        </nav>
+      );
+    }
+
+    if (variant === 'drawer') {
+      return (
+        <nav className="flex flex-col gap-1.5 px-2" aria-label="Navigasi drawer">
+          {visibleMenu.map((item) => {
+            const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
+            const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={isExact}
+                onClick={() => setDrawerOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
+                    isActive
+                      ? 'bg-white text-slate-900 font-bold'
+                      : 'text-slate-400 font-medium hover:bg-white hover:text-slate-900'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-slate-900' : 'text-slate-400'}`} />
+                    <span className="font-semibold truncate">{item.label}</span>
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
+        </nav>
+      );
+    }
+
+    // variant === 'desktop'
+    const isCollapsed = sidebarCollapsed;
 
     return (
       <nav
-        className={
-          isSidebar
-            ? 'flex flex-col gap-1.5 px-3'
-            : 'flex gap-2 overflow-x-auto pb-2 scrollbar-thin'
-        }
-        aria-label={isSidebar ? 'Navigasi utama' : 'Navigasi mobile'}
+        ref={desktopNavRef}
+        className="relative flex flex-col gap-1.5 pl-3 pr-0 py-4 w-full"
+        aria-label="Navigasi utama"
       >
+        {/* Fluid sliding white pill with connected liquid curves */}
+        <div
+          className={`absolute left-3 right-0 rounded-l-2xl bg-white pointer-events-none z-10 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
+            indicator.ready ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            top: `${indicator.top}px`,
+            height: `${indicator.height}px`,
+          }}
+        >
+          {/* Top liquid concave scoop */}
+          <span
+            className="absolute -top-4 right-0 w-4 h-4 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at 0 0, transparent 15.5px, #ffffff 16px)',
+            }}
+          />
+          {/* Bottom liquid concave scoop */}
+          <span
+            className="absolute -bottom-4 right-0 w-4 h-4 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at 0 100%, transparent 15.5px, #ffffff 16px)',
+            }}
+          />
+        </div>
+
         {visibleMenu.map((item) => {
           const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-          // Exact match for parent routes so they don't all light up
           const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
           return (
             <NavLink
@@ -243,31 +362,28 @@ export function AppLayout() {
               to={item.path}
               end={isExact}
               title={isCollapsed ? item.label : undefined}
-              className={({ isActive }) =>
-                isActive
-                  ? `group relative flex shrink-0 items-center ${
-                      isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3.5 py-2.5'
-                    } rounded-xl bg-gradient-to-r from-primary-600 via-primary-700 to-dark text-sm font-semibold text-white shadow-md ring-1 ring-white/20 transition-all duration-200`
-                  : `group relative flex shrink-0 items-center ${
-                      isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3.5 py-2.5'
-                    } rounded-xl text-sm font-medium transition-all duration-200 ease-out ${
-                      isSidebar
-                        ? 'text-slate-300 hover:text-white hover:bg-white/12 hover:shadow-xs'
-                        : 'text-slate-500 hover:text-primary-700 hover:bg-primary-50/50'
-                    } ${!isCollapsed ? 'hover:translate-x-1.5' : ''}`
-              }
+              className={({ isActive }) => {
+                const base = `group relative flex items-center text-xs transition-colors duration-150 z-20 ${
+                  isCollapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3.5 py-2.5'
+                }`;
+                if (isActive) {
+                  return `${base} liquid-active w-full text-slate-900 font-bold bg-transparent`;
+                }
+                return `${base} mr-3 rounded-xl text-slate-400 font-medium hover:text-slate-900 hover:bg-white`;
+              }}
             >
               {({ isActive }) => (
                 <>
-                  {isActive && (
-                    <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-cyan-300 shadow-[0_0_8px_rgba(103,232,249,0.9)]" />
-                  )}
-                  <Icon className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${!isActive && !isSidebar ? 'text-slate-400 group-hover:text-primary-600' : ''}`} />
-                  <span className={isCollapsed ? 'sr-only' : 'truncate'}>{item.label}</span>
+                  <Icon
+                    className={`h-4.5 w-4.5 shrink-0 transition-colors ${
+                      isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-900'
+                    }`}
+                  />
+                  <span className={isCollapsed ? 'sr-only' : 'truncate font-semibold'}>{item.label}</span>
                   {isCollapsed && (
                     <div
                       role="tooltip"
-                      className="pointer-events-none absolute left-full ml-3 z-50 hidden rounded-md bg-slate-900/95 px-2.5 py-1.5 text-xs font-semibold text-white shadow-xl ring-1 ring-white/15 whitespace-nowrap group-hover:block transition-all animate-in fade-in zoom-in-95 duration-150"
+                      className="pointer-events-none absolute left-full ml-3 z-50 hidden rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xl border border-slate-700 whitespace-nowrap group-hover:block transition-all"
                     >
                       {item.label}
                     </div>
@@ -294,17 +410,17 @@ export function AppLayout() {
             onClick={() => setDrawerOpen(false)}
             aria-hidden="true"
           />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-gradient-to-b from-[#0c4a6e] via-[#075985] to-[#042f48] px-4 py-6 text-slate-200 shadow-2xl ring-1 ring-white/15 flex flex-col">
-            <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+          <aside className="absolute left-0 top-0 h-full w-72 bg-slate-900 px-4 py-6 text-slate-300 shadow-2xl border-r border-slate-800 flex flex-col">
+            <div className="mb-6 flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-xs shadow-xs">
                   {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-white tracking-tight leading-snug">
+                  <p className="text-xs font-bold text-slate-100 tracking-tight leading-snug">
                     {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
                   </p>
-                  <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5">
+                  <p className="text-[11px] text-slate-400 font-normal leading-none mt-0.5">
                     {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
                   </p>
                 </div>
@@ -313,22 +429,21 @@ export function AppLayout() {
                 type="button"
                 aria-label="Tutup menu"
                 onClick={() => setDrawerOpen(false)}
-                className="rounded-lg p-1.5 text-slate-300 hover:bg-white/15 hover:text-white transition-colors"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
-              {renderMenu('sidebar')}
+            <div className="flex flex-col gap-1 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
+              {renderMenu('drawer')}
             </div>
-            <div className="mt-4 border-t border-white/10 pt-4 space-y-3">
-
-              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10">
-                <p className="text-xs font-semibold text-white">{user.name}</p>
-                <p className="text-[11px] text-sky-200/80">{roleLabel} · {scopeLabel}</p>
+            <div className="mt-4 border-t border-slate-800 pt-3">
+              <div className="rounded-lg bg-slate-850 p-2.5 border border-slate-800">
+                <p className="text-xs font-semibold text-slate-200">{user.name}</p>
+                <p className="text-[11px] text-slate-400">{roleLabel} · {scopeLabel}</p>
                 <LogoutButton
                   onLogout={() => void logout()}
-                  className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-white/10 py-1.5 text-xs font-medium text-white hover:bg-white/20 transition-all"
+                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md bg-slate-800 py-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
                 />
               </div>
             </div>
@@ -336,9 +451,9 @@ export function AppLayout() {
         </div>
       )}
 
-      {/* Modern Clean Ocean-Sky Desktop Sidebar */}
+      {/* Minimalist Professional Desktop Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 hidden bg-gradient-to-b from-[#0c4a6e] via-[#075985] to-[#042f48] text-slate-200 lg:flex flex-col border-r border-[#419cc3]/30 shadow-xl z-50 transition-all duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 hidden bg-slate-900 text-slate-300 lg:flex flex-col z-50 transition-all duration-300 ease-in-out ${
           sidebarCollapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -346,19 +461,19 @@ export function AppLayout() {
         <div
           className={`flex items-center ${
             sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'
-          } py-5 border-b border-white/10 mb-3`}
+          } py-4 border-b border-slate-800 mb-2`}
         >
           {!sidebarCollapsed ? (
             <>
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-xs shadow-xs">
                   {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
                 </div>
                 <div className="min-w-0 truncate">
-                  <p className="text-sm font-bold text-white tracking-tight leading-snug truncate">
+                  <p className="text-xs font-bold text-slate-100 tracking-tight leading-snug truncate">
                     {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
                   </p>
-                  <p className="text-xs text-sky-200/80 font-medium leading-none mt-0.5 truncate">
+                  <p className="text-[11px] text-slate-400 font-normal leading-none mt-0.5 truncate">
                     {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
                   </p>
                 </div>
@@ -368,9 +483,9 @@ export function AppLayout() {
                 onClick={toggleSidebar}
                 aria-label="Kecilkan sidebar"
                 title="Kecilkan sidebar (Ctrl+B)"
-                className="shrink-0 rounded-lg p-1.5 text-sky-200 hover:text-white hover:bg-white/15 active:scale-95 transition-all"
+                className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               >
-                <PanelLeftClose className="h-5 w-5" />
+                <PanelLeftClose className="h-4.5 w-4.5" />
               </button>
             </>
           ) : (
@@ -379,44 +494,44 @@ export function AppLayout() {
               onClick={toggleSidebar}
               aria-label="Perbesar sidebar"
               title="Perbesar sidebar (Ctrl+B)"
-              className="group flex flex-col items-center gap-1.5 p-1 rounded-xl hover:bg-white/10 transition-all"
+              className="group flex flex-col items-center gap-1.5 p-1 rounded-lg hover:bg-slate-800 transition-colors"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 via-primary-500 to-dark text-white font-bold text-sm shadow-md ring-1 ring-white/30 group-hover:scale-105 transition-transform">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-xs shadow-xs">
                 {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
               </div>
-              <PanelLeftOpen className="h-4 w-4 text-sky-200 group-hover:text-white group-hover:scale-110 transition-all" />
+              <PanelLeftOpen className="h-4 w-4 text-slate-400 group-hover:text-white transition-colors" />
             </button>
           )}
         </div>
 
         {/* Navigation list */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/15 py-1">
-          {renderMenu('sidebar')}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-slate-800 py-1">
+          {renderMenu('desktop')}
         </div>
 
         {/* Bottom user card */}
         {!sidebarCollapsed ? (
-          <div className="border-t border-white/10 p-3.5">
-            <div className="rounded-xl bg-white/10 p-3 backdrop-blur-md ring-1 ring-white/10 shadow-sm">
+          <div className="border-t border-slate-800 p-3">
+            <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/80">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-dark text-xs font-bold text-white shadow-xs ring-1 ring-white/20">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs font-semibold">
                   {(user?.name || String.fromCharCode(85)).charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-semibold text-white">{user.name}</p>
-                  <p className="truncate text-[11px] text-sky-200/80">{roleLabel} · {scopeLabel}</p>
+                  <p className="truncate text-xs font-medium text-slate-200">{user.name}</p>
+                  <p className="truncate text-[11px] text-slate-400">{roleLabel} · {scopeLabel}</p>
                 </div>
               </div>
               <LogoutButton
                 onLogout={() => void logout()}
-                className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-white/10 py-1.5 text-xs font-medium text-white hover:bg-white/20 transition-all active:scale-[0.98]"
+                className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md bg-slate-800 py-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
               />
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 border-t border-white/10 p-3">
+          <div className="flex flex-col items-center gap-2.5 border-t border-slate-800 p-3">
             <div
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-primary-500 to-dark text-xs font-bold text-white shadow-sm ring-1 ring-white/20"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs font-medium"
               title={`${user.name} (${roleLabel} · ${scopeLabel})`}
             >
               {user.name.charAt(0).toUpperCase()}
@@ -424,7 +539,7 @@ export function AppLayout() {
             <LogoutButton
               compact
               onLogout={() => void logout()}
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-rose-500/80 hover:text-white transition-all active:scale-95"
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-300 hover:bg-rose-900/60 hover:text-rose-300 transition-colors"
             />
           </div>
         )}
