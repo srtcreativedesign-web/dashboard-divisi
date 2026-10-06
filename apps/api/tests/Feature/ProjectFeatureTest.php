@@ -270,4 +270,39 @@ class ProjectFeatureTest extends TestCase
         $this->assertEquals(76.0, $data['realized_margin_percentage']); // 380 / 500 = 76%
         $this->assertEquals(150000000, $data['paid_amount']);
     }
+
+    public function test_can_generate_progress_and_bast_reports()
+    {
+        $project = Project::first();
+
+        // 1. Progress Report
+        $progRes = $this->authenticated('manager.project@dashboard.test')
+            ->getJson("/api/v1/projects/{$project->id}/reports/progress");
+
+        $progRes->assertStatus(200);
+        $progRes->assertJsonStructure([
+            'data' => [
+                'report_title',
+                'project',
+                'physical_progress' => ['milestones'],
+                'financial_progress',
+                'recent_photos',
+            ],
+        ]);
+
+        // 2. BAST Handover Report
+        $bastRes = $this->authenticated('manager.project@dashboard.test')
+            ->getJson("/api/v1/projects/{$project->id}/reports/bast");
+
+        $bastRes->assertStatus(200);
+        $bastRes->assertJsonStructure([
+            'data' => [
+                'document_title',
+                'project',
+                'handover_summary',
+                'visual_comparison',
+                'milestone_checklist',
+            ],
+        ]);
+    }
 }

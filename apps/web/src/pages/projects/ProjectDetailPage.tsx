@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Clock, CheckSquare, CreditCard, Calculator, Calendar, FileText, Camera, Edit3, Trash2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, CheckSquare, CreditCard, Calculator, Calendar, FileText, Camera, Edit3, Trash2, Printer } from 'lucide-react';
 import { projectApi } from '../../api/projects';
 import { Project, ProjectMilestone } from '../../types/project';
 import { LoadingState, EmptyState } from '../../components/states';
 import { BeforeAfterGallery } from '../../components/projects/BeforeAfterGallery';
 import { MilestoneUpdateModal } from '../../components/projects/MilestoneUpdateModal';
 import { ProjectCostControl } from '../../components/projects/ProjectCostControl';
+import { ProjectReportsExport } from '../../components/projects/ProjectReportsExport';
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -117,6 +118,7 @@ export default function ProjectDetailPage() {
     { id: 'visuals', label: 'Foto Before - After', icon: Camera },
     { id: 'finance', label: 'Kontrol Biaya & Termin', icon: Calculator },
     { id: 'timeplan', label: 'Time Plan', icon: Calendar },
+    { id: 'reports', label: 'Laporan & BAST', icon: Printer },
     { id: 'docs', label: 'Dokumentasi', icon: FileText },
   ];
 
@@ -330,6 +332,10 @@ export default function ProjectDetailPage() {
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === 'reports' && (
+          <ProjectReportsExport project={project} />
         )}
 
         {activeTab === 'docs' && (

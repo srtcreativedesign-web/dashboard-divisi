@@ -145,6 +145,17 @@ export const projectApi = {
     const response = await api.delete<any>(`/projects/${projectId}/photos/${photoId}`);
     return response.data;
   },
+
+  // Reports Engine
+  getProgressReport: async (projectId: number) => {
+    const response = await api.get<any>(`/projects/${projectId}/reports/progress`);
+    return response.data;
+  },
+
+  getBastReport: async (projectId: number) => {
+    const response = await api.get<any>(`/projects/${projectId}/reports/bast`);
+    return response.data;
+  },
 };
 
 export const vendorApi = {

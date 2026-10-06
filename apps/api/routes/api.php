@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\ProjectExpenseController;
 use App\Http\Controllers\Api\V1\ProjectInvoiceController;
 use App\Http\Controllers\Api\V1\ProjectPhotoController;
 use App\Http\Controllers\Api\V1\ProjectRabController;
+use App\Http\Controllers\Api\V1\ProjectReportController;
 use App\Http\Controllers\Api\V1\ProjectVendorController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\RevenueController;
@@ -247,6 +248,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}/rab', [ProjectRabController::class, 'index']);
             Route::get('/{id}/expenses', [ProjectExpenseController::class, 'index']);
             Route::get('/{id}/invoices', [ProjectInvoiceController::class, 'index']);
+            Route::get('/{id}/reports/progress', [ProjectReportController::class, 'progressReport']);
+            Route::get('/{id}/reports/bast', [ProjectReportController::class, 'bastReport']);
 
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectController::class, 'store']);
