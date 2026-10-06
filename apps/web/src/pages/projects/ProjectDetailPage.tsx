@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Clock, CheckSquare, CreditCard, Calculator, Calendar, FileText } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, CheckSquare, CreditCard, Calculator, Calendar, FileText, Camera, Edit3, Trash2 } from 'lucide-react';
 import { projectApi } from '../../api/projects';
-import { Project } from '../../types/project';
+import { Project, ProjectMilestone } from '../../types/project';
 import { LoadingState, EmptyState } from '../../components/states';
+import { BeforeAfterGallery } from '../../components/projects/BeforeAfterGallery';
+import { MilestoneUpdateModal } from '../../components/projects/MilestoneUpdateModal';
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -24,6 +26,7 @@ export default function ProjectDetailPage() {
 
   // Milestone State
   const [showMilestoneModal, setShowMilestoneModal] = useState(false);
+  const [editingMilestone, setEditingMilestone] = useState<ProjectMilestone | null>(null);
   const [milestoneForm, setMilestoneForm] = useState({ title: '', weight_percentage: 0, due_date: '' });
   const [submittingMilestone, setSubmittingMilestone] = useState(false);
 
@@ -109,11 +112,29 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleUpdateMilestone = async (milestoneId: number, data: Partial<ProjectMilestone>) => {
+    if (!id) return;
+    await projectApi.updateMilestone(Number(id), milestoneId, data);
+    await fetchProject();
+  };
+
+  const handleDeleteMilestone = async (milestoneId: number) => {
+    if (!id) return;
+    if (!confirm('Apakah Anda yakin ingin menghapus milestone ini?')) return;
+    try {
+      await projectApi.deleteMilestone(Number(id), milestoneId);
+      await fetchProject();
+    } catch (err) {
+      alert('Gagal menghapus milestone');
+    }
+  };
+
   if (loading) return <LoadingState />;
   if (error || !project) return <EmptyState title="Error" description={error || 'Proyek tidak ditemukan'} />;
 
   const tabs = [
     { id: 'overview', label: 'Overview & Milestone', icon: CheckSquare },
+    { id: 'visuals', label: 'Foto Before - After', icon: Camera },
     { id: 'payment', label: 'Pembayaran & Termin', icon: CreditCard },
     { id: 'rab', label: 'RAB & Anggaran', icon: Calculator },
     { id: 'timeplan', label: 'Time Plan', icon: Calendar },
@@ -204,18 +225,63 @@ export default function ProjectDetailPage() {
                   </button>
                 </div>
                 {project.milestones && project.milestones.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {project.milestones.map((ms) => (
-                      <div key={ms.id} className="flex items-center gap-3">
-                        {ms.status === 'completed' ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                        ) : (
-                          <Clock className="h-5 w-5 text-amber-500 flex-shrink-0" />
-                        )}
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-slate-900 dark:text-white">{ms.title}</div>
-                          <div className="text-xs text-slate-500">{ms.weight_percentage}% Bobot Pekerjaan</div>
+                      <div key={ms.id} className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            {ms.status === 'completed' ? (
+                              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            ) : (
+                              <Clock className="h-4 w-4 text-amber-500 shrink-0" />
+                            )}
+                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{ms.title}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                              ms.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
+                              ms.status === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300' :
+                              ms.status === 'review' ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300' :
+                              'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                            }`}>
+                              {ms.status || 'pending'}
+                            </span>
+                            <button
+                              onClick={() => setEditingMilestone(ms)}
+                              className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-colors"
+                              title="Edit Milestone"
+                            >
+                              <Edit3 className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteMilestone(ms.id)}
+                              className="p-1 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                              title="Hapus Milestone"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
                         </div>
+
+                        {/* Progress comparison bar */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs text-slate-500">
+                            <span>Realisasi: <b className="text-primary-600 dark:text-primary-400">{ms.actual_percentage ?? 0}%</b></span>
+                            <span>Target Bobot: {ms.weight_percentage}%</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary-600 dark:bg-primary-500 rounded-full transition-all"
+                              style={{ width: `${Math.min(ms.actual_percentage ?? 0, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {ms.notes && (
+                          <p className="text-xs text-slate-500 bg-white dark:bg-slate-800/80 p-2 rounded-lg border border-slate-100 dark:border-slate-700/50 italic">
+                            "{ms.notes}"
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -225,6 +291,10 @@ export default function ProjectDetailPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === 'visuals' && (
+          <BeforeAfterGallery projectId={project.id} milestones={project.milestones} />
         )}
 
         {activeTab === 'payment' && (
@@ -483,6 +553,16 @@ export default function ProjectDetailPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Milestone Edit Modal */}
+      {editingMilestone && (
+        <MilestoneUpdateModal
+          milestone={editingMilestone}
+          isOpen={!!editingMilestone}
+          onClose={() => setEditingMilestone(null)}
+          onSave={handleUpdateMilestone}
+        />
       )}
     </div>
   );

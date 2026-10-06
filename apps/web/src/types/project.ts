@@ -10,14 +10,34 @@ export interface ProjectVendor {
   updated_at: string;
 }
 
+export interface ProjectProgressPhoto {
+  id: number;
+  project_id: number;
+  milestone_id?: number | null;
+  stage: 'before' | 'in_progress' | 'after';
+  area_name?: string;
+  caption?: string;
+  photo_path: string;
+  taken_at?: string;
+  uploaded_by?: number;
+  uploader?: { id: number; name: string };
+  milestone?: ProjectMilestone;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ProjectMilestone {
   id: number;
   project_id: number;
   title: string;
   weight_percentage: number;
+  actual_percentage?: number;
   status: string;
   payment_status: boolean;
   due_date?: string;
+  completion_date?: string;
+  notes?: string;
+  photos?: ProjectProgressPhoto[];
   created_at: string;
   updated_at: string;
 }
@@ -49,8 +69,10 @@ export interface ProjectDocument {
 export interface Project {
   id: number;
   division_code: string;
+  project_code?: string;
   name: string;
   client_name?: string;
+  location?: string;
   description?: string;
   contract_value: number;
   status: 'planning' | 'in_progress' | 'on_hold' | 'completed';
@@ -62,6 +84,7 @@ export interface Project {
   rabs?: ProjectRab[];
   documents?: ProjectDocument[];
   vendors?: ProjectVendor[];
+  photos?: ProjectProgressPhoto[];
 }
 
 export interface PaginatedResponse<T> {

@@ -49,6 +49,31 @@ export const projectApi = {
     const response = await api.post<any>(`/projects/${projectId}/milestones`, data);
     return response.data;
   },
+
+  updateMilestone: async (projectId: number, milestoneId: number, data: any) => {
+    const response = await api.put<any>(`/projects/${projectId}/milestones/${milestoneId}`, data);
+    return response.data;
+  },
+
+  deleteMilestone: async (projectId: number, milestoneId: number) => {
+    const response = await api.delete<any>(`/projects/${projectId}/milestones/${milestoneId}`);
+    return response.data;
+  },
+
+  getPhotos: async (projectId: number, params?: { stage?: string; area_name?: string }) => {
+    const response = await api.get<any[]>(`/projects/${projectId}/photos`, params as Record<string, string | undefined>);
+    return response.data;
+  },
+
+  uploadPhoto: async (projectId: number, form: FormData) => {
+    const response = await api.upload<any>(`/projects/${projectId}/photos`, form);
+    return response.data;
+  },
+
+  deletePhoto: async (projectId: number, photoId: number) => {
+    const response = await api.delete<any>(`/projects/${projectId}/photos/${photoId}`);
+    return response.data;
+  },
 };
 
 export const vendorApi = {
