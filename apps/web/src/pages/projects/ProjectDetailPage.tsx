@@ -26,6 +26,7 @@ import { BeforeAfterGallery } from '../../components/projects/BeforeAfterGallery
 import { MilestoneUpdateModal } from '../../components/projects/MilestoneUpdateModal';
 import { ProjectCostControl } from '../../components/projects/ProjectCostControl';
 import { ProjectReportsExport } from '../../components/projects/ProjectReportsExport';
+import { Button } from '../../components/ui/Button';
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -174,7 +175,7 @@ export default function ProjectDetailPage() {
   return (
     <div className="space-y-6">
       {/* HERO HEADER CARD */}
-      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+      <div className="rounded-card-lg border border-line bg-white p-6 sm:p-8 shadow-card">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3">
             {/* Breadcrumb Navigation */}
@@ -182,41 +183,41 @@ export default function ProjectDetailPage() {
               <button
                 type="button"
                 onClick={() => navigate('/projects')}
-                className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                className="inline-flex items-center gap-1 font-semibold text-primary-600 hover:text-primary-700 transition-colors"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Daftar Proyek
               </button>
-              <span>/</span>
-              <span className="font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px] font-bold text-slate-600 dark:text-slate-300">
+              <span className="text-slate-300">/</span>
+              <span className="font-mono bg-surface border border-line px-2 py-0.5 rounded-input text-[11px] font-bold text-slate-700">
                 {project.project_code || `PRJ-${project.id}`}
               </span>
             </div>
 
             {/* Title & Status */}
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              <h1 className="text-2xl font-bold text-navy tracking-tight">
                 {project.name}
               </h1>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                project.status === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300' :
-                project.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' :
-                project.status === 'on_hold' ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300' :
-                'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-pill text-xs font-bold uppercase tracking-wider ${
+                project.status === 'in_progress' ? 'bg-primary-50 text-primary-700 border border-primary-200' :
+                project.status === 'completed' ? 'bg-success-light text-success border border-success/30' :
+                project.status === 'on_hold' ? 'bg-danger-light text-danger border border-danger/30' :
+                'bg-surface text-slate-700 border border-line'
               }`}>
                 <span className={`h-2 w-2 rounded-full ${
-                  project.status === 'in_progress' ? 'bg-blue-600 animate-pulse' :
-                  project.status === 'completed' ? 'bg-emerald-600' : 'bg-slate-400'
+                  project.status === 'in_progress' ? 'bg-primary-600 animate-pulse' :
+                  project.status === 'completed' ? 'bg-success' : 'bg-slate-400'
                 }`} />
                 {project.status.replace('_', ' ')}
               </span>
             </div>
 
             {/* Metadata Badges */}
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-400">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
               <div className="flex items-center gap-1.5">
                 <Building2 className="h-4 w-4 text-slate-400" />
-                <span className="font-semibold text-slate-800 dark:text-slate-200">{project.client_name || 'Klien Internal'}</span>
+                <span className="font-semibold text-navy">{project.client_name || 'Klien Internal'}</span>
               </div>
               {project.location && (
                 <div className="flex items-center gap-1.5">
@@ -226,34 +227,34 @@ export default function ProjectDetailPage() {
               )}
               <div className="flex items-center gap-1.5">
                 <DollarSign className="h-4 w-4 text-slate-400" />
-                <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(Number(project.contract_value))}</span>
+                <span className="font-bold text-navy">{formatCurrency(Number(project.contract_value))}</span>
               </div>
             </div>
           </div>
 
           {/* Overall Physical Progress Box */}
-          <div className="lg:w-72 p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5 shrink-0">
+          <div className="lg:w-72 p-5 rounded-card bg-surface border border-line space-y-2.5 shrink-0">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-600 dark:text-slate-400">Progres Fisik Lapangan</span>
-              <span className="text-base font-black text-blue-600 dark:text-blue-400">{totalCumulativeProgress}%</span>
+              <span className="font-semibold text-slate-600">Progres Fisik Lapangan</span>
+              <span className="text-base font-bold text-primary-600">{totalCumulativeProgress}%</span>
             </div>
-            <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="w-full h-2.5 bg-line rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-700 ${
-                  totalCumulativeProgress === 100 ? 'bg-emerald-500' : 'bg-blue-600'
+                  totalCumulativeProgress === 100 ? 'bg-success' : 'bg-primary-600'
                 }`}
                 style={{ width: `${totalCumulativeProgress}%` }}
               />
             </div>
             <div className="flex items-center justify-between text-[11px] text-slate-400">
               <span>{project.milestones?.length || 0} Tahapan Milestone</span>
-              <span>{project.status === 'completed' ? 'Selesai 100%' : 'Sedang Dikerjakan'}</span>
+              <span>{project.status === 'completed' ? 'Selesai 100%' : 'Sedang Berjalan'}</span>
             </div>
           </div>
         </div>
 
         {/* TABS NAVIGATION */}
-        <div className="mt-8 border-t border-slate-100 dark:border-slate-800 pt-4">
+        <div className="mt-8 border-t border-line pt-4">
           <nav className="flex space-x-2 overflow-x-auto scrollbar-none" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -264,10 +265,10 @@ export default function ProjectDetailPage() {
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={`
-                    flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all
+                    flex items-center gap-2 px-4 py-2 rounded-input text-xs font-semibold whitespace-nowrap transition-all duration-150
                     ${isActive
-                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      ? 'bg-primary-600 text-white shadow-card'
+                      : 'text-slate-600 hover:bg-surface hover:text-navy border border-transparent'
                     }
                   `}
                 >
@@ -287,59 +288,59 @@ export default function ProjectDetailPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Kolom Kiri: Informasi Rinci */}
-              <div className="lg:col-span-1 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900 shadow-sm space-y-4">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              <div className="lg:col-span-1 rounded-card border border-line p-6 bg-white shadow-card space-y-4">
+                <h3 className="text-sm font-bold text-navy uppercase tracking-wider">
                   Informasi Proyek
                 </h3>
                 <div className="space-y-3.5 text-xs">
                   <div>
                     <span className="text-slate-400 block text-[11px]">Deskripsi Pekerjaan</span>
-                    <p className="text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">
+                    <p className="text-slate-700 mt-1 leading-relaxed">
                       {project.description || 'Tidak ada catatan deskripsi.'}
                     </p>
                   </div>
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                  <div className="pt-2 border-t border-line flex justify-between">
                     <span className="text-slate-500">Nilai Kontrak</span>
-                    <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(Number(project.contract_value))}</span>
+                    <span className="font-bold text-navy">{formatCurrency(Number(project.contract_value))}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Tanggal Mulai</span>
-                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                    <span className="font-medium text-slate-800">
                       {project.start_date ? new Date(project.start_date).toLocaleDateString('id-ID') : '-'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Target Selesai</span>
-                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                    <span className="font-medium text-slate-800">
                       {project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID') : '-'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Lokasi</span>
-                    <span className="font-medium text-slate-800 dark:text-slate-200">{project.location || '-'}</span>
+                    <span className="font-medium text-slate-800">{project.location || '-'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Kolom Kanan: Rangkaian Milestone */}
-              <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900 shadow-sm space-y-4">
+              <div className="lg:col-span-2 rounded-card border border-line p-6 bg-white shadow-card space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-navy uppercase tracking-wider">
                       Tahapan Pekerjaan (Milestones)
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       Kemajuan fisik berbobot dan status pembayaran termin
                     </p>
                   </div>
-                  <button
-                    type="button"
+                  <Button
+                    variant="primary"
+                    size="sm"
                     onClick={() => setShowMilestoneModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all shadow-sm"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Tambah Milestone
-                  </button>
+                  </Button>
                 </div>
 
                 {project.milestones && project.milestones.length > 0 ? (
@@ -347,33 +348,33 @@ export default function ProjectDetailPage() {
                     {project.milestones.map((ms, idx) => (
                       <div
                         key={ms.id}
-                        className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-3"
+                        className="p-4 rounded-card border border-line bg-surface space-y-3"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-2.5">
-                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[10px] font-black mt-0.5">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700 border border-primary-200 text-[10px] font-bold mt-0.5">
                               {idx + 1}
                             </span>
                             <div>
-                              <h4 className="text-xs font-bold text-slate-900 dark:text-white">{ms.title}</h4>
+                              <h4 className="text-xs font-bold text-navy">{ms.title}</h4>
                               <p className="text-[11px] text-slate-500 mt-0.5">
-                                Bobot Rencana: <span className="font-semibold text-slate-700 dark:text-slate-300">{ms.weight_percentage}%</span>
+                                Bobot Rencana: <span className="font-semibold text-slate-700">{ms.weight_percentage}%</span>
                                 {ms.due_date && ` &bull; Target: ${ms.due_date}`}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                              ms.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
-                              ms.status === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300' :
-                              'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-pill ${
+                              ms.status === 'completed' ? 'bg-success-light text-success border border-success/30' :
+                              ms.status === 'in_progress' ? 'bg-primary-50 text-primary-700 border border-primary-200' :
+                              'bg-surface text-slate-700 border border-line'
                             }`}>
                               {ms.status || 'pending'}
                             </span>
                             <button
                               type="button"
                               onClick={() => setEditingMilestone(ms)}
-                              className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-slate-200/60 transition-colors"
+                              className="p-1 rounded-input text-slate-400 hover:text-primary-600 hover:bg-white transition-colors border border-transparent hover:border-line"
                               title="Update Progres"
                             >
                               <Edit3 className="h-3.5 w-3.5" />
@@ -381,7 +382,7 @@ export default function ProjectDetailPage() {
                             <button
                               type="button"
                               onClick={() => handleDeleteMilestone(ms.id)}
-                              className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                              className="p-1 rounded-input text-slate-400 hover:text-danger hover:bg-danger-light transition-colors"
                               title="Hapus Milestone"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -393,18 +394,18 @@ export default function ProjectDetailPage() {
                         <div className="space-y-1">
                           <div className="flex justify-between text-[11px]">
                             <span className="text-slate-500">Realisasi Fisik:</span>
-                            <span className="font-bold text-blue-600 dark:text-blue-400">{ms.actual_percentage || 0}%</span>
+                            <span className="font-bold text-primary-600">{ms.actual_percentage || 0}%</span>
                           </div>
-                          <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="w-full h-1.5 bg-line rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                              className="h-full bg-primary-600 rounded-full transition-all duration-500"
                               style={{ width: `${ms.actual_percentage || 0}%` }}
                             />
                           </div>
                         </div>
 
                         {ms.notes && (
-                          <p className="text-[11px] text-slate-500 italic bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                          <p className="text-[11px] text-slate-500 italic bg-white p-2 rounded-input border border-line">
                             Catatan: {ms.notes}
                           </p>
                         )}
@@ -412,7 +413,7 @@ export default function ProjectDetailPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="py-8 text-center text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                  <div className="py-8 text-center text-xs text-slate-400 border border-dashed border-line rounded-card">
                     Belum ada milestone tahapan pekerjaan.
                   </div>
                 )}
@@ -433,9 +434,9 @@ export default function ProjectDetailPage() {
 
         {/* 4. TIME PLAN */}
         {activeTab === 'timeplan' && (
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 space-y-6">
+          <div className="rounded-card border border-line bg-white shadow-card p-6 space-y-6">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-navy uppercase tracking-wider">
                 Linimasa Pelaksanaan Proyek (Time Plan)
               </h3>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -445,20 +446,20 @@ export default function ProjectDetailPage() {
 
             {project.start_date && project.end_date ? (
               <div className="space-y-6">
-                <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                <div className="flex justify-between text-xs font-semibold text-slate-600 p-3 rounded-card bg-surface border border-line">
                   <span>Mulai: {new Date(project.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   <span>Selesai: {new Date(project.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
 
-                <div className="relative border-l-2 border-blue-500/30 ml-4 space-y-6 pl-6">
+                <div className="relative border-l-2 border-primary-200 ml-4 space-y-6 pl-6">
                   {project.milestones?.map((ms, i) => (
                     <div key={ms.id} className="relative">
-                      <div className={`absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-slate-900 ${
-                        ms.status === 'completed' ? 'bg-emerald-500' : 'bg-blue-500'
+                      <div className={`absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white ${
+                        ms.status === 'completed' ? 'bg-success' : 'bg-primary-600'
                       }`} />
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-slate-900 dark:text-white">{ms.title}</span>
-                        <span className="font-semibold text-blue-600 dark:text-blue-400">Tahap {i + 1} ({ms.weight_percentage}%)</span>
+                        <span className="font-bold text-navy">{ms.title}</span>
+                        <span className="font-semibold text-primary-600">Tahap {i + 1} ({ms.weight_percentage}%)</span>
                       </div>
                       <p className="text-[11px] text-slate-500 mt-0.5">
                         Target Selesai: {ms.due_date || 'Belum diatur'} &bull; Status: <span className="capitalize">{ms.status}</span>
@@ -482,10 +483,10 @@ export default function ProjectDetailPage() {
 
         {/* 6. DOKUMEN PROYEK */}
         {activeTab === 'docs' && (
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 space-y-6">
+          <div className="rounded-card border border-line bg-white shadow-card p-6 space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                <h3 className="text-sm font-bold text-navy uppercase tracking-wider">
                   Berkas & Dokumen Proyek
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -493,15 +494,15 @@ export default function ProjectDetailPage() {
                 </p>
               </div>
               <input type="file" ref={fileInputRef} onChange={handleUploadDocument} className="hidden" />
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingDoc}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm"
               >
                 <Plus className="h-3.5 w-3.5" />
                 {uploadingDoc ? 'Mengunggah...' : 'Unggah Dokumen'}
-              </button>
+              </Button>
             </div>
 
             {project.documents && project.documents.length > 0 ? (
@@ -509,14 +510,14 @@ export default function ProjectDetailPage() {
                 {project.documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="flex items-start justify-between gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40"
+                    className="flex items-start justify-between gap-3 p-4 rounded-card border border-line bg-surface"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shrink-0">
+                      <div className="p-2 rounded-input bg-primary-50 text-primary-600 border border-primary-200 shrink-0">
                         <FileText className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate" title={doc.title}>
+                        <p className="text-xs font-bold text-navy truncate" title={doc.title}>
                           {doc.title}
                         </p>
                         <p className="text-[10px] text-slate-400 mt-0.5">
@@ -527,7 +528,7 @@ export default function ProjectDetailPage() {
                     <button
                       type="button"
                       onClick={() => handleDeleteDocument(doc.id)}
-                      className="text-slate-400 hover:text-red-500 p-1 transition-colors"
+                      className="text-slate-400 hover:text-danger p-1 transition-colors"
                       title="Hapus Dokumen"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -536,7 +537,7 @@ export default function ProjectDetailPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+              <div className="text-center py-10 text-xs text-slate-400 border border-dashed border-line rounded-card">
                 Belum ada dokumen yang diunggah.
               </div>
             )}
@@ -546,12 +547,12 @@ export default function ProjectDetailPage() {
 
       {/* MODAL TAMBAH MILESTONE */}
       {showMilestoneModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-slate-200 dark:border-slate-800">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">Tambah Tahapan Milestone</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md rounded-card-lg bg-white p-6 shadow-2xl border border-line">
+            <h3 className="text-base font-bold text-navy">Tambah Tahapan Milestone</h3>
             <form onSubmit={handleAddMilestone} className="mt-4 space-y-3.5">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Judul Tahapan / Milestone *
                 </label>
                 <input
@@ -560,12 +561,12 @@ export default function ProjectDetailPage() {
                   value={milestoneForm.title}
                   onChange={(e) => setMilestoneForm({ ...milestoneForm, title: e.target.value })}
                   placeholder="Misal: Pekerjaan Dinding & Plesteran"
-                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-input border border-line bg-white px-3 py-2 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Bobot Tagihan (%) *
                   </label>
                   <input
@@ -575,36 +576,38 @@ export default function ProjectDetailPage() {
                     required
                     value={milestoneForm.weight_percentage}
                     onChange={(e) => setMilestoneForm({ ...milestoneForm, weight_percentage: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-input border border-line bg-white px-3 py-2 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Target Selesai
                   </label>
                   <input
                     type="date"
                     value={milestoneForm.due_date}
                     onChange={(e) => setMilestoneForm({ ...milestoneForm, due_date: e.target.value })}
-                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-input border border-line bg-white px-3 py-2 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
               </div>
-              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
-                <button
+              <div className="pt-3 flex justify-end gap-2 border-t border-line">
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setShowMilestoneModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   Batal
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  variant="primary"
+                  size="sm"
                   disabled={submittingMilestone}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
                 >
                   {submittingMilestone ? 'Menyimpan...' : 'Simpan Tahapan'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
