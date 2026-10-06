@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\DivisionConfigController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectDashboardController;
 use App\Http\Controllers\Api\V1\ProjectDocumentController;
 use App\Http\Controllers\Api\V1\ProjectExpenseController;
 use App\Http\Controllers\Api\V1\ProjectInvoiceController;
@@ -240,6 +241,7 @@ Route::prefix('v1')->group(function () {
         });
         // Project Division
         Route::prefix('projects')->middleware(['scope', 'capability:view:projects'])->group(function () {
+            Route::get('/dashboard', ProjectDashboardController::class);
             Route::get('/', [ProjectController::class, 'index']);
             Route::get('/{id}', [ProjectController::class, 'show']);
             Route::get('/{id}/financial-summary', [ProjectController::class, 'financialSummary']);

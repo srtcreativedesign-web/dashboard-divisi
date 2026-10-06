@@ -1,7 +1,12 @@
 import { Project, PaginatedResponse, ProjectVendor, ProjectRab, ProjectExpense, ProjectInvoice, FinancialSummary } from '../types/project';
 import { api } from './client';
+import type { ProjectDashboard } from '../types/project';
 
 export const projectApi = {
+  getDashboard: async () => {
+    const response = await api.get<ProjectDashboard>('/projects/dashboard');
+    return response.data;
+  },
   getProjects: async (params?: { status?: string; search?: string; per_page?: number }) => {
     const response = await api.get<PaginatedResponse<Project>>(`/projects`, params as Record<string, string | undefined>);
     return response.data;

@@ -1,3 +1,16 @@
+export interface ProjectDashboard {
+  as_of: string;
+  total_projects: number;
+  active_projects: number;
+  active_contract_value: string;
+  average_recorded_progress: number | null;
+  progress_covered_projects: number;
+  status_counts: Record<string, number>;
+  overdue_projects: number;
+  attention_projects: { id: number; name: string; client_name?: string | null; overdue_milestones_count: number }[];
+  monthly_trend: { month: string; new_count: number; total_count: number }[];
+}
+
 export interface ProjectVendor {
   id: number;
   name: string;

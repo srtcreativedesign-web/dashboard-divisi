@@ -16,6 +16,8 @@ Titik masuk utama untuk histori & progres semua pekerjaan yang dicatat via Obsid
 
 ## Log Progres
 
+- **2026-10-06** — **Project / REQ**: dashboard memakai endpoint agregat PROJECT; KPI/aktivitas fiktif dihapus, progres hanya untuk bobot lengkap dengan cakupan, perhatian dari milestone melewati tenggat WIB, error/retry dan tren pencatatan nyata. Peran: Senior Product Manager, Senior Product Designer, Senior Fullstack Programmer, Application Security Engineer. Verifikasi: 15 tes backend/84 assertions, 3 tes frontend, typecheck/build dan lint halaman baru lulus; 15 lint any lama pada API/types masih terbuka. Acuan: `dokumen/46_IMPLEMENTASI_DASHBOARD_PROJECT_REQ.md`. Branch commit/push kini REQ, PR ke development. Pagination daftar, keamanan berkas/relasi dan integrasi Finance belum selesai.
+
 - **2026-08-24** — Setup awal: git init di vault, Dashboard dibuat, sinkronisasi GitHub dikonfigurasi.
 - **2026-08-24** — 7 dokumen spesifikasi (PRD/ARD/UI-UX/DataDict/API/UAT/Backlog) dibaca & dianalisis; arah project ditetapkan: satu website modular monolith, MVP Manajer Minimarket.
 - **2026-08-24** — Repo dipindah dari `E:\DASHBOARD DIVISI` (exFAT, lambat & tanpa symlink) ke `C:\Projects\dashboard-divisi` (NTFS). Folder lama tetap ada sebagai cadangan; buka ulang vault Obsidian di lokasi baru.
