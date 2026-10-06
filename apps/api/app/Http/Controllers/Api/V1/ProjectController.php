@@ -29,23 +29,28 @@ class ProjectController extends Controller
 
     public function show($id)
     {
-        // Notice we don't have vendors relationship setup in Project yet, but the PRD mentions it.
-        // Usually, projects might have a pivot table with vendors or a project_vendor might belong to a project.
-        // Wait, the PRD says project_vendors: id, name, category, contact_person, phone, email, bank_details.
-        // It seems vendors are just a master list directory that might be used across projects.
-        $project = Project::with(['milestones', 'rabs', 'documents.uploader'])->findOrFail($id);
+        $project = Project::with([
+            'milestones.photos',
+            'rabs',
+            'documents.uploader',
+            'photos.uploader',
+            'photos.milestone'
+        ])->findOrFail($id);
         return response()->json($project);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'project_code' => 'nullable|string|max:50|unique:projects,project_code',
             'name' => 'required|string|max:255',
             'client_name' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
             'contract_value' => 'numeric|min:0',
             'status' => 'in:planning,in_progress,on_hold,completed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
+            'description' => 'nullable|string',
         ]);
 
         $validated['division_code'] = 'PROJECT';
@@ -59,12 +64,15 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
 
         $validated = $request->validate([
+            'project_code' => 'nullable|string|max:50|unique:projects,project_code,' . $project->id,
             'name' => 'string|max:255',
             'client_name' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
             'contract_value' => 'numeric|min:0',
             'status' => 'in:planning,in_progress,on_hold,completed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
+            'description' => 'nullable|string',
         ]);
 
         $project->update($validated);
@@ -93,17 +101,52 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'weight_percentage' => 'required|numeric|min:0|max:100',
+            'actual_percentage' => 'nullable|numeric|min:0|max:100',
+            'status' => 'nullable|in:pending,in_progress,review,completed',
             'due_date' => 'nullable|date',
+            'completion_date' => 'nullable|date',
+            'notes' => 'nullable|string',
         ]);
 
         $milestone = $project->milestones()->create([
             'title' => $validated['title'],
             'weight_percentage' => $validated['weight_percentage'],
-            'status' => 'pending',
+            'actual_percentage' => $validated['actual_percentage'] ?? 0,
+            'status' => $validated['status'] ?? 'pending',
             'payment_status' => false,
-            'due_date' => $validated['due_date'],
+            'due_date' => $validated['due_date'] ?? null,
+            'completion_date' => $validated['completion_date'] ?? null,
+            'notes' => $validated['notes'] ?? null,
         ]);
 
         return response()->json($milestone, 201);
+    }
+
+    public function updateMilestone(Request $request, $id, $milestoneId)
+    {
+        $milestone = ProjectMilestone::where('project_id', $id)->findOrFail($milestoneId);
+
+        $validated = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'weight_percentage' => 'sometimes|required|numeric|min:0|max:100',
+            'actual_percentage' => 'nullable|numeric|min:0|max:100',
+            'status' => 'nullable|in:pending,in_progress,review,completed',
+            'payment_status' => 'nullable|boolean',
+            'due_date' => 'nullable|date',
+            'completion_date' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $milestone->update($validated);
+
+        return response()->json($milestone);
+    }
+
+    public function destroyMilestone($id, $milestoneId)
+    {
+        $milestone = ProjectMilestone::where('project_id', $id)->findOrFail($milestoneId);
+        $milestone->delete();
+
+        return response()->json(null, 204);
     }
 }

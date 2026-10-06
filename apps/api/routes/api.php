@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectVendorController;
 use App\Http\Controllers\Api\V1\ProjectRabController;
 use App\Http\Controllers\Api\V1\ProjectDocumentController;
+use App\Http\Controllers\Api\V1\ProjectPhotoController;
 use App\Http\Controllers\Api\V1\AccAdminController;
 use Illuminate\Support\Facades\Route;
 
@@ -239,16 +240,22 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [ProjectController::class, 'index']);
             Route::get('/{id}', [ProjectController::class, 'show']);
             Route::get('/{id}/documents', [ProjectDocumentController::class, 'index']);
+            Route::get('/{id}/photos', [ProjectPhotoController::class, 'index']);
             
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectController::class, 'store']);
                 Route::put('/{id}', [ProjectController::class, 'update']);
                 Route::patch('/{id}/payment-toggle', [ProjectController::class, 'paymentToggle']);
                 Route::post('/{id}/milestones', [ProjectController::class, 'storeMilestone']);
+                Route::put('/{id}/milestones/{milestoneId}', [ProjectController::class, 'updateMilestone']);
+                Route::delete('/{id}/milestones/{milestoneId}', [ProjectController::class, 'destroyMilestone']);
                 Route::post('/{id}/rab', [ProjectRabController::class, 'store']);
                 
                 Route::post('/{id}/documents', [ProjectDocumentController::class, 'store']);
                 Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
+
+                Route::post('/{id}/photos', [ProjectPhotoController::class, 'store']);
+                Route::delete('/{projectId}/photos/{photoId}', [ProjectPhotoController::class, 'destroy']);
             });
         });
 

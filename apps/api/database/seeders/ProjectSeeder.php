@@ -86,35 +86,72 @@ class ProjectSeeder extends Seeder
             ]
         ];
 
+        $index = 1;
         foreach ($projects as $projData) {
-            $desc = $projData['description'];
-            unset($projData['description']);
-            
-            // Check if description column exists in projects table, normally it doesn't from the fillable array earlier,
-            // so we might need to skip inserting it if it's not fillable, or assume it's just for frontend.
-            // Wait, I saw description in frontend but it might just be client_name or similar if backend doesn't have it.
-            // We'll insert it if it works, or catch error. But let's just insert standard fields.
-            
+            $code = sprintf('PRJ-2026-%03d', $index++);
+            $existing = Project::where('name', $projData['name'])->orWhere('project_code', $code)->first();
+            if ($existing) {
+                continue;
+            }
+
+            $projData['project_code'] = $code;
+            $projData['location'] = 'Jakarta & Sekitarnya';
             $project = Project::create($projData);
 
             // Dummy Milestones
-            ProjectMilestone::create([
+            $m1 = ProjectMilestone::create([
                 'project_id' => $project->id,
-                'title' => 'Tahap Perencanaan',
+                'title' => 'Tahap Perencanaan & Desain',
                 'weight_percentage' => 20,
+                'actual_percentage' => 20,
                 'payment_status' => true,
                 'due_date' => Carbon::parse($project->start_date)->addDays(14),
-                'status' => 'completed'
+                'completion_date' => Carbon::parse($project->start_date)->addDays(12),
+                'status' => 'completed',
+                'notes' => 'Desain arsitektur dan perizinan telah disetujui klien.',
+            ]);
+
+            // Seed photo before
+            $project->photos()->create([
+                'milestone_id' => $m1->id,
+                'stage' => 'before',
+                'area_name' => 'Kondisi Eksisting Awal',
+                'caption' => 'Kondisi fisik lapangan sebelum pekerjaan dimulai.',
+                'photo_path' => 'project_photos/sample-before.jpg',
+                'taken_at' => Carbon::parse($project->start_date),
             ]);
 
             if ($project->status === 'in_progress' || $project->status === 'completed') {
-                ProjectMilestone::create([
+                $m2 = ProjectMilestone::create([
                     'project_id' => $project->id,
-                    'title' => 'Pekerjaan Fondasi',
+                    'title' => 'Pekerjaan Struktur & Fondasi',
                     'weight_percentage' => 30,
+                    'actual_percentage' => $project->status === 'completed' ? 30 : 25,
                     'payment_status' => $project->status === 'completed',
                     'due_date' => Carbon::parse($project->start_date)->addMonths(1),
-                    'status' => $project->status === 'completed' ? 'completed' : 'in_progress'
+                    'completion_date' => $project->status === 'completed' ? Carbon::parse($project->start_date)->addMonths(1) : null,
+                    'status' => $project->status === 'completed' ? 'completed' : 'in_progress',
+                    'notes' => 'Pekerjaan cor beton dan pembesian berjalan sesuai spesifikasi.',
+                ]);
+
+                // Seed photo in_progress
+                $project->photos()->create([
+                    'milestone_id' => $m2->id,
+                    'stage' => 'in_progress',
+                    'area_name' => 'Struktur Utama',
+                    'caption' => 'Pengecoran struktur lantai dan pilar.',
+                    'photo_path' => 'project_photos/sample-inprogress.jpg',
+                    'taken_at' => Carbon::parse($project->start_date)->addDays(20),
+                ]);
+            }
+
+            if ($project->status === 'completed') {
+                $project->photos()->create([
+                    'stage' => 'after',
+                    'area_name' => 'Hasil Akhir',
+                    'caption' => 'Kondisi selesai 100% dan siap serah terima.',
+                    'photo_path' => 'project_photos/sample-after.jpg',
+                    'taken_at' => Carbon::parse($project->end_date),
                 ]);
             }
         }
