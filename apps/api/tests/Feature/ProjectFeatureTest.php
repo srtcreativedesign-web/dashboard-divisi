@@ -144,6 +144,8 @@ class ProjectFeatureTest extends TestCase
         $this->assertEquals(6500000, $rabRes->json('data.total_price'));
 
         // 2. Create Expense linked to RAB
+        $initialExpenseCount = $project->expenses()->count();
+
         $expenseRes = $this->authenticated('manager.project@dashboard.test')
             ->postJson("/api/v1/projects/{$project->id}/expenses", [
                 'item_name' => 'Pembelian Semen Gelombang 1',
@@ -161,7 +163,7 @@ class ProjectFeatureTest extends TestCase
         $listRes = $this->authenticated('manager.project@dashboard.test')
             ->getJson("/api/v1/projects/{$project->id}/expenses");
         $listRes->assertStatus(200);
-        $this->assertCount(1, $listRes->json('data'));
+        $this->assertCount($initialExpenseCount + 1, $listRes->json('data'));
 
         // 4. Update Expense
         $updateRes = $this->authenticated('manager.project@dashboard.test')
@@ -223,8 +225,13 @@ class ProjectFeatureTest extends TestCase
 
     public function test_can_calculate_financial_summary_and_variance()
     {
-        $project = Project::first();
-        $project->update(['contract_value' => 500000000]);
+        $project = Project::create([
+            'division_code' => 'PROJECT',
+            'project_code' => 'PRJ-TEST-FIN',
+            'name' => 'Proyek Uji Kalkulasi Finansial',
+            'contract_value' => 500000000,
+            'status' => 'in_progress',
+        ]);
 
         // Add RAB item
         $rab = $project->rabs()->create([

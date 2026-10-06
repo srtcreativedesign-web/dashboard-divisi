@@ -175,7 +175,9 @@ class DatabaseSeeder extends Seeder
         // 2. Seed Outlets (58 Real Outlets dari Sobat API + ACC Head Office)
         foreach (self::SOBAT_REAL_OUTLETS as $o) {
             $division = $divisionMap[$o['division_code']] ?? null;
-            if (! $division) continue;
+            if (! $division) {
+                continue;
+            }
 
             $outlet = Outlet::firstOrCreate(
                 ['code' => $o['code']],
@@ -266,5 +268,10 @@ class DatabaseSeeder extends Seeder
                 AccountingOutstandingSeeder::class,
             ]);
         }
+
+        // 7. Seed Project Division (Projects, Milestones, Vendors, RAB, Expenses, Invoices, Photos)
+        $this->call([
+            ProjectSeeder::class,
+        ]);
     }
 }
