@@ -18,6 +18,7 @@ class CellularController extends Controller
             $user['divisionCode'] = 'CELL';
             $user['division_code'] = 'CELL';
         }
+
         return response()->json($org->getOutletsForUser($user, 'CELL'));
     }
 }

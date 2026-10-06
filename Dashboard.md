@@ -20,6 +20,8 @@ Status terbaru 6 Oktober 2026: operasi scanner/backup native otomatis, proyeksi 
 
 ## Log Progres
 
+- **2026-10-06** — **Perubahan alur Git**: pengguna menetapkan commit dan push ke REQ saja, tanpa membuat PR. Ketentuan ini menggantikan PR development pada log sebelumnya. PR yang telah ada tetap dipertahankan. Format PHP dari snapshot pemulihan dirapikan dengan Pint, tanpa perubahan fitur.
+
 - **2026-10-06** — **Pemulihan ERP lokal / REQ**: atas permintaan pengguna, versi sebelum pull dikembalikan dari snapshot stash tracked + 152 file baru. Riwayat remote tidak dihapus; pemulihan menjadi commit baru. Database/config/unggahan lokal dipertahankan. Backend 258 tes/2.036 assertions dan frontend 105 tes lulus; lint/typecheck/build lulus. UI Accounting lama diverifikasi di browser. Acuan aktif kembali dokumen 00–43 dan `dokumen/44_PEMULIHAN_VERSI_SEBELUM_PULL.md`. Peran: keempat peran yang ditetapkan pengguna. Commit/push tetap ke REQ, PR ke development.
 
 - **2026-08-24** — Setup awal: git init di vault, Dashboard dibuat, sinkronisasi GitHub dikonfigurasi.

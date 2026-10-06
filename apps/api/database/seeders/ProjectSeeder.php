@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Project;
 use App\Models\ProjectMilestone;
-use App\Models\ProjectRab;
-use App\Models\ProjectDocument;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
 class ProjectSeeder extends Seeder
@@ -83,7 +81,7 @@ class ProjectSeeder extends Seeder
                 'start_date' => Carbon::now()->subDays(5)->format('Y-m-d'),
                 'end_date' => Carbon::now()->addMonths(1)->format('Y-m-d'),
                 'description' => 'Pemasangan sensor EWS di area pesisir.',
-            ]
+            ],
         ];
 
         foreach ($projects as $projData) {
@@ -104,7 +102,7 @@ class ProjectSeeder extends Seeder
                 'weight_percentage' => 20,
                 'payment_status' => true,
                 'due_date' => Carbon::parse($project->start_date)->addDays(14),
-                'status' => 'completed'
+                'status' => 'completed',
             ]);
 
             if ($project->status === 'in_progress' || $project->status === 'completed') {
@@ -114,7 +112,7 @@ class ProjectSeeder extends Seeder
                     'weight_percentage' => 30,
                     'payment_status' => $project->status === 'completed',
                     'due_date' => Carbon::parse($project->start_date)->addMonths(1),
-                    'status' => $project->status === 'completed' ? 'completed' : 'in_progress'
+                    'status' => $project->status === 'completed' ? 'completed' : 'in_progress',
                 ]);
             }
         }

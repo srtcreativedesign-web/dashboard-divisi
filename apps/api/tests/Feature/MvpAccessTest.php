@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Services\OrgReadModelService;
 use App\Services\PolicyService;
 use Tests\TestCase;
 
@@ -15,7 +16,7 @@ class MvpAccessTest extends TestCase
     public function test_cellular_manager_only_receives_cellular_outlets(): void
     {
         $response = $this->authenticated('manager.cell@dashboard.test')->getJson('/api/v1/cellular/outlets')->assertOk();
-        $expected = app(\App\Services\OrgReadModelService::class)->getOutletsForUser(['role' => 'MANAGER', 'divisionCode' => 'CELL'], 'CELL');
+        $expected = app(OrgReadModelService::class)->getOutletsForUser(['role' => 'MANAGER', 'divisionCode' => 'CELL'], 'CELL');
         $this->assertEquals($expected, $response->json('data'));
         $this->assertNotEmpty($response->json('data'));
     }

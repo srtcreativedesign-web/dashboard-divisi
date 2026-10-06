@@ -2,7 +2,7 @@
 
 Tanggal: 6 Oktober 2026. Peran: Senior Fullstack Programmer, Senior Product Manager, Senior Product Designer, Application Security Engineer.
 
-Pengguna meminta membatalkan penggunaan pembaruan GitHub dan melanjutkan versi ERP lokal yang sudah dibuat sebelumnya. Branch kerja tetap **REQ**, setiap paket di-commit/push dan PR menuju development.
+Pengguna meminta membatalkan penggunaan pembaruan GitHub dan melanjutkan versi ERP lokal yang sudah dibuat sebelumnya. Instruksi terakhir pengguna: branch kerja tetap **REQ**, setiap paket di-commit dan langsung di-push, **tanpa membuat PR**. Ini menggantikan ketentuan PR ke development sebelumnya; PR yang sudah ada tidak dihapus atau ditutup otomatis.
 
 ## Sumber pemulihan
 
@@ -16,7 +16,7 @@ Database PostgreSQL, konfigurasi environment lokal, berkas unggahan privat, kred
 
 - Backend: 258 tes, 2.036 assertions lulus pada SQLite in-memory.
 - Frontend: 105 tes dari 28 file lulus.
-- Lint, typecheck, build dan diff whitespace lulus. Build masih mempunyai warning dependency/chunk besar; bukan kegagalan build.
+- Lint, typecheck, build dan diff whitespace lulus. Pint menemukan format pada file snapshot yang dipulihkan; format dirapikan dan pemeriksaan diulang. Build masih mempunyai warning dependency/chunk besar; bukan kegagalan build.
 - Browser /accounting menampilkan Dashboard Accounting lama, pekerjaan harian Omzet H+1, Voucher, Setoran, Cuti/Absensi, serta kondisi belum ada periode yang sesuai data.
 - Frontend berjalan pada port 5173, API pada port 8000; health API melalui proxy berhasil.
 
