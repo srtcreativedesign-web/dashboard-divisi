@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Clock, CheckSquare, CreditCard, Calculator, Calendar, FileText, Camera, Edit3, Trash2, Printer } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Clock,
+  CheckSquare,
+  Calculator,
+  Calendar,
+  FileText,
+  Camera,
+  Edit3,
+  Trash2,
+  Printer,
+  Building2,
+  MapPin,
+  DollarSign,
+  TrendingUp,
+  AlertCircle,
+  Plus
+} from 'lucide-react';
 import { projectApi } from '../../api/projects';
 import { Project, ProjectMilestone } from '../../types/project';
 import { LoadingState, EmptyState } from '../../components/states';
@@ -16,7 +34,7 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   // Document State
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -82,26 +100,37 @@ export default function ProjectDetailPage() {
     if (!id) return;
     try {
       setSubmittingMilestone(true);
-      await projectApi.addMilestone(Number(id), milestoneForm);
+      await projectApi.addMilestone(Number(id), {
+        title: milestoneForm.title,
+        weight_percentage: milestoneForm.weight_percentage,
+        due_date: milestoneForm.due_date || null,
+        actual_percentage: 0,
+        status: 'pending',
+      });
       await fetchProject();
       setShowMilestoneModal(false);
       setMilestoneForm({ title: '', weight_percentage: 0, due_date: '' });
     } catch (err) {
-      alert('Gagal menambah termin/milestone');
+      alert('Gagal menambah milestone');
     } finally {
       setSubmittingMilestone(false);
     }
   };
 
-  const handleUpdateMilestone = async (milestoneId: number, data: Partial<ProjectMilestone>) => {
-    if (!id) return;
-    await projectApi.updateMilestone(Number(id), milestoneId, data);
-    await fetchProject();
+  const handleUpdateMilestone = async (data: any) => {
+    if (!id || !editingMilestone) return;
+    try {
+      await projectApi.updateMilestone(Number(id), editingMilestone.id, data);
+      await fetchProject();
+      setEditingMilestone(null);
+    } catch (err) {
+      alert('Gagal memperbarui milestone');
+    }
   };
 
   const handleDeleteMilestone = async (milestoneId: number) => {
     if (!id) return;
-    if (!confirm('Apakah Anda yakin ingin menghapus milestone ini?')) return;
+    if (!confirm('Hapus tahapan milestone ini?')) return;
     try {
       await projectApi.deleteMilestone(Number(id), milestoneId);
       await fetchProject();
@@ -110,8 +139,28 @@ export default function ProjectDetailPage() {
     }
   };
 
-  if (loading) return <LoadingState />;
-  if (error || !project) return <EmptyState title="Error" description={error || 'Proyek tidak ditemukan'} />;
+  const formatCurrency = (val: number | undefined | null) => {
+    if (val === undefined || val === null) return 'Rp 0';
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
+
+  if (loading) return <LoadingState label="Memuat detail data proyek..." />;
+  if (error || !project) return <EmptyState title="Proyek Tidak Ditemukan" description={error || 'Data proyek tidak dapat diakses.'} />;
+
+  // Calculate Cumulative Physical Progress
+  let totalCumulativeProgress = 0;
+  if (project.milestones && project.milestones.length > 0) {
+    project.milestones.forEach((m) => {
+      const weight = m.weight_percentage || 0;
+      const actual = m.actual_percentage || 0;
+      totalCumulativeProgress += (actual / 100) * weight;
+    });
+  }
+  totalCumulativeProgress = Math.min(100, Math.round(totalCumulativeProgress * 10) / 10);
 
   const tabs = [
     { id: 'overview', label: 'Overview & Milestone', icon: CheckSquare },
@@ -124,119 +173,215 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => navigate('/projects')}
-          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{project.name}</h1>
-          <p className="text-sm text-slate-500">{project.client_name || 'Klien Internal'}</p>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-            project.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-            project.status === 'completed' ? 'bg-green-100 text-green-800' :
-            project.status === 'on_hold' ? 'bg-red-100 text-red-800' :
-            'bg-slate-100 text-slate-800'
-          }`}>
-            {project.status.replace('_', ' ').toUpperCase()}
-          </span>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="border-b border-slate-200 dark:border-slate-800">
-        <nav className="-mb-px flex space-x-8 overflow-x-auto scrollbar-none" aria-label="Tabs">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
+      {/* HERO HEADER CARD */}
+      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3">
+            {/* Breadcrumb Navigation */}
+            <div className="flex items-center gap-2 text-xs text-slate-500">
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  group inline-flex items-center gap-2 border-b-2 py-4 px-1 text-sm font-medium whitespace-nowrap transition-colors
-                  ${activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                    : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                  }
-                `}
+                type="button"
+                onClick={() => navigate('/projects')}
+                className="inline-flex items-center gap-1 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
               >
-                <Icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-primary-500' : 'text-slate-400 group-hover:text-slate-500'}`} />
-                {tab.label}
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Daftar Proyek
               </button>
-            );
-          })}
-        </nav>
+              <span>/</span>
+              <span className="font-mono bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                {project.project_code || `PRJ-${project.id}`}
+              </span>
+            </div>
+
+            {/* Title & Status */}
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                {project.name}
+              </h1>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                project.status === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300' :
+                project.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' :
+                project.status === 'on_hold' ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300' :
+                'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+              }`}>
+                <span className={`h-2 w-2 rounded-full ${
+                  project.status === 'in_progress' ? 'bg-blue-600 animate-pulse' :
+                  project.status === 'completed' ? 'bg-emerald-600' : 'bg-slate-400'
+                }`} />
+                {project.status.replace('_', ' ')}
+              </span>
+            </div>
+
+            {/* Metadata Badges */}
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 dark:text-slate-400">
+              <div className="flex items-center gap-1.5">
+                <Building2 className="h-4 w-4 text-slate-400" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">{project.client_name || 'Klien Internal'}</span>
+              </div>
+              {project.location && (
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="h-4 w-4 text-slate-400" />
+                  <span>{project.location}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <DollarSign className="h-4 w-4 text-slate-400" />
+                <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(Number(project.contract_value))}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Overall Physical Progress Box */}
+          <div className="lg:w-72 p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-2.5 shrink-0">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-600 dark:text-slate-400">Progres Fisik Lapangan</span>
+              <span className="text-base font-black text-blue-600 dark:text-blue-400">{totalCumulativeProgress}%</span>
+            </div>
+            <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${
+                  totalCumulativeProgress === 100 ? 'bg-emerald-500' : 'bg-blue-600'
+                }`}
+                style={{ width: `${totalCumulativeProgress}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <span>{project.milestones?.length || 0} Tahapan Milestone</span>
+              <span>{project.status === 'completed' ? 'Selesai 100%' : 'Sedang Dikerjakan'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* TABS NAVIGATION */}
+        <div className="mt-8 border-t border-slate-100 dark:border-slate-800 pt-4">
+          <nav className="flex space-x-2 overflow-x-auto scrollbar-none" aria-label="Tabs">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all
+                    ${isActive
+                      ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }
+                  `}
+                >
+                  <Icon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="min-h-[400px]">
+      {/* TAB CONTENT AREA */}
+      <div className="min-h-[450px]">
+        {/* 1. OVERVIEW & MILESTONES */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-5 bg-white dark:bg-slate-900 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Informasi Proyek</h3>
-                <dl className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">Nilai Kontrak</dt>
-                    <dd className="font-semibold text-slate-900 dark:text-white">Rp {parseFloat(project.contract_value.toString()).toLocaleString('id-ID')}</dd>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Kolom Kiri: Informasi Rinci */}
+              <div className="lg:col-span-1 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900 shadow-sm space-y-4">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  Informasi Proyek
+                </h3>
+                <div className="space-y-3.5 text-xs">
+                  <div>
+                    <span className="text-slate-400 block text-[11px]">Deskripsi Pekerjaan</span>
+                    <p className="text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">
+                      {project.description || 'Tidak ada catatan deskripsi.'}
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                    <span className="text-slate-500">Nilai Kontrak</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(Number(project.contract_value))}</span>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Tanggal Mulai</dt>
-                    <dd className="font-medium text-slate-900 dark:text-white">{project.start_date ? new Date(project.start_date).toLocaleDateString('id-ID') : '-'}</dd>
+                    <span className="text-slate-500">Tanggal Mulai</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                      {project.start_date ? new Date(project.start_date).toLocaleDateString('id-ID') : '-'}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-slate-500">Tenggat Waktu</dt>
-                    <dd className="font-medium text-slate-900 dark:text-white">{project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID') : '-'}</dd>
+                    <span className="text-slate-500">Target Selesai</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                      {project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID') : '-'}
+                    </span>
                   </div>
-                </dl>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Lokasi</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{project.location || '-'}</span>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-5 bg-white dark:bg-slate-900 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Milestone Progress</h3>
-                  <button 
+
+              {/* Kolom Kanan: Rangkaian Milestone */}
+              <div className="lg:col-span-2 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                      Tahapan Pekerjaan (Milestones)
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Kemajuan fisik berbobot dan status pembayaran termin
+                    </p>
+                  </div>
+                  <button
+                    type="button"
                     onClick={() => setShowMilestoneModal(true)}
-                    className="text-sm font-semibold text-primary-600 hover:text-primary-500"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-all shadow-sm"
                   >
-                    + Tambah Termin
+                    <Plus className="h-3.5 w-3.5" />
+                    Tambah Milestone
                   </button>
                 </div>
+
                 {project.milestones && project.milestones.length > 0 ? (
                   <div className="space-y-3">
-                    {project.milestones.map((ms) => (
-                      <div key={ms.id} className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-2.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
-                            {ms.status === 'completed' ? (
-                              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                            ) : (
-                              <Clock className="h-4 w-4 text-amber-500 shrink-0" />
-                            )}
-                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{ms.title}</span>
+                    {project.milestones.map((ms, idx) => (
+                      <div
+                        key={ms.id}
+                        className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5">
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[10px] font-black mt-0.5">
+                              {idx + 1}
+                            </span>
+                            <div>
+                              <h4 className="text-xs font-bold text-slate-900 dark:text-white">{ms.title}</h4>
+                              <p className="text-[11px] text-slate-500 mt-0.5">
+                                Bobot Rencana: <span className="font-semibold text-slate-700 dark:text-slate-300">{ms.weight_percentage}%</span>
+                                {ms.due_date && ` &bull; Target: ${ms.due_date}`}
+                              </p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                               ms.status === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300' :
                               ms.status === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300' :
-                              ms.status === 'review' ? 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300' :
                               'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
                             }`}>
                               {ms.status || 'pending'}
                             </span>
                             <button
+                              type="button"
                               onClick={() => setEditingMilestone(ms)}
-                              className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition-colors"
-                              title="Edit Milestone"
+                              className="p-1 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-slate-200/60 transition-colors"
+                              title="Update Progres"
                             >
                               <Edit3 className="h-3.5 w-3.5" />
                             </button>
                             <button
+                              type="button"
                               onClick={() => handleDeleteMilestone(ms.id)}
-                              className="p-1 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                              className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                               title="Hapus Milestone"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -244,171 +389,221 @@ export default function ProjectDetailPage() {
                           </div>
                         </div>
 
-                        {/* Progress comparison bar */}
+                        {/* Progress Bar Milestone */}
                         <div className="space-y-1">
-                          <div className="flex justify-between text-xs text-slate-500">
-                            <span>Realisasi: <b className="text-primary-600 dark:text-primary-400">{ms.actual_percentage ?? 0}%</b></span>
-                            <span>Target Bobot: {ms.weight_percentage}%</span>
+                          <div className="flex justify-between text-[11px]">
+                            <span className="text-slate-500">Realisasi Fisik:</span>
+                            <span className="font-bold text-blue-600 dark:text-blue-400">{ms.actual_percentage || 0}%</span>
                           </div>
-                          <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-primary-600 dark:bg-primary-500 rounded-full transition-all"
-                              style={{ width: `${Math.min(ms.actual_percentage ?? 0, 100)}%` }}
+                              className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                              style={{ width: `${ms.actual_percentage || 0}%` }}
                             />
                           </div>
                         </div>
 
                         {ms.notes && (
-                          <p className="text-xs text-slate-500 bg-white dark:bg-slate-800/80 p-2 rounded-lg border border-slate-100 dark:border-slate-700/50 italic">
-                            "{ms.notes}"
+                          <p className="text-[11px] text-slate-500 italic bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                            Catatan: {ms.notes}
                           </p>
                         )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-sm text-slate-500 italic">Belum ada milestone tercatat.</div>
+                  <div className="py-8 text-center text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                    Belum ada milestone tahapan pekerjaan.
+                  </div>
                 )}
               </div>
             </div>
           </div>
         )}
 
+        {/* 2. FOTO BEFORE - AFTER */}
         {activeTab === 'visuals' && (
           <BeforeAfterGallery projectId={project.id} milestones={project.milestones} />
         )}
 
+        {/* 3. KONTROL BIAYA & TERMIN */}
         {activeTab === 'finance' && (
           <ProjectCostControl project={project} onRefresh={fetchProject} />
         )}
 
+        {/* 4. TIME PLAN */}
         {activeTab === 'timeplan' && (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Time Plan & Linimasa</h3>
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 space-y-6">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Linimasa Pelaksanaan Proyek (Time Plan)
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Estimasi periode pelaksanaan kontrak dan jadwal target per milestone
+              </p>
             </div>
+
             {project.start_date && project.end_date ? (
               <div className="space-y-6">
-                <div className="flex justify-between text-sm font-medium text-slate-500">
-                  <span>Mulai: {new Date(project.start_date).toLocaleDateString()}</span>
-                  <span>Selesai: {new Date(project.end_date).toLocaleDateString()}</span>
+                <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                  <span>Mulai: {new Date(project.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  <span>Selesai: {new Date(project.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
-                
-                <div className="relative w-full h-8 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                  <div className="absolute top-0 left-0 h-full bg-primary-500/20 w-full" />
-                  {/* Progress bar logic - if status completed, 100% else maybe based on date */}
-                  <div 
-                    className="absolute top-0 left-0 h-full bg-primary-500 rounded-full transition-all" 
-                    style={{ 
-                      width: project.status === 'completed' ? '100%' : 
-                             project.status === 'planning' ? '10%' : '50%' 
-                    }} 
-                  />
-                </div>
-                
-                <div className="mt-8">
-                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Milestone Timeline</h4>
-                  <div className="relative border-l-2 border-slate-200 dark:border-slate-700 ml-3 space-y-6">
-                    {project.milestones && project.milestones.length > 0 ? (
-                      project.milestones.map((ms, i) => (
-                        <div key={ms.id} className="relative pl-6">
-                          <div className={`absolute -left-[9px] top-1.5 h-4 w-4 rounded-full border-2 border-white dark:border-slate-900 ${ms.payment_status ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
-                          <div className="flex items-center justify-between">
-                            <p className="font-medium text-slate-900 dark:text-white">{ms.title}</p>
-                            <span className="text-xs text-slate-500">Termin {i + 1} ({ms.weight_percentage}%)</span>
-                          </div>
-                          <p className="text-sm text-slate-500 mt-1">Status Pembayaran: {ms.payment_status ? 'Lunas' : 'Tertunda'}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="pl-6 text-sm text-slate-500">Belum ada termin.</p>
-                    )}
-                  </div>
+
+                <div className="relative border-l-2 border-blue-500/30 ml-4 space-y-6 pl-6">
+                  {project.milestones?.map((ms, i) => (
+                    <div key={ms.id} className="relative">
+                      <div className={`absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-slate-900 ${
+                        ms.status === 'completed' ? 'bg-emerald-500' : 'bg-blue-500'
+                      }`} />
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-900 dark:text-white">{ms.title}</span>
+                        <span className="font-semibold text-blue-600 dark:text-blue-400">Tahap {i + 1} ({ms.weight_percentage}%)</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Target Selesai: {ms.due_date || 'Belum diatur'} &bull; Status: <span className="capitalize">{ms.status}</span>
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : (
-              <div className="text-center py-10 text-sm text-slate-500">
-                Data tanggal mulai dan selesai proyek belum diatur.
+              <div className="text-center py-10 text-xs text-slate-400">
+                Tanggal mulai atau selesai proyek belum diatur.
               </div>
             )}
           </div>
         )}
 
+        {/* 5. LAPORAN & BAST */}
         {activeTab === 'reports' && (
           <ProjectReportsExport project={project} />
         )}
 
+        {/* 6. DOKUMEN PROYEK */}
         {activeTab === 'docs' && (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Dokumentasi Proyek</h3>
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  Berkas & Dokumen Proyek
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Arsip kontrak kerja, surat penawaran, drawing teknis, dan dokumen legal
+                </p>
+              </div>
               <input type="file" ref={fileInputRef} onChange={handleUploadDocument} className="hidden" />
-              <button 
-                onClick={() => fileInputRef.current?.click()} 
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingDoc}
-                className="text-sm font-semibold text-primary-600 hover:text-primary-500 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all shadow-sm"
               >
-                {uploadingDoc ? 'Mengunggah...' : '+ Unggah Dokumen'}
+                <Plus className="h-3.5 w-3.5" />
+                {uploadingDoc ? 'Mengunggah...' : 'Unggah Dokumen'}
               </button>
             </div>
 
-            <div className="space-y-4">
-              {project.documents && project.documents.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {project.documents.map((doc) => (
-                    <div key={doc.id} className="flex items-start gap-4 p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-                      <FileText className="w-8 h-8 text-primary-500 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate" title={doc.title}>{doc.title}</p>
-                        <p className="text-xs text-slate-500">{new Date(doc.created_at).toLocaleDateString()}</p>
+            {project.documents && project.documents.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {project.documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="flex items-start justify-between gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shrink-0">
+                        <FileText className="h-5 w-5" />
                       </div>
-                      <button 
-                        onClick={() => handleDeleteDocument(doc.id)} 
-                        className="text-slate-400 hover:text-red-500 shrink-0"
-                      >
-                        &times;
-                      </button>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate" title={doc.title}>
+                          {doc.title}
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {new Date(doc.created_at).toLocaleDateString('id-ID')}
+                        </p>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-10">
-                  <FileText className="mx-auto h-12 w-12 text-slate-400 mb-3" />
-                  <p className="text-sm text-slate-500">Belum ada dokumen yang diunggah.</p>
-                </div>
-              )}
-            </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDocument(doc.id)}
+                      className="text-slate-400 hover:text-red-500 p-1 transition-colors"
+                      title="Hapus Dokumen"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                Belum ada dokumen yang diunggah.
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Milestone Modal */}
+      {/* MODAL TAMBAH MILESTONE */}
       {showMilestoneModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Tambah Termin (Milestone)</h3>
-              <button onClick={() => setShowMilestoneModal(false)} className="text-slate-400 hover:text-slate-500">&times;</button>
-            </div>
-            <form onSubmit={handleAddMilestone} className="p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-2xl border border-slate-200 dark:border-slate-800">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Tambah Tahapan Milestone</h3>
+            <form onSubmit={handleAddMilestone} className="mt-4 space-y-3.5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Judul / Nama Termin</label>
-                <input required type="text" value={milestoneForm.title} onChange={(e) => setMilestoneForm({ ...milestoneForm, title: e.target.value })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" placeholder="Misal: Termin 1 (Uang Muka)" />
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Judul Tahapan / Milestone *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={milestoneForm.title}
+                  onChange={(e) => setMilestoneForm({ ...milestoneForm, title: e.target.value })}
+                  placeholder="Misal: Pekerjaan Dinding & Plesteran"
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bobot Tagihan (%)</label>
-                <input required type="number" min="0" max="100" value={milestoneForm.weight_percentage} onChange={(e) => setMilestoneForm({ ...milestoneForm, weight_percentage: parseFloat(e.target.value) })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Bobot Tagihan (%) *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    required
+                    value={milestoneForm.weight_percentage}
+                    onChange={(e) => setMilestoneForm({ ...milestoneForm, weight_percentage: parseFloat(e.target.value) || 0 })}
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Target Selesai
+                  </label>
+                  <input
+                    type="date"
+                    value={milestoneForm.due_date}
+                    onChange={(e) => setMilestoneForm({ ...milestoneForm, due_date: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tanggal Jatuh Tempo (Opsional)</label>
-                <input type="date" value={milestoneForm.due_date} onChange={(e) => setMilestoneForm({ ...milestoneForm, due_date: e.target.value })} className="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500" />
-              </div>
-              <div className="pt-4 flex justify-end gap-3">
-                <button type="button" onClick={() => setShowMilestoneModal(false)} className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50">
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowMilestoneModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={submittingMilestone} className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50">
-                  {submittingMilestone ? 'Menyimpan...' : 'Simpan'}
+                <button
+                  type="submit"
+                  disabled={submittingMilestone}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+                >
+                  {submittingMilestone ? 'Menyimpan...' : 'Simpan Tahapan'}
                 </button>
               </div>
             </form>
@@ -416,7 +611,7 @@ export default function ProjectDetailPage() {
         </div>
       )}
 
-      {/* Milestone Edit Modal */}
+      {/* MODAL EDIT MILESTONE */}
       {editingMilestone && (
         <MilestoneUpdateModal
           milestone={editingMilestone}
