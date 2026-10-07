@@ -28,6 +28,57 @@ class AccountingDepositTest extends TestCase
         return ['version' => $version, 'amount' => $amount, 'received_date' => now('Asia/Jakarta')->toDateString(), 'evidence_reference' => $ref];
     }
 
+    public function test_source_drilldown_includes_all_deposit_dates_and_excludes_other_sources(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-09-30 10:00:00', 'Asia/Jakarta'));
+        $d = $this->payload();
+        $first = $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['amount' => '200.00']))->assertCreated()->json('data.id');
+        $this->travelTo(CarbonImmutable::parse('2026-10-02 10:00:00', 'Asia/Jakarta'));
+        $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['channel' => 'qris', 'amount' => '200.00', 'deposit_date' => '2026-10-02', 'source_reference' => 'SETOR-BULAN-2']))->assertCreated();
+        $other = OmzetRecord::findOrFail($d['omzet_id'])->replicate();
+        $other->id = (string) Str::uuid();
+        $other->shift = '2';
+        $other->source_reference = 'OMZ-LAIN';
+        $other->save();
+        $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['omzet_id' => $other->id, 'amount' => '100.00', 'deposit_date' => '2026-10-02', 'source_reference' => 'SETOR-LAIN']))->assertCreated();
+        $url = '/api/v1/accounting/deposits?omzet_id='.$d['omzet_id'];
+        foreach (['admin.acc@dashboard.test', 'manager.acc@dashboard.test', 'accounting@dashboard.test', 'finance@dashboard.test'] as $email) {
+            $response = $this->authenticated($email)->getJson($url)->assertOk()->assertJsonPath('data.total', 2)->assertJsonPath('data.source.id', $d['omzet_id']);
+            $this->assertSame(['2026-10-02', '2026-09-30'], array_column($response->json('data.items'), 'deposit_date'));
+            $this->assertSame(['id', 'outlet_name', 'business_date', 'shift', 'source_reference'], array_keys($response->json('data.source')));
+        }
+        $this->authenticated('admin.acc@dashboard.test')->postJson('/api/v1/accounting/deposits/'.$first.'/void', ['version' => 1, 'reason' => 'Koreksi catatan sumber anonim'])->assertOk();
+        $this->getJson($url)->assertOk()->assertJsonPath('data.items.1.status', 'voided');
+        $this->getJson('/api/v1/accounting/deposits?month=2026-10')->assertOk()->assertJsonPath('data.total', 2)->assertJsonPath('data.source', null);
+        $this->travelBack();
+    }
+
+    public function test_source_drilldown_rejects_invalid_missing_and_foreign_sources(): void
+    {
+        $d = $this->payload();
+        $this->getJson('/api/v1/accounting/deposits?omzet_id=invalid')->assertStatus(400);
+        $this->getJson('/api/v1/accounting/deposits')->assertStatus(400);
+        $missing = $this->getJson('/api/v1/accounting/deposits?omzet_id='.Str::uuid())->assertNotFound()->json('error.message');
+        OmzetRecord::where('id', $d['omzet_id'])->update(['division_code' => 'PROJECT']);
+        $this->assertSame($missing, $this->getJson('/api/v1/accounting/deposits?omzet_id='.$d['omzet_id'])->assertNotFound()->json('error.message'));
+        foreach (['HEAD_OPS', 'SPV', 'LEADER', 'ADMIN_GUDANG'] as $role) {
+            User::where('email', 'manager.acc@dashboard.test')->update(['role' => $role]);
+            $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/deposits?omzet_id='.$d['omzet_id'])->assertForbidden();
+        }
+    }
+
+    public function test_source_drilldown_pagination_remains_bounded(): void
+    {
+        $d = $this->payload();
+        for ($i = 0; $i < 51; $i++) {
+            $this->postJson('/api/v1/accounting/deposits', array_replace($d, ['amount' => '1.00', 'source_reference' => 'SETOR-PAGE-'.$i]))->assertCreated();
+        }
+        $url = '/api/v1/accounting/deposits?omzet_id='.$d['omzet_id'];
+        $first = $this->getJson($url)->assertOk()->assertJsonPath('data.total', 51)->assertJsonCount(50, 'data.items')->json('data.items');
+        $second = $this->getJson($url.'&page=2')->assertOk()->assertJsonCount(1, 'data.items')->json('data.items');
+        $this->assertNotContains($second[0]['id'], array_column($first, 'id'));
+    }
+
     public function test_reconciliation_preserves_channel_allocation_and_partial_receipts(): void
     {
         $d = $this->payload();

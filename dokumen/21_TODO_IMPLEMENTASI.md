@@ -50,6 +50,8 @@ Ringkasan terbaru 6 Oktober 2026: 01–03 selesai teknis; 04 parsial (retensi/de
 
 ## Penerimaan pekerjaan
 
+ENT-03a-2 penelusuran setoran per sumber selesai teknis pada 7 Oktober 2026: [scope/bukti](49_PENELUSURAN_SETORAN_PER_SUMBER.md). Gate lulus 267 backend/118 web/dua contracts; daftar sumber mencakup semua tanggal dan kembali ke daftar bulanan. Tidak menutup jurnal/PNL atau UAT.
+
 ENT-03a pencocokan omzet/setoran selesai teknis pada 7 Oktober 2026: [scope/bukti](48_PENCOCOKAN_OMZET_DAN_SETORAN.md). Tidak menutup TODO-07 (PNL/jurnal) atau penerimaan bisnis; laporan hanya membandingkan catatan sumber/alokasi/penerimaan.
 
 Jalur kesiapan enterprise sejak 7 Oktober 2026: [TODO dan urutan ENT-01–09](46_TODO_KESIAPAN_ENTERPRISE.md). ENT-01 dimulai dari gate teknis lokal serta konfigurasi CI REQ. Verifikasi remote masih terblokir billing GitHub; tidak menutup TODO-13 atau menyatakan kesiapan produksi.

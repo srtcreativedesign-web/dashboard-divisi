@@ -23,6 +23,7 @@
 
 - [x] ENT-03a — pencocokan pembayaran omzet tervalidasi, alokasi setoran dan penerimaan Finance per kanal/sumber. [Scope dan hasil](48_PENCOCOKAN_OMZET_DAN_SETORAN.md). Gate exit 0: 264 backend/115 web/dua contracts lulus; browser native kosong desktop/mobile diperiksa. Bukan jurnal otomatis atau UAT bisnis.
 - [ ] ENT-03b — pemetaan COA, pengakuan pendapatan/HPP/bonus, sumber voucher/jurnal dan penutupan periode lengkap. Tidak diputuskan melalui asumsi atau angka contoh.
+- [x] ENT-03a-2 — tautan pencocokan ke daftar setoran satu sumber di semua tanggal, konteks server, histori pembatalan, kembali ke daftar bulanan dan reset detail saat berganti sumber. [Scope dan hasil](49_PENELUSURAN_SETORAN_PER_SUMBER.md). Gate exit 0: 267 backend/118 web/dua contracts. Tidak menutup ENT-03b atau UAT.
 
 ## Pekerjaan pertama yang diimplementasikan
 

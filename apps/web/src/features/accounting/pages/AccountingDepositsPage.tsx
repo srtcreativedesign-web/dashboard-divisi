@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { DetailSheet } from '../../../components/ui/DetailSheet';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState, ErrorState } from '../../../components/states';
@@ -14,12 +14,17 @@ const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'n
 const blank=():DepositInput=>({omzet_id:'',channel:'',deposit_date:today(),amount:'',destination:'',source_reference:'',evidence_reference:''});
 const inputClass='mt-1 w-full rounded-lg border border-line bg-white p-2';
 export default function AccountingDepositsPage(){
+ const [params]=useSearchParams();const sourceFilter=params.get('omzet_id');
+ return <DepositWorkspace key={sourceFilter===null?'monthly':`source:${sourceFilter}`} sourceFilter={sourceFilter}/>;
+}
+function DepositWorkspace({sourceFilter}:{sourceFilter:string|null}){
  const {user}=useAuth();const can=(c:string)=>!!user&&hasCapability(user.role,c,user.divisionCode);const client=useQueryClient();
+ const sourceFiltered=sourceFilter!==null;const validSource=!!sourceFilter&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(sourceFilter);
  const [formOpen,setFormOpen]=useState(false);
  const [month,setMonth]=useState(today().slice(0,7));const [page,setPage]=useState(1);const [sourceMonth,setSourceMonth]=useState(today().slice(0,7));const [sourcePage,setSourcePage]=useState(1);const [source,setSource]=useState<DepositSource|null>(null);
  const [form,setForm]=useState(blank);const [selected,setSelected]=useState<string|null>(null);const [receipt,setReceipt]=useState({received_date:today(),amount:'',evidence_reference:''});const [cancel,setCancel]=useState<{receipt?:string}|null>(null);const [reason,setReason]=useState('');const [notice,setNotice]=useState('');
- const list=useQuery({queryKey:['acc-deposits','list',month,page],queryFn:()=>depositsApi.list(month,page),enabled:can('view:acc_deposits')&&/^\d{4}-\d{2}$/.test(month)});
- const sources=useQuery({queryKey:['acc-deposits','sources',sourceMonth,sourcePage],queryFn:()=>depositsApi.sources(sourceMonth,sourcePage),enabled:can('write:acc_deposits')&&/^\d{4}-\d{2}$/.test(sourceMonth)});
+ const list=useQuery({queryKey:['acc-deposits','list',sourceFiltered?'source':'month',sourceFiltered?sourceFilter:month,page],queryFn:()=>sourceFiltered?depositsApi.list(month,page,sourceFilter!):depositsApi.list(month,page),enabled:can('view:acc_deposits')&&(sourceFiltered?validSource:/^\d{4}-\d{2}$/.test(month))});
+ const sources=useQuery({queryKey:['acc-deposits','sources',sourceMonth,sourcePage],queryFn:()=>depositsApi.sources(sourceMonth,sourcePage),enabled:!sourceFiltered&&can('write:acc_deposits')&&/^\d{4}-\d{2}$/.test(sourceMonth)});
  const detail=useQuery({queryKey:['acc-deposits','detail',selected],queryFn:()=>depositsApi.detail(selected!),enabled:can('view:acc_deposits')&&!!selected});const record=detail.data?.data;
  const mutation=useMutation({mutationFn:async(action:'create'|'receive'|'void')=>{
   if(action==='create')return {action,result:await depositsApi.create(form)};
@@ -31,7 +36,7 @@ export default function AccountingDepositsPage(){
  const button=(label:string)=><Button type="submit" disabled={mutation.isPending}>{mutation.isPending?'Menyimpan...':label}</Button>;
  if(!can('view:acc_deposits'))return <p role="alert" className="p-6">Akses rekap setoran tidak tersedia untuk akun ini.</p>;
  return <div className="space-y-6">
-  <header className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-bold">Rekap Setoran</h1><p className="mt-2 text-sm text-slate-600">Setoran berdasarkan omzet tervalidasi. Penerimaan dicatat Finance dari bukti aktual; sisa belum diterima bukan laba atau rugi.</p></div>{can('write:acc_deposits')&&<Button onClick={()=>{setSelected(null);setFormOpen(true);setNotice('');mutation.reset();}}>Buat setoran</Button>}</header>
+  <header className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-bold">Rekap Setoran</h1><p className="mt-2 text-sm text-slate-600">Setoran berdasarkan omzet tervalidasi. Penerimaan dicatat Finance dari bukti aktual; sisa belum diterima bukan laba atau rugi.</p></div>{!sourceFiltered&&can('write:acc_deposits')&&<Button onClick={()=>{setSelected(null);setFormOpen(true);setNotice('');mutation.reset();}}>Buat setoran</Button>}</header>
   <WorkflowGuide kind="setoran" />
   <Link to="/accounting/pencocokan-setoran" className="inline-flex min-h-10 items-center text-sm font-semibold text-primary-700 underline">Cocokkan pembayaran omzet dengan setoran dan penerimaan</Link>
   {notice&&!selected&&<p role="status" className="text-green-700">{notice}</p>}{mutation.error&&!formOpen&&!selected&&<p role="alert" className="text-red-700">{mutation.error.message}</p>}
@@ -48,8 +53,8 @@ export default function AccountingDepositsPage(){
     {field('Tanggal setoran','deposit_date','date')}{field('Nominal setoran (Rp, titik untuk desimal)','amount')}{field('Rekening/lokasi tujuan sesuai sumber','destination')}{field('Referensi sumber setoran unik','source_reference')}{field('Referensi dokumen bukti setoran','evidence_reference')}
     <p className="text-sm text-slate-500">Bukti berupa referensi dokumen eksternal. Koreksi setoran melalui pembatalan sebelum ada penerimaan, lalu catat sumber baru.</p><div>{button('Simpan setoran')}</div>
    </fieldset></form>}</DetailSheet>}
-  <section className="rounded-xl border border-line bg-white p-4"><label className="block text-sm">Bulan tanggal setoran<input type="month" required value={month} className={inputClass} onChange={e=>{setMonth(e.target.value);setPage(1);}}/></label>
-   {list.isLoading&&<p role="status">Memuat setoran...</p>}{list.isSuccess&&list.data.data.total===0&&<EmptyState title="Belum ada setoran pada bulan ini" description="Setoran yang dicatat akan muncul di sini. Gunakan filter bulan untuk melihat periode lainnya." />}
+  <section className="rounded-xl border border-line bg-white p-4">{sourceFiltered?<div className="space-y-2"><h2 className="font-semibold text-navy">Setoran dari sumber yang dipilih</h2>{list.data?.data.source&&<p className="break-words text-sm">{list.data.data.source.outlet_name} · {formatDate(list.data.data.source.business_date)} · shift {list.data.data.source.shift} · referensi {list.data.data.source.source_reference}</p>}<p className="text-sm text-slate-500">Semua tanggal setoran untuk sumber ini, termasuk bulan sesudah omzet. Catatan dibatalkan tetap tampil untuk penelusuran.</p><Link to="/accounting/setoran" className="inline-flex min-h-10 items-center text-sm font-semibold text-primary-700 underline">Semua setoran</Link>{!validSource&&<p role="alert">ID sumber omzet tidak valid. Kembali ke daftar atau laporan pencocokan.</p>}</div>:<label className="block text-sm">Bulan tanggal setoran<input type="month" required value={month} className={inputClass} onChange={e=>{setMonth(e.target.value);setPage(1);}}/></label>}
+   {list.isLoading&&<p role="status">Memuat setoran...</p>}{list.isSuccess&&list.data.data.total===0&&<EmptyState title={sourceFiltered?'Belum ada setoran untuk sumber ini':'Belum ada setoran pada bulan ini'} description={sourceFiltered?'Sumber sudah ditemukan, tetapi belum mempunyai catatan setoran. Buka semua setoran untuk pencatatan baru.':'Setoran yang dicatat akan muncul di sini. Gunakan filter bulan untuk melihat periode lainnya.'} />}
    <ul className="my-4 space-y-2">{list.data?.data.items.map(r=><li key={r.id}><button disabled={mutation.isPending} className="w-full rounded-lg border border-line p-3 text-left" onClick={()=>{setSelected(r.id);setCancel(null);setReason('');mutation.reset();}}>{r.outlet_name} / {formatDate(r.business_date)} / {r.shift} — {channelLabels[r.channel]??r.channel}<br/><span className="text-sm">{formatDate(r.deposit_date)} · {formatRupiah(r.amount)} · diterima {formatRupiah(r.received_amount)} · sisa {formatRupiah(r.remaining_amount)} · <StatusBadge status={r.status} label={r.status==='voided'?'Dibatalkan':'Dicatat'} /></span></button></li>)}</ul>
    {(list.data?.data.total??0)>0&&<nav aria-label="Halaman daftar setoran" className="flex flex-wrap items-center gap-3 text-sm"><button className="min-h-10 rounded border border-line px-3 disabled:opacity-40" disabled={page===1} onClick={()=>setPage(page-1)}>Sebelumnya</button><span>Halaman {page} · {list.data?.data.total??0} catatan</span><button className="min-h-10 rounded border border-line px-3 disabled:opacity-40" disabled={page*50>=(list.data?.data.total??0)} onClick={()=>setPage(page+1)}>Berikutnya</button></nav>}
   </section>

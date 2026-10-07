@@ -95,12 +95,24 @@ class DepositService
     public function list(array $f, array $u): array
     {
         $this->access($u);
-        $s = CarbonImmutable::createFromFormat('!Y-m', $f['month']);
-        $q = DB::table('acc_deposits')->whereBetween('deposit_date', [$s->toDateString(), $s->endOfMonth()->toDateString()]);
+        $q = DB::table('acc_deposits');
+        $source = null;
+        if (! empty($f['omzet_id'])) {
+            $record = OmzetRecord::where('division_code', 'ACC')->find($f['omzet_id']);
+            if (! $record) {
+                throw new ApiException('RESOURCE_NOT_FOUND', 'Sumber omzet tidak ditemukan.');
+            }
+            $source = ['id' => $record->id, 'outlet_name' => $record->outlet_name, 'business_date' => $record->business_date->toDateString(),
+                'shift' => $record->shift, 'source_reference' => $record->source_reference];
+            $q->where('omzet_id', $record->id);
+        } else {
+            $s = CarbonImmutable::createFromFormat('!Y-m', $f['month']);
+            $q->whereBetween('deposit_date', [$s->toDateString(), $s->endOfMonth()->toDateString()]);
+        }
         $total = (clone $q)->count();
         $page = (int) ($f['page'] ?? 1);
 
-        return ['items' => $q->orderByDesc('deposit_date')->orderBy('id')->offset(($page - 1) * 50)->limit(50)->get()->map(fn ($r) => $this->present($r))->all(), 'total' => $total, 'page' => $page];
+        return ['items' => $q->orderByDesc('deposit_date')->orderBy('id')->offset(($page - 1) * 50)->limit(50)->get()->map(fn ($r) => $this->present($r))->all(), 'total' => $total, 'page' => $page, 'source' => $source];
     }
 
     public function reconciliation(array $f, array $u): array
