@@ -59,7 +59,7 @@ Alias middleware didaftarkan di `bootstrap/app.php`: `jwt.auth` → `capability:
 
 Aturan inti (`PolicyService`): **BOD dengan `division_code === null` lintas 7 divisi; MANAGER/ADMIN strict 1:1.** Middleware hanya menangkap `divisionCode` yang dikirim eksplisit — query di service layer tetap wajib memfilter per divisi user sendiri. Setiap penolakan capability/scope ditulis ke audit (`policy.forbidden_capability` / `policy.scope_violation`).
 
-Peta capability ada **dua kali**: `PolicyService::ROLE_CAPABILITIES` (otoritatif, server) dan `apps/web/src/session/capability.ts` (kosmetik: menyembunyikan menu/route). Ubah bersamaan; versi web masih punya role legacy (SUPERADMIN/HRD/USER) yang tidak ada di server.
+Sumber capability otoritatif adalah `PolicyService::DOMAIN_CAPABILITIES` dan `BOD_CAPABILITIES`. Frontend mengimpor `apps/web/src/session/capabilities.generated.json` untuk menu/route/tombol; jangan edit JSON manual. Setelah perubahan policy server, jalankan `npm run policy:sync`, tinjau hasil, lalu `npm run policy:check` dan tes akses. Gate lokal/CI menolak JSON yang tertinggal. Backend tetap memeriksa scope, status dan kepemilikan; matriks teknis tidak menggantikan persetujuan bisnis.
 
 `AuditService` append-only dan membuang key sensitif (password/token/cookie/secret) sebelum menulis; punya buffer in-memory yang di-`clearMemory()` per test. Jangan menulis `audit_events` langsung.
 

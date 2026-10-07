@@ -14,6 +14,11 @@
 8. [ ] ENT-08 — Pemulihan dan tata kelola: RPO/RTO, backup offsite terenkripsi, retensi, pemulihan kunci dan latihan recovery host baru. Bukti backup lokal/restore terisolasi tersedia; bukan bukti pemulihan produksi. Dependensi TODO-05-prod/04.
 9. [ ] ENT-09 — Audit UX lintas modul dan penerimaan: HR, Project, Cellular, data terisi/tabel panjang, keyboard/mobile, error dan istilah tindakan. Dependensi TODO-UI-02; kosmetik tidak menjadi ukuran kesiapan enterprise.
 
+## Kemajuan ENT-02 — matriks teknis
+
+- [x] ENT-02a — satu sumber capability backend, JSON frontend generated, pemeriksaan sinkronisasi di gate/CI serta tes penolakan identitas tidak dikenal. [Acuan sebelum kode dan hasil](47_MATRIKS_KEWENANGAN_TEKNIS.md). Gate lokal exit 0; 258 backend/111 web/dua contracts lulus. Konfigurasi CI tersedia, blocker billing remote tetap terpisah pada ENT-01b.
+- [ ] ENT-02b — matriks bisnis final, ekspor, delegasi/PIC/masa berlaku dan penerimaan pengguna. Kontrol konservatif yang ada tetap berlaku.
+
 ## Pekerjaan pertama yang diimplementasikan
 
 ENT-01 dipilih karena dapat dikerjakan tanpa mengarang aturan bisnis. Pemeriksaan membaca kode serta memakai database tes SQLite in-memory untuk backend. Tidak mengubah database PostgreSQL native, membuat transaksi bisnis, atau menjalankan deployment. Gate lokal hanya menghasilkan hasil teknis; keputusan bisnis, UAT, kapasitas dan operasi produksi tetap terpisah.
@@ -34,4 +39,4 @@ Gate lokal selesai dengan exit code 0: 258 backend (2036 assertions), 108 web (2
 - [x] ENT-01a — implementasi gate dan pemeriksaan lokal selesai; bukti aktual pada artifacts/release/latest.json. Run ini dilakukan saat working tree berisi perubahan, dan JSON mencatat workingTreeDirty=true; bukan sertifikasi CI commit akhir.
 - [ ] ENT-01b — verifikasi CI remote setelah billing GitHub pulih. Jangan menutup ENT-01 sebelum hasil remote tersedia.
 
-UAT, matriks bisnis, integrasi, kapasitas dan operasi produksi tetap terbuka. ENT-02–09 belum diimplementasikan atau diterima pada pekerjaan ini.
+UAT, matriks bisnis, integrasi, kapasitas dan operasi produksi tetap terbuka. ENT-02a selesai teknis pada pekerjaan berikutnya (dokumen 47); ENT-02b serta ENT-03–09 belum selesai atau diterima.

@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "domains": {
+    "ACC": {
+      "MANAGER": [
+        "approve:acc_period",
+        "approve:omzet",
+        "approve:pnl",
+        "approve:voucher",
+        "manage:acc_employees",
+        "manage:acc_master",
+        "manage:acc_period",
+        "manage:omzet_unlock",
+        "view:acc_deposits",
+        "view:acc_detail",
+        "view:acc_hr",
+        "view:acc_journal",
+        "view:acc_master",
+        "view:acc_report",
+        "view:division",
+        "void:acc_deposits"
+      ],
+      "HEAD_OPS": [
+        "view:acc_report",
+        "view:division"
+      ],
+      "SPV": [
+        "view:acc_report",
+        "view:division"
+      ],
+      "LEADER": [
+        "view:acc_report",
+        "view:division"
+      ],
+      "ADMIN": [
+        "attach:voucher",
+        "import:acc_transaction",
+        "manage:acc_employees",
+        "submit:acc_period",
+        "view:acc_deposits",
+        "view:acc_detail",
+        "view:acc_hr",
+        "view:acc_journal",
+        "view:acc_master",
+        "view:acc_report",
+        "view:bonus",
+        "view:division",
+        "write:acc_bank",
+        "write:acc_deposits",
+        "write:acc_hr",
+        "write:acc_outstanding",
+        "write:acc_transaction",
+        "write:attendance",
+        "write:leave_records",
+        "write:omzet",
+        "write:stock",
+        "write:voucher"
+      ],
+      "ADMIN_GUDANG": [
+        "view:acc_report",
+        "view:division",
+        "view:inventory",
+        "write:inventory"
+      ],
+      "ACCOUNTING": [
+        "attach:voucher",
+        "submit:acc_period",
+        "validate:omzet",
+        "validate:voucher",
+        "view:acc_balance_sheet",
+        "view:acc_deposits",
+        "view:acc_detail",
+        "view:acc_hr",
+        "view:acc_journal",
+        "view:acc_master",
+        "view:acc_pnl",
+        "view:acc_report",
+        "view:debt",
+        "view:division",
+        "view:omzet",
+        "view:pnl",
+        "write:acc_bank",
+        "write:acc_outstanding",
+        "write:contract",
+        "write:ecsys",
+        "write:pnl",
+        "write:tax"
+      ],
+      "FINANCE": [
+        "execute:payment",
+        "import:acc_transaction",
+        "receive:acc_deposits",
+        "submit:acc_period",
+        "view:acc_deposits",
+        "view:acc_detail",
+        "view:acc_journal",
+        "view:acc_master",
+        "view:acc_report",
+        "view:cashflow",
+        "view:division",
+        "write:acc_outstanding",
+        "write:acc_transaction",
+        "write:cashflow"
+      ]
+    },
+    "CELL": {
+      "MANAGER": [
+        "manage:cellular_catalog",
+        "view:cellular",
+        "view:cellular_sales",
+        "view:division",
+        "void:cellular_sale",
+        "write:cellular_stock"
+      ],
+      "HEAD_OPS": [
+        "view:cellular",
+        "view:division"
+      ],
+      "SPV": [
+        "view:cellular",
+        "view:division"
+      ],
+      "LEADER": [
+        "view:cellular",
+        "view:division"
+      ],
+      "ADMIN": [
+        "manage:cellular_catalog",
+        "view:cellular",
+        "view:cellular_sales",
+        "view:division",
+        "write:cellular_sale"
+      ],
+      "ADMIN_GUDANG": [
+        "view:cellular",
+        "view:division",
+        "write:cellular_stock"
+      ],
+      "ACCOUNTING": [
+        "view:cellular",
+        "view:cellular_sales",
+        "view:division"
+      ],
+      "FINANCE": [
+        "view:cellular",
+        "view:cellular_sales",
+        "view:division"
+      ]
+    },
+    "PROJECT": {
+      "MANAGER": [
+        "manage:projects",
+        "view:division",
+        "view:projects"
+      ],
+      "HEAD_OPS": [
+        "view:division",
+        "view:projects"
+      ],
+      "SPV": [
+        "view:division",
+        "view:projects"
+      ],
+      "LEADER": [
+        "view:division",
+        "view:projects"
+      ],
+      "ADMIN": [
+        "manage:projects",
+        "view:division",
+        "view:projects"
+      ],
+      "ADMIN_GUDANG": [
+        "view:division",
+        "view:projects"
+      ],
+      "ACCOUNTING": [
+        "view:division",
+        "view:projects"
+      ],
+      "FINANCE": [
+        "view:division",
+        "view:projects"
+      ]
+    }
+  },
+  "bod": [
+    "view:acc_detail",
+    "view:acc_report",
+    "view:cellular",
+    "view:cellular_sales",
+    "view:division",
+    "view:projects",
+    "view:report"
+  ]
+}

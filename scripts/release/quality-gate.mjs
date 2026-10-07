@@ -7,6 +7,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 export const QUALITY_STEPS = [
   ['Lingkungan', 'npm run check:env'],
   ['Orkestrasi gate', 'npm run release:test'],
+  ['Sinkronisasi policy', 'npm run policy:check'],
+  ['Guard policy', 'npm run policy:test'],
   ['Lint', 'npm run lint'],
   ['TypeScript', 'npm run typecheck'],
   ['Frontend', 'npm run test --workspace @dashboard-divisi/web'],

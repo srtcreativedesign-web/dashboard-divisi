@@ -6,6 +6,8 @@ use App\Exceptions\ApiException;
 
 class PolicyService
 {
+    public const BOD_CAPABILITIES = ['view:division', 'view:report', 'view:acc_report', 'view:acc_detail', 'view:projects', 'view:cellular', 'view:cellular_sales'];
+
     public const DOMAIN_CAPABILITIES = [
         'ACC' => [
             'MANAGER' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'manage:acc_master', 'manage:acc_period', 'approve:acc_period', 'approve:pnl', 'approve:voucher', 'approve:omzet', 'manage:omzet_unlock', 'view:acc_hr', 'manage:acc_employees', 'view:acc_deposits', 'void:acc_deposits'],
@@ -57,7 +59,7 @@ class PolicyService
     {
         $role = strtoupper($user['role'] ?? '');
         if ($role === 'BOD') {
-            return in_array($capability, ['view:division', 'view:report', 'view:acc_report', 'view:acc_detail', 'view:projects', 'view:cellular', 'view:cellular_sales'], true);
+            return in_array($capability, self::BOD_CAPABILITIES, true);
         }
         // Hak akses berasal dari identitas pengguna, bukan divisi pada payload.
         $division = $this->normalizeDivisionCode($user['divisionCode'] ?? $user['division_code'] ?? null);
