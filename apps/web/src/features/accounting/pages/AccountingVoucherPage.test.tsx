@@ -39,6 +39,18 @@ describe('Alur voucher sesuai peran', () => {
     await waitFor(() => expect(voucherApi.downloadAttachment).toHaveBeenCalledWith(expect.objectContaining({ version: 2 }), attachment));
     expect(voucherApi.attach).toHaveBeenCalledWith(expect.objectContaining({ version: 1 }), file);
   });
+  it('Admin menyimpan voucher operasional beserta rencana transfer dan referensi dokumen', async () => {
+    vi.mocked(voucherApi.save).mockResolvedValue(envelope({...fixture,type:'OPERATIONAL'}));
+    mount(); await screen.findByText('Outlet anonim');
+    fireEvent.click(screen.getByRole('button',{name:'Buat voucher'}));
+    const form=within(screen.getByRole('form',{name:'Form voucher'}));
+    fireEvent.change(form.getByLabelText('Jenis voucher'),{target:{value:'OPERATIONAL'}});
+    fireEvent.change(form.getByLabelText('Metode pembayaran'),{target:{value:'BANK'}});
+    for(const [label,value] of [['Nama perusahaan','Perusahaan uji'],['Prioritas','URGENT'],['Nama bank','Bank anonim'],['Nama pemilik rekening','Penerima anonim'],['Nomor rekening','123456789012'],['Nomor invoice','INV-UJI']] as const) fireEvent.change(form.getByLabelText(label),{target:{value}});
+    fireEvent.submit(screen.getByRole('form',{name:'Form voucher'}));
+    await waitFor(()=>expect(voucherApi.save).toHaveBeenCalledWith(expect.objectContaining({type:'OPERATIONAL',priority:'URGENT',payment_method:'BANK',bank_account:'123456789012',invoice_number:'INV-UJI'}),undefined));
+  });
+
   it('Manager hanya dapat mengunduh lampiran, tanpa unggah pada voucher pending', async () => {
     identity.role = 'MANAGER'; identity.id = 'manager';
     vi.mocked(voucherApi.detail).mockResolvedValue(envelope({ ...fixture, status: 'pending_approval' }));

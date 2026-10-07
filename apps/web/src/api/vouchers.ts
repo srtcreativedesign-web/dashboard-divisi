@@ -3,7 +3,18 @@ import type { OmzetOutlet } from './omzet';
 
 export type VoucherStatus = 'draft' | 'submitted' | 'correction' | 'pending_approval' | 'approved';
 export interface VoucherInput {
-  type: 'BILLING' | 'PURCHASING';
+  type: 'BILLING' | 'PURCHASING' | 'OPERATIONAL';
+  company_name?: string | null;
+  priority?: 'URGENT' | 'NORMAL' | 'SCHEDULED';
+  payment_method?: 'CASH' | 'BANK' | 'UNDECIDED';
+  bank_name?: string | null;
+  bank_account_holder?: string | null;
+  bank_account?: string | null;
+  invoice_number?: string | null;
+  invoice_date?: string | null;
+  tax_invoice_number?: string | null;
+  billing_period?: string | null;
+  delivery_reference?: string | null;
   outlet_id: string;
   voucher_date: string;
   due_date: string;
@@ -13,6 +24,10 @@ export interface VoucherInput {
   description: string;
 }
 export interface VoucherRecord extends VoucherInput {
+  bank_account_masked?: string | null;
+  created_at?: string;
+  reviewed_at?: string | null;
+  approved_at?: string | null;
   attachments?: VoucherAttachment[];
   id: string;
   voucher_no: string;

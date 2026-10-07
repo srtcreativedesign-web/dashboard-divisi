@@ -55,7 +55,7 @@ describe('Dashboard ringkasan Accounting', () => {
     vi.spyOn(accountingApi, 'periods').mockRejectedValueOnce(new Error('Periode gagal dimuat')).mockResolvedValue({ data: [], meta: { trace_id: 'ui-test' } });
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
     expect(await screen.findByRole('alert')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Voucher Tagihan/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Voucher Pengeluaran/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Coba Lagi' }));
     expect(await screen.findByText('Belum ada periode Accounting')).toBeInTheDocument();
   });

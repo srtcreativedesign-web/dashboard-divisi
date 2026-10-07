@@ -19,7 +19,7 @@ export const MENU_ITEMS: MenuItem[] = [
 export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
   { path: '/accounting', label: 'Dashboard Accounting', group: 'Ringkasan', roles: MVP_ROLES, capability: 'view:acc_report' },
   { path: '/accounting/omzet', label: 'Rekap Omzet H+1', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/vouchers', label: 'Voucher Tagihan & Pembelian', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_detail' },
+  { path: '/accounting/vouchers', label: 'Voucher Pengeluaran', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_detail' },
   { path: '/accounting/setoran', label: 'Rekap Setoran', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_deposits' },
   { path: '/accounting/kepegawaian', label: 'Rekap Cuti & Absensi', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_hr' },
   { path: '/accounting/omzet-tahunan', label: 'Omzet Tahunan', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },

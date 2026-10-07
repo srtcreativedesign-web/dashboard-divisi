@@ -22,15 +22,15 @@ class VoucherController extends Controller
     {
         $filters = $request->validate([
             'month' => 'required|date_format:Y-m', 'status' => 'nullable|in:draft,submitted,correction,pending_approval,approved',
-            'type' => 'nullable|in:BILLING,PURCHASING', 'outlet_id' => 'nullable|uuid', 'page' => 'nullable|integer|min:1',
+            'type' => 'nullable|in:BILLING,PURCHASING,OPERATIONAL', 'outlet_id' => 'nullable|uuid', 'page' => 'nullable|integer|min:1',
         ]);
 
         return response()->json($this->service->list($filters));
     }
 
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        return response()->json($this->service->detail($id));
+        return response()->json($this->service->detail($id, $request->attributes->get('user')));
     }
 
     public function uploadAttachment(Request $request, string $id)
@@ -60,11 +60,22 @@ class VoucherController extends Controller
     private function save(Request $request, ?string $id = null)
     {
         $data = $request->validate([
-            'type' => 'required|in:BILLING,PURCHASING', 'outlet_id' => 'required|uuid',
+            'type' => 'required|in:BILLING,PURCHASING,OPERATIONAL', 'outlet_id' => 'required|uuid',
             'voucher_date' => 'required|date_format:Y-m-d', 'due_date' => 'required|date_format:Y-m-d|after_or_equal:voucher_date',
             'entity_name' => 'required|string|max:150', 'source_reference' => 'required|string|max:255',
             'amount' => ['required', 'regex:/^\d{1,12}(\.\d{1,2})?$/', 'numeric', 'gt:0'],
             'description' => 'required|string|min:10|max:2000',
+            'company_name' => 'nullable|string|max:150',
+            'priority' => 'sometimes|required|in:URGENT,NORMAL,SCHEDULED',
+            'payment_method' => 'sometimes|required|in:CASH,BANK,UNDECIDED',
+            'bank_name' => 'nullable|required_if:payment_method,BANK|string|max:100',
+            'bank_account_holder' => 'nullable|required_if:payment_method,BANK|string|max:150',
+            'bank_account' => ['nullable', 'required_if:payment_method,BANK', 'string', 'regex:/^[0-9]{5,34}$/'],
+            'invoice_number' => 'nullable|string|max:150',
+            'invoice_date' => 'nullable|date_format:Y-m-d|before_or_equal:voucher_date',
+            'tax_invoice_number' => 'nullable|string|max:150',
+            'billing_period' => 'nullable|date_format:Y-m',
+            'delivery_reference' => 'nullable|string|max:150',
             'division_code' => 'prohibited', 'divisionCode' => 'prohibited', 'status' => 'prohibited',
             'created_by' => 'prohibited', 'reviewed_by' => 'prohibited', 'approved_by' => 'prohibited', 'voucher_no' => 'prohibited',
             'version' => $id ? 'required|integer|min:1' : 'prohibited',
