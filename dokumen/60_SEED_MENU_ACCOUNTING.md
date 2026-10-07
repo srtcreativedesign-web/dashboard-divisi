@@ -37,7 +37,7 @@ Cashflow menghapus angka contoh 484 transaksi/Rp4,76 miliar/Rp290 juta dan 25 po
 
 Pint, lint file berubah, policy sinkron, typecheck/build lulus. Regresi backend 281 tes/2403 assertions lulus; web 161 tes lulus, 13 tes komponen terkait kembali lulus setelah perbaikan kontras. Build tetap memiliki warning chunk Project besar dan tes Project memiliki warning mock invoice/act yang sudah ada; lint global 105 error baseline belum ditutup.
 
-Native browser Admin: cashflow Oktober/saldo Rp21.600.000, rekonsiliasi selisih Rp50.000/dua rekening belum diperiksa, HR cuti/28 absensi Oktober dan 6 setoran Oktober terisi. Bukti C:/ERP/accounting-cashflow-seed-20261007.png dan accounting-hr-seed-20261007.png. Pengguna tetap pada sesi/tema semula; tab QA sementara ditutup.
+Native browser Admin: cashflow Oktober/saldo Rp21.600.000, rekonsiliasi selisih Rp50.000/dua rekening belum diperiksa, HR cuti/28 absensi Oktober dan 6 setoran Oktober terisi. Bukti positif HR: C:/ERP/accounting-hr-seed-20261007.png. Cashflow positif diperiksa sebelum pengguna beralih akun. Pada akhir QA sesi browser berubah menjadi Head Operasional PROJECT; reload tab QA menampilkan penolakan view:acc_detail sesuai policy, bukti C:/ERP/accounting-head-ops-project-denied-20261007.png. Agent tidak mengganti akun/tema pengguna; tab QA sementara ditutup. Screenshot cashflow sebelumnya tertimpa respons akses ditolak dan tidak digunakan sebagai bukti positif.
 
 ## Menjalankan ulang
 
@@ -52,3 +52,5 @@ Backup di atas adalah referensi sebelum batch ini. Skrip hanya menulis APP_ENV=l
 ## Batas dan tindak lanjut
 
 Selesai teknis seed Accounting; tidak menambah seed operasional Project/Cellular di luar omzet yang sebelumnya diminta. Master kategori/rekening merupakan contoh kas, bukan penetapan COA final perusahaan. Outstanding saat ini kewajiban, belum menambahkan workflow piutang pelanggan. Endpoint input/verifikasi saldo bank produksi, konflik state machine rekonsiliasi vs periode, kode legacy outstanding Agustus, integritas/idempotensi umum commit impor dan parser CSV tetap perlu pekerjaan tersendiri. Jangan menutup periode atau menganggap UAT berhasil secara bisnis melalui fixture ini. PNL/HPP/bonus/CMO, general ledger double entry, jurnal otomatis, data nyata dan go-live tetap terbuka. REQ tanpa PR.
+
+Commit implementasi 74412cb sudah di-push ke origin/REQ. Tidak membuat PR. Akun Head Operasional Project tidak diberi akses Accounting untuk melewati penolakan; untuk inspeksi seed gunakan akun ACC yang mempunyai capability halaman.
