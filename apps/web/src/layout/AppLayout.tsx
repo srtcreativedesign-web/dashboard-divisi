@@ -110,7 +110,7 @@ export function AppLayout() {
           {!compact && item.group && item.group !== visibleMenu[index-1]?.group && <p className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{item.group}</p>}
           <NavLink to={item.path} end onClick={() => setDrawerOpen(false)}
           title={compact ? item.label : undefined}
-          className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${compact ? 'justify-center' : ''} ${isActive ? 'bg-primary-50 font-semibold text-primary-800' : 'text-slate-600 hover:bg-slate-100 hover:text-navy'}`}>
+          className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${compact ? 'justify-center' : ''} ${isActive ? 'bg-primary-50 font-semibold text-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-navy'}`}>
           <Icon aria-hidden="true" className="h-[18px] w-[18px] shrink-0" />
           <span className={compact ? 'sr-only' : ''}>{item.label}</span>
         </NavLink></Fragment>;
@@ -119,17 +119,17 @@ export function AppLayout() {
   );
   const profile = (compact = false) => (
     <div className="border-t border-line p-4">
-      {!compact && <div className="mb-3"><p className="truncate text-sm font-semibold text-navy">{user.name}</p><p className="mt-1 text-xs text-slate-500">{roleLabel} · {scopeLabel}</p></div>}
-      <LogoutButton compact={compact} onLogout={() => void logout()} className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-line text-sm text-slate-600 hover:bg-slate-50" />
+      {!compact && <div className="mb-3"><p className="truncate text-sm font-semibold text-navy">{user.name}</p><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{roleLabel} · {scopeLabel}</p></div>}
+      <LogoutButton compact={compact} onLogout={() => void logout()} className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-line text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" />
     </div>
   );
   return (
     <div className="min-h-screen bg-surface text-navy">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:p-3">Lewati navigasi</a>
-      <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line bg-white lg:flex ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white dark:bg-slate-900 focus:p-3">Lewati navigasi</a>
+      <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line bg-white dark:bg-slate-900 lg:flex ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div className="flex h-20 items-center gap-3 px-5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-navy text-xs font-bold text-white">{scopeLabel === 'Semua divisi' ? 'DD' : scopeLabel.slice(0, 2)}</div>
-          {!sidebarCollapsed && <div><p className="text-sm font-bold tracking-tight">Dashboard Divisi</p><p className="mt-0.5 text-xs text-slate-500">{isAccounting ? 'Accounting workspace' : isProject ? 'Manajemen proyek' : scopeLabel}</p></div>}
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-700 text-xs font-bold text-white">{scopeLabel === 'Semua divisi' ? 'DD' : scopeLabel.slice(0, 2)}</div>
+          {!sidebarCollapsed && <div><p className="text-sm font-bold tracking-tight">Dashboard Divisi</p><p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{isAccounting ? 'Accounting workspace' : isProject ? 'Manajemen proyek' : scopeLabel}</p></div>}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto pb-5">{navigation(sidebarCollapsed)}</div>
         {profile(sidebarCollapsed)}
@@ -138,15 +138,15 @@ export function AppLayout() {
         {navigation()}{profile()}
       </DetailSheet>
       <div className={sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}>
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-white px-4 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-white dark:bg-slate-900 px-4 lg:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <button type="button" aria-label="Buka menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"><Menu className="h-5 w-5" /></button>
-            <button type="button" aria-label={sidebarCollapsed ? 'Perbesar sidebar' : 'Kecilkan sidebar'} title="Ctrl+B" onClick={() => setSidebarCollapsed(value => !value)} className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:block">{sidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}</button>
-            <p className="truncate text-sm font-medium text-slate-600">{activeMenu?.label ?? 'Dashboard Divisi'}</p>
+            <button type="button" aria-label="Buka menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)} className="rounded-lg p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"><Menu className="h-5 w-5" /></button>
+            <button type="button" aria-label={sidebarCollapsed ? 'Perbesar sidebar' : 'Kecilkan sidebar'} title="Ctrl+B" onClick={() => setSidebarCollapsed(value => !value)} className="hidden rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 lg:block">{sidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}</button>
+            <p className="truncate text-sm font-medium text-slate-600 dark:text-slate-300">{activeMenu?.label ?? 'Dashboard Divisi'}</p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            <span className="hidden text-xs text-slate-500 sm:inline">{roleLabel} · {scopeLabel}</span>
-            <button type="button" onClick={() => setIsDarkMode(value => !value)} aria-label={isDarkMode ? 'Gunakan tema terang' : 'Gunakan tema gelap'} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100">{isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}</button>
+            <span className="hidden text-xs text-slate-500 dark:text-slate-400 sm:inline">{roleLabel} · {scopeLabel}</span>
+            <button type="button" onClick={() => setIsDarkMode(value => !value)} aria-label={isDarkMode ? 'Gunakan tema terang' : 'Gunakan tema gelap'} className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">{isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}</button>
           </div>
         </header>
         <main id="main-content" tabIndex={-1} className="workspace-content mx-auto min-w-0 max-w-[1600px] p-4 sm:p-6 lg:p-8">{error && <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}<Outlet /></main>

@@ -46,3 +46,10 @@ Gate lokal selesai dengan exit code 0: 258 backend (2036 assertions), 108 web (2
 - [ ] ENT-01b — verifikasi CI remote setelah billing GitHub pulih. Jangan menutup ENT-01 sebelum hasil remote tersedia.
 
 UAT, matriks bisnis, integrasi, kapasitas dan operasi produksi tetap terbuka. ENT-02a selesai teknis pada pekerjaan berikutnya (dokumen 47); ENT-02b serta ENT-03–09 belum selesai atau diterima.
+
+## Kemajuan ENT-09 — UI lintas modul
+
+- [x] ENT-09a — pagination dan request race Project; konteks mutasi Cellular/HR; akses keyboard detail, tabel mobile dan tema shell. [Scope/bukti](50_PENYELESAIAN_TEKNIS_UI_LINTAS_MODUL.md). Gate final: 267 backend/128 web/dua contracts, lint/typecheck/build/Pint dan guard lulus. Native tiga modul kosong terang/gelap diperiksa; data terisi melalui fixture tes.
+- [ ] ENT-09b — UAT semua role, sumber nyata, tabel panjang dan penerimaan UX perusahaan. ENT-09 induk tetap terbuka.
+
+Daftar dependensi seluruh item: [dokumen 51](51_STATUS_DAN_DEPENDENSI_PENYELESAIAN.md). Anotasi run REQ 37561895204 kembali mengonfirmasi akun GitHub terkunci karena billing; ENT-01b tetap terbuka.

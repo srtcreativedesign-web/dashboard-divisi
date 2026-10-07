@@ -63,3 +63,8 @@ Checklist selesai hanya jika hasil dan bukti dicatat. Tes teknis bukan sign-off 
 - [x] TODO-UI-01 — tahap pertama Accounting: dashboard, omzet, voucher, setoran dan navigasi. [Bukti/batas](43_AUDIT_DAN_PERBAIKAN_UI_ACCOUNTING.md). Peran: keempat peran. Selesai teknis dan inspeksi Admin; bukan UAT semua role.
 - [ ] TODO-UI-02 — audit/perapihan HR, Project dan Cellular; data terisi/tabel panjang, tema gelap, responsivitas dan UAT per role. Peran: Senior Product Designer + Senior Product Manager + Senior Fullstack Programmer + Application Security Engineer.
 - [x] TODO-UI-01b — penyempurnaan dashboard Accounting: header, pemilih periode, kartu pekerjaan, keadaan kosong/error dan panduan bernomor. [Bukti/batas](45_PENYEMPURNAAN_UI_ACCOUNTING.md). Peran: keempat peran. 20 tes Accounting, lint/typecheck/build dan inspeksi Admin desktop/mobile lulus; UAT semua role tetap terbuka.
+
+
+- [x] TODO-UI-02a / ENT-09a — perbaikan teknis Project/Cellular/HR: pagination, request lama, konteks koreksi/pembatalan, akses keyboard, kontainer tabel dan tema. [Scope/bukti](50_PENYELESAIAN_TEKNIS_UI_LINTAS_MODUL.md). Peran: keempat peran. Gate final 267 backend/128 web/dua contracts lulus. Parent TODO-UI-02 dan UAT semua role/data nyata tetap terbuka.
+
+Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATUS_DAN_DEPENDENSI_PENYELESAIAN.md). Tidak menutup item bisnis/produksi melalui tes teknis.

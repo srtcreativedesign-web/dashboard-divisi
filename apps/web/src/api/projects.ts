@@ -2,7 +2,7 @@ import { Project, PaginatedResponse, ProjectVendor, ProjectMilestone, ProjectRab
 import { api, downloadFile } from './client';
 
 export const projectApi = {
-  getProjects: async (params?: { status?: string; search?: string; per_page?: number }) => {
+  getProjects: async (params?: { status?: string; search?: string; per_page?: number; page?: number }) => {
     const response = await api.get<PaginatedResponse<Project>>(`/projects`, params ? Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined).map(([key, value]) => [key, String(value)])) : undefined);
     return response.data;
   },
