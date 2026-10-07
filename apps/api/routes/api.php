@@ -65,6 +65,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
             Route::prefix('deposits')->middleware('capability:view:acc_deposits')->group(function () {
                 Route::get('sources', [DepositController::class, 'sources']);
+                Route::get('reconciliation', [DepositController::class, 'reconciliation']);
                 Route::get('/', [DepositController::class, 'index']);
                 Route::get('{id}', [DepositController::class, 'show'])->whereUuid('id');
                 Route::post('/', [DepositController::class, 'store'])->middleware('capability:write:acc_deposits');

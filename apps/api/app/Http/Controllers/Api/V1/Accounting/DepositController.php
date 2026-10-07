@@ -27,6 +27,11 @@ class DepositController extends Controller
         return response()->json($this->service->sources($this->filters($r), $r->attributes->get('user')));
     }
 
+    public function reconciliation(Request $r)
+    {
+        return response()->json($this->service->reconciliation($this->filters($r), $r->attributes->get('user')));
+    }
+
     public function show(Request $r, string $id)
     {
         return response()->json($this->service->detail($id, $r->attributes->get('user')));

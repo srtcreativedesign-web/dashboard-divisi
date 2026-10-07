@@ -23,6 +23,7 @@ export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
   { path: '/accounting/setoran', label: 'Rekap Setoran', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_deposits' },
   { path: '/accounting/kepegawaian', label: 'Rekap Cuti & Absensi', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_hr' },
   { path: '/accounting/omzet-tahunan', label: 'Omzet Tahunan', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },
+  { path: '/accounting/pencocokan-setoran', label: 'Pencocokan Setoran', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_deposits' },
   { path: '/accounting/jurnal', label: 'Jurnal Transaksi', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_journal' },
   { path: '/accounting/cashflow', label: 'Laporan Cashflow', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },
   { path: '/accounting/outstanding', label: 'Hutang & Piutang', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },

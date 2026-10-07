@@ -33,6 +33,7 @@ export default function AccountingDepositsPage(){
  return <div className="space-y-6">
   <header className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-bold">Rekap Setoran</h1><p className="mt-2 text-sm text-slate-600">Setoran berdasarkan omzet tervalidasi. Penerimaan dicatat Finance dari bukti aktual; sisa belum diterima bukan laba atau rugi.</p></div>{can('write:acc_deposits')&&<Button onClick={()=>{setSelected(null);setFormOpen(true);setNotice('');mutation.reset();}}>Buat setoran</Button>}</header>
   <WorkflowGuide kind="setoran" />
+  <Link to="/accounting/pencocokan-setoran" className="inline-flex min-h-10 items-center text-sm font-semibold text-primary-700 underline">Cocokkan pembayaran omzet dengan setoran dan penerimaan</Link>
   {notice&&!selected&&<p role="status" className="text-green-700">{notice}</p>}{mutation.error&&!formOpen&&!selected&&<p role="alert" className="text-red-700">{mutation.error.message}</p>}
   {[list].filter(q=>q.error).map((q,i)=><p role="alert" key={i}>{q.error?.message}<button className="ml-3 underline" onClick={()=>void q.refetch()}>Coba lagi</button></p>)}
   {can('write:acc_deposits')&&<DetailSheet isOpen={formOpen} onClose={()=>!mutation.isPending&&setFormOpen(false)} size="xl" title="Catat setoran" subtitle="Pilih sumber omzet tervalidasi lalu catat bukti setoran.">

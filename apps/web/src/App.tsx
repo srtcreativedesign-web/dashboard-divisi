@@ -17,6 +17,7 @@ const LoginPage = lazy(() => import('./pages/core/LoginPage'));
 
 // Accounting
 const AccountingDepositsPage = lazy(() => import('./features/accounting/pages/AccountingDepositsPage'));
+const AccountingDepositReconciliationPage = lazy(() => import('./features/accounting/pages/AccountingDepositReconciliationPage'));
 const AccountingHrPage = lazy(() => import('./features/accounting/pages/AccountingHrPage'));
 const AccountingVoucherPage = lazy(() => import('./features/accounting/pages/AccountingVoucherPage'));
 const AccountingOmzetPage = lazy(() => import('./features/accounting/pages/AccountingOmzetPage'));
@@ -92,6 +93,7 @@ export default function App() {
 
                   {/* Accounting Routes */}
                   <Route path="/accounting/setoran" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/pencocokan-setoran" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositReconciliationPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/kepegawaian" element={<RouteGuard capability="view:acc_hr" divisionCode="ACC"><RouteSuspense><AccountingHrPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/vouchers" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingVoucherPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/omzet" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingOmzetPage /></RouteSuspense></RouteGuard>} />

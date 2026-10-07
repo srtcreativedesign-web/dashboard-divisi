@@ -19,6 +19,11 @@
 - [x] ENT-02a — satu sumber capability backend, JSON frontend generated, pemeriksaan sinkronisasi di gate/CI serta tes penolakan identitas tidak dikenal. [Acuan sebelum kode dan hasil](47_MATRIKS_KEWENANGAN_TEKNIS.md). Gate lokal exit 0; 258 backend/111 web/dua contracts lulus. Konfigurasi CI tersedia, blocker billing remote tetap terpisah pada ENT-01b.
 - [ ] ENT-02b — matriks bisnis final, ekspor, delegasi/PIC/masa berlaku dan penerimaan pengguna. Kontrol konservatif yang ada tetap berlaku.
 
+## Kemajuan ENT-03 — pencocokan sumber
+
+- [x] ENT-03a — pencocokan pembayaran omzet tervalidasi, alokasi setoran dan penerimaan Finance per kanal/sumber. [Scope dan hasil](48_PENCOCOKAN_OMZET_DAN_SETORAN.md). Gate exit 0: 264 backend/115 web/dua contracts lulus; browser native kosong desktop/mobile diperiksa. Bukan jurnal otomatis atau UAT bisnis.
+- [ ] ENT-03b — pemetaan COA, pengakuan pendapatan/HPP/bonus, sumber voucher/jurnal dan penutupan periode lengkap. Tidak diputuskan melalui asumsi atau angka contoh.
+
 ## Pekerjaan pertama yang diimplementasikan
 
 ENT-01 dipilih karena dapat dikerjakan tanpa mengarang aturan bisnis. Pemeriksaan membaca kode serta memakai database tes SQLite in-memory untuk backend. Tidak mengubah database PostgreSQL native, membuat transaksi bisnis, atau menjalankan deployment. Gate lokal hanya menghasilkan hasil teknis; keputusan bisnis, UAT, kapasitas dan operasi produksi tetap terpisah.

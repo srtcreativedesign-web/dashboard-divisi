@@ -31,6 +31,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/accounting/omzet-tahunan': BarChart3,
   '/accounting/vouchers': FileText,
   '/accounting/setoran': DollarSign,
+  '/accounting/pencocokan-setoran': ClipboardCheck,
   '/accounting/kepegawaian': Users,
   '/accounting/dashboard': LayoutDashboard,
   '/accounting/pemasukan': DollarSign,

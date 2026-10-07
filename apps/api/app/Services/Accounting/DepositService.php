@@ -103,6 +103,47 @@ class DepositService
         return ['items' => $q->orderByDesc('deposit_date')->orderBy('id')->offset(($page - 1) * 50)->limit(50)->get()->map(fn ($r) => $this->present($r))->all(), 'total' => $total, 'page' => $page];
     }
 
+    public function reconciliation(array $f, array $u): array
+    {
+        $this->access($u);
+        $start = CarbonImmutable::createFromFormat('!Y-m', $f['month']);
+        $sources = OmzetRecord::where('division_code', 'ACC')->where('status', 'validated')
+            ->whereBetween('business_date', [$start->toDateString(), $start->endOfMonth()->toDateString()]);
+        $total = (clone $sources)->count();
+        $sourceIds = (clone $sources)->select('acc_omzet_records.id');
+        $allocated = DB::table('acc_deposits')->where('status', 'recorded')->whereIn('omzet_id', $sourceIds)->select('omzet_id')->groupBy('omzet_id');
+        $received = DB::table('acc_deposit_receipts as r')->join('acc_deposits as d', 'd.id', '=', 'r.deposit_id')
+            ->where('r.status', 'recorded')->where('d.status', 'recorded')->whereIn('d.omzet_id', $sourceIds)->select('d.omzet_id')->groupBy('d.omzet_id');
+        $channels = ['cash', 'qris', 'edc', 'transfer', 'other'];
+        foreach ($channels as $channel) {
+            $allocated->selectRaw("SUM(CASE WHEN channel = ? THEN amount_cents ELSE 0 END) as {$channel}_allocated", [$channel]);
+            $received->selectRaw("SUM(CASE WHEN d.channel = ? THEN r.amount_cents ELSE 0 END) as {$channel}_received", [$channel]);
+        }
+        $sources->leftJoinSub($allocated, 'a', 'a.omzet_id', '=', 'acc_omzet_records.id')
+            ->leftJoinSub($received, 'r', 'r.omzet_id', '=', 'acc_omzet_records.id')->select('acc_omzet_records.*');
+        foreach ($channels as $channel) {
+            $sources->selectRaw("COALESCE(a.{$channel}_allocated, 0) as {$channel}_allocated, COALESCE(r.{$channel}_received, 0) as {$channel}_received");
+        }
+        $page = (int) ($f['page'] ?? 1);
+        $items = $sources->orderByDesc('business_date')->orderBy('acc_omzet_records.id')->offset(($page - 1) * 50)->limit(50)->get()->map(function ($source) use ($channels) {
+            return [
+                'id' => $source->id, 'outlet_name' => $source->outlet_name, 'business_date' => $source->business_date->toDateString(),
+                'shift' => $source->shift, 'source_reference' => $source->source_reference,
+                'channels' => array_map(function ($channel) use ($source) {
+                    $reported = $this->cents($source->{$channel.'_amount'});
+                    $allocated = (int) $source->{$channel.'_allocated'};
+                    $received = (int) $source->{$channel.'_received'};
+
+                    return ['channel' => $channel, 'reported_amount' => $this->money($reported), 'allocated_amount' => $this->money($allocated),
+                        'received_amount' => $this->money($received), 'unallocated_amount' => $this->money($reported - $allocated),
+                        'remaining_amount' => $this->money($allocated - $received)];
+                }, $channels),
+            ];
+        })->all();
+
+        return ['month' => $f['month'], 'as_of' => CarbonImmutable::now('Asia/Jakarta')->toIso8601String(), 'items' => $items, 'total' => $total, 'page' => $page];
+    }
+
     public function detail(string $id, array $u): array
     {
         $this->access($u);
