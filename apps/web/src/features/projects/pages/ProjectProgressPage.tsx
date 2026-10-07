@@ -5,6 +5,7 @@ import { ProjectMilestone } from '../../../types/project';
 import { Button } from '../../../components/ui/Button';
 import { BeforeAfterGallery } from '../../../components/projects/BeforeAfterGallery';
 import { DailyProgressChart } from '../../../components/projects/DailyProgressChart';
+import { ProjectReportsExport } from '../../../components/projects/ProjectReportsExport';
 import { ProgressRing } from '../../../components/charts';
 import {
   CheckCircle2,
@@ -19,6 +20,7 @@ import {
   CheckSquare,
   TrendingUp,
   FileText,
+  ClipboardCheck,
 } from 'lucide-react';
 
 import { useAuth } from '../../../session/AuthContext';
@@ -27,7 +29,7 @@ import { hasCapability } from '../../../session/capability';
 export default function ProjectProgressPage() {
   const { user } = useAuth();
   const canManage = Boolean(user && hasCapability(user.role, 'manage:projects', user.divisionCode));
-  const [activeView, setActiveView] = useState<'table' | 'visuals'>('table');
+  const [activeView, setActiveView] = useState<'table' | 'visuals' | 'reports'>('table');
   const [showAddMilestoneModal, setShowAddMilestoneModal] = useState(false);
   const [editingMilestone, setEditingMilestone] = useState<ProjectMilestone | null>(null);
 
@@ -252,6 +254,18 @@ export default function ProjectProgressPage() {
                   <Camera className="h-4 w-4" />
                   Galeri Foto Before - After
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('reports')}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
+                    activeView === 'reports'
+                      ? 'bg-primary-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:bg-surface'
+                  }`}
+                >
+                  <ClipboardCheck className="h-4 w-4" />
+                  Laporan, BAST & LPJ
+                </button>
               </div>
 
               {canManage && activeView === 'table' && (
@@ -365,11 +379,14 @@ export default function ProjectProgressPage() {
                   </table>
                 </div>
               </div>
-            ) : (
+            ) : activeView === 'visuals' ? (
               /* BEFORE-AFTER GALLERY EMBEDDED */
               <div className="rounded-card-lg border border-line bg-white shadow-card p-6">
                 <BeforeAfterGallery projectId={project.id} milestones={project.milestones} />
               </div>
+            ) : (
+              /* FORMAL REPORTS, BAST & LPJ EXPORT */
+              <ProjectReportsExport project={project} />
             )}
 
             {/* MODAL TAMBAH MILESTONE */}

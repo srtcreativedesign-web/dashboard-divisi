@@ -10,7 +10,12 @@ import {
   Eye,
   Camera,
   Layers,
-  ArrowRight
+  ArrowRight,
+  ClipboardCheck,
+  ShieldCheck,
+  PieChart,
+  Wallet,
+  CheckSquare
 } from 'lucide-react';
 import { Project } from '../../types/project';
 import { projectApi } from '../../api/projects';
@@ -22,9 +27,13 @@ interface ProjectReportsExportProps {
 }
 
 export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
-  const [reportType, setReportType] = useState<'progress' | 'bast'>('progress');
+  const [reportType, setReportType] = useState<'progress' | 'bast' | 'lpj'>('progress');
   const [progressData, setProgressData] = useState<any>(null);
   const [bastData, setBastData] = useState<any>(null);
+  const [financialSummary, setFinancialSummary] = useState<any>(null);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [rabList, setRabList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,12 +43,20 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
   const loadReports = async () => {
     try {
       setLoading(true);
-      const [prog, bast] = await Promise.all([
+      const [prog, bast, fin, rabs, exps, invs] = await Promise.all([
         projectApi.getProgressReport(project.id).catch(() => null),
         projectApi.getBastReport(project.id).catch(() => null),
+        projectApi.getFinancialSummary(project.id).catch(() => null),
+        projectApi.getRab(project.id).catch(() => []),
+        projectApi.getExpenses(project.id).catch(() => []),
+        projectApi.getInvoices(project.id).catch(() => []),
       ]);
       setProgressData(prog);
       setBastData(bast);
+      setFinancialSummary(fin);
+      setRabList(rabs || []);
+      setExpenses(exps || []);
+      setInvoices(invs || []);
     } catch (err) {
       console.error('Failed to load reports', err);
     } finally {
@@ -93,6 +110,18 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
             <Camera className="h-4 w-4" />
             Lampiran Visual BAST (Handover)
           </button>
+          <button
+            type="button"
+            onClick={() => setReportType('lpj')}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
+              reportType === 'lpj'
+                ? 'bg-primary text-white shadow-card'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
+            }`}
+          >
+            <ClipboardCheck className="h-4 w-4" />
+            Laporan Pertanggungjawaban (LPJ)
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
@@ -133,15 +162,21 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
               <h1 className="text-xl sm:text-2xl font-black uppercase text-navy mt-1">
                 {reportType === 'progress'
                   ? 'Laporan Kemajuan Pekerjaan Fisik & Finansial'
-                  : 'Lampiran Visual Berita Acara Serah Terima (BAST)'}
+                  : reportType === 'bast'
+                  ? 'Lampiran Visual Berita Acara Serah Terima (BAST)'
+                  : 'Laporan Pertanggungjawaban (LPJ) Pelaksanaan Proyek'}
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
                 Proyek: <span className="font-semibold text-navy">{project.name}</span> ({project.project_code || `PRJ-${project.id}`})
               </p>
             </div>
             <div className="text-right text-xs text-slate-500">
-              <p className="font-semibold text-navy">Tanggal Cetak:</p>
-              <p>{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p className="font-semibold text-navy">
+                {reportType === 'lpj' ? 'No. LPJ: ' : 'Tanggal Cetak:'}
+              </p>
+              <p className="font-mono font-bold text-navy">
+                {reportType === 'lpj' ? `LPJ/DT-PRJ/${project.id}/${new Date().getFullYear()}` : new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
             </div>
           </div>
         </div>
@@ -448,6 +483,280 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
             </div>
           </div>
         )}
+
+        {/* 3. LPJ (LAPORAN PERTANGGUNGJAWABAN) VIEW */}
+        {reportType === 'lpj' && (() => {
+          const contractVal = Number(project.contract_value) || 0;
+          const totalRab = financialSummary?.total_rab ?? rabList.reduce((acc: number, r: any) => acc + (Number(r.amount) || (Number(r.unit_price) * Number(r.volume)) || 0), 0);
+          const totalExpenses = financialSummary?.total_expenses ?? expenses.reduce((acc: number, e: any) => acc + (Number(e.amount) || 0), 0);
+          const variance = totalRab - totalExpenses;
+          const grossProfit = contractVal - totalExpenses;
+          const profitMargin = contractVal > 0 ? ((grossProfit / contractVal) * 100).toFixed(1) : '0.0';
+          const absorptionRate = totalRab > 0 ? ((totalExpenses / totalRab) * 100).toFixed(1) : '0.0';
+
+          const milestones = project.milestones || progressData?.physical_progress?.milestones || [];
+          const actualProgressTotal = milestones.reduce((acc: number, m: any) => acc + ((Number(m.actual_percentage) || 0) * (Number(m.weight_percentage) || 0) / 100), 0);
+
+          // Group expenses by category
+          const expByCat: Record<string, number> = {};
+          expenses.forEach((e: any) => {
+            const cat = e.category || 'Operasional Lapangan';
+            expByCat[cat] = (expByCat[cat] || 0) + (Number(e.amount) || 0);
+          });
+          const catEntries = Object.entries(expByCat);
+
+          // Invoices summary
+          const totalBilled = invoices.reduce((acc: number, i: any) => acc + (Number(i.amount) || 0), 0);
+          const totalPaid = invoices.filter((i: any) => i.status === 'paid').reduce((acc: number, i: any) => acc + (Number(i.amount) || 0), 0);
+          const unpaid = totalBilled - totalPaid;
+
+          return (
+            <div className="relative z-10 space-y-8 text-xs">
+              {/* SURAT PENGANTAR / LEMBAR PERNYATAAN AKUNTABILITAS */}
+              <div className="p-5 rounded-card bg-surface border border-line space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-navy text-sm flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    Pernyataan Pertanggungjawaban Pelaksanaan Proyek
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-success-light text-success border border-success/30 uppercase">
+                    Audit Status: Closed & Accountable
+                  </span>
+                </div>
+                <p className="text-slate-600 leading-relaxed text-justify">
+                  Laporan Pertanggungjawaban (LPJ) ini disusun sebagai dokumen resmi akuntabilitas teknis dan finansial atas penyelesaian seluruh lingkup pekerjaan proyek <strong>{project.name}</strong> ({project.project_code || `PRJ-${project.id}`}) yang dilaksanakan untuk pemberi tugas <strong>{project.client_name || 'Klien'}</strong>. Seluruh alokasi anggaran, pengadaan material, pekerjaan lapangan, dan serah terima hasil kerja telah diselesaikan sesuai dengan ketentuan kontrak kerja dan spesifikasi teknis yang disepakati.
+                </p>
+              </div>
+
+              {/* 1. INFORMASI UMUM & IDENTITAS PROYEK */}
+              <div>
+                <h3 className="font-bold text-sm text-navy uppercase tracking-wider mb-3">
+                  I. Rangkuman Eksekutif & Identitas Proyek
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-card bg-surface border border-line">
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Nama Proyek</span>
+                    <span className="font-bold text-navy text-sm line-clamp-1">{project.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Klien / Pemberi Tugas</span>
+                    <span className="font-bold text-navy text-sm">{project.client_name || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Lokasi Pelaksanaan</span>
+                    <span className="font-bold text-navy text-sm">{project.location || 'Indonesia'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Status Penyelesaian</span>
+                    <span className="font-bold text-success text-sm flex items-center gap-1">
+                      <CheckCircle2 className="h-4 w-4" /> 100% Selesai
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Tanggal Mulai Kontrak</span>
+                    <span className="font-bold text-navy">{project.start_date ? new Date(project.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Target Selesai</span>
+                    <span className="font-bold text-navy">{project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Total Nilai Kontrak</span>
+                    <span className="font-bold text-primary text-sm">{formatCurrency(contractVal)}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Capaian Fisik Akhir</span>
+                    <span className="font-black text-navy text-sm">{actualProgressTotal.toFixed(1)}%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. PERTANGGUNGJAWABAN FINANSIAL & ANGGARAN (RAB VS REALISASI) */}
+              <div>
+                <h3 className="font-bold text-sm text-navy uppercase tracking-wider mb-3">
+                  II. Pertanggungjawaban Finansial & Pengendalian Biaya (Cost Control)
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                  <div className="p-3.5 rounded-card border border-line bg-surface">
+                    <span className="text-slate-500 block text-[11px]">Plafon Anggaran RAB</span>
+                    <span className="font-bold text-navy text-base">{formatCurrency(totalRab)}</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Budget pagu rencana</span>
+                  </div>
+                  <div className="p-3.5 rounded-card border border-line bg-surface">
+                    <span className="text-slate-500 block text-[11px]">Realisasi Biaya Lapangan</span>
+                    <span className="font-bold text-danger text-base">{formatCurrency(totalExpenses)}</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Serapan {absorptionRate}% dari RAB</span>
+                  </div>
+                  <div className="p-3.5 rounded-card border border-line bg-surface">
+                    <span className="text-slate-500 block text-[11px]">Efisiensi Anggaran (Variance)</span>
+                    <span className={`font-bold text-base ${variance >= 0 ? 'text-success' : 'text-danger'}`}>
+                      {formatCurrency(variance)}
+                    </span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      {variance >= 0 ? 'Hemat dari rencana' : 'Over budget'}
+                    </span>
+                  </div>
+                  <div className="p-3.5 rounded-card border border-line bg-surface">
+                    <span className="text-slate-500 block text-[11px]">Gross Margin Proyek</span>
+                    <span className="font-bold text-primary text-base">{formatCurrency(grossProfit)}</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Margin laba kotor: {profitMargin}%</span>
+                  </div>
+                </div>
+
+                {/* BREAKDOWN PENGELUARAN PER KATEGORI */}
+                <div className="border border-line rounded-card overflow-hidden">
+                  <div className="bg-surface px-4 py-2.5 border-b border-line flex items-center justify-between">
+                    <span className="font-semibold text-navy text-xs">Rincian Realisasi Pengeluaran per Kategori</span>
+                    <span className="text-[11px] text-slate-500 font-medium">Total: {formatCurrency(totalExpenses)}</span>
+                  </div>
+                  <table className="w-full text-left">
+                    <thead className="bg-surface/50 text-slate-700 font-semibold border-b border-line text-[11px]">
+                      <tr>
+                        <th className="px-4 py-2">No</th>
+                        <th className="px-4 py-2">Pos Pengeluaran / Kategori</th>
+                        <th className="px-4 py-2 text-right">Total Nominal Realisasi</th>
+                        <th className="px-4 py-2 text-center">Porsi (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {catEntries.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-4 py-4 text-center text-slate-400 italic">
+                            Belum ada rincian pengeluaran yang tercatat.
+                          </td>
+                        </tr>
+                      ) : (
+                        catEntries.map(([cat, amount], i) => {
+                          const pct = totalExpenses > 0 ? ((amount / totalExpenses) * 100).toFixed(1) : '0';
+                          return (
+                            <tr key={cat}>
+                              <td className="px-4 py-2 text-slate-500">{i + 1}</td>
+                              <td className="px-4 py-2 font-medium text-navy">{cat}</td>
+                              <td className="px-4 py-2 text-right font-mono font-bold text-navy">{formatCurrency(amount)}</td>
+                              <td className="px-4 py-2 text-center text-slate-600">{pct}%</td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 3. CAPAIAN FISIK & PENYELESAIAN MILESTONE */}
+              <div>
+                <h3 className="font-bold text-sm text-navy uppercase tracking-wider mb-3">
+                  III. Pertanggungjawaban Realisasi Fisik (Milestone & Output)
+                </h3>
+                <div className="border border-line rounded-card overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead className="bg-surface text-slate-700 font-semibold border-b border-line">
+                      <tr>
+                        <th className="px-3 py-2.5">No</th>
+                        <th className="px-3 py-2.5">Tahapan Pekerjaan (Scope)</th>
+                        <th className="px-3 py-2.5 text-center">Bobot Rencana (%)</th>
+                        <th className="px-3 py-2.5 text-center">Capaian Aktual (%)</th>
+                        <th className="px-3 py-2.5">Tgl Target</th>
+                        <th className="px-3 py-2.5">Tgl Selesai Aktual</th>
+                        <th className="px-3 py-2.5 text-center">Status Verifikasi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {milestones.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="px-4 py-6 text-center text-slate-400 italic">
+                            Belum ada data milestone pengerjaan.
+                          </td>
+                        </tr>
+                      ) : (
+                        milestones.map((ms: any, i: number) => {
+                          const isDone = ms.status === 'completed' || (ms.actual_percentage || 0) >= 100;
+                          return (
+                            <tr key={ms.id || i}>
+                              <td className="px-3 py-2 text-slate-500">{i + 1}</td>
+                              <td className="px-3 py-2 font-medium text-navy">
+                                {ms.title}
+                                {ms.notes && <p className="text-[10px] text-slate-500 italic mt-0.5">{ms.notes}</p>}
+                              </td>
+                              <td className="px-3 py-2 text-center text-slate-700">{ms.weight_percentage}%</td>
+                              <td className="px-3 py-2 text-center font-bold text-navy">{ms.actual_percentage || 0}%</td>
+                              <td className="px-3 py-2 text-slate-500">{ms.due_date || '-'}</td>
+                              <td className="px-3 py-2 text-slate-600">{ms.completion_date || ms.due_date || '-'}</td>
+                              <td className="px-3 py-2 text-center">
+                                {isDone ? (
+                                  <span className="inline-flex items-center gap-1 text-success font-semibold">
+                                    <CheckCircle2 className="h-3.5 w-3.5" /> 100% Selesai
+                                  </span>
+                                ) : (
+                                  <span className="text-warning font-medium">Dalam Proses</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 4. REKAPITULASI PENAGIHAN TERMIN (INVOICE SETTLEMENT) */}
+              <div>
+                <h3 className="font-bold text-sm text-navy uppercase tracking-wider mb-3">
+                  IV. Status Pelunasan Termin Pembayaran Klien
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                  <div className="p-3 rounded-card border border-line bg-surface">
+                    <span className="text-slate-500 block text-[11px]">Total Ditagihkan (Invoiced)</span>
+                    <span className="font-bold text-navy text-sm">{formatCurrency(totalBilled)}</span>
+                  </div>
+                  <div className="p-3 rounded-card border border-line bg-surface">
+                    <span className="text-slate-500 block text-[11px]">Total Telah Diterima (Paid)</span>
+                    <span className="font-bold text-success text-sm">{formatCurrency(totalPaid)}</span>
+                  </div>
+                  <div className="p-3 rounded-card border border-line bg-surface">
+                    <span className="text-slate-500 block text-[11px]">Sisa Piutang Berjalan</span>
+                    <span className="font-bold text-navy text-sm">{formatCurrency(unpaid)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 5. LAMPIRAN BUKTI DOKUMENTASI FISIK */}
+              {((bastData?.visual_comparison && bastData.visual_comparison.length > 0) || (progressData?.recent_photos && progressData.recent_photos.length > 0)) && (
+                <div>
+                  <h3 className="font-bold text-sm text-navy uppercase tracking-wider mb-3">
+                    V. Lampiran Dokumentasi Fisik Proyek (Hasil Lapangan)
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {(progressData?.recent_photos || []).slice(0, 4).map((p: any) => (
+                      <div key={p.id} className="border border-line rounded-card overflow-hidden bg-surface">
+                        <div className="aspect-video w-full overflow-hidden bg-surface-2">
+                          <img
+                            src={p.photo_path.startsWith('http') ? p.photo_path : `/storage/${p.photo_path}`}
+                            alt={p.caption || 'Foto LPJ'}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="p-2 text-[10px]">
+                          <span className="font-semibold text-navy block capitalize">{p.stage} - {p.area_name || 'Area Proyek'}</span>
+                          <span className="text-slate-500 truncate block">{p.caption || 'Dokumentasi terverifikasi'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 6. KESIMPULAN & PENUTUP LPJ */}
+              <div className="p-4 rounded-card border border-line bg-surface space-y-2">
+                <span className="font-bold text-navy text-xs uppercase block">VI. Kesimpulan & Penutup</span>
+                <p className="text-slate-600 leading-relaxed text-justify">
+                  Pelaksanaan proyek <strong>{project.name}</strong> telah rampung secara menyeluruh dengan realisasi fisik mencapai 100%. Laporan Pertanggungjawaban ini disusun dengan sebenar-benarnya berdasarkan rekapitulasi data lapangan, sistem manajemen biaya (RAB vs Realisasi), dan dokumen serah terima pekerjaan yang sah.
+                </p>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* CATATAN: Kepatuhan aturan user: "tapi gak perlu kolom ttd" - TIDAK ADA KOLOM TANDA TANGAN */}
         <div className="relative z-10 mt-12 pt-4 border-t border-line text-center text-[10px] text-slate-400">
