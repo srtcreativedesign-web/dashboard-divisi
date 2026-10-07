@@ -154,6 +154,7 @@ export interface Project {
   location?: string;
   description?: string;
   contract_value: number | string;
+  classification?: 'new' | 'maintenance';
   status: 'planning' | 'in_progress' | 'on_hold' | 'completed';
   start_date?: string;
   end_date?: string;
@@ -183,3 +184,31 @@ export interface PaginatedResponse<T> {
   to: number;
   total: number;
 }
+
+export interface ProjectPettyCash {
+  id: number;
+  project_id: number;
+  type: 'in' | 'out';
+  category: string;
+  amount: number | string;
+  transaction_date: string;
+  description: string;
+  recipient_or_vendor?: string | null;
+  receipt_path?: string | null;
+  created_by?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectPettyCashSummary {
+  total_in: number;
+  total_out: number;
+  balance: number;
+  transaction_count: number;
+}
+
+export interface ProjectPettyCashResponse {
+  data: ProjectPettyCash[];
+  summary: ProjectPettyCashSummary;
+}
+

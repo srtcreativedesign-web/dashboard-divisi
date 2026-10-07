@@ -30,6 +30,7 @@ export default function ProjectListPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [classificationFilter, setClassificationFilter] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -39,7 +40,7 @@ export default function ProjectListPage() {
 
   useEffect(() => {
     fetchProjects();
-  }, [search, statusFilter]);
+  }, [search, statusFilter, classificationFilter]);
 
   const fetchProjects = async () => {
     try {
@@ -47,10 +48,11 @@ export default function ProjectListPage() {
       const data = await projectApi.getProjects({
         search: search || undefined,
         status: statusFilter || undefined,
+        classification: classificationFilter || undefined,
         per_page: 50,
       });
       setProjects(data.data);
-      if (!search && !statusFilter) {
+      if (!search && !statusFilter && !classificationFilter) {
         setAllProjects(data.data);
       }
       setError(null);
@@ -62,6 +64,8 @@ export default function ProjectListPage() {
   };
 
   const portfolioSource = allProjects.length > 0 ? allProjects : projects;
+  const newProjectsCount = portfolioSource.filter(p => (p.classification || 'new') === 'new').length;
+  const maintenanceProjectsCount = portfolioSource.filter(p => p.classification === 'maintenance').length;
   const activeProjectsCount = portfolioSource.filter(p => p.status === 'in_progress').length;
   const completedProjectsCount = portfolioSource.filter(p => p.status === 'completed').length;
   const totalValue = portfolioSource.reduce((acc, curr) => acc + parseFloat(curr.contract_value.toString()), 0);
@@ -107,6 +111,21 @@ export default function ProjectListPage() {
       maximumFractionDigits: 0,
     }).format(val);
   }
+
+  const getClassificationBadge = (classification?: string) => {
+    if (classification === 'maintenance') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          Maintenance
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[10px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+        Proyek Baru
+      </span>
+    );
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -324,7 +343,44 @@ export default function ProjectListPage() {
       </div>
 
       {/* FILTER & SEARCH CONTROLS */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 rounded-card bg-white border border-line shadow-card">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 p-3 rounded-card bg-white border border-line shadow-card">
+        {/* Classification Filter Tabs */}
+        <div className="flex items-center gap-1 bg-surface p-1 rounded-card border border-line shrink-0">
+          <button
+            type="button"
+            onClick={() => setClassificationFilter('')}
+            className={`px-3 py-1.5 rounded-input text-xs font-semibold transition-all ${
+              classificationFilter === ''
+                ? 'bg-white text-navy shadow-xs border border-line'
+                : 'text-slate-500 hover:text-navy'
+            }`}
+          >
+            Semua ({portfolioSource.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setClassificationFilter('new')}
+            className={`px-3 py-1.5 rounded-input text-xs font-semibold transition-all ${
+              classificationFilter === 'new'
+                ? 'bg-white text-primary-700 shadow-xs border border-primary-200'
+                : 'text-slate-500 hover:text-navy'
+            }`}
+          >
+            Proyek Baru ({newProjectsCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setClassificationFilter('maintenance')}
+            className={`px-3 py-1.5 rounded-input text-xs font-semibold transition-all ${
+              classificationFilter === 'maintenance'
+                ? 'bg-white text-amber-700 shadow-xs border border-amber-200'
+                : 'text-slate-500 hover:text-navy'
+            }`}
+          >
+            Maintenance ({maintenanceProjectsCount})
+          </button>
+        </div>
+
         <div className="relative flex-1">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <Search className="h-4 w-4 text-slate-400" />
@@ -338,7 +394,7 @@ export default function ProjectListPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -420,11 +476,14 @@ export default function ProjectListPage() {
                 className="group relative flex flex-col justify-between rounded-card-lg border border-line bg-white p-5 shadow-card hover:shadow-card-hover hover:border-primary-400 transition-all cursor-pointer overflow-hidden"
               >
                 <div>
-                  {/* Top Bar: Code & Status */}
+                  {/* Top Bar: Code, Classification & Status */}
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="font-mono text-[11px] font-bold text-slate-600 bg-surface border border-line px-2 py-0.5 rounded-input">
-                      {project.project_code || `PRJ-${project.id}`}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-mono text-[11px] font-bold text-slate-600 bg-surface border border-line px-2 py-0.5 rounded-input">
+                        {project.project_code || `PRJ-${project.id}`}
+                      </span>
+                      {getClassificationBadge(project.classification)}
+                    </div>
                     {getStatusBadge(project.status)}
                   </div>
 
@@ -493,10 +552,11 @@ export default function ProjectListPage() {
                     className="hover:bg-surface cursor-pointer transition-colors"
                   >
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-[10px] font-bold text-slate-600 bg-surface border border-line px-1.5 py-0.5 rounded-input">
                           {project.project_code || `PRJ-${project.id}`}
                         </span>
+                        {getClassificationBadge(project.classification)}
                         <span className="font-bold text-navy">{project.name}</span>
                       </div>
                     </td>

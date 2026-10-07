@@ -18,6 +18,7 @@ import {
   FileText,
   ArrowRight,
   ExternalLink,
+  Wallet,
 } from 'lucide-react';
 
 interface ProjectPageLayoutProps {
@@ -109,6 +110,21 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
     }
   };
 
+  const getClassificationBadge = (classification?: string) => {
+    if (classification === 'maintenance') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          Maintenance
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+        Proyek Baru
+      </span>
+    );
+  };
+
   // Calculate Cumulative Physical Progress
   let cumulativeProgress = 0;
   if (project?.milestones && project.milestones.length > 0) {
@@ -125,6 +141,7 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
     { label: 'Tahapan & Progres', path: `/projects/progress?project_id=${project.id}`, icon: CheckSquare },
     { label: 'Anggaran & RAB', path: `/projects/rab?project_id=${project.id}`, icon: Calculator },
     { label: 'Termin & Pembayaran', path: `/projects/payments?project_id=${project.id}`, icon: Receipt },
+    { label: 'Kas Kecil (Petty Cash)', path: `/projects/petty-cash?project_id=${project.id}`, icon: Wallet },
     { label: 'Time Plan', path: `/projects/timeline?project_id=${project.id}`, icon: Clock },
     { label: 'Berkas Dokumen', path: `/projects/documents?project_id=${project.id}`, icon: FileText },
   ] : [];
@@ -162,6 +179,7 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
                 <span className="font-mono text-xs font-bold text-slate-700 bg-white border border-line px-2 py-0.5 rounded-input shadow-xs">
                   {project.project_code || `PRJ-${project.id}`}
                 </span>
+                {getClassificationBadge(project.classification)}
                 <h2 className="text-lg font-bold text-navy">
                   {project.name}
                 </h2>

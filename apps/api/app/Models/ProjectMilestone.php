@@ -26,4 +26,9 @@ class ProjectMilestone extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(ProjectInvoice::class);
+    }
 }

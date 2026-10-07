@@ -39,6 +39,7 @@ const ProjectProgressPage = lazy(() => import('./features/projects/pages/Project
 const ProjectPaymentsPage = lazy(() => import('./features/projects/pages/ProjectPaymentsPage'));
 const ProjectDocumentsPage = lazy(() => import('./features/projects/pages/ProjectDocumentsPage'));
 const ProjectRabPage = lazy(() => import('./features/projects/pages/ProjectRabPage'));
+const ProjectPettyCashPage = lazy(() => import('./features/projects/pages/ProjectPettyCashPage'));
 const ProjectTimelinePage = lazy(() => import('./features/projects/pages/ProjectTimelinePage'));
 
 const CellularOperationsPage = lazy(() => import('./features/cellular/pages/CellularOperationsPage'));
@@ -114,6 +115,7 @@ export default function App() {
                   <Route path="/projects/vendors" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectVendorPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/documents" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDocumentsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/rab" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectRabPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/petty-cash" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectPettyCashPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/timeline" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectTimelinePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/:id" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDetailPage /></RouteSuspense></RouteGuard>} />
 

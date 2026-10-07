@@ -16,10 +16,13 @@ import {
   ArrowRight,
   Trash2,
   Receipt,
+  Printer,
+  Download,
 } from 'lucide-react';
 
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
+import { downloadInvoicePDF, printInvoicePDF } from '../../../utils/invoicePdf';
 
 function ProjectPaymentsContent({ project, refreshProject }: { project: any; refreshProject: any }) {
   const { user } = useAuth();
@@ -268,36 +271,53 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                               {inv.payment_reference || (isPaid ? 'Transfer Bank' : '-')}
                             </td>
                             <td className="px-5 py-3.5 text-right">
-                              {canManage ? (
-                                <div className="flex items-center justify-end gap-2">
-                                  {!isPaid ? (
-                                    <Button
-                                      variant="secondary"
-                                      size="sm"
-                                      onClick={() => setPayingInvoice(inv)}
-                                      className="text-[11px] text-success hover:border-success/40"
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => printInvoicePDF(project, inv)}
+                                  className="p-1.5 rounded-input text-slate-500 hover:text-navy hover:bg-slate-100 transition-colors"
+                                  title="Cetak Faktur (Print)"
+                                >
+                                  <Printer className="h-4 w-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => downloadInvoicePDF(project, inv)}
+                                  className="p-1.5 rounded-input text-slate-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                                  title="Unduh Dokumen Faktur (PDF)"
+                                >
+                                  <Download className="h-4 w-4" />
+                                </button>
+
+                                {canManage && (
+                                  <>
+                                    {!isPaid ? (
+                                      <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => setPayingInvoice(inv)}
+                                        className="text-[11px] text-success hover:border-success/40 ml-1"
+                                      >
+                                        <Check className="h-3 w-3 mr-1 text-success" />
+                                        Tandai Lunas
+                                      </Button>
+                                    ) : (
+                                      <span className="text-[11px] text-slate-400 flex items-center gap-1 font-medium ml-1">
+                                        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                                        {inv.paid_date ? new Date(inv.paid_date).toLocaleDateString('id-ID') : 'Lunas'}
+                                      </span>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteInvoice(inv.id)}
+                                      className="p-1.5 rounded-input text-slate-400 hover:text-danger hover:bg-danger-light/50 transition-colors ml-0.5"
+                                      title="Hapus Faktur"
                                     >
-                                      <Check className="h-3 w-3 mr-1 text-success" />
-                                      Tandai Lunas
-                                    </Button>
-                                  ) : (
-                                    <span className="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
-                                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                                      {inv.paid_date ? new Date(inv.paid_date).toLocaleDateString('id-ID') : 'Lunas'}
-                                    </span>
-                                  )}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteInvoice(inv.id)}
-                                    className="p-1 rounded-input text-slate-400 hover:text-danger hover:bg-danger-light/50 transition-colors"
-                                    title="Hapus Faktur"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-slate-400">-</span>
-                              )}
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         );

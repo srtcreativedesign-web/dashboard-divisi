@@ -17,6 +17,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
     client_name: '',
     location: '',
     contract_value: '',
+    classification: 'new' as 'new' | 'maintenance',
     status: 'planning',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
@@ -38,6 +39,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         client_name: form.client_name || undefined,
         location: form.location || undefined,
         contract_value: Number(form.contract_value) || 0,
+        classification: form.classification,
         status: form.status as any,
         start_date: form.start_date || undefined,
         end_date: form.end_date || undefined,
@@ -142,7 +144,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-semibold text-navy dark:text-slate-200 mb-1">
                 Nilai Kontrak (Rp) *
@@ -156,6 +158,19 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 placeholder="500000000"
                 className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary font-medium transition-all"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-navy dark:text-slate-200 mb-1">
+                Klasifikasi Proyek *
+              </label>
+              <select
+                value={form.classification}
+                onChange={e => setForm({ ...form, classification: e.target.value as 'new' | 'maintenance' })}
+                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium"
+              >
+                <option value="new">Proyek Baru</option>
+                <option value="maintenance">Proyek Maintenance</option>
+              </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-navy dark:text-slate-200 mb-1">
