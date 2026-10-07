@@ -65,10 +65,26 @@ class AuditService
         return ! empty($out) ? $out : null;
     }
 
-    public function log(array $params): void
+    public function logRequired(array $params): void
+    {
+        $id = $params['id'] ?? (string) Str::uuid();
+        $this->log($params + ['id' => $id], true);
+        request()->attributes->set('required_audit_written', $id);
+    }
+
+    public function hasRequiredRecord(): bool
+    {
+        $id = request()->attributes->get('required_audit_written');
+
+        return is_string($id) && AuditEvent::whereKey($id)->exists();
+    }
+
+    public function log(array $params, bool $required = false): void
     {
         $sanitizedMetadata = isset($params['metadata']) ? $this->sanitizeMetadata((array) $params['metadata']) : null;
 
+        $trace = $params['traceId'] ?? $params['trace_id'] ?? request()->attributes->get('trace_id');
+        $traceId = is_string($trace) && preg_match('/^[a-zA-Z0-9_-]{1,100}$/D', $trace) ? $trace : (string) Str::uuid();
         $record = [
             'id' => $params['id'] ?? (string) Str::uuid(),
             'actor_id' => $params['actorId'] ?? $params['actor_id'] ?? null,
@@ -78,28 +94,21 @@ class AuditService
             'entity' => $params['entity'] ?? 'unknown',
             'entity_id' => $params['entityId'] ?? $params['entity_id'] ?? null,
             'division_code' => $params['divisionCode'] ?? $params['division_code'] ?? null,
-            'trace_id' => $params['traceId'] ?? $params['trace_id'] ?? null,
+            'trace_id' => $traceId,
             'metadata' => $sanitizedMetadata,
             'created_at' => now(),
         ];
 
-        self::$memoryLogs[] = $record;
+        if (! $required) {
+            self::$memoryLogs[] = $record;
+        }
 
         try {
-            AuditEvent::create([
-                'id' => $record['id'],
-                'actor_id' => $record['actor_id'],
-                'actor_email' => $record['actor_email'],
-                'actor_role' => $record['actor_role'],
-                'action' => $record['action'],
-                'entity' => $record['entity'],
-                'entity_id' => $record['entity_id'],
-                'division_code' => $record['division_code'],
-                'trace_id' => $record['trace_id'],
-                'metadata' => $record['metadata'],
-                'created_at' => $record['created_at'],
-            ]);
+            AuditEvent::create($record);
         } catch (Throwable $e) {
+            if ($required) {
+                throw $e;
+            }
             // In test environment or offline DB, keep in-memory
             if (app()->environment() !== 'testing') {
                 report($e);
@@ -109,11 +118,7 @@ class AuditService
 
     public function findAll(int $limit = 50): array
     {
-        try {
-            return AuditEvent::orderBy('created_at', 'desc')->limit($limit)->get()->toArray();
-        } catch (Throwable) {
-            return array_slice(array_reverse(self::$memoryLogs), 0, $limit);
-        }
+        return AuditEvent::orderBy('created_at', 'desc')->limit($limit)->get()->toArray();
     }
 
     public static function getMemoryLogs(): array

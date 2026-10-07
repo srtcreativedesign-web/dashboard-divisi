@@ -1,0 +1,4 @@
+export function WorkflowGuide({kind}:{kind:'omzet'|'voucher'|'setoran'}) {
+ const steps=kind==='setoran'?['Admin mencatat setoran','Finance mencatat penerimaan','Accounting mencocokkan sumber']:['Admin membuat dan mengajukan', 'Accounting memeriksa',kind==='omzet'?'Validasi atau keputusan Manager':'Manager menyetujui'];
+ return <section aria-label="Alur pekerjaan" className="rounded-card-lg border border-line bg-white p-4 sm:p-5"><p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Alur pencatatan & pemeriksaan</p><ol className="grid gap-4 text-sm text-slate-600 md:grid-cols-3">{steps.map((step,i)=><li key={step} className="flex items-center gap-3"><span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-card bg-primary-50 text-xs font-semibold text-primary-700 ring-1 ring-primary-100">{String(i+1).padStart(2,'0')}</span><span className="font-medium">{step}</span></li>)}</ol></section>;
+}

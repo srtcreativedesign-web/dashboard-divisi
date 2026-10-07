@@ -1,4 +1,8 @@
 <?php
-$revCount = \App\Models\RevenueDaily::count();
-$budgetCount = \App\Models\BudgetEntry::count();
+
+use App\Models\BudgetEntry;
+use App\Models\RevenueDaily;
+
+$revCount = RevenueDaily::count();
+$budgetCount = BudgetEntry::count();
 echo json_encode(['revCount' => $revCount, 'budgetCount' => $budgetCount]);

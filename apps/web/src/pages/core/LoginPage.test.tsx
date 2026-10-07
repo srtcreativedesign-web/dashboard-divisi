@@ -31,7 +31,7 @@ describe('LoginPage - Glassmorphic, Quick Role Switcher, & Inline Validation', (
     // Brand logo DD dan judul utama
     expect(screen.getByText('DD')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Dashboard Divisi/i })).toBeInTheDocument();
-    expect(screen.getByText(/Portal Terpadu 7 Divisi Ritel & Accounting/i)).toBeInTheDocument();
+    expect(screen.getByText(/Accounting, Project, dan Cellular/i)).toBeInTheDocument();
 
     // Input email dan password
     expect(screen.getByLabelText(/Alamat Email/i)).toBeInTheDocument();
@@ -45,14 +45,14 @@ describe('LoginPage - Glassmorphic, Quick Role Switcher, & Inline Validation', (
     expect(screen.getByRole('button', { name: /Gunakan akun BOD \(Direksi\)/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Gunakan akun Manager ACC/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Gunakan akun Admin ACC/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Gunakan akun Admin Wrapping/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Gunakan akun Manager Project/i })).toBeInTheDocument();
 
     // Kartu memiliki styling glassmorphism
     const glassCard = container.querySelector('.backdrop-blur-2xl');
     expect(glassCard).toBeInTheDocument();
   });
 
-  it('2. Quick Role Switcher mengisi field email, password, dan menyinkronkan demo role sekali klik', () => {
+  it('2. Pemilihan akun mengisi email tanpa password tertanam', () => {
     renderLoginPage();
 
     const emailInput = screen.getByLabelText(/Alamat Email/i) as HTMLInputElement;
@@ -68,7 +68,7 @@ describe('LoginPage - Glassmorphic, Quick Role Switcher, & Inline Validation', (
 
     // Kredensial terisi otomatis
     expect(emailInput.value).toBe('bod1@dashboard.test');
-    expect(passwordInput.value).toBe('Password123!');
+    expect(passwordInput.value).toBe('');
     expect(localStorage.getItem('dashboard-divisi.role-demo')).toBe('BOD');
 
     // Klik tombol chip demo Manager ACC
@@ -77,7 +77,7 @@ describe('LoginPage - Glassmorphic, Quick Role Switcher, & Inline Validation', (
 
     // Kredensial berganti otomatis
     expect(emailInput.value).toBe('manager.acc@dashboard.test');
-    expect(passwordInput.value).toBe('Password123!');
+    expect(passwordInput.value).toBe('');
     expect(localStorage.getItem('dashboard-divisi.role-demo')).toBe('MANAGER');
     expect(localStorage.getItem('dashboard-divisi.division-demo')).toBe('ACC');
   });
@@ -152,6 +152,8 @@ describe('LoginPage - Glassmorphic, Quick Role Switcher, & Inline Validation', (
     const bodBtn = screen.getByRole('button', { name: /Gunakan akun BOD \(Direksi\)/i });
     fireEvent.click(bodBtn);
 
+    fireEvent.change(screen.getByLabelText(/Kata Sandi/i), { target: { value: 'TestingOnly123!' } });
+
     // Submit form
     const submitBtn = screen.getByRole('button', { name: /Masuk ke Dashboard/i });
     fireEvent.click(submitBtn);
@@ -160,7 +162,7 @@ describe('LoginPage - Glassmorphic, Quick Role Switcher, & Inline Validation', (
     await waitFor(() => {
       expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
     });
-    expect(localStorage.getItem('access_token')).toBe('mock-jwt-token-12345');
+    expect(localStorage.getItem('access_token')).toBeNull();
   });
 
   it('6. Menampilkan alert error ketika autentikasi API gagal', async () => {

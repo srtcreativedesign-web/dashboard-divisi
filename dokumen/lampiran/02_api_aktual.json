@@ -1,0 +1,1775 @@
+{
+  "captured_on": "2026-10-06",
+  "source": "Laravel route:list --json; api/v1 only",
+  "routes": [
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/accounts",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@listAccounts",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/accounts",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@createAccount",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/accounts/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@getAccount",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/accounting/accounts/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@updateAccount",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/accounts/{id}/deactivate",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@deactivateAccount",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/cashflow/report",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingCashflowController@report",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/cashflow/summary",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingCashflowController@summary",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/categories",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@listCategories",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/categories",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@createCategory",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/categories/resolve",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@resolveCategory",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/categories/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@getCategory",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/accounting/categories/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@updateCategory",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/categories/{id}/aliases",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@addCategoryAlias",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "DELETE",
+      "uri": "api/v1/accounting/categories/{id}/aliases/{aliasCode}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@removeCategoryAlias",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/categories/{id}/deactivate",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@deactivateCategory",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/deposits",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\DepositController@index",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_deposits"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/deposits",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\DepositController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_deposits",
+        "capability:write:acc_deposits"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/deposits/sources",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\DepositController@sources",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_deposits"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/deposits/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\DepositController@show",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_deposits"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/deposits/{id}/receipts/{receiptId}/void",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\DepositController@voidReceipt",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_deposits"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/deposits/{id}/receive",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\DepositController@receive",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_deposits",
+        "capability:receive:acc_deposits"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/deposits/{id}/void",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\DepositController@void",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_deposits"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/hr/employees",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\HrRecapController@employees",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_hr"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/hr/employees",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\HrRecapController@createEmployee",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_hr",
+        "capability:manage:acc_employees"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/hr/recaps",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\HrRecapController@index",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_hr"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/hr/recaps",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\HrRecapController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_hr",
+        "capability:write:acc_hr"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/hr/recaps/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\HrRecapController@show",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_hr"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/accounting/hr/recaps/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\HrRecapController@update",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_hr",
+        "capability:write:acc_hr"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/hr/recaps/{id}/void",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\HrRecapController@void",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_hr",
+        "capability:write:acc_hr"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/import/commit",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingImportController@commit",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/import/preview",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingImportController@preview",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period",
+        "file.scan"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/master/history",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@listMasterHistory",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_master"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/omzet",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@index",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/omzet",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:write:omzet"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/omzet/annual",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@annual",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/omzet/outlets",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@outlets",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/omzet/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@show",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/accounting/omzet/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@update",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:write:omzet"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/omzet/{id}/decide",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:approve:omzet"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/omzet/{id}/decide-unlock",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:manage:omzet_unlock"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/omzet/{id}/request-unlock",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:write:omzet"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/omzet/{id}/review",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:validate:omzet"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/omzet/{id}/submit",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\OmzetController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:write:omzet"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/outstandings",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingOutstandingController@list",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/outstandings",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingOutstandingController@create",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/outstandings/{id}/cancel",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingOutstandingController@cancel",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/outstandings/{id}/pay",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingOutstandingController@recordPayment",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/periods",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@listPeriods",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/periods",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@createPeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/periods/approve",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingController@approvePeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:approve:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/periods/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@getPeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_report",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/periods/{id}/transition",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingMasterController@transitionPeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period|manage:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/reconciliations",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingReconciliationController@list",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/reconciliations/approve",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingReconciliationController@approvePeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:approve:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/reconciliations/close",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingReconciliationController@closePeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:approve:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/reconciliations/reopen",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingReconciliationController@reopenPeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:approve:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/reconciliations/submit",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingReconciliationController@submitPeriod",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/reports",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingController@reports",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/status",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingController@status",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/transactions",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@list",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_journal"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/transactions",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@create",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/transactions/summary",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@summary",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_journal"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/transactions/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@get",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_journal"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/accounting/transactions/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@update",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/transactions/{id}/attachments",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@uploadAttachment",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period",
+        "file.scan"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/transactions/{id}/attachments/{attachmentId}/download",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@downloadAttachment",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_journal"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/transactions/{id}/cancel",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\AccountingTransactionController@cancel",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:submit:acc_period"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/vouchers",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@index",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/vouchers",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:write:voucher"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/vouchers/outlets",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@outlets",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/vouchers/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@show",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/accounting/vouchers/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@update",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:write:voucher"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/vouchers/{id}/attachments",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@uploadAttachment",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:attach:voucher",
+        "file.scan"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/accounting/vouchers/{id}/attachments/{attachmentId}/download",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@downloadAttachment",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/vouchers/{id}/decide",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:approve:voucher"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/vouchers/{id}/review",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:validate:voucher"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/accounting/vouchers/{id}/submit",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Accounting\\VoucherController@action",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:acc_detail",
+        "capability:write:voucher"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/auth/login",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\AuthController@login",
+      "middleware": [
+        "api",
+        "throttle:login"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/auth/logout",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\AuthController@logout",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/auth/me",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\AuthController@me",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/auth/reset",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\AuthController@reset",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "throttle:reset"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/bod/executive-read-model",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\BodController@executiveReadModel",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "capability:view:report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/bod/kpi-compatibility",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\BodController@checkCompatibility",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "capability:view:report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/bod/overview",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\BodController@overview",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "capability:view:report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/cellular/movements",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@movements",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/cellular/outlets",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\CellularController@outlets",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/cellular/products",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@products",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/cellular/products",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@createProduct",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular",
+        "capability:manage:cellular_catalog"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/cellular/sales",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@sales",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular",
+        "capability:view:cellular_sales"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/cellular/sales",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@sell",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular",
+        "capability:write:cellular_sale"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/cellular/sales/{id}/void",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@void",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular",
+        "capability:void:cellular_sale"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/cellular/stock",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@stock",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/cellular/stock",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Cellular\\ManualWorkflowController@adjust",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:cellular",
+        "capability:write:cellular_stock"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/division-configs",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\DivisionConfigController@getAll",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "capability:view:report"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/division-configs/{divisionCode}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\DivisionConfigController@getOne",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/division-configs/{divisionCode}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\DivisionConfigController@upsert",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:manage:division"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/health",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\HealthController@check",
+      "middleware": [
+        "api"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/org/assignments",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\OrgController@assignments",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/org/divisions",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\OrgController@divisions",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/org/me/context",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\OrgController@context",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/org/outlets",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\OrgController@outlets",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/projects",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectController@index",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/projects",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/projects/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectController@show",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/projects/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectController@update",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/projects/{id}/documents",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectDocumentController@index",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/projects/{id}/documents",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectDocumentController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects",
+        "file.scan"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/projects/{id}/milestones",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectController@storeMilestone",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PATCH",
+      "uri": "api/v1/projects/{id}/payment-toggle",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectController@paymentToggle",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/projects/{id}/rab",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectRabController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "DELETE",
+      "uri": "api/v1/projects/{projectId}/documents/{documentId}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectDocumentController@destroy",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/projects/{projectId}/documents/{documentId}/download",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectDocumentController@download",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/vendors",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectVendorController@index",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "POST",
+      "uri": "api/v1/vendors",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectVendorController@store",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "GET|HEAD",
+      "uri": "api/v1/vendors/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectVendorController@show",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "PUT",
+      "uri": "api/v1/vendors/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectVendorController@update",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    },
+    {
+      "domain": null,
+      "method": "DELETE",
+      "uri": "api/v1/vendors/{id}",
+      "name": null,
+      "action": "App\\Http\\Controllers\\Api\\V1\\Project\\ProjectVendorController@destroy",
+      "middleware": [
+        "api",
+        "jwt.auth",
+        "critical.audit",
+        "scope",
+        "capability:view:projects",
+        "capability:manage:projects"
+      ],
+      "path": null
+    }
+  ]
+}

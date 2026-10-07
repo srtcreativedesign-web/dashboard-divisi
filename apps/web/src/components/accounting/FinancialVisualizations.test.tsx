@@ -11,11 +11,9 @@ import {
 } from './AgingBucketBar';
 import { WaterfallChart, type WaterfallItem } from './WaterfallChart';
 import { ReconciliationMatchGauge } from './ReconciliationMatchGauge';
-import AccountingOutstandingPage from '../../pages/accounting/AccountingOutstandingPage';
-import AccountingCashflowReportPage from '../../pages/accounting/AccountingCashflowReportPage';
-import CashflowPage from '../../pages/shared/CashflowPage';
-import PnlPage from '../../pages/shared/PnlPage';
-import AccountingReconciliationPage from '../../pages/accounting/AccountingReconciliationPage';
+import AccountingOutstandingPage from '../../features/accounting/pages/AccountingOutstandingPage';
+import AccountingCashflowReportPage from '../../features/accounting/pages/AccountingCashflowReportPage';
+import AccountingReconciliationPage from '../../features/accounting/pages/AccountingReconciliationPage';
 import { AuthProvider } from '../../session/AuthContext';
 import { ToastProvider } from '../ui/Toast';
 
@@ -64,7 +62,7 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
       { id: '5', remainingAmount: 10000000, dueDate: '2026-05-10', status: 'paid' }, // lunas (diabaikan)
     ];
 
-    it('menghitung umur jatuh tempo dan mengelompokkan bucket secara akurat', () => {
+    it('menghitung umur jatuh tempo dan mengelompokkan bucket secara akurat', async () => {
       expect(getDaysPastDue('2026-08-20', '2026-09-01')).toBe(12);
       expect(getItemBucket(mockItems[0]!, '2026-09-01')).toBe('bucket_0_30');
 
@@ -91,7 +89,7 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
 
       // Judul & Header
       expect(
-        screen.getByText(/Aging Bucket Distribution Bar/i)
+        screen.getByText(/Umur tagihan/i)
       ).toBeInTheDocument();
 
       // Total aktif = 50 + 40 + 30 + 20 = 140 Jt
@@ -134,10 +132,10 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
       { id: '4', label: 'Saldo Akhir', amount: 1200000000, isTotal: true },
     ];
 
-    it('merender tiang-tiang waterfall dan konektor garis putus-putus', () => {
+    it('merender tiang-tiang waterfall dan konektor garis putus-putus', async () => {
       const { container } = render(<WaterfallChart items={mockSteps} />);
 
-      expect(screen.getByTestId('waterfall-chart-section')).toBeInTheDocument();
+      expect(await screen.findByTestId('waterfall-chart-section')).toBeInTheDocument();
       expect(screen.getByTestId('waterfall-bar-1')).toBeInTheDocument();
       expect(screen.getByTestId('waterfall-bar-2')).toBeInTheDocument();
       expect(screen.getByTestId('waterfall-bar-3')).toBeInTheDocument();
@@ -148,7 +146,7 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
       expect(lines.length).toBeGreaterThan(0);
     });
 
-    it('menampilkan tooltip informatif saat tiang grafik disentuh (hover)', () => {
+    it('menampilkan tooltip informatif saat tiang grafik disentuh (hover)', async () => {
       render(<WaterfallChart items={mockSteps} />);
 
       const barPenerimaan = screen.getByTestId('waterfall-bar-2');
@@ -166,7 +164,7 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
   });
 
   describe('3. Komponen ReconciliationMatchGauge', () => {
-    it('merender status 100% klop dengan jarum dan teks meteran sempurna', () => {
+    it('merender status 100% klop dengan jarum dan teks meteran sempurna', async () => {
       render(
         <ReconciliationMatchGauge
           totalBank={7491741528}
@@ -177,14 +175,14 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
         />
       );
 
-      expect(screen.getByTestId('reconciliation-match-gauge-section')).toBeInTheDocument();
+      expect(await screen.findByTestId('reconciliation-match-gauge-section')).toBeInTheDocument();
       const matchText = screen.getByTestId('match-percentage-text');
       expect(matchText).toHaveTextContent('100.00%');
       expect(screen.getByText(/Rekonsiliasi Sempurna \(Klop\)/i)).toBeInTheDocument();
       expect(screen.getByText(/31 Rekening Bank Operasional/i)).toBeInTheDocument();
     });
 
-    it('merender indikasi peringatan jika terdapat deviasi selisih besar', () => {
+    it('merender indikasi peringatan jika terdapat deviasi selisih besar', async () => {
       render(
         <ReconciliationMatchGauge
           totalBank={7000000000}
@@ -206,7 +204,7 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
       renderWithProviders(<AccountingOutstandingPage />, 'MANAGER', 'ACC');
 
       // Pastikan Aging Bucket Bar ter-render
-      expect(screen.getByTestId('aging-bucket-bar-section')).toBeInTheDocument();
+      expect(await screen.findByTestId('aging-bucket-bar-section')).toBeInTheDocument();
 
       // Klik bucket 0 - 30 Hari
       const bucket030 = screen.getByTestId('bucket-card-bucket_0_30');
@@ -216,17 +214,17 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
       expect(screen.getByTestId('reset-bucket-filter')).toBeInTheDocument();
     });
 
-    it('AccountingCashflowReportPage merender WaterfallChart untuk arus kas resmi', () => {
+    it('AccountingCashflowReportPage merender WaterfallChart untuk arus kas resmi', async () => {
       renderWithProviders(<AccountingCashflowReportPage />, 'MANAGER', 'ACC');
 
-      expect(screen.getByTestId('waterfall-chart-section')).toBeInTheDocument();
+      expect(await screen.findByTestId('waterfall-chart-section')).toBeInTheDocument();
       expect(screen.getByText(/Waterfall Chart: Jembatan Aliran Arus Kas/i)).toBeInTheDocument();
     });
 
-    it('AccountingCashflowReportPage tidak lagi menampilkan kolom persentase porsi arus kas pada tab penjelasan', () => {
+    it('AccountingCashflowReportPage tidak lagi menampilkan kolom persentase porsi arus kas pada tab penjelasan', async () => {
       renderWithProviders(<AccountingCashflowReportPage />, 'MANAGER', 'ACC');
 
-      const explanationTab = screen.getByRole('button', { name: /Penjelasan Arus Kas/i });
+      const explanationTab = await screen.findByRole('button', { name: /Rincian kategori/i });
       fireEvent.click(explanationTab);
 
       // Verifikasi header tabel esensial 4 kolom
@@ -240,25 +238,13 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
       expect(screen.queryByText(/Porsi Arus Kas/i)).not.toBeInTheDocument();
     });
 
-    it('CashflowPage modul ritel operasional merender WaterfallChart', () => {
-      renderWithProviders(<CashflowPage />, 'MANAGER', 'WRAP');
 
-      expect(screen.getByTestId('waterfall-chart-section')).toBeInTheDocument();
-      expect(screen.getByText(/Waterfall Chart Arus Kas Operasional/i)).toBeInTheDocument();
-    });
 
-    it('PnlPage merender WaterfallChart formasi margin P&L', () => {
-      renderWithProviders(<PnlPage />, 'BOD', 'BOD');
-
-      expect(screen.getByTestId('waterfall-chart-section')).toBeInTheDocument();
-      expect(screen.getByText(/Waterfall Chart: Formasi Laba Rugi/i)).toBeInTheDocument();
-    });
-
-    it('AccountingReconciliationPage merender ReconciliationMatchGauge', () => {
+    it('AccountingReconciliationPage menampilkan ringkasan bank dan periode', async () => {
       renderWithProviders(<AccountingReconciliationPage />, 'MANAGER', 'ACC');
 
-      expect(screen.getByTestId('reconciliation-match-gauge-section')).toBeInTheDocument();
-      expect(screen.getByTestId('match-percentage-text')).toBeInTheDocument();
+      expect(await screen.findByText(/^Saldo bank$/i)).toBeInTheDocument();
+      expect(screen.getByText('Saldo sesuai')).toBeInTheDocument();
     });
   });
 });

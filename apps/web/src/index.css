@@ -2,7 +2,7 @@
 @import '@fontsource-variable/inter';
 
 @theme {
-  --color-primary: #0ea5e9;
+  --color-primary: #0369a1;
   --color-primary-50: #f0f9ff;
   --color-primary-100: #e0f2fe;
   --color-primary-200: #bae6fd;
@@ -14,7 +14,7 @@
   --color-primary-800: #075985;
   --color-primary-900: #0c4a6e;
   --color-primary-950: #082f49;
-  --color-primary-dark: #0284c7;
+  --color-primary-dark: #075985;
   --color-primary-light: #e0f2fe;
 
   --color-dark: #419cc3;
@@ -104,3 +104,18 @@ table td {
   background-attachment: fixed;
 }
 @import './dark-mode.css';
+@layer base {
+  body { margin: 0; }
+  button, input, select, textarea { font: inherit; }
+  button:not(:disabled), summary { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+  input, select, textarea { min-width: 0; }
+}
+.workspace-content > section, .workspace-content > div { min-width: 0; }
+.workspace-content h1 { font-size: clamp(1.375rem, 2vw, 1.75rem); line-height: 1.25; letter-spacing: -0.035em; }
+.workspace-content table { font-variant-numeric: tabular-nums; }
+.workspace-content td, .workspace-content th { vertical-align: middle; }
+.workspace-content input:not([type=checkbox]):not([type=radio]):not([type=file]), .workspace-content select { min-height: 2.75rem; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

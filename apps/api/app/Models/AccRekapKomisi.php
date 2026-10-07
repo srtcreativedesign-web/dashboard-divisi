@@ -6,24 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class AccRekapKomisi extends Model
 {
-    protected $table = "acc_rekap_komisi";
+    protected $table = 'acc_rekap_komisi';
 
     protected $fillable = [
-        "periode_awal",
-        "periode_akhir",
-        "karyawan_nama",
-        "sesi_30m",
-        "sesi_60m",
-        "sesi_90m",
-        "total_bonus",
+        'periode_awal',
+        'periode_akhir',
+        'karyawan_nama',
+        'sesi_30m',
+        'sesi_60m',
+        'sesi_90m',
+        'total_bonus',
+        'division_code',
     ];
 
     protected $casts = [
-        "periode_awal" => "date",
-        "periode_akhir" => "date",
-        "sesi_30m" => "integer",
-        "sesi_60m" => "integer",
-        "sesi_90m" => "integer",
-        "total_bonus" => "decimal:2",
+        'periode_awal' => 'date',
+        'periode_akhir' => 'date',
+        'sesi_30m' => 'integer',
+        'sesi_60m' => 'integer',
+        'sesi_90m' => 'integer',
+        'total_bonus' => 'decimal:2',
     ];
 }

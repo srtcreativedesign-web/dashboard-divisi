@@ -19,7 +19,10 @@ class Employee extends Model
         'code',
         'name',
         'is_active',
+        'source_reference',
     ];
+
+    protected $hidden = ['source_reference'];
 
     protected $casts = [
         'is_active' => 'boolean',

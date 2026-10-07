@@ -19,3 +19,8 @@ cookies.txt
 documents/
 Decisions/
 lessons/
+
+# Arsip backup terenkripsi dan dump sementara tidak masuk Git
+*.erpbackup
+*.dump.tmp
+/artifacts/release/

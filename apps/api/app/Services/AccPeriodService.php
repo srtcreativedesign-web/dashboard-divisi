@@ -55,7 +55,7 @@ class AccPeriodService
     public function list(array $user, array $params = []): array
     {
         $role = $user['role'] ?? '';
-        $query = AccountingPeriod::query()->with(['division', 'createdBy', 'approvedBy']);
+        $query = AccountingPeriod::where('division_id', $this->resolveAccDivisionId())->with(['division', 'createdBy', 'approvedBy']);
 
         if ($role === 'BOD') {
             $query->whereIn('status', [self::STATUS_APPROVED, self::STATUS_CLOSED]);
@@ -97,7 +97,7 @@ class AccPeriodService
 
     public function find(string $id): AccountingPeriod
     {
-        $period = AccountingPeriod::find($id);
+        $period = AccountingPeriod::where('division_id', $this->resolveAccDivisionId())->find($id);
         if (! $period) {
             throw new ApiException('RESOURCE_NOT_FOUND', 'Periode tidak ditemukan');
         }

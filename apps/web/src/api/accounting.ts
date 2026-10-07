@@ -142,8 +142,28 @@ const base = '/accounting';
 export const accountingApi = {
   periods: () => api.get<AccPeriod[]>(`${base}/periods`),
   categories: () => api.get<AccCategory[]>(`${base}/categories`, { per_page: '100' }),
-  accounts: () => api.get<AccAccount[]>(`${base}/accounts`, { per_page: '100' }),
-  transactions: (filters: Record<string, string | undefined>) => api.get<AccTransactionResponse>(`${base}/transactions`, filters),
+  accounts: async () => {
+    const response = await api.get<(AccAccount & { display_name?: string; is_active?: boolean; outlet_ids?: string[]; outlets?: { id: string; isActive: boolean }[] })[]>(`${base}/accounts`, { per_page: '100' });
+    return { ...response, data: response.data.map(account => ({
+      ...account,
+      type: account.type.toLowerCase(),
+      displayName: account.displayName ?? account.display_name ?? account.code,
+      isActive: account.isActive ?? account.is_active ?? false,
+      outletIds: account.outletIds ?? account.outlet_ids ?? account.outlets?.filter(outlet => outlet.isActive).map(outlet => outlet.id) ?? [],
+    })) };
+  },
+  transactions: async (filters: Record<string, string | undefined>) => {
+    const response = await api.get<AccTransactionResponse | AccTransaction[]>(`${base}/transactions`, filters);
+    if (!Array.isArray(response.data)) return { ...response, data: response.data };
+    return { ...response, data: {
+      data: response.data,
+      meta: {
+        total: Number(response.meta.total ?? response.data.length),
+        per_page: Number(response.meta.per_page ?? 20),
+        current_page: Number(response.meta.current_page ?? 1),
+      },
+    } };
+  },
   summary: (periodId: string) => api.get<AccSummary>(`${base}/transactions/summary`, { period_id: periodId }),
   createTransaction: (payload: TransactionPayload) => api.post<AccTransaction>(`${base}/transactions`, payload),
   updateTransaction: (id: string, payload: TransactionPayload) => api.put<AccTransaction>(`${base}/transactions/${id}`, payload),
@@ -152,8 +172,8 @@ export const accountingApi = {
   createCategory: (payload: CategoryPayload) => api.post<AccCategory>(`${base}/categories`, payload),
   updateCategory: (id: string, payload: Partial<CategoryPayload>) => api.patch<AccCategory>(`${base}/categories/${id}`, payload),
   deactivateCategory: (id: string) => api.post<AccCategory>(`${base}/categories/${id}/deactivate`, {}),
-  createAccount: (payload: AccountPayload) => api.post<AccAccount>(`${base}/accounts`, payload),
-  updateAccount: (id: string, payload: Partial<AccountPayload>) => api.patch<AccAccount>(`${base}/accounts/${id}`, payload),
+  createAccount: (payload: AccountPayload) => api.post<AccAccount>(`${base}/accounts`, { ...payload, type: payload.type.toUpperCase() }),
+  updateAccount: (id: string, payload: Partial<AccountPayload>) => api.patch<AccAccount>(`${base}/accounts/${id}`, { ...payload, ...(payload.type ? { type: payload.type.toUpperCase() } : {}) }),
   deactivateAccount: (id: string) => api.post<AccAccount>(`${base}/accounts/${id}/deactivate`, {}),
   uploadAttachment: (id: string, file: File) => {
     const form = new FormData();
@@ -195,6 +215,8 @@ export const accountingApi = {
     api.post<{ batch_id: string; inserted_count: number }>(`${base}/import/commit`, payload),
 
   // Cashflow Report API
+  cashflowSummary: (params?: { period_month?: string }) =>
+    api.get<Pick<AccCashflowReportResponse, 'period'> & { kpis: Pick<AccCashflowReportResponse['kpis'], 'total_revenue' | 'total_expenses' | 'ending_cash_balance'> }>(`${base}/cashflow/summary`, params),
   cashflowReport: (params?: { period_month?: string }) =>
     api.get<AccCashflowReportResponse>(`${base}/cashflow/report`, params),
 };

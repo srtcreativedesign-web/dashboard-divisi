@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AccountingPeriod;
 use App\Models\AuditEvent;
 use App\Models\Division;
 use App\Models\DivisionConfig;
@@ -27,13 +28,13 @@ class AccountingFoundationTest extends TestCase
         $this->assertTrue($acc->is_active);
 
         // 2. Verifikasi 7 divisi existing tetap utuh dan FIN tetap Finance
-        $this->assertCount(8, Division::all());
+        $this->assertCount(count(DatabaseSeeder::DIVISIONS), Division::all());
         $fin = Division::where('code', 'FIN')->first();
         $this->assertNotNull($fin);
         $this->assertEquals('Finance', $fin->name);
         $this->assertEquals(6, $fin->sort_order);
 
-        $expectedCodes = ['WRAP', 'CELL', 'REFL', 'MINI', 'FNB', 'FIN', 'MC', 'ACC'];
+        $expectedCodes = array_column(DatabaseSeeder::DIVISIONS, 'code');
         $actualCodes = Division::orderBy('sort_order')->pluck('code')->all();
         $this->assertEquals($expectedCodes, $actualCodes);
 
@@ -65,7 +66,7 @@ class AccountingFoundationTest extends TestCase
         $seeder->run();
         $seeder->run();
 
-        $this->assertCount(8, Division::all());
+        $this->assertCount(count(DatabaseSeeder::DIVISIONS), Division::all());
         $this->assertEquals(1, Division::where('code', 'ACC')->count());
         $this->assertEquals(1, User::where('email', 'manager.acc@dashboard.test')->count());
         $this->assertEquals(1, User::where('email', 'admin.acc@dashboard.test')->count());
@@ -169,6 +170,7 @@ class AccountingFoundationTest extends TestCase
 
     public function test_bod_acc_capabilities_read_only_and_mutation_denied(): void
     {
+        $this->createReportPeriods();
         $policy = app(PolicyService::class);
         $bodUser = ['role' => 'BOD', 'division_code' => null, 'divisionCode' => null];
 
@@ -239,7 +241,7 @@ class AccountingFoundationTest extends TestCase
         $denyApproveRes->assertStatus(403);
         $this->assertContains($denyApproveRes->json('error.code'), ['SCOPE_VIOLATION', 'FORBIDDEN_CAPABILITY']);
 
-        // Uji HTTP Negatif Bugbot: BOD ditolak saat mencoba menulis omzet retail ke outlet ACC-001 melalui endpoint generik
+        // Endpoint retail di luar MVP tidak tersedia, termasuk untuk BOD.
         $outletAcc = Outlet::where('code', 'ACC-001')->first();
         $this->assertNotNull($outletAcc);
         $bodRevenueRes = $this->authenticated('bod1@dashboard.test')
@@ -250,8 +252,8 @@ class AccountingFoundationTest extends TestCase
                 'netRevenue' => 1000000,
             ]);
 
-        $bodRevenueRes->assertStatus(403);
-        $this->assertEquals('SCOPE_VIOLATION', $bodRevenueRes->json('error.code'));
+        $bodRevenueRes->assertStatus(404);
+        $this->assertEquals('RESOURCE_NOT_FOUND', $bodRevenueRes->json('error.code'));
 
         // Uji HTTP Negatif Bugbot: BOD ditolak saat mencoba mengelola konfigurasi divisi ACC melalui endpoint generik
         $bodConfigRes = $this->authenticated('bod1@dashboard.test')
@@ -383,6 +385,7 @@ class AccountingFoundationTest extends TestCase
 
     public function test_accounting_reports_status_filtering_and_validation(): void
     {
+        $this->createReportPeriods();
         // 1. Admin ACC dapat membaca semua status (default tanpa filter: 3 laporan)
         $adminAllRes = $this->authenticated('admin.acc@dashboard.test')
             ->getJson('/api/v1/accounting/reports');
@@ -514,5 +517,52 @@ class AccountingFoundationTest extends TestCase
         // 3. Verifikasi persistensi: tidak ada perubahan status/record yang tersimpan
         $dbAuditCount = AuditEvent::where('action', 'accounting.period_APPROVE')->count();
         $this->assertEquals(0, $dbAuditCount);
+    }
+
+    private function createReportPeriods(): void
+    {
+        $division = Division::where('code', 'ACC')->firstOrFail();
+        foreach (['draft', 'approved', 'closed'] as $index => $status) {
+            AccountingPeriod::create([
+                'division_id' => $division->id,
+                'period_month' => '2026-0'.($index + 1).'-01',
+                'status' => $status,
+            ]);
+        }
+    }
+
+    public function test_reports_without_periods_are_empty_and_do_not_invent_balances(): void
+    {
+        $this->authenticated('admin.acc@dashboard.test')->getJson('/api/v1/accounting/reports')
+            ->assertOk()->assertJsonPath('data', []);
+        $this->createReportPeriods();
+        $response = $this->authenticated('admin.acc@dashboard.test')->getJson('/api/v1/accounting/reports')
+            ->assertOk()->assertJsonCount(3, 'data');
+        foreach ($response->json('data') as $report) {
+            $this->assertNull($report['balanceStart']);
+            $this->assertNull($report['balanceEnd']);
+        }
+    }
+
+    public function test_reports_exclude_other_division_periods_and_support_database_status_aliases(): void
+    {
+        $this->createReportPeriods();
+        AccountingPeriod::create([
+            'division_id' => Division::where('code', 'CELL')->firstOrFail()->id,
+            'period_month' => '2025-12-01',
+            'status' => 'approved',
+        ]);
+        foreach (['admin.acc@dashboard.test', 'bod1@dashboard.test'] as $email) {
+            foreach (['approved' => 'Disetujui', 'CLOSED' => 'Ditutup'] as $status => $label) {
+                $this->authenticated($email)->getJson('/api/v1/accounting/reports?status='.$status)
+                    ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.status', $label);
+            }
+        }
+        $this->authenticated('admin.acc@dashboard.test')->getJson('/api/v1/accounting/reports')
+            ->assertOk()->assertJsonCount(3, 'data');
+        $this->authenticated('bod1@dashboard.test')->getJson('/api/v1/accounting/reports')
+            ->assertOk()->assertJsonCount(2, 'data');
+        $this->authenticated('admin.acc@dashboard.test')->getJson('/api/v1/accounting/reports?status[]=approved')
+            ->assertStatus(400)->assertJsonPath('error.code', 'VALIDATION_ERROR');
     }
 }

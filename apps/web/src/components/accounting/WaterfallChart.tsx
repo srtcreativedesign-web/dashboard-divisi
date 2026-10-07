@@ -44,7 +44,8 @@ export function WaterfallChart({
 
     if (item.isTotal) {
       startVal = 0;
-      endVal = running;
+      running = item.amount;
+      endVal = item.amount;
     } else {
       startVal = prev;
       endVal = prev + item.amount;

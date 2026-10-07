@@ -26,10 +26,12 @@ class User extends Model
 
     protected $hidden = [
         'password_hash',
+        'session_version',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'session_version' => 'integer',
     ];
 
     protected static function booted(): void

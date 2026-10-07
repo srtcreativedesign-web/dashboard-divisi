@@ -2,19 +2,18 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Services\PolicyService;
 use Tests\TestCase;
 
 class AdminAccPolicyTest extends TestCase
 {
-    public function test_admin_acc_can_manage_master_and_approve_period()
+    public function test_admin_acc_cannot_manage_master_or_approve_period()
     {
         $policy = app(PolicyService::class);
         $user = ['role' => 'ADMIN', 'divisionCode' => 'ACC'];
 
-        $this->assertTrue($policy->hasCapability($user, 'manage:acc_master', 'ACC'));
-        $this->assertTrue($policy->hasCapability($user, 'approve:acc_period', 'ACC'));
+        $this->assertFalse($policy->hasCapability($user, 'manage:acc_master', 'ACC'));
+        $this->assertFalse($policy->hasCapability($user, 'approve:acc_period', 'ACC'));
         $this->assertFalse($policy->hasCapability($user, 'delete:acc_master', 'ACC'));
     }
 
@@ -33,7 +32,7 @@ class AdminAccPolicyTest extends TestCase
     {
         $policy = app(PolicyService::class);
         $user = ['role' => 'FINANCE', 'divisionCode' => 'FIN'];
-        
+
         $this->assertTrue($policy->hasCapability($user, 'write:acc_transaction', 'FIN'));
         $this->assertFalse($policy->hasCapability($user, 'approve:acc_period', 'FIN'));
     }

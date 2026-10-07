@@ -59,4 +59,9 @@ class AccountingPeriod extends Model
     {
         return $this->belongsTo(User::class, 'approved_by_id');
     }
+
+    public function closedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'closed_by_id');
+    }
 }

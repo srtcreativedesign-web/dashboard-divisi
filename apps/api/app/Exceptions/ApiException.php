@@ -9,6 +9,7 @@ class ApiException extends Exception
     public const HTTP_STATUS = [
         'VALIDATION_ERROR' => 400,
         'AUTH_REQUIRED' => 401,
+        'CSRF_MISMATCH' => 403,
         'FORBIDDEN_CAPABILITY' => 403,
         'SCOPE_VIOLATION' => 403,
         'RESOURCE_NOT_FOUND' => 404,

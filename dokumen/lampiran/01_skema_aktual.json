@@ -1,0 +1,6914 @@
+{
+  "captured_on": "2026-10-06",
+  "source": "PostgreSQL public schema; metadata only",
+  "migrations": [
+    "0001_01_01_000001_create_cache_table",
+    "0001_01_01_000002_create_jobs_table",
+    "2026_08_27_000001_create_divisions_table",
+    "2026_08_27_000002_create_outlets_table",
+    "2026_08_27_000003_create_users_table",
+    "2026_08_27_000004_create_user_scopes_table",
+    "2026_08_27_000005_create_employees_table",
+    "2026_08_27_000006_create_employee_assignments_table",
+    "2026_08_27_000007_create_division_configs_table",
+    "2026_08_27_000008_create_audit_events_table",
+    "2026_09_01_000009_create_revenue_tables",
+    "2026_09_01_000010_create_target_tables",
+    "2026_09_01_000011_create_budget_entries_table",
+    "2026_09_02_000012_create_revoked_tokens_table",
+    "2026_09_04_000013_create_accounting_periods_table",
+    "2026_09_04_000014_create_accounting_categories_and_aliases_table",
+    "2026_09_04_000015_create_accounting_accounts_and_account_outlets_table",
+    "2026_09_04_000016_create_accounting_master_history_table",
+    "2026_09_04_000017_create_accounting_transactions_table",
+    "2026_09_04_000018_create_accounting_transaction_attachments_table",
+    "2026_09_04_000019_create_accounting_outstandings_and_payments_tables",
+    "2026_09_04_000020_create_accounting_bank_reconciliations_table",
+    "2026_09_24_064220_create_projects_table",
+    "2026_09_24_064221_create_project_milestones_table",
+    "2026_09_24_064222_create_project_vendors_table",
+    "2026_09_24_064223_create_project_rabs_table",
+    "2026_09_24_064224_create_project_documents_table",
+    "2026_09_25_000001_create_accounting_admin_module_tables",
+    "2026_09_26_000002_create_admin_hrm_and_voucher_tables",
+    "2026_09_29_000000_add_division_code_to_acc_admin_tables",
+    "2026_10_05_000000_create_cel_inventory_table",
+    "2026_10_05_100000_create_acc_omzet_workflow",
+    "2026_10_05_110000_create_acc_voucher_workflow",
+    "2026_10_06_100000_add_session_version_to_users",
+    "2026_10_06_140000_create_acc_voucher_attachments",
+    "2026_10_06_150000_create_cellular_manual_workflow",
+    "2026_10_06_160000_create_acc_hr_recaps",
+    "2026_10_06_180000_create_acc_deposits"
+  ],
+  "tables": [
+    {
+      "name": "acc_deposit_events",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deposit_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_role",
+          "type_name": "varchar",
+          "type": "character varying(30)",
+          "nullable": false
+        },
+        {
+          "name": "action",
+          "type_name": "varchar",
+          "type": "character varying(30)",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "snapshot",
+          "type_name": "json",
+          "type": "json",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_deposit_events_deposit_id_version_unique",
+          "columns": [
+            "deposit_id",
+            "version"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "acc_deposit_events_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_deposit_events_deposit_id_foreign",
+          "columns": [
+            "deposit_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_deposits",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_deposit_receipts",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deposit_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "received_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "amount_cents",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "evidence_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_key",
+          "type_name": "varchar",
+          "type": "character varying(64)",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_deposit_receipts_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_deposit_receipts_source_key_unique",
+          "columns": [
+            "source_key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_deposit_receipts_deposit_id_foreign",
+          "columns": [
+            "deposit_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_deposits",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_deposits",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "omzet_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "channel",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "deposit_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "amount_cents",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "destination",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_key",
+          "type_name": "varchar",
+          "type": "character varying(64)",
+          "nullable": false
+        },
+        {
+          "name": "evidence_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_deposits_deposit_date_index",
+          "columns": [
+            "deposit_date"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "acc_deposits_omzet_id_channel_status_index",
+          "columns": [
+            "omzet_id",
+            "channel",
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "acc_deposits_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_deposits_source_key_unique",
+          "columns": [
+            "source_key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_deposits_omzet_id_foreign",
+          "columns": [
+            "omzet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_omzet_records",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_detail_cashless",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "tanggal",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "shift",
+          "type_name": "int2",
+          "type": "smallint",
+          "nullable": false
+        },
+        {
+          "name": "nominal_qris",
+          "type_name": "numeric",
+          "type": "numeric(12,2)",
+          "nullable": false
+        },
+        {
+          "name": "nominal_edc",
+          "type_name": "numeric",
+          "type": "numeric(12,2)",
+          "nullable": false
+        },
+        {
+          "name": "no_storan_finance",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_detail_cashless_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_detail_cashless_tanggal_shift_division_code_unique",
+          "columns": [
+            "tanggal",
+            "shift",
+            "division_code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "acc_hr_events",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "record_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_role",
+          "type_name": "varchar",
+          "type": "character varying(30)",
+          "nullable": false
+        },
+        {
+          "name": "action",
+          "type_name": "varchar",
+          "type": "character varying(30)",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "before",
+          "type_name": "json",
+          "type": "json",
+          "nullable": true
+        },
+        {
+          "name": "after",
+          "type_name": "json",
+          "type": "json",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_hr_events_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_hr_events_record_id_version_unique",
+          "columns": [
+            "record_id",
+            "version"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_hr_events_record_id_foreign",
+          "columns": [
+            "record_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_hr_recaps",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_hr_recaps",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "employee_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "employee_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "employee_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "kind",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "start_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "end_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "leave_type",
+          "type_name": "varchar",
+          "type": "character varying(100)",
+          "nullable": true
+        },
+        {
+          "name": "source_days_hundredths",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "approval_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "attendance_status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": true
+        },
+        {
+          "name": "schedule_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "late_minutes",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "source_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_key",
+          "type_name": "varchar",
+          "type": "character varying(64)",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_hr_attendance_active_unique",
+          "columns": [
+            "employee_id",
+            "start_date"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "acc_hr_recaps_kind_start_date_end_date_status_index",
+          "columns": [
+            "kind",
+            "start_date",
+            "end_date",
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "acc_hr_recaps_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_hr_recaps_source_key_unique",
+          "columns": [
+            "source_key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_hr_recaps_employee_id_foreign",
+          "columns": [
+            "employee_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "employees",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_laundry_logs",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "tanggal",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "berat_kg",
+          "type_name": "numeric",
+          "type": "numeric(6,2)",
+          "nullable": false
+        },
+        {
+          "name": "harga_per_kg",
+          "type_name": "numeric",
+          "type": "numeric(10,2)",
+          "nullable": false
+        },
+        {
+          "name": "total_tagihan",
+          "type_name": "numeric",
+          "type": "numeric(12,2)",
+          "nullable": false
+        },
+        {
+          "name": "status_pembayaran",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_laundry_logs_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "acc_omzet_events",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "record_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_role",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "action",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "metadata",
+          "type_name": "json",
+          "type": "json",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_omzet_events_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_omzet_events_record_id_foreign",
+          "columns": [
+            "record_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_omzet_records",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_omzet_records",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "outlet_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "business_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "shift",
+          "type_name": "varchar",
+          "type": "character varying(30)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": false
+        },
+        {
+          "name": "cash_amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": false
+        },
+        {
+          "name": "qris_amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": false
+        },
+        {
+          "name": "edc_amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": false
+        },
+        {
+          "name": "transfer_amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": false
+        },
+        {
+          "name": "other_amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": false
+        },
+        {
+          "name": "requires_ap",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "ap_amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": true
+        },
+        {
+          "name": "source_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "review_notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "decision_notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "approved_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "submitted_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "validated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_omzet_outlet_date_shift_unique",
+          "columns": [
+            "outlet_id",
+            "business_date",
+            "shift"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "acc_omzet_records_division_code_business_date_status_index",
+          "columns": [
+            "division_code",
+            "business_date",
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "acc_omzet_records_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "acc_omzet_unlock_requests",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "record_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "requested_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "decided_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "decision_notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "expires_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "used_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_omzet_unlock_requests_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_omzet_unlock_requests_record_id_status_index",
+          "columns": [
+            "record_id",
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_omzet_unlock_requests_record_id_foreign",
+          "columns": [
+            "record_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_omzet_records",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_rekap_komisi",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "periode_awal",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "periode_akhir",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "karyawan_nama",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "sesi_30m",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "sesi_60m",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "sesi_90m",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "total_bonus",
+          "type_name": "numeric",
+          "type": "numeric(12,2)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_rekap_komisi_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "acc_stok_opname",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "tanggal",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "barang_nama",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "stok_awal",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "barang_datang",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "pemakaian",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "stok_akhir",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_stok_opname_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "acc_storan_harian",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "tanggal",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "shift",
+          "type_name": "int2",
+          "type": "smallint",
+          "nullable": false
+        },
+        {
+          "name": "pendapatan_tunai",
+          "type_name": "numeric",
+          "type": "numeric(12,2)",
+          "nullable": false
+        },
+        {
+          "name": "no_kysoft_sales",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_storan_harian_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_storan_harian_tanggal_shift_division_code_unique",
+          "columns": [
+            "tanggal",
+            "shift",
+            "division_code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "acc_utilisasi_kursi",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "tanggal",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "no_kursi",
+          "type_name": "int2",
+          "type": "smallint",
+          "nullable": false
+        },
+        {
+          "name": "jam_mulai",
+          "type_name": "time",
+          "type": "time(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "jam_selesai",
+          "type_name": "time",
+          "type": "time(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "durasi_menit",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "terapis_nama",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "utilisasi_cctv",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_utilisasi_kursi_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "acc_voucher_attachments",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "voucher_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "uploaded_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "original_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "mime_type",
+          "type_name": "varchar",
+          "type": "character varying(100)",
+          "nullable": false
+        },
+        {
+          "name": "size_bytes",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "sha256",
+          "type_name": "varchar",
+          "type": "character varying(64)",
+          "nullable": false
+        },
+        {
+          "name": "file_path",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_voucher_attachments_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_voucher_attachments_voucher_id_foreign",
+          "columns": [
+            "voucher_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_vouchers",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_voucher_events",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "voucher_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "actor_role",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "action",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "metadata",
+          "type_name": "json",
+          "type": "json",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_voucher_events_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "acc_voucher_events_voucher_id_foreign",
+          "columns": [
+            "voucher_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "acc_vouchers",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "acc_vouchers",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "voucher_no",
+          "type_name": "varchar",
+          "type": "character varying(50)",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "outlet_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "voucher_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "due_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "entity_name",
+          "type_name": "varchar",
+          "type": "character varying(150)",
+          "nullable": false
+        },
+        {
+          "name": "source_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_key",
+          "type_name": "varchar",
+          "type": "character varying(64)",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type_name": "numeric",
+          "type": "numeric(16,2)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(30)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "reviewed_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "approved_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "review_notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "decision_notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "submitted_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "reviewed_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "approved_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "acc_vouchers_division_code_voucher_date_status_index",
+          "columns": [
+            "division_code",
+            "voucher_date",
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "acc_vouchers_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "acc_vouchers_source_key_unique",
+          "columns": [
+            "source_key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "acc_vouchers_voucher_no_unique",
+          "columns": [
+            "voucher_no"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "accounting_account_outlets",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "account_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "effective_from",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "effective_to",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_account_outlets_account_id_outlet_id_unique",
+          "columns": [
+            "account_id",
+            "outlet_id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_account_outlets_division_id_index",
+          "columns": [
+            "division_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_account_outlets_outlet_id_index",
+          "columns": [
+            "outlet_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_account_outlets_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_account_outlets_account_id_foreign",
+          "columns": [
+            "account_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_accounts",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        },
+        {
+          "name": "accounting_account_outlets_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_account_outlets_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "accounting_accounts",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "display_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "display_order",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "category_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "description",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "effective_from",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "effective_to",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "version",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "updated_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_accounts_display_order_index",
+          "columns": [
+            "display_order"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_accounts_division_id_code_unique",
+          "columns": [
+            "division_id",
+            "code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_accounts_division_id_index",
+          "columns": [
+            "division_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_accounts_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "accounting_accounts_type_index",
+          "columns": [
+            "type"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_accounts_category_id_foreign",
+          "columns": [
+            "category_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_categories",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "set null"
+        },
+        {
+          "name": "accounting_accounts_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "accounting_bank_reconciliations",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "period_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "account_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "jul_balance",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "aug_balance",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "mutation",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "is_verified",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "verified_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "verified_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_bank_reconciliations_division_id_period_id_index",
+          "columns": [
+            "division_id",
+            "period_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_bank_reconciliations_period_id_account_id_unique",
+          "columns": [
+            "period_id",
+            "account_id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_bank_reconciliations_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_bank_reconciliations_account_id_foreign",
+          "columns": [
+            "account_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_accounts",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_bank_reconciliations_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_bank_reconciliations_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_bank_reconciliations_period_id_foreign",
+          "columns": [
+            "period_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_periods",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "accounting_categories",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "parent",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "display_order",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "requires_outlet",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "effective_from",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "effective_to",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "version",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "updated_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_categories_code_unique",
+          "columns": [
+            "code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_categories_display_order_index",
+          "columns": [
+            "display_order"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_categories_parent_index",
+          "columns": [
+            "parent"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_categories_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "accounting_category_aliases",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "alias_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "canonical_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "normalized_alias",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_category_aliases_canonical_id_index",
+          "columns": [
+            "canonical_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_category_aliases_normalized_alias_unique",
+          "columns": [
+            "normalized_alias"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_category_aliases_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_category_aliases_canonical_id_foreign",
+          "columns": [
+            "canonical_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_categories",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "accounting_master_history",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "entity_type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "entity_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "action",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "changes",
+          "type_name": "json",
+          "type": "json",
+          "nullable": true
+        },
+        {
+          "name": "actor_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "actor_email",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "actor_role",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "trace_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_master_history_created_at_index",
+          "columns": [
+            "created_at"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_master_history_division_code_index",
+          "columns": [
+            "division_code"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_master_history_entity_type_entity_id_index",
+          "columns": [
+            "entity_type",
+            "entity_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_master_history_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "accounting_outstanding_payments",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outstanding_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "transaction_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "account_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "payment_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_outstanding_payments_outstanding_id_payment_date_ind",
+          "columns": [
+            "outstanding_id",
+            "payment_date"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_outstanding_payments_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_outstanding_payments_account_id_foreign",
+          "columns": [
+            "account_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_accounts",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_outstanding_payments_outstanding_id_foreign",
+          "columns": [
+            "outstanding_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_outstandings",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        },
+        {
+          "name": "accounting_outstanding_payments_transaction_id_foreign",
+          "columns": [
+            "transaction_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_transactions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "set null"
+        }
+      ]
+    },
+    {
+      "name": "accounting_outstandings",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "period_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "account_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "category_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "code",
+          "type_name": "varchar",
+          "type": "character varying(50)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "paid_amount",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "remaining_amount",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "due_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "category_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "cancelled_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "cancelled_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "cancellation_reason",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "updated_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_outstandings_code_unique",
+          "columns": [
+            "code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_outstandings_division_id_period_id_status_index",
+          "columns": [
+            "division_id",
+            "period_id",
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_outstandings_due_date_index",
+          "columns": [
+            "due_date"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_outstandings_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_outstandings_account_id_foreign",
+          "columns": [
+            "account_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_accounts",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_outstandings_category_id_foreign",
+          "columns": [
+            "category_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_categories",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_outstandings_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_outstandings_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_outstandings_period_id_foreign",
+          "columns": [
+            "period_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_periods",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "accounting_periods",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "period_month",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "updated_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "approved_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "closed_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "approved_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "closed_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "notes",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_periods_division_id_period_month_unique",
+          "columns": [
+            "division_id",
+            "period_month"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_periods_period_month_index",
+          "columns": [
+            "period_month"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_periods_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "accounting_periods_status_index",
+          "columns": [
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_periods_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "accounting_transaction_attachments",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "transaction_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_path",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_size",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "mime_type",
+          "type_name": "varchar",
+          "type": "character varying(100)",
+          "nullable": false
+        },
+        {
+          "name": "uploaded_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_transaction_attachments_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_transaction_attachments_transaction_id_foreign",
+          "columns": [
+            "transaction_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_transactions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "accounting_transactions",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "period_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "account_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "category_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "transaction_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "reference_no",
+          "type_name": "varchar",
+          "type": "character varying(100)",
+          "nullable": true
+        },
+        {
+          "name": "debit_amount",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "credit_amount",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "is_draft",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "cancelled_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "cancelled_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "cancellation_reason",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "updated_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "idempotency_key",
+          "type_name": "varchar",
+          "type": "character varying(100)",
+          "nullable": true
+        },
+        {
+          "name": "request_hash",
+          "type_name": "bpchar",
+          "type": "character(64)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "accounting_transactions_account_id_transaction_date_index",
+          "columns": [
+            "account_id",
+            "transaction_date"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_transactions_cancelled_at_index",
+          "columns": [
+            "cancelled_at"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_transactions_category_id_index",
+          "columns": [
+            "category_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_transactions_division_id_idempotency_key_unique",
+          "columns": [
+            "division_id",
+            "idempotency_key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "accounting_transactions_division_id_period_id_transaction_date_",
+          "columns": [
+            "division_id",
+            "period_id",
+            "transaction_date"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "accounting_transactions_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "accounting_transactions_account_id_foreign",
+          "columns": [
+            "account_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_accounts",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_transactions_category_id_foreign",
+          "columns": [
+            "category_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_categories",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_transactions_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_transactions_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        },
+        {
+          "name": "accounting_transactions_period_id_foreign",
+          "columns": [
+            "period_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "accounting_periods",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "admin_attendance_realizations",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "employee_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(10)",
+          "nullable": false
+        },
+        {
+          "name": "period_start",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "period_end",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "days_scheduled",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "days_present",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "days_absent",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "days_leave",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "days_sick",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "minutes_late",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "admin_attendance_realizations_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "admin_attendance_realizations_employee_id_foreign",
+          "columns": [
+            "employee_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "employees",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "admin_leave_records",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "employee_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(10)",
+          "nullable": false
+        },
+        {
+          "name": "leave_type",
+          "type_name": "varchar",
+          "type": "character varying(50)",
+          "nullable": false
+        },
+        {
+          "name": "start_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "end_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "days_taken",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "notes",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "admin_leave_records_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "admin_leave_records_employee_id_foreign",
+          "columns": [
+            "employee_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "employees",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "admin_vouchers",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(10)",
+          "nullable": false
+        },
+        {
+          "name": "voucher_no",
+          "type_name": "varchar",
+          "type": "character varying(50)",
+          "nullable": false
+        },
+        {
+          "name": "type",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "entity_name",
+          "type_name": "varchar",
+          "type": "character varying(150)",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type_name": "numeric",
+          "type": "numeric(15,2)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "admin_vouchers_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "admin_vouchers_voucher_no_unique",
+          "columns": [
+            "voucher_no"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "admin_vouchers_created_by_foreign",
+          "columns": [
+            "created_by"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "users",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "audit_events",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "actor_email",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "actor_role",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "action",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "entity",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "entity_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "trace_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "metadata",
+          "type_name": "json",
+          "type": "json",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "audit_events_action_index",
+          "columns": [
+            "action"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "audit_events_actor_id_index",
+          "columns": [
+            "actor_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "audit_events_created_at_index",
+          "columns": [
+            "created_at"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "audit_events_division_code_index",
+          "columns": [
+            "division_code"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "audit_events_entity_index",
+          "columns": [
+            "entity"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "audit_events_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "budget_entries",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "period_month",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "statement",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "line_type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "line_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "label",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "sort_order",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "budget_entries_division_code_period_month_index",
+          "columns": [
+            "division_code",
+            "period_month"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "budget_entries_division_code_period_month_statement_line_code_u",
+          "columns": [
+            "division_code",
+            "period_month",
+            "statement",
+            "line_code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "budget_entries_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "cache",
+      "columns": [
+        {
+          "name": "key",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "value",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "expiration",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cache_expiration_index",
+          "columns": [
+            "expiration"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "cache_pkey",
+          "columns": [
+            "key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "cache_locks",
+      "columns": [
+        {
+          "name": "key",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "owner",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "expiration",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cache_locks_expiration_index",
+          "columns": [
+            "expiration"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "cache_locks_pkey",
+          "columns": [
+            "key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "cel_inventories",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "item_code",
+          "type_name": "varchar",
+          "type": "character varying(50)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(100)",
+          "nullable": false
+        },
+        {
+          "name": "stock",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cel_inventories_item_code_unique",
+          "columns": [
+            "item_code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "cel_inventories_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "cel_manual_sales",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "product_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "product_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "business_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "quantity",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "unit_price_cents",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "total_cents",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "source_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_key",
+          "type_name": "varchar",
+          "type": "character varying(64)",
+          "nullable": false
+        },
+        {
+          "name": "created_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "voided_by",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "void_reason",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cel_manual_sales_outlet_id_business_date_status_index",
+          "columns": [
+            "outlet_id",
+            "business_date",
+            "status"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "cel_manual_sales_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "cel_manual_sales_source_key_unique",
+          "columns": [
+            "source_key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "cel_manual_sales_product_id_foreign",
+          "columns": [
+            "product_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "cel_products",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "cel_products",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "sku",
+          "type_name": "varchar",
+          "type": "character varying(50)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "kind",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "provider",
+          "type_name": "varchar",
+          "type": "character varying(100)",
+          "nullable": true
+        },
+        {
+          "name": "variant",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cel_products_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "cel_products_sku_unique",
+          "columns": [
+            "sku"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "cel_stock_balances",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "product_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "quantity",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cel_stock_balances_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "cel_stock_balances_product_id_outlet_id_unique",
+          "columns": [
+            "product_id",
+            "outlet_id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "cel_stock_balances_product_id_foreign",
+          "columns": [
+            "product_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "cel_products",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "cel_stock_movements",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "product_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "quantity_delta",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "quantity_after",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "kind",
+          "type_name": "varchar",
+          "type": "character varying(20)",
+          "nullable": false
+        },
+        {
+          "name": "reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_key",
+          "type_name": "varchar",
+          "type": "character varying(64)",
+          "nullable": false
+        },
+        {
+          "name": "reason",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type_name": "uuid",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamptz",
+          "type": "timestamp(0) with time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "cel_stock_movements_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "cel_stock_movements_source_key_unique",
+          "columns": [
+            "source_key"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "cel_stock_movements_product_id_foreign",
+          "columns": [
+            "product_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "cel_products",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "division_configs",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "enabled_modules",
+          "type_name": "json",
+          "type": "json",
+          "nullable": false
+        },
+        {
+          "name": "enabled_kpis",
+          "type_name": "json",
+          "type": "json",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "division_configs_division_id_unique",
+          "columns": [
+            "division_id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "division_configs_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "division_configs_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "divisions",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "sort_order",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "divisions_code_unique",
+          "columns": [
+            "code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "divisions_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "employee_assignments",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "employee_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "effective_from",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": false
+        },
+        {
+          "name": "effective_to",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "employee_assignments_division_id_index",
+          "columns": [
+            "division_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "employee_assignments_effective_from_index",
+          "columns": [
+            "effective_from"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "employee_assignments_effective_to_index",
+          "columns": [
+            "effective_to"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "employee_assignments_employee_id_index",
+          "columns": [
+            "employee_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "employee_assignments_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "employee_assignments_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        },
+        {
+          "name": "employee_assignments_employee_id_foreign",
+          "columns": [
+            "employee_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "employees",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        },
+        {
+          "name": "employee_assignments_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "no action"
+        }
+      ]
+    },
+    {
+      "name": "employees",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "source_reference",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "employees_code_unique",
+          "columns": [
+            "code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "employees_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "failed_jobs",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "uuid",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "connection",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "queue",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "exception",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "failed_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "failed_jobs_connection_queue_failed_at_index",
+          "columns": [
+            "connection",
+            "queue",
+            "failed_at"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "failed_jobs_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "failed_jobs_uuid_unique",
+          "columns": [
+            "uuid"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "job_batches",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "total_jobs",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "pending_jobs",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "failed_jobs",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "failed_job_ids",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "options",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "cancelled_at",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "finished_at",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "job_batches_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "jobs",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "queue",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "payload",
+          "type_name": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "attempts",
+          "type_name": "int2",
+          "type": "smallint",
+          "nullable": false
+        },
+        {
+          "name": "reserved_at",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "available_at",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "jobs_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "jobs_queue_index",
+          "columns": [
+            "queue"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "migrations",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "migration",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "batch",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "migrations_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "outlets",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "outlets_code_unique",
+          "columns": [
+            "code"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "outlets_division_id_index",
+          "columns": [
+            "division_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "outlets_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "outlets_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "project_documents",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "project_id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_path",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "uploaded_by",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "project_documents_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "project_documents_project_id_foreign",
+          "columns": [
+            "project_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "projects",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        },
+        {
+          "name": "project_documents_uploaded_by_foreign",
+          "columns": [
+            "uploaded_by"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "users",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "set null"
+        }
+      ]
+    },
+    {
+      "name": "project_milestones",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "project_id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "weight_percentage",
+          "type_name": "numeric",
+          "type": "numeric(5,2)",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "payment_status",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "due_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "project_milestones_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "project_milestones_project_id_foreign",
+          "columns": [
+            "project_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "projects",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "project_rabs",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "project_id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "item_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "category",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "volume",
+          "type_name": "numeric",
+          "type": "numeric(10,2)",
+          "nullable": false
+        },
+        {
+          "name": "unit",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "unit_price",
+          "type_name": "numeric",
+          "type": "numeric(15,2)",
+          "nullable": false
+        },
+        {
+          "name": "total_price",
+          "type_name": "numeric",
+          "type": "numeric(15,2)",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "project_rabs_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "project_rabs_project_id_foreign",
+          "columns": [
+            "project_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "projects",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "project_vendors",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "category",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "contact_person",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "phone",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "email",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "bank_details",
+          "type_name": "text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "project_vendors_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "projects",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "int8",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "client_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "contract_value",
+          "type_name": "numeric",
+          "type": "numeric(15,2)",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "start_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "end_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "projects_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "reconciliations",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "period_month",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "bank_amount",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "confirmed_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "confirmation_note",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "reconciliations_division_code_period_month_index",
+          "columns": [
+            "division_code",
+            "period_month"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "reconciliations_outlet_id_period_month_unique",
+          "columns": [
+            "outlet_id",
+            "period_month"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "reconciliations_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "reconciliations_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "revenue_daily",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "business_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "gross_revenue",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "net_revenue",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "discount_amount",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "return_amount",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "transaction_count",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "entry_type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_import_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "superseded_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "note",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "revenue_daily_division_code_business_date_index",
+          "columns": [
+            "division_code",
+            "business_date"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "revenue_daily_outlet_id_business_date_version_unique",
+          "columns": [
+            "outlet_id",
+            "business_date",
+            "version"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "revenue_daily_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "revenue_daily_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "revenue_imports",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "import_type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "source_type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "file_name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "checksum_sha256",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "period_month",
+          "type_name": "date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "total_rows",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "valid_rows",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "invalid_rows",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "uploaded_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "superseded_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "posted_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "revenue_imports_checksum_sha256_index",
+          "columns": [
+            "checksum_sha256"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "revenue_imports_division_code_period_month_index",
+          "columns": [
+            "division_code",
+            "period_month"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "revenue_imports_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "revenue_payments",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "revenue_daily_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "method",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "transaction_count",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "revenue_payments_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "revenue_payments_revenue_daily_id_method_unique",
+          "columns": [
+            "revenue_daily_id",
+            "method"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "revenue_payments_revenue_daily_id_foreign",
+          "columns": [
+            "revenue_daily_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "revenue_daily",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "revenue_staging_rows",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "revenue_import_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "row_number",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "raw_data",
+          "type_name": "json",
+          "type": "json",
+          "nullable": false
+        },
+        {
+          "name": "outlet_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "business_date",
+          "type_name": "date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "gross_revenue",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": true
+        },
+        {
+          "name": "net_revenue",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": true
+        },
+        {
+          "name": "validation_status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "errors",
+          "type_name": "json",
+          "type": "json",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "revenue_staging_rows_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "revenue_staging_rows_revenue_import_id_row_number_unique",
+          "columns": [
+            "revenue_import_id",
+            "row_number"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "revenue_staging_rows_revenue_import_id_foreign",
+          "columns": [
+            "revenue_import_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "revenue_imports",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "revenue_targets",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "period_month",
+          "type_name": "date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "name": "metric_type",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "amount",
+          "type_name": "numeric",
+          "type": "numeric(18,2)",
+          "nullable": false
+        },
+        {
+          "name": "version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "proposed_by_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "submitted_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "approved_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "note",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "revenue_targets_division_code_period_month_index",
+          "columns": [
+            "division_code",
+            "period_month"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "revenue_targets_outlet_id_period_month_metric_type_version_uniq",
+          "columns": [
+            "outlet_id",
+            "period_month",
+            "metric_type",
+            "version"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "revenue_targets_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "revenue_targets_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "restrict"
+        }
+      ]
+    },
+    {
+      "name": "revoked_tokens",
+      "columns": [
+        {
+          "name": "token_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "expires_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "revoked_tokens_pkey",
+          "columns": [
+            "token_id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "revoked_tokens_user_id_index",
+          "columns": [
+            "user_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    },
+    {
+      "name": "target_approvals",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "revenue_target_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "action",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "actor_user_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "note",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "occurred_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "target_approvals_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "target_approvals_revenue_target_id_index",
+          "columns": [
+            "revenue_target_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "target_approvals_revenue_target_id_foreign",
+          "columns": [
+            "revenue_target_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "revenue_targets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "user_scopes",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "outlet_id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "user_scopes_division_id_index",
+          "columns": [
+            "division_id"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "user_scopes_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "user_scopes_user_id_division_id_unique",
+          "columns": [
+            "user_id",
+            "division_id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "foreign_keys": [
+        {
+          "name": "user_scopes_division_id_foreign",
+          "columns": [
+            "division_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "divisions",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        },
+        {
+          "name": "user_scopes_outlet_id_foreign",
+          "columns": [
+            "outlet_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "outlets",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "set null"
+        },
+        {
+          "name": "user_scopes_user_id_foreign",
+          "columns": [
+            "user_id"
+          ],
+          "foreign_schema": "public",
+          "foreign_table": "users",
+          "foreign_columns": [
+            "id"
+          ],
+          "on_update": "no action",
+          "on_delete": "cascade"
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "password_hash",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": false
+        },
+        {
+          "name": "division_code",
+          "type_name": "varchar",
+          "type": "character varying(255)",
+          "nullable": true
+        },
+        {
+          "name": "is_active",
+          "type_name": "bool",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "updated_at",
+          "type_name": "timestamp",
+          "type": "timestamp(0) without time zone",
+          "nullable": true
+        },
+        {
+          "name": "session_version",
+          "type_name": "int4",
+          "type": "integer",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "users_division_code_index",
+          "columns": [
+            "division_code"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "name": "users_email_unique",
+          "columns": [
+            "email"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "name": "users_pkey",
+          "columns": [
+            "id"
+          ],
+          "type": "btree",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "users_role_index",
+          "columns": [
+            "role"
+          ],
+          "type": "btree",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "foreign_keys": []
+    }
+  ]
+}

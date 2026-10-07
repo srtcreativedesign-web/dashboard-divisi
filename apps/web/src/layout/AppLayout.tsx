@@ -1,55 +1,14 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  TrendingUp,
-  Target,
-  Award,
-  Users,
-  ClipboardList,
-  BarChart3,
-  Settings,
-  Menu,
-  X,
-  Calendar,
-  Store,
-  Calculator,
-  DollarSign,
-  PieChart,
-  BookOpenText,
-  Database,
-  UploadCloud,
-  Clock,
-  ShieldCheck,
-  ShieldAlert,
-  CreditCard,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Sparkles,
-  Moon,
-  Sun,
-  FileText,
-  CheckSquare,
-  Receipt,
-  Package,
-  Eye,
-  Coins,
-  FolderKanban,
-  ClipboardCheck,
-} from 'lucide-react';
-import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS } from '../config/menus';
+import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, ShieldCheck, ShieldAlert, CreditCard, PanelLeftClose, PanelLeftOpen, Moon, Sun, FileText, CheckSquare, Package, Coins, FolderKanban, ClipboardCheck } from 'lucide-react';
+import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS, CELLULAR_MENU_ITEMS } from '../config/menus';
 import { roleDisplay } from '../config/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
-import { hasCapability } from '../session/capability';
+import { canAccessDivision, hasCapability } from '../session/capability';
 import { EmptyState } from '../components/states';
-
 import { DetailSheet } from '../components/ui/DetailSheet';
-import { StickyContextFilterBar } from '../components/filters/StickyContextFilterBar';
-import { ExportReportModal } from '../components/reports/ExportReportModal';
-import { NotificationBell, AuditLogModal } from '../components/notifications';
-
-
+import { normalizeDivisionCode } from '../config/mvp';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   '/dashboard': LayoutDashboard,
@@ -68,6 +27,11 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/pnl': PieChart,
   // Accounting routes
   '/accounting': LayoutDashboard,
+  '/accounting/omzet': TrendingUp,
+  '/accounting/omzet-tahunan': BarChart3,
+  '/accounting/vouchers': FileText,
+  '/accounting/setoran': DollarSign,
+  '/accounting/kepegawaian': Users,
   '/accounting/dashboard': LayoutDashboard,
   '/accounting/pemasukan': DollarSign,
   '/accounting/stok': Package,
@@ -80,6 +44,9 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/accounting/rekonsiliasi': ShieldCheck,
   '/accounting/periode': Calendar,
   '/accounting/master': Database,
+  '/accounting/master-data': Database,
+  '/accounting/tutup-shift': ClipboardCheck,
+  '/accounting/laporan': FileText,
   // Project routes
   '/projects': LayoutDashboard,
   '/projects/list': FolderKanban,
@@ -91,627 +58,98 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/projects/timeline': Calendar,
 };
 
+
 export function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
-  const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [auditModalOpen, setAuditModalOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    try {
-      return localStorage.getItem('dashboard-divisi.sidebar-collapsed') === 'true';
-    } catch {
-      return false;
-    }
-  });
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    try {
-      return localStorage.getItem('dashboard-divisi.dark-mode') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('dashboard-divisi.sidebar-collapsed') === 'true');
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('dashboard-divisi.dark-mode') === 'true');
+  const { user, loading: authLoading, logout: authLogout, error } = useAuth();
+  const location = useLocation();
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('dashboard-divisi.dark-mode', String(isDarkMode));
   }, [isDarkMode]);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('dashboard-divisi.dark-mode', String(next));
-      } catch {}
-      return next;
-    });
-  };
-
-  const toggleSidebar = () => {
-    setSidebarCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('dashboard-divisi.sidebar-collapsed', String(next));
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  };
-
-
-
+  useEffect(() => { localStorage.setItem('dashboard-divisi.sidebar-collapsed', String(sidebarCollapsed)); }, [sidebarCollapsed]);
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const isInput = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
-
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
-        if (isInput) return;
-        e.preventDefault();
-        toggleSidebar();
-
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
-        if (isInput) return;
-        e.preventDefault();
-        setDetailSheetOpen((prev) => !prev);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLElement && event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'b') {
+        event.preventDefault();
+        setSidebarCollapsed(value => !value);
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  useEffect(() => {
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === 'dashboard-divisi.sidebar-collapsed' && e.newValue !== null) {
-        setSidebarCollapsed(e.newValue === 'true');
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setDrawerOpen(false);
     };
     window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [drawerOpen]);
-
-  const { user, loading: authLoading, logout: authLogout } = useAuth();
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   const logout = async () => {
-    await authLogout();
+    try { await authLogout(); } catch { return; }
     localStorage.removeItem('access_token');
     localStorage.removeItem('dashboard-divisi.role-demo');
     localStorage.removeItem('dashboard-divisi.division-demo');
     window.location.href = '/login';
   };
+  if (authLoading) return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
+  if (!user) return <Navigate to="/login" replace />;
 
-  const location = useLocation();
-
-  const desktopNavRef = useRef<HTMLElement>(null);
-  const [indicator, setIndicator] = useState<{ top: number; height: number; ready: boolean }>({
-    top: 0,
-    height: 0,
-    ready: false,
-  });
-
-  if (authLoading) {
-    return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const isAccounting = user.divisionCode === 'ACC';
-  const isProject = user.divisionCode === 'PROJECT';
-  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : (isProject ? PROJECT_MENU_ITEMS : MENU_ITEMS);
-  const activeMenu = menuItems.find((item) => item.path === location.pathname);
+  const isAccounting = location.pathname.startsWith('/accounting');
+  const isProject = location.pathname.startsWith('/projects');
+  const isCellular = location.pathname.startsWith('/cellular');
+  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : isProject ? PROJECT_MENU_ITEMS : isCellular ? CELLULAR_MENU_ITEMS : MENU_ITEMS;
+  const moduleCode = (itemPath: string) => itemPath.startsWith('/accounting') ? 'ACC' : itemPath.startsWith('/projects') ? 'PROJECT' : itemPath.startsWith('/cellular') ? 'CELL' : null;
+  const visibleMenu = [{ path: '/dashboard', label: 'Workspace ERP', roles: [user.role], capability: undefined, group: undefined }, ...menuItems.filter(item => item.path !== '/dashboard')].filter(item => item.roles.includes(user.role as never) && canAccessDivision(user, moduleCode(item.path)) && (!item.capability || hasCapability(user.role as never, item.capability, user.divisionCode)));
+  const activeMenu = menuItems.find(item => item.path === location.pathname);
   const roleLabel = roleDisplay(user.role);
-  const scopeLabel = user.divisionCode ?? 'Semua divisi';
-
-  const visibleMenu = menuItems.filter((item) => {
-    if (!item.roles.includes(user.role as never)) return false;
-    if (item.capability && !hasCapability(user.role as never, item.capability, user.divisionCode)) return false;
-    return true;
-  });
-
-  useLayoutEffect(() => {
-    const updateIndicator = () => {
-      if (!desktopNavRef.current) return;
-      const activeEl = desktopNavRef.current.querySelector<HTMLElement>('.liquid-active');
-      if (activeEl) {
-        setIndicator({
-          top: activeEl.offsetTop,
-          height: activeEl.offsetHeight,
-          ready: true,
-        });
-      } else {
-        setIndicator((prev) => ({ ...prev, ready: false }));
-      }
-    };
-
-    updateIndicator();
-    const raf = requestAnimationFrame(updateIndicator);
-    const timer = setTimeout(updateIndicator, 320);
-
-    window.addEventListener('resize', updateIndicator);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(timer);
-      window.removeEventListener('resize', updateIndicator);
-    };
-  }, [location.pathname, sidebarCollapsed, visibleMenu.length]);
-
-  const renderMenu = (variant: 'desktop' | 'drawer' | 'mobile') => {
-    if (variant === 'mobile') {
-      return (
-        <nav className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-thin" aria-label="Navigasi mobile">
-          {visibleMenu.map((item) => {
-            const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-            const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={isExact}
-                className={({ isActive }) =>
-                  `flex shrink-0 items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                    isActive ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-900 hover:bg-white/80'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-slate-900' : 'text-slate-500'}`} />
-                    <span>{item.label}</span>
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
-      );
-    }
-
-    if (variant === 'drawer') {
-      return (
-        <nav className="flex flex-col gap-1.5 px-2" aria-label="Navigasi drawer">
-          {visibleMenu.map((item) => {
-            const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-            const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={isExact}
-                onClick={() => setDrawerOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors ${
-                    isActive
-                      ? 'bg-white text-slate-900 font-bold'
-                      : 'text-slate-400 font-medium hover:bg-white hover:text-slate-900'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-slate-900' : 'text-slate-400'}`} />
-                    <span className="font-semibold truncate">{item.label}</span>
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </nav>
-      );
-    }
-
-    // variant === 'desktop'
-    const isCollapsed = sidebarCollapsed;
-
-    return (
-      <nav
-        ref={desktopNavRef}
-        className="relative flex flex-col gap-1.5 pl-3 pr-0 py-4 w-full"
-        aria-label="Navigasi utama"
-      >
-        {/* Fluid sliding white pill with connected liquid curves */}
-        <div
-          className={`absolute left-3 right-0 rounded-l-2xl bg-white pointer-events-none z-10 transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
-            indicator.ready ? 'opacity-100' : 'opacity-0'
-          }`}
-          style={{
-            top: `${indicator.top}px`,
-            height: `${indicator.height}px`,
-          }}
-        >
-          {/* Top liquid concave scoop */}
-          <span
-            className="absolute -top-4 right-0 w-4 h-4 pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle at 0 0, transparent 15.5px, #ffffff 16px)',
-            }}
-          />
-          {/* Bottom liquid concave scoop */}
-          <span
-            className="absolute -bottom-4 right-0 w-4 h-4 pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle at 0 100%, transparent 15.5px, #ffffff 16px)',
-            }}
-          />
-        </div>
-
-        {visibleMenu.map((item) => {
-          const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
-          const isExact = ['/', '/accounting', '/hr', '/projects'].includes(item.path);
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={isExact}
-              title={isCollapsed ? item.label : undefined}
-              className={({ isActive }) => {
-                const base = `group relative flex items-center text-xs transition-colors duration-150 z-20 ${
-                  isCollapsed ? 'justify-center py-2.5 px-0' : 'gap-3 px-3.5 py-2.5'
-                }`;
-                if (isActive) {
-                  return `${base} liquid-active w-full text-slate-900 font-bold bg-transparent`;
-                }
-                return `${base} mr-3 rounded-xl text-slate-400 font-medium hover:text-slate-900 hover:bg-white`;
-              }}
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon
-                    className={`h-4.5 w-4.5 shrink-0 transition-colors ${
-                      isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-900'
-                    }`}
-                  />
-                  <span className={isCollapsed ? 'sr-only' : 'truncate font-semibold'}>{item.label}</span>
-                  {isCollapsed && (
-                    <div
-                      role="tooltip"
-                      className="pointer-events-none absolute left-full ml-3 z-50 hidden rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xl border border-slate-700 whitespace-nowrap group-hover:block transition-all"
-                    >
-                      {item.label}
-                    </div>
-                  )}
-                </>
-              )}
-            </NavLink>
-          );
-        })}
-      </nav>
-    );
-  };
-
+  const scopeLabel = normalizeDivisionCode(user.divisionCode) ?? 'Semua modul MVP';
+  const navigation = (compact = false) => (
+    <nav aria-label="Navigasi utama" className="space-y-1 px-3">
+      {visibleMenu.map((item,index) => {
+        const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
+        return <Fragment key={item.path}>
+          {!compact && item.group && item.group !== visibleMenu[index-1]?.group && <p className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{item.group}</p>}
+          <NavLink to={item.path} end onClick={() => setDrawerOpen(false)}
+          title={compact ? item.label : undefined}
+          className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${compact ? 'justify-center' : ''} ${isActive ? 'bg-primary-50 font-semibold text-primary-800' : 'text-slate-600 hover:bg-slate-100 hover:text-navy'}`}>
+          <Icon aria-hidden="true" className="h-[18px] w-[18px] shrink-0" />
+          <span className={compact ? 'sr-only' : ''}>{item.label}</span>
+        </NavLink></Fragment>;
+      })}
+    </nav>
+  );
+  const profile = (compact = false) => (
+    <div className="border-t border-line p-4">
+      {!compact && <div className="mb-3"><p className="truncate text-sm font-semibold text-navy">{user.name}</p><p className="mt-1 text-xs text-slate-500">{roleLabel} · {scopeLabel}</p></div>}
+      <LogoutButton compact={compact} onLogout={() => void logout()} className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-line text-sm text-slate-600 hover:bg-slate-50" />
+    </div>
+  );
   return (
-    <div className="min-h-screen bg-mesh relative selection:bg-primary/20 selection:text-primary-dark">
-      {/* Decorative ambient background for layout */}
-      <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-primary/5 blur-[100px]" />
-
-      {/* Drawer mobile overlay */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden animate-fade-in">
-          <div
-            className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-slate-900 px-4 py-6 text-slate-300 shadow-2xl border-r border-slate-800 flex flex-col">
-            <div className="mb-6 flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-xs shadow-xs">
-                  {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-100 tracking-tight leading-snug">
-                    {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-normal leading-none mt-0.5">
-                    {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                aria-label="Tutup menu"
-                onClick={() => setDrawerOpen(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex flex-col gap-1 overflow-y-auto flex-1 scrollbar-thin" aria-label="Navigasi drawer">
-              {renderMenu('drawer')}
-            </div>
-            <div className="mt-4 border-t border-slate-800 pt-3">
-              <div className="rounded-lg bg-slate-850 p-2.5 border border-slate-800">
-                <p className="text-xs font-semibold text-slate-200">{user.name}</p>
-                <p className="text-[11px] text-slate-400">{roleLabel} · {scopeLabel}</p>
-                <LogoutButton
-                  onLogout={() => void logout()}
-                  className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md bg-slate-800 py-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-                />
-              </div>
-            </div>
-          </aside>
+    <div className="min-h-screen bg-surface text-navy">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:p-3">Lewati navigasi</a>
+      <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line bg-white lg:flex ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <div className="flex h-20 items-center gap-3 px-5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-navy text-xs font-bold text-white">{scopeLabel === 'Semua divisi' ? 'DD' : scopeLabel.slice(0, 2)}</div>
+          {!sidebarCollapsed && <div><p className="text-sm font-bold tracking-tight">Dashboard Divisi</p><p className="mt-0.5 text-xs text-slate-500">{isAccounting ? 'Accounting workspace' : isProject ? 'Manajemen proyek' : scopeLabel}</p></div>}
         </div>
-      )}
-
-      {/* Minimalist Professional Desktop Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 hidden bg-slate-900 text-slate-300 lg:flex flex-col z-50 transition-all duration-300 ease-in-out ${
-          sidebarCollapsed ? 'w-20' : 'w-64'
-        }`}
-      >
-        {/* Top Brand & Toggle Header */}
-        <div
-          className={`flex items-center ${
-            sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-4'
-          } py-4 border-b border-slate-800 mb-2`}
-        >
-          {!sidebarCollapsed ? (
-            <>
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-xs shadow-xs">
-                  {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
-                </div>
-                <div className="min-w-0 truncate">
-                  <p className="text-xs font-bold text-slate-100 tracking-tight leading-snug truncate">
-                    {user.divisionCode ? `Modul ${user.divisionCode}` : 'Dashboard Pusat'}
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-normal leading-none mt-0.5 truncate">
-                    {user.divisionCode ? 'Sistem Manajemen Real BE' : 'Multi-divisi'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={toggleSidebar}
-                aria-label="Kecilkan sidebar"
-                title="Kecilkan sidebar (Ctrl+B)"
-                className="shrink-0 rounded-lg p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-              >
-                <PanelLeftClose className="h-4.5 w-4.5" />
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={toggleSidebar}
-              aria-label="Perbesar sidebar"
-              title="Perbesar sidebar (Ctrl+B)"
-              className="group flex flex-col items-center gap-1.5 p-1 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-xs shadow-xs">
-                {user.divisionCode ? user.divisionCode.substring(0, 2).toUpperCase() : 'DD'}
-              </div>
-              <PanelLeftOpen className="h-4 w-4 text-slate-400 group-hover:text-white transition-colors" />
-            </button>
-          )}
-        </div>
-
-        {/* Navigation list */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-slate-800 py-1">
-          {renderMenu('desktop')}
-        </div>
-
-        {/* Bottom user card */}
-        {!sidebarCollapsed ? (
-          <div className="border-t border-slate-800 p-3">
-            <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/80">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs font-semibold">
-                  {(user?.name || String.fromCharCode(85)).charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-medium text-slate-200">{user.name}</p>
-                  <p className="truncate text-[11px] text-slate-400">{roleLabel} · {scopeLabel}</p>
-                </div>
-              </div>
-              <LogoutButton
-                onLogout={() => void logout()}
-                className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md bg-slate-800 py-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-2.5 border-t border-slate-800 p-3">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-slate-200 text-xs font-medium"
-              title={`${user.name} (${roleLabel} · ${scopeLabel})`}
-            >
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-            <LogoutButton
-              compact
-              onLogout={() => void logout()}
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-300 hover:bg-rose-900/60 hover:text-rose-300 transition-colors"
-            />
-          </div>
-        )}
+        <div className="min-h-0 flex-1 overflow-y-auto pb-5">{navigation(sidebarCollapsed)}</div>
+        {profile(sidebarCollapsed)}
       </aside>
-
-      {/* Main Content Area */}
-      <div
-        className={`flex min-h-screen flex-col relative z-10 transition-all duration-300 ease-in-out ${
-          sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
-        }`}
-      >
-        {/* Modern Clean Ocean-Sky Header */}
-        <header className="sticky top-0 z-40 border-b border-sage/25 bg-white/90 backdrop-blur-xl shadow-xs">
-          {/* Top accent gradient bar */}
-          <div className="h-1 w-full bg-gradient-to-r from-primary-500 via-dark to-sage" />
-
-          <div className="flex min-h-16 flex-col gap-3 px-4 py-2.5 lg:flex-row lg:items-center lg:justify-between lg:px-6">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                {/* Mobile drawer toggle */}
-                <button
-                  type="button"
-                  aria-label="Buka menu"
-                  onClick={() => setDrawerOpen(true)}
-                  className="lg:hidden rounded-lg border border-line p-2 text-navy hover:bg-primary-50 hover:text-primary-700 transition-colors"
-                >
-                  <Menu className="h-5 w-5" />
-                </button>
-
-                {/* Desktop sidebar collapse/expand toggle button */}
-                <button
-                  type="button"
-                  onClick={toggleSidebar}
-                  aria-label={sidebarCollapsed ? 'Perbesar sidebar (navbar)' : 'Kecilkan sidebar (navbar)'}
-                  title={sidebarCollapsed ? 'Perbesar sidebar (Ctrl+B)' : 'Kecilkan sidebar (Ctrl+B)'}
-                  className="hidden lg:flex items-center justify-center p-2 rounded-lg text-slate-600 hover:text-primary-700 hover:bg-primary-50 active:scale-95 transition-all border border-transparent hover:border-primary-100"
-                >
-                  {sidebarCollapsed ? (
-                    <PanelLeftOpen className="h-5 w-5 text-primary-600" />
-                  ) : (
-                    <PanelLeftClose className="h-5 w-5 text-slate-600" />
-                  )}
-                </button>
-
-                <div>
-                  <p className="text-sm font-semibold text-navy lg:hidden">Dashboard Divisi</p>
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
-                    <span className="hidden lg:inline font-medium text-slate-700">Dashboard Divisi</span>
-                    {activeMenu && (
-                      <>
-                        <span className="text-slate-300">/</span>
-                        <span className="font-semibold text-primary-900 bg-primary-50 px-2 py-0.5 rounded-md border border-primary-200/60 shadow-2xs">
-                          {activeMenu.label}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <span className="text-sm font-medium text-slate-800 lg:hidden">{user.name}</span>
-            </div>
-
-            <div className="flex items-center gap-2.5">
-
-
-              {/* Smart Notification Center Bell & Popover */}
-              <NotificationBell onOpenAuditModal={() => setAuditModalOpen(true)} />
-
-              {/* Dark Mode Toggle */}
-              <button
-                type="button"
-                onClick={toggleDarkMode}
-                aria-label="Toggle Dark Mode"
-                className="hidden sm:flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-primary-700 hover:bg-primary-50 transition-colors"
-              >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
-
-
-
-              {/* Active Role & Scope Pill */}
-              <div className="hidden lg:flex items-center gap-2 rounded-full bg-primary-50 border border-primary-200/60 px-3.5 py-1.5 text-xs shadow-2xs">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-semibold text-primary-900">{roleLabel}</span>
-                <span className="text-primary-300">|</span>
-                <span className="font-medium text-slate-600">{scopeLabel}</span>
-              </div>
-            </div>
-
-            <div className="lg:hidden">{renderMenu('mobile')}</div>
+      <DetailSheet isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} title="Navigasi" subtitle={scopeLabel} size="sm">
+        {navigation()}{profile()}
+      </DetailSheet>
+      <div className={sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'}>
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-white px-4 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
+            <button type="button" aria-label="Buka menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"><Menu className="h-5 w-5" /></button>
+            <button type="button" aria-label={sidebarCollapsed ? 'Perbesar sidebar' : 'Kecilkan sidebar'} title="Ctrl+B" onClick={() => setSidebarCollapsed(value => !value)} className="hidden rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:block">{sidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}</button>
+            <p className="truncate text-sm font-medium text-slate-600">{activeMenu?.label ?? 'Dashboard Divisi'}</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
+            <span className="hidden text-xs text-slate-500 sm:inline">{roleLabel} · {scopeLabel}</span>
+            <button type="button" onClick={() => setIsDarkMode(value => !value)} aria-label={isDarkMode ? 'Gunakan tema terang' : 'Gunakan tema gelap'} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100">{isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}</button>
           </div>
         </header>
-
-        {/* Sticky Context Filter Bar */}
-        <StickyContextFilterBar
-
-          onOpenDetailSheet={() => setDetailSheetOpen(true)}
-          onOpenExportModal={() => setExportModalOpen(true)}
-        />
-
-        <main className="flex-1 p-4 lg:p-6 lg:px-8">
-          <Outlet />
-        </main>
+        <main id="main-content" tabIndex={-1} className="workspace-content mx-auto min-w-0 max-w-[1600px] p-4 sm:p-6 lg:p-8">{error && <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}<Outlet /></main>
       </div>
-
-
-
-      {/* Sliding Detail Sheet */}
-      <DetailSheet
-        isOpen={detailSheetOpen}
-        onClose={() => setDetailSheetOpen(false)}
-        title="Rincian Operasional & Finansial"
-        subtitle={`Inspeksi ringkasan metrik dan audit status: ${scopeLabel}`}
-        badge={{ text: 'Aktif · Real-Time', variant: 'success' }}
-      >
-        <div className="space-y-4 text-sm text-slate-700">
-          <div className="rounded-xl bg-sky-50 border border-sky-100 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-800">Status Entitas Aktif</span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                <Sparkles className="h-3 w-3" /> Terverifikasi
-              </span>
-            </div>
-            <p className="font-semibold text-slate-900">{user.name}</p>
-            <p className="text-xs text-slate-500">{roleLabel} · {scopeLabel}</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
-              <p className="text-[11px] text-slate-500 font-medium">Realisasi MTD</p>
-              <p className="text-base font-bold text-slate-900 mt-1">Rp 1.482.500.000</p>
-              <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">↑ +14.2% vs target</p>
-            </div>
-            <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs">
-              <p className="text-[11px] text-slate-500 font-medium">Rekonsiliasi Bank</p>
-              <p className="text-base font-bold text-slate-900 mt-1">31/31 Klop</p>
-              <p className="text-[10px] text-sky-600 font-semibold mt-0.5">100% Cocok Sempurna</p>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-2.5">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">Panduan Pintasan Cepat</h4>
-            <div className="space-y-1.5 text-xs text-slate-600">
-              <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
-                <span>Buka Command Palette</span>
-                <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-700 text-[10px]">Ctrl+K</kbd>
-              </div>
-              <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
-                <span>Toggle Sidebar Desktop</span>
-                <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-700 text-[10px]">Ctrl+B</kbd>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span>Buka Panel Rincian Cepat</span>
-                <kbd className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-700 text-[10px]">Ctrl+D</kbd>
-              </div>
-            </div>
-          </div>
-        </div>
-      </DetailSheet>
-
-      {/* Universal Export Report Modal */}
-      <ExportReportModal
-        isOpen={exportModalOpen}
-        onClose={() => setExportModalOpen(false)}
-        activeDivision={scopeLabel}
-      />
-
-      {/* Audit Log Modal */}
-      <AuditLogModal
-        isOpen={auditModalOpen}
-        onClose={() => setAuditModalOpen(false)}
-      />
     </div>
   );
 }

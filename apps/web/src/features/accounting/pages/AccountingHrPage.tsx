@@ -1,0 +1,66 @@
+import { useState, type FormEvent, type ReactNode } from 'react';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { hrApi, type HrRecord, type HrValues } from '../api/hr';
+import { useAuth } from '../../../session/AuthContext';
+import { hasCapability } from '../../../session/capability';
+
+const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const statusNames: Record<string,string> = { PRESENT:'Hadir',ABSENT:'Tidak hadir',LEAVE:'Cuti',SICK:'Sakit',OFF:'Libur' };
+const fieldClass = 'mt-1 w-full rounded-lg border border-line bg-white p-2 text-sm';
+function Field({label,children}:{label:string;children:ReactNode}) { return <label className="block text-sm text-slate-700">{label}{children}</label>; }
+const empty = () => ({ employee_id:'',source_reference:'',start_date:today(),end_date:today(),leave_type:'',source_days:'',approval_reference:'',attendance_status:'PRESENT',schedule_reference:'',late_minutes:'0',reason:'' });
+
+export default function AccountingHrPage() {
+  const {user}=useAuth(); const can=(cap:string)=>!!user&&hasCapability(user.role,cap,user.divisionCode);
+  const client=useQueryClient();
+  const [kind,setKind]=useState<'leave'|'attendance'>('leave'); const [month,setMonth]=useState(today().slice(0,7)); const [page,setPage]=useState(1);
+  const [input,setInput]=useState(empty); const [editing,setEditing]=useState<HrRecord|null>(null); const [selected,setSelected]=useState<string|null>(null);
+  const [employee,setEmployee]=useState({code:'',name:'',source_reference:''}); const [notice,setNotice]=useState('');
+  const [voiding,setVoiding]=useState<HrRecord|null>(null); const [voidReason,setVoidReason]=useState('');
+  const employees=useQuery({queryKey:['acc-hr','employees'],queryFn:hrApi.employees,enabled:can('view:acc_hr')});
+  const records=useQuery({queryKey:['acc-hr','recaps',kind,month,page],queryFn:()=>hrApi.list(kind,month,page),enabled:can('view:acc_hr')&&/^\d{4}-\d{2}$/.test(month)});
+  const detail=useQuery({queryKey:['acc-hr','detail',selected],queryFn:()=>hrApi.detail(selected!),enabled:can('view:acc_hr')&&!!selected});
+  const values=():HrValues=>kind==='leave'?{kind,start_date:input.start_date,end_date:input.end_date,leave_type:input.leave_type,source_days:input.source_days,approval_reference:input.approval_reference}:{kind,start_date:input.start_date,attendance_status:input.attendance_status,schedule_reference:input.schedule_reference,late_minutes:Number(input.late_minutes)};
+  const mutation=useMutation({mutationFn:async(action:'employee'|'recap'|'void')=>{
+    if(action==='employee') await hrApi.createEmployee(employee);
+    if(action==='recap') { const result=editing?await hrApi.correct(editing,values(),input.reason):await hrApi.create({...values(),employee_id:input.employee_id,source_reference:input.source_reference});setSelected(result.data.id); }
+    if(action==='void'&&voiding) await hrApi.void(voiding,voidReason);
+    return action;
+  },onSuccess:action=>{
+    void client.invalidateQueries({queryKey:['acc-hr']});setNotice(action==='void'?'Rekap dibatalkan; histori tetap tersimpan.':'Data berhasil disimpan.');
+    if(action==='employee')setEmployee({code:'',name:'',source_reference:''});
+    if(action==='recap'){setEditing(null);setInput(empty());setPage(1);}
+    if(action==='void'){setVoiding(null);setVoidReason('');}
+  }});
+  const submit=(action:'employee'|'recap'|'void')=>(event:FormEvent)=>{event.preventDefault();if(mutation.isPending)return;setNotice('');mutation.mutate(action);};
+  function correct(r:HrRecord){setEditing(r);setInput({...empty(),employee_id:r.employee_id,source_reference:r.source_reference,start_date:r.start_date,end_date:r.end_date??r.start_date,leave_type:r.leave_type??'',source_days:r.source_days??'',approval_reference:r.approval_reference??'',attendance_status:r.attendance_status??'PRESENT',schedule_reference:r.schedule_reference??'',late_minutes:String(r.late_minutes??0)});mutation.reset();setNotice('');}
+  const button=(text:string)=><button disabled={mutation.isPending} className="rounded-lg bg-primary-600 px-4 py-2 text-sm text-white disabled:opacity-50">{mutation.isPending?'Menyimpan...':text}</button>;
+  const textField=(key:keyof ReturnType<typeof empty>,label:string,options:{type?:string;min?:string;max?:string;maxLength?:number;minLength?:number;pattern?:string}={})=><Field label={label}><input required className={fieldClass} value={input[key]} onChange={e=>setInput({...input,[key]:e.target.value})} {...options}/></Field>;
+  if(!can('view:acc_hr'))return <p className="p-6" role="alert">Akses rekap kepegawaian tidak tersedia untuk akun ini.</p>;
+  return <div className="space-y-5 p-6">
+    <header><h1 className="text-2xl font-bold">Rekap Cuti & Absensi</h1><p className="mt-1 text-sm text-slate-500">Accounting pusat mencatat sumber manual. Belum menghitung saldo cuti, gaji, atau bonus.</p></header>
+    {notice&&<p role="status" className="rounded-lg bg-green-50 p-3 text-green-800">{notice}</p>}
+    {mutation.error&&<p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{mutation.error.message}</p>}
+    {[employees,records,detail].filter(q=>q.error).map((q,i)=><p key={i} role="alert" className="text-red-700">{q.error?.message}<button className="ml-3 underline" onClick={()=>void q.refetch()}>Coba lagi</button></p>)}
+    {(employees.isLoading||records.isLoading)&&<p role="status">Memuat data...</p>}
+    <details className="rounded-xl border border-line bg-white p-4"><summary className="cursor-pointer font-semibold">Master pegawai</summary><p className="mt-2 text-xs text-slate-500">Maksimal 500 pegawai menurut kode. Pendaftaran ini tidak membuat akun login atau penugasan outlet.</p>
+      {can('manage:acc_employees')&&<form aria-label="Daftarkan pegawai" onSubmit={submit('employee')} className="mt-4 grid gap-3 md:grid-cols-3"><fieldset disabled={mutation.isPending} className="contents">{(['code','name','source_reference'] as const).map(key=><Field key={key} label={{code:'Kode pegawai',name:'Nama pegawai',source_reference:'Referensi master pegawai'}[key]}><input required className={fieldClass} maxLength={key==='code'?50:255} pattern={key==='code'?'[A-Za-z0-9_-]+':undefined} value={employee[key]} onChange={e=>setEmployee({...employee,[key]:e.target.value})}/></Field>)}<div>{button('Daftarkan pegawai')}</div></fieldset></form>}
+      <ul className="mt-4 space-y-1 text-sm">{employees.data?.data.map(e=><li key={e.id}>{e.code} — {e.name}{!e.is_active&&' (tidak aktif)'}</li>)}</ul>{employees.isSuccess&&employees.data.data.length===0&&<p className="mt-3 text-sm text-slate-500">Belum ada pegawai terdaftar.</p>}
+    </details>
+    <nav aria-label="Jenis rekap" className="flex gap-2">{(['leave','attendance'] as const).map(k=><button key={k} disabled={mutation.isPending} aria-pressed={kind===k} className={`rounded-lg border px-4 py-2 text-sm ${kind===k?'border-primary-600 text-primary-700':'border-line'}`} onClick={()=>{setKind(k);setPage(1);setEditing(null);setInput(empty());setSelected(null);setVoiding(null);setNotice('');mutation.reset();}}>{k==='leave'?'Cuti':'Absensi'}</button>)}</nav>
+    {can('write:acc_hr')&&<form aria-label={editing?'Koreksi rekap':'Catat rekap'} onSubmit={submit('recap')} className="rounded-xl border border-line bg-white p-5"><h2 className="mb-3 font-semibold">{editing?'Koreksi':'Catat'} {kind==='leave'?'cuti':'realisasi absensi'}</h2><fieldset disabled={mutation.isPending} className="grid gap-3 md:grid-cols-2">
+      <Field label="Pegawai"><select required disabled={!!editing} className={fieldClass} value={input.employee_id} onChange={e=>setInput({...input,employee_id:e.target.value})}><option value="">Pilih pegawai</option>{employees.data?.data.filter(e=>e.is_active||e.id===editing?.employee_id).map(e=><option key={e.id} value={e.id}>{e.code} — {e.name}</option>)}</select></Field>
+      <Field label="Referensi sumber"><input required disabled={!!editing} className={fieldClass} maxLength={255} value={input.source_reference} onChange={e=>setInput({...input,source_reference:e.target.value})}/></Field>
+      {textField('start_date',kind==='leave'?'Tanggal mulai':'Tanggal absensi',{type:'date',max:kind==='attendance'?today():undefined})}
+      {kind==='leave'?<>{textField('end_date','Tanggal akhir',{type:'date',min:input.start_date})}{textField('leave_type','Jenis cuti sesuai sumber',{maxLength:100})}{textField('source_days','Jumlah hari menurut sumber',{pattern:'[0-9]{1,3}(\.[0-9]{1,2})?'})}{textField('approval_reference','Referensi persetujuan cuti',{maxLength:255})}</>:<><Field label="Status absensi"><select className={fieldClass} value={input.attendance_status} onChange={e=>setInput({...input,attendance_status:e.target.value})}>{Object.entries(statusNames).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></Field>{textField('schedule_reference','Referensi jadwal',{maxLength:255})}{textField('late_minutes','Menit terlambat menurut sumber',{type:'number',min:'0',max:'1440'})}</>}
+      {editing&&textField('reason','Alasan koreksi',{minLength:10,maxLength:2000})}<div className="md:col-span-2">{button(editing?'Simpan koreksi':'Simpan rekap')}{editing&&<button type="button" className="ml-3 underline" onClick={()=>{setEditing(null);setInput(empty());mutation.reset();}}>Batal koreksi</button>}</div>
+    </fieldset><p className="mt-3 text-xs text-slate-500">{kind==='leave'?'Jumlah hari mengikuti sumber, bukan perhitungan kalender. Referensi persetujuan dicatat dari proses di luar ERP.':'Status dan menit terlambat mengikuti sumber jadwal/absensi, tanpa perhitungan potongan atau bonus.'}</p></form>}
+    <Field label="Bulan rekap"><input type="month" required className={`${fieldClass} max-w-xs`} value={month} onChange={e=>{setMonth(e.target.value);setPage(1);}}/></Field>
+    {kind==='leave'&&<p className="text-xs text-slate-500">Cuti yang menyentuh bulan pilihan ditampilkan dengan jumlah hari seluruh sumber; tidak dialokasikan sebagai jumlah bulanan.</p>}
+    <section className="overflow-x-auto rounded-xl border border-line bg-white p-5"><table className="w-full text-left text-sm"><caption className="mb-3 text-left font-semibold">Daftar rekap {kind==='leave'?'cuti':'absensi'}</caption><thead><tr><th>Pegawai</th><th>Tanggal</th><th>Rincian sumber</th><th>Referensi</th><th>Status</th><th>Aksi</th></tr></thead><tbody>{records.data?.data.items.map(r=><tr key={r.id} className="border-t border-line"><td className="py-3">{r.employee_code} — {r.employee_name}</td><td>{r.start_date}{kind==='leave'&&<> s.d. {r.end_date}</>}</td><td>{kind==='leave'?`${r.leave_type} · ${r.source_days} hari`:`${statusNames[r.attendance_status??'']} · terlambat ${r.late_minutes} menit`}</td><td>{r.source_reference}</td><td>{r.status==='recorded'?'Tercatat':'Dibatalkan'} · v{r.version}</td><td><button className="underline" onClick={()=>setSelected(r.id)}>Histori</button>{can('write:acc_hr')&&r.status==='recorded'&&<><button disabled={mutation.isPending} className="ml-3 underline" onClick={()=>correct(r)}>Koreksi</button><button disabled={mutation.isPending} className="ml-3 text-red-700 underline" onClick={()=>{setVoiding(r);setVoidReason('');mutation.reset();setNotice('');}}>Batalkan</button></>}</td></tr>)}</tbody></table>{records.isSuccess&&records.data.data.items.length===0&&<p className="mt-4 text-sm text-slate-500">Belum ada rekap pada bulan ini.</p>}
+      {records.data&&<div className="mt-4 flex items-center gap-4 text-sm"><span>{records.data.data.total} catatan · halaman {page}</span><button disabled={page===1} onClick={()=>setPage(p=>p-1)}>Sebelumnya</button><button disabled={page*50>=records.data.data.total} onClick={()=>setPage(p=>p+1)}>Berikutnya</button></div>}
+    </section>
+    {voiding&&can('write:acc_hr')&&<form aria-label="Batalkan rekap" onSubmit={submit('void')} className="space-y-3 rounded-xl border border-red-200 bg-white p-5"><h2 className="font-semibold">Batalkan {voiding.source_reference}</h2><Field label="Alasan pembatalan"><textarea required minLength={10} maxLength={2000} className={fieldClass} value={voidReason} onChange={e=>setVoidReason(e.target.value)}/></Field>{button('Konfirmasi pembatalan')}<button disabled={mutation.isPending} type="button" className="ml-3 underline" onClick={()=>setVoiding(null)}>Tutup</button></form>}
+    {selected&&<section className="rounded-xl border border-line bg-white p-5"><h2 className="font-semibold">Histori rekap</h2>{detail.isLoading&&<p>Memuat histori...</p>}{detail.data?.data.events?.map(e=><article key={e.id} className="mt-3 border-l-2 border-line pl-3 text-sm"><p>{{created:'Dicatat',corrected:'Dikoreksi',voided:'Dibatalkan'}[e.action]??e.action} · {e.actor_role} · {e.created_at}</p><p>{e.reason}</p><p>Versi {e.before?.version??'—'} → {e.after.version}; {e.after.start_date} s.d. {e.after.end_date}</p><p>{e.after.kind==='leave'?`${e.after.leave_type} · ${e.after.source_days} hari`:`${statusNames[e.after.attendance_status??'']} · terlambat ${e.after.late_minutes} menit`}</p><p>Referensi: {e.after.source_reference} · {e.after.approval_reference??e.after.schedule_reference}</p></article>)}</section>}
+  </div>;
+}

@@ -13,27 +13,19 @@ class PolicyTest extends TestCase
         $policy = app(PolicyService::class);
 
         $bodUser = ['role' => 'BOD', 'divisionCode' => null];
-        $managerUser = ['role' => 'MANAGER', 'divisionCode' => 'WRAP'];
-        $adminUser = ['role' => 'ADMIN', 'divisionCode' => 'WRAP'];
+        $managerUser = ['role' => 'MANAGER', 'divisionCode' => 'ACC'];
+        $adminUser = ['role' => 'ADMIN', 'divisionCode' => 'ACC'];
 
-        // BOD has all
-        $this->assertTrue($policy->hasCapability($bodUser, 'any:capability'));
-        $this->assertTrue($policy->hasCapability($bodUser, 'manage:division'));
-
-        // Manager capabilities
-        $this->assertTrue($policy->hasCapability($managerUser, 'manage:division'));
-        $this->assertTrue($policy->hasCapability($managerUser, 'view:report'));
-        // Manager adalah writer domain Revenue (Data Dictionary v0.2 §1.2)
-        $this->assertTrue($policy->hasCapability($managerUser, 'write:revenue'));
-        $this->assertTrue($policy->hasCapability($managerUser, 'write:target'));
-        // Hanya BOD yang boleh memutuskan target (segregation of duties)
-        $this->assertFalse($policy->hasCapability($managerUser, 'approve:target'));
-        $this->assertFalse($policy->hasCapability($adminUser, 'approve:target'));
-
-        // Admin capabilities
-        $this->assertTrue($policy->hasCapability($adminUser, 'write:revenue'));
-        $this->assertTrue($policy->hasCapability($adminUser, 'view:report'));
-        $this->assertFalse($policy->hasCapability($adminUser, 'manage:division'));
+        $this->assertTrue($policy->hasCapability($bodUser, 'view:report'));
+        foreach (['any:capability', 'manage:division', 'approve:acc_period', 'write:revenue'] as $capability) {
+            $this->assertFalse($policy->hasCapability($bodUser, $capability));
+        }
+        $this->assertTrue($policy->hasCapability($managerUser, 'manage:acc_master'));
+        $this->assertTrue($policy->hasCapability($managerUser, 'approve:acc_period'));
+        $this->assertFalse($policy->hasCapability($managerUser, 'write:acc_transaction'));
+        $this->assertTrue($policy->hasCapability($adminUser, 'write:acc_transaction'));
+        $this->assertFalse($policy->hasCapability($adminUser, 'approve:acc_period'));
+        $this->assertFalse($policy->hasCapability(['role' => 'MANAGER', 'divisionCode' => 'WRAP'], 'write:revenue'));
     }
 
     public function test_forbidden_capability_returns_403_and_audits(): void

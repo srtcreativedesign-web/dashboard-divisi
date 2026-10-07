@@ -29,7 +29,7 @@ API (jalankan dari `apps/api`):
 composer install
 php artisan serve --port 3000     # BE :3000/api/v1
 php artisan migrate               # skema kanonik ada di database/migrations
-php artisan db:seed               # DatabaseSeeder: 7 divisi + outlet + 17 akun + DivisionConfig
+php artisan db:seed               # Operasional: master ACC/PROJECT/CELL, tanpa akun atau transaksi contoh
 php artisan test                            # semua (74 tests, 335 assertions, sqlite :memory:)
 php artisan test tests/Feature/PolicyTest.php          # satu file
 php artisan test --filter=test_bod_lintas_divisi       # satu test
@@ -92,3 +92,12 @@ Root repo juga vault Obsidian dan sumber kebenaran progres. Setelah pekerjaan be
 - `Documents/` — spesifikasi sumber (PRD/ARD/UI-UX/Data Dictionary/API Contract/UAT/Backlog). Saat dokumen saling bertentangan, Data Dictionary v0.2 + API Contract v0.1 yang menang; deviasi dicatat di `Decisions/`, tidak dipilih diam-diam.
 
 Mode kerja: owner menulis kode dibimbing AI (coach → review → takeover bila stuck). Jangan langsung takeover implementasi saat owner sedang belajar sebuah task — tanya dulu.
+
+## Standar Isolasi Domain ERP (Sejak 2026-10-05)
+- **Frontend**: Modul diletakkan di `apps/web/src/features/{nama_divisi}/` (contoh: `features/accounting/pages`). Dilarang mencampur logika di `pages/shared`.
+- **Backend (API)**: Controller/Model wajib menggunakan namespace spesifik `App\Http\Controllers\Api\V1\{Divisi}`.
+- **Database**: Migrasi disimpan per folder divisi (`database/migrations/{divisi}`). Gunakan prefix spesifik untuk tabel baru: `cel_` untuk Cellular, `acc_` (atau `accounting_`) untuk Accounting, `prj_` (atau `project_`) untuk Project. Dilarang melakukan query atau relasi antar modul secara langsung (harus via API/Service).
+
+## Bootstrap operasional MVP (2026-10-05)
+
+DatabaseSeeder di luar testing hanya menjalankan MvpMasterSeeder (ACC/PROJECT/CELL + config). Fixture legacy digunakan khusus testing. Akun operasional dibuat satu per satu lewat php artisan erp:create-user dengan password prompt tersembunyi; tidak ada password default operasional. Panduan lengkap: docs/MVP_BOOTSTRAP.md. Master tiga divisi dan 33 migrasi sudah aktif pada PostgreSQL dashboard_divisi_mvp (6 Oktober 2026). Akun dan outlet operasional belum dibuat.

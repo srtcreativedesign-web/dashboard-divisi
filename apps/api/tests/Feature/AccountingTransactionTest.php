@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\ApiException;
 use App\Models\AccountingAccount;
 use App\Models\AccountingAccountOutlet;
 use App\Models\AccountingCategory;
@@ -9,6 +10,8 @@ use App\Models\AccountingPeriod;
 use App\Models\AccountingTransaction;
 use App\Models\Division;
 use App\Models\Outlet;
+use App\Models\User;
+use App\Services\AccTransactionService;
 use Database\Seeders\AccMasterSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -463,5 +466,70 @@ class AccountingTransactionTest extends TestCase
         ])->assertStatus(500);
 
         $this->assertDatabaseCount('accounting_transactions', 0);
+    }
+
+    public function test_report_only_roles_cannot_read_journal_or_attachments(): void
+    {
+        $id = (string) Str::uuid();
+        foreach (['HEAD_OPS', 'SPV', 'LEADER', 'ADMIN_GUDANG'] as $role) {
+            User::where('email', 'manager.acc@dashboard.test')->update(['role' => $role]);
+            foreach (['transactions', 'transactions/summary?period_id='.$this->draftPeriod->id,
+                'transactions/'.$id, 'transactions/'.$id.'/attachments/'.$id.'/download'] as $path) {
+                $this->flushHeaders()->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/'.$path)
+                    ->assertStatus(403)->assertJsonPath('error.code', 'FORBIDDEN_CAPABILITY');
+            }
+            $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/status')->assertOk();
+        }
+    }
+
+    public function test_journal_roles_retain_read_access_and_service_checks_policy(): void
+    {
+        foreach (['MANAGER', 'ADMIN', 'ACCOUNTING', 'FINANCE'] as $role) {
+            $account = User::where('email', 'manager.acc@dashboard.test')->firstOrFail();
+            $account->update(['role' => $role]);
+            $this->flushHeaders()->authenticated($account->email)->getJson('/api/v1/accounting/transactions')->assertOk();
+        }
+        try {
+            app(AccTransactionService::class)->list(['role' => 'HEAD_OPS', 'divisionCode' => 'ACC']);
+            $this->fail('Service tidak boleh melewati policy jurnal');
+        } catch (ApiException $exception) {
+            $this->assertSame('FORBIDDEN_CAPABILITY', $exception->getErrorCode());
+        }
+    }
+
+    public function test_foreign_domain_transaction_cannot_be_read_or_modified(): void
+    {
+        $foreignDivision = Division::where('code', 'PROJECT')->firstOrFail();
+        $foreignPeriod = AccountingPeriod::create(['id' => (string) Str::uuid(), 'division_id' => $foreignDivision->id,
+            'period_month' => '2026-09-01', 'status' => 'draft', 'version' => 1]);
+        $foreign = AccountingTransaction::create(['id' => (string) Str::uuid(), 'division_id' => $foreignDivision->id,
+            'period_id' => $foreignPeriod->id, 'account_id' => $this->accountBank->id, 'category_id' => $this->categoryB->id,
+            'transaction_date' => '2026-09-01', 'description' => 'Objek domain asing anonim', 'debit_amount' => 9999,
+            'credit_amount' => 0, 'version' => 1]);
+        $this->authenticated('admin.acc@dashboard.test')->getJson('/api/v1/accounting/transactions')
+            ->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson('/api/v1/accounting/transactions/'.$foreign->id)->assertNotFound();
+        $this->getJson('/api/v1/accounting/transactions/'.$foreign->id.'/attachments/'.Str::uuid().'/download')->assertNotFound();
+        $this->getJson('/api/v1/accounting/transactions/summary?period_id='.$foreignPeriod->id)->assertNotFound();
+        $this->putJson('/api/v1/accounting/transactions/'.$foreign->id, ['description' => 'Tidak boleh berubah'])->assertNotFound();
+        $this->postJson('/api/v1/accounting/transactions/'.$foreign->id.'/cancel', ['cancellation_reason' => 'Tidak boleh dibatalkan'])->assertNotFound();
+        $this->assertSame('Objek domain asing anonim', $foreign->fresh()->description);
+        $this->assertNull($foreign->fresh()->cancelled_at);
+        foreach (['preview', 'commit'] as $action) {
+            $this->postJson('/api/v1/accounting/import/'.$action, ['period_id' => $foreignPeriod->id, 'rows' => [['tanggal' => '2026-09-01']]])
+                ->assertNotFound();
+        }
+        $this->assertDatabaseCount('accounting_transactions', 1);
+    }
+
+    public function test_import_preview_requires_the_same_actor_permission_as_commit(): void
+    {
+        foreach (['MANAGER', 'HEAD_OPS', 'SPV', 'LEADER', 'ADMIN_GUDANG'] as $role) {
+            User::where('email', 'manager.acc@dashboard.test')->update(['role' => $role]);
+            foreach (['preview', 'commit'] as $action) {
+                $this->flushHeaders()->authenticated('manager.acc@dashboard.test')->postJson('/api/v1/accounting/import/'.$action, [])
+                    ->assertStatus(403)->assertJsonPath('error.code', 'FORBIDDEN_CAPABILITY');
+            }
+        }
     }
 }

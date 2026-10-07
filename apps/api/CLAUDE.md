@@ -9,8 +9,10 @@ Perintah kanonik (dari `apps/api`):
 ```bash
 composer install
 cp .env.example .env && php artisan key:generate
-php artisan migrate --seed   # 7 divisi + 17 akun + division_configs
+php artisan migrate --seed   # Master tiga divisi MVP saja; akun dibuat terpisah
 php artisan serve --port 3000  # http://localhost:3000/api/v1
 php artisan test             # 74 tests, sqlite :memory:
 ./vendor/bin/pint            # formatter, ada di CI gate
 ```
+
+Bootstrap akun operasional: lihat ../../docs/MVP_BOOTSTRAP.md. Seeder legacy hanya digunakan testing.

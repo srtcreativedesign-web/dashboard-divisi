@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { authApi, type AuthUser } from '../api/auth';
 import { ApiException } from '../api/client';
+import { queryClient } from '../api/queryClient';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   useEffect(() => {
+    localStorage.removeItem('access_token');
     void refresh();
   }, [refresh]);
 
@@ -53,9 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const resp = await authApi.login(email, password);
-      if (resp.data?.accessToken) {
-        localStorage.setItem('access_token', resp.data.accessToken);
-      }
+      queryClient.clear();
+      localStorage.removeItem('access_token');
       setUser(resp.data.user);
       setLoading(false);
       setError(null);
@@ -68,8 +69,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    await authApi.logout().catch(() => {});
+    try {
+      await authApi.logout();
+    } catch (e) {
+      setError(e instanceof ApiException ? e.message : 'Logout gagal; sesi belum ditutup. Coba lagi.');
+      throw e;
+    }
     localStorage.removeItem('access_token');
+    queryClient.clear();
     setUser(null);
     setError(null);
   }, []);

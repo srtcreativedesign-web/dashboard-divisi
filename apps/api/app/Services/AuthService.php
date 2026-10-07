@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\ApiException;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -50,6 +51,7 @@ class AuthService
                 'role' => $user->role,
                 'division_code' => $user->division_code,
                 'password_hash' => $user->password_hash,
+                'session_version' => (int) $user->session_version,
                 'is_active' => $user->is_active,
             ];
         }
@@ -77,6 +79,7 @@ class AuthService
                 'role' => $user->role,
                 'division_code' => $user->division_code,
                 'password_hash' => $user->password_hash,
+                'session_version' => (int) $user->session_version,
                 'is_active' => $user->is_active,
             ];
         }
@@ -119,11 +122,12 @@ class AuthService
             'role' => $user['role'],
             'divisionCode' => $user['division_code'],
             'jti' => $jti,
+            'sessionVersion' => $user['session_version'] ?? 0,
         ];
 
         $accessToken = $this->jwtService->sign($payload);
 
-        $this->audit->log([
+        $this->audit->logRequired([
             'actorId' => $user['id'],
             'actorEmail' => $user['email'],
             'actorRole' => $user['role'],
@@ -148,22 +152,25 @@ class AuthService
 
     public function logout(array $userPayload): array
     {
-        if (! empty($userPayload['jti'])) {
-            $expiresAt = isset($userPayload['exp'])
-                ? (new \DateTimeImmutable)->setTimestamp((int) $userPayload['exp'])
-                : null;
-            $this->tokenRevocation->revoke($userPayload['jti'], $userPayload['sub'] ?? null, $expiresAt);
-        }
+        DB::transaction(function () use ($userPayload) {
+            if (! empty($userPayload['jti'])) {
+                $expiresAt = isset($userPayload['exp'])
+                    ? (new \DateTimeImmutable)->setTimestamp((int) $userPayload['exp'])
+                    : null;
+                $this->tokenRevocation->revoke($userPayload['jti'], $userPayload['sub'] ?? null, $expiresAt);
+            }
 
-        $this->audit->log([
-            'actorId' => $userPayload['sub'] ?? null,
-            'actorEmail' => $userPayload['email'] ?? null,
-            'actorRole' => $userPayload['role'] ?? null,
-            'action' => 'auth.logout',
-            'entity' => 'User',
-            'entityId' => $userPayload['sub'] ?? null,
-            'divisionCode' => $userPayload['divisionCode'] ?? null,
-        ]);
+            $this->audit->logRequired([
+                'actorId' => $userPayload['sub'] ?? null,
+                'actorEmail' => $userPayload['email'] ?? null,
+                'actorRole' => $userPayload['role'] ?? null,
+                'action' => 'auth.logout',
+                'entity' => 'User',
+                'entityId' => $userPayload['sub'] ?? null,
+                'divisionCode' => $userPayload['divisionCode'] ?? null,
+            ]);
+
+        });
 
         return ['message' => 'Logout berhasil'];
     }
@@ -187,27 +194,27 @@ class AuthService
 
     public function resetPassword(string $userId, string $oldPassword, string $newPassword): array
     {
-        if (strlen($newPassword) < 8) {
-            throw new ApiException('VALIDATION_ERROR', 'Password baru minimal 8 karakter');
+        if (strlen($newPassword) < 12 || strlen($newPassword) > 128) {
+            throw new ApiException('VALIDATION_ERROR', 'Password baru harus 12 sampai 128 karakter');
         }
 
-        $user = $this->findUserById($userId);
-        if (! $user) {
-            throw new ApiException('AUTH_REQUIRED', 'User tidak ditemukan');
-        }
+        DB::transaction(function () use ($userId, $oldPassword, $newPassword) {
+            $account = User::query()->lockForUpdate()->find($userId);
+            if (! $account || ! $account->is_active) {
+                throw new ApiException('AUTH_REQUIRED', 'Sesi tidak valid');
+            }
+            if (! Hash::check($oldPassword, $account->password_hash)) {
+                throw new ApiException('AUTH_REQUIRED', 'Password lama salah');
+            }
+            $account->password_hash = Hash::make($newPassword);
+            $account->session_version = (int) $account->session_version + 1;
+            $account->save();
+            $this->audit->logRequired(['actorId' => $account->id, 'actorEmail' => $account->email,
+                'actorRole' => $account->role, 'divisionCode' => $account->division_code,
+                'action' => 'auth.reset', 'entity' => 'User', 'entityId' => $account->id,
+                'metadata' => ['session_version' => $account->session_version]]);
+        });
 
-        $ok = Hash::check($oldPassword, $user['password_hash']) || password_verify($oldPassword, $user['password_hash']);
-
-        if (! $ok) {
-            throw new ApiException('AUTH_REQUIRED', 'Password lama salah');
-        }
-
-        $dbUser = User::find($userId);
-        if ($dbUser) {
-            $dbUser->password_hash = Hash::make($newPassword, ['rounds' => 10]);
-            $dbUser->save();
-        }
-
-        return ['message' => 'Password berhasil direset'];
+        return ['message' => 'Password berhasil direset; silakan login kembali'];
     }
 }

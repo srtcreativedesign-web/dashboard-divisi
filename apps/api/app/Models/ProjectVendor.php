@@ -17,9 +17,4 @@ class ProjectVendor extends Model
         'email',
         'bank_details',
     ];
-
-    public function expenses()
-    {
-        return $this->hasMany(ProjectExpense::class, 'project_vendor_id');
-    }
 }

@@ -3,7 +3,9 @@
 use App\Exceptions\ApiException;
 use App\Http\Middleware\ApiEnvelopeMiddleware;
 use App\Http\Middleware\CapabilityMiddleware;
+use App\Http\Middleware\CriticalMutationAudit;
 use App\Http\Middleware\JwtAuthMiddleware;
+use App\Http\Middleware\ScanUploadedFile;
 use App\Http\Middleware\ScopeMiddleware;
 use App\Http\Middleware\TraceIdMiddleware;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -39,8 +41,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'jwt.auth' => JwtAuthMiddleware::class,
+            'critical.audit' => CriticalMutationAudit::class,
             'capability' => CapabilityMiddleware::class,
             'scope' => ScopeMiddleware::class,
+            'file.scan' => ScanUploadedFile::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

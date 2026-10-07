@@ -1,32 +1,27 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AccAdminController;
-use App\Http\Controllers\Api\V1\AccountingCashflowController;
-use App\Http\Controllers\Api\V1\AccountingController;
-use App\Http\Controllers\Api\V1\AccountingImportController;
-use App\Http\Controllers\Api\V1\AccountingMasterController;
-use App\Http\Controllers\Api\V1\AccountingOutstandingController;
-use App\Http\Controllers\Api\V1\AccountingReconciliationController;
-use App\Http\Controllers\Api\V1\AccountingTransactionController;
-use App\Http\Controllers\Api\V1\AdminController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingCashflowController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingImportController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingMasterController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingOutstandingController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingReconciliationController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingTransactionController;
+use App\Http\Controllers\Api\V1\Accounting\DepositController;
+use App\Http\Controllers\Api\V1\Accounting\HrRecapController;
+use App\Http\Controllers\Api\V1\Accounting\OmzetController;
+use App\Http\Controllers\Api\V1\Accounting\VoucherController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
-use App\Http\Controllers\Api\V1\BudgetingController;
+use App\Http\Controllers\Api\V1\Cellular\CellularController;
+use App\Http\Controllers\Api\V1\Cellular\ManualWorkflowController;
 use App\Http\Controllers\Api\V1\DivisionConfigController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\ProjectDocumentController;
-use App\Http\Controllers\Api\V1\ProjectExpenseController;
-use App\Http\Controllers\Api\V1\ProjectInvoiceController;
-use App\Http\Controllers\Api\V1\ProjectPhotoController;
-use App\Http\Controllers\Api\V1\ProjectRabController;
-use App\Http\Controllers\Api\V1\ProjectReportController;
-use App\Http\Controllers\Api\V1\ProjectVendorController;
-use App\Http\Controllers\Api\V1\ReportController;
-use App\Http\Controllers\Api\V1\RevenueController;
-use App\Http\Controllers\Api\V1\SobatHrController;
-use App\Http\Controllers\Api\V1\TargetController;
+use App\Http\Controllers\Api\V1\Project\ProjectController;
+use App\Http\Controllers\Api\V1\Project\ProjectDocumentController;
+use App\Http\Controllers\Api\V1\Project\ProjectRabController;
+use App\Http\Controllers\Api\V1\Project\ProjectVendorController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -37,19 +32,11 @@ Route::prefix('v1')->group(function () {
     Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
     // Protected routes requiring JWT authentication
-    Route::middleware(['jwt.auth'])->group(function () {
+    Route::middleware(['jwt.auth', 'critical.audit'])->group(function () {
         // Auth session
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
         Route::post('auth/reset', [AuthController::class, 'reset'])->middleware('throttle:reset');
-
-        // Sobat API Integration (protected by capability & scope)
-        Route::middleware(['capability:view:report'])->group(function () {
-            Route::get('sobathr/status', [SobatHrController::class, 'status']);
-        });
-        Route::middleware(['scope', 'capability:write:revenue'])->group(function () {
-            Route::post('sobathr/sync-tenants', [SobatHrController::class, 'syncTenants']);
-        });
 
         // Org read models
         Route::get('org/divisions', [OrgController::class, 'divisions']);
@@ -62,11 +49,10 @@ Route::prefix('v1')->group(function () {
             Route::get('bod/executive-read-model', [BodController::class, 'executiveReadModel']);
             Route::get('bod/kpi-compatibility', [BodController::class, 'checkCompatibility']);
             Route::get('bod/overview', [BodController::class, 'overview']);
-            Route::get('bod/pnl-comparison', [BodController::class, 'pnlComparison']);
             Route::get('division-configs', [DivisionConfigController::class, 'getAll']);
         });
 
-        // Division configs — read/write per divisi memakai scope middleware (anti IDOR lintas divisi).
+        // Division configs
         Route::middleware(['scope'])->group(function () {
             Route::get('division-configs/{divisionCode}', [DivisionConfigController::class, 'getOne']);
 
@@ -75,52 +61,58 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-        // Omzet, target, laporan & budgeting — scope divisi diperiksa dua lapis:
-        // ScopeMiddleware untuk divisionCode eksplisit + DivisionScope pada model.
-        Route::middleware(['scope'])->group(function () {
-            Route::middleware(['capability:view:report'])->group(function () {
-                Route::get('revenue/daily', [RevenueController::class, 'daily']);
-                Route::get('revenue/mtd', [RevenueController::class, 'mtd']);
-                Route::get('revenue/tenants', [RevenueController::class, 'tenants']);
-
-                Route::get('targets/current-month', [TargetController::class, 'currentMonth']);
-                Route::get('targets/run-rate', [TargetController::class, 'runRate']);
-
-                Route::get('reports/transactions', [ReportController::class, 'transactions']);
-                Route::get('reports/reconciliation', [ReportController::class, 'reconciliation']);
-
-                Route::get('budgeting/cashflow', [BudgetingController::class, 'cashflow']);
-                Route::get('budgeting/pnl', [BudgetingController::class, 'pnl']);
-            });
-
-            Route::middleware(['capability:write:revenue'])->group(function () {
-                Route::post('revenue/daily', [RevenueController::class, 'storeDaily']);
-                Route::post('revenue/batch-upload', [RevenueController::class, 'batchUpload']);
-            });
-
-            // Manager/Admin mengusulkan target...
-            Route::middleware(['capability:write:target'])->group(function () {
-                Route::post('targets/tenant', [TargetController::class, 'storeTenantTarget']);
-            });
-
-            // ...hanya BOD yang memutuskan (segregation of duties).
-            Route::middleware(['capability:approve:target'])->group(function () {
-                Route::post('targets/{id}/approve', [TargetController::class, 'approve']);
-                Route::post('targets/{id}/return', [TargetController::class, 'returnTarget']);
-            });
-        });
-
-        // Accounting domain foundation (ISSUE-5 + ISSUE-6 Master Data)
+        // Accounting domain
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
+            Route::prefix('deposits')->middleware('capability:view:acc_deposits')->group(function () {
+                Route::get('sources', [DepositController::class, 'sources']);
+                Route::get('/', [DepositController::class, 'index']);
+                Route::get('{id}', [DepositController::class, 'show'])->whereUuid('id');
+                Route::post('/', [DepositController::class, 'store'])->middleware('capability:write:acc_deposits');
+                Route::post('{id}/receive', [DepositController::class, 'receive'])->whereUuid('id')->middleware('capability:receive:acc_deposits');
+                Route::post('{id}/void', [DepositController::class, 'void'])->whereUuid('id');
+                Route::post('{id}/receipts/{receiptId}/void', [DepositController::class, 'voidReceipt'])->whereUuid('id')->whereUuid('receiptId');
+            });
+            Route::prefix('hr')->middleware('capability:view:acc_hr')->group(function () {
+                Route::get('employees', [HrRecapController::class, 'employees']);
+                Route::post('employees', [HrRecapController::class, 'createEmployee'])->middleware('capability:manage:acc_employees');
+                Route::get('recaps', [HrRecapController::class, 'index']);
+                Route::get('recaps/{id}', [HrRecapController::class, 'show'])->whereUuid('id');
+                Route::post('recaps', [HrRecapController::class, 'store'])->middleware('capability:write:acc_hr');
+                Route::put('recaps/{id}', [HrRecapController::class, 'update'])->whereUuid('id')->middleware('capability:write:acc_hr');
+                Route::post('recaps/{id}/void', [HrRecapController::class, 'void'])->whereUuid('id')->middleware('capability:write:acc_hr');
+            });
+            Route::prefix('vouchers')->middleware('capability:view:acc_detail')->group(function () {
+                Route::get('outlets', [VoucherController::class, 'outlets']);
+                Route::get('/', [VoucherController::class, 'index']);
+                Route::get('{id}', [VoucherController::class, 'show'])->whereUuid('id');
+                Route::post('{id}/attachments', [VoucherController::class, 'uploadAttachment'])->whereUuid('id')->middleware(['capability:attach:voucher', 'file.scan']);
+                Route::get('{id}/attachments/{attachmentId}/download', [VoucherController::class, 'downloadAttachment'])->whereUuid('id')->whereUuid('attachmentId');
+                Route::post('/', [VoucherController::class, 'store'])->middleware('capability:write:voucher');
+                Route::put('{id}', [VoucherController::class, 'update'])->whereUuid('id')->middleware('capability:write:voucher');
+                foreach (['submit' => 'write:voucher', 'review' => 'validate:voucher', 'decide' => 'approve:voucher'] as $action => $capability) {
+                    Route::post('{id}/'.$action, [VoucherController::class, 'action'])->whereUuid('id')->defaults('action', $action)->middleware('capability:'.$capability);
+                }
+            });
+
+            Route::prefix('omzet')->middleware('capability:view:acc_detail')->group(function () {
+                Route::get('annual', [OmzetController::class, 'annual']);
+                Route::get('outlets', [OmzetController::class, 'outlets']);
+                Route::get('/', [OmzetController::class, 'index']);
+                Route::get('{id}', [OmzetController::class, 'show']);
+                Route::post('/', [OmzetController::class, 'store'])->middleware('capability:write:omzet');
+                Route::put('{id}', [OmzetController::class, 'update'])->middleware('capability:write:omzet');
+                foreach (['submit', 'request-unlock'] as $action) {
+                    Route::post('{id}/'.$action, [OmzetController::class, 'action'])->defaults('action', $action)->middleware('capability:write:omzet');
+                }
+                Route::post('{id}/review', [OmzetController::class, 'action'])->defaults('action', 'review')->middleware('capability:validate:omzet');
+                Route::post('{id}/decide', [OmzetController::class, 'action'])->defaults('action', 'decide')->middleware('capability:approve:omzet');
+                Route::post('{id}/decide-unlock', [OmzetController::class, 'action'])->defaults('action', 'decide-unlock')->middleware('capability:manage:omzet_unlock');
+            });
+
             // Status fondasi dan laporan ACC — BOD, Manager ACC, Admin ACC
             Route::middleware(['capability:view:acc_report'])->group(function () {
                 Route::get('status', [AccountingController::class, 'status']);
                 Route::get('reports', [AccountingController::class, 'reports']);
-            });
-
-            // Mutasi transaksi jurnal aktual ACC — hanya Admin ACC
-            Route::middleware(['capability:write:acc_transaction'])->group(function () {
-                Route::post('transactions', [AccountingController::class, 'storeTransaction']);
             });
 
             // Persetujuan / kontrol periode ACC — hanya Manager ACC
@@ -128,11 +120,10 @@ Route::prefix('v1')->group(function () {
                 Route::post('periods/approve', [AccountingController::class, 'approvePeriod']);
             });
 
-            // Master Data ACC — ISSUE-6
             // Periode Accounting
             Route::middleware(['capability:view:acc_report'])->group(function () {
                 Route::get('periods', [AccountingMasterController::class, 'listPeriods']);
-                Route::get('periods/{id}', [AccountingMasterController::class, 'getPeriod']);
+                Route::get('periods/{id}', [AccountingMasterController::class, 'getPeriod'])->middleware('capability:view:acc_detail');
             });
             Route::middleware(['capability:submit:acc_period'])->group(function () {
                 Route::post('periods', [AccountingMasterController::class, 'createPeriod']);
@@ -171,8 +162,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('master/history', [AccountingMasterController::class, 'listMasterHistory']);
             });
 
-            // Transaksi Accounting (Budgeting MVP) — ISSUE-7
-            Route::middleware(['capability:view:acc_report'])->group(function () {
+            // Transaksi Accounting
+            Route::middleware(['capability:view:acc_journal'])->group(function () {
                 Route::get('transactions', [AccountingTransactionController::class, 'list']);
                 Route::get('transactions/summary', [AccountingTransactionController::class, 'summary']);
                 Route::get('transactions/{id}', [AccountingTransactionController::class, 'get']);
@@ -182,28 +173,11 @@ Route::prefix('v1')->group(function () {
                 Route::post('transactions', [AccountingTransactionController::class, 'create']);
                 Route::put('transactions/{id}', [AccountingTransactionController::class, 'update']);
                 Route::post('transactions/{id}/cancel', [AccountingTransactionController::class, 'cancel']);
-                Route::post('transactions/{id}/attachments', [AccountingTransactionController::class, 'uploadAttachment']);
+                Route::post('transactions/{id}/attachments', [AccountingTransactionController::class, 'uploadAttachment'])->middleware('file.scan');
             });
 
-            // Admin Accounting Remodeled Module Endpoints
-            Route::prefix('acc-admin')->middleware(['scope', 'capability:view:acc_report'])->group(function () {
-                Route::get('dashboard', [AccAdminController::class, 'dashboard']);
-                Route::get('storan', [AccAdminController::class, 'getStoran']);
-                Route::post('storan', [AccAdminController::class, 'saveStoran']);
-                Route::get('cashless', [AccAdminController::class, 'getCashless']);
-                Route::post('cashless', [AccAdminController::class, 'saveCashless']);
-                Route::get('laundry', [AccAdminController::class, 'getLaundry']);
-                Route::post('laundry', [AccAdminController::class, 'saveLaundry']);
-                Route::get('stok', [AccAdminController::class, 'getStok']);
-                Route::post('stok', [AccAdminController::class, 'saveStok']);
-                Route::get('utilisasi', [AccAdminController::class, 'getUtilisasi']);
-                Route::post('utilisasi', [AccAdminController::class, 'saveUtilisasi']);
-                Route::get('komisi', [AccAdminController::class, 'getKomisi']);
-                Route::post('komisi', [AccAdminController::class, 'hitungKomisi']);
-            });
-
-            // Outstanding Accounting — ISSUE-9
-            Route::middleware(['capability:view:acc_report'])->group(function () {
+            // Outstanding Accounting
+            Route::middleware(['capability:view:acc_detail'])->group(function () {
                 Route::get('outstandings', [AccountingOutstandingController::class, 'list']);
             });
             Route::middleware(['capability:submit:acc_period'])->group(function () {
@@ -212,8 +186,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('outstandings/{id}/cancel', [AccountingOutstandingController::class, 'cancel']);
             });
 
-            // Rekonsiliasi Bank & Kontrol Periode — ISSUE-11
-            Route::middleware(['capability:view:acc_report'])->group(function () {
+            // Rekonsiliasi Bank
+            Route::middleware(['capability:view:acc_detail'])->group(function () {
                 Route::get('reconciliations', [AccountingReconciliationController::class, 'list']);
             });
             Route::middleware(['capability:submit:acc_period'])->group(function () {
@@ -225,58 +199,38 @@ Route::prefix('v1')->group(function () {
                 Route::post('reconciliations/reopen', [AccountingReconciliationController::class, 'reopenPeriod']);
             });
 
-            // Impor Transaksi Excel — ISSUE-8
-            Route::middleware(['capability:view:acc_report'])->group(function () {
-                Route::post('import/preview', [AccountingImportController::class, 'preview']);
+            // Impor Transaksi Excel
+            Route::middleware(['capability:submit:acc_period'])->group(function () {
+                Route::post('import/preview', [AccountingImportController::class, 'preview'])->middleware('file.scan');
             });
             Route::middleware(['capability:submit:acc_period'])->group(function () {
                 Route::post('import/commit', [AccountingImportController::class, 'commit']);
             });
 
-            // Laporan Cashflow — ISSUE-10
-            Route::middleware(['capability:view:acc_report'])->group(function () {
+            Route::get('cashflow/summary', [AccountingCashflowController::class, 'summary'])->middleware('capability:view:acc_report');
+
+            // Laporan Cashflow
+            Route::middleware(['capability:view:acc_detail'])->group(function () {
                 Route::get('cashflow/report', [AccountingCashflowController::class, 'report']);
             });
         });
+
         // Project Division
         Route::prefix('projects')->middleware(['scope', 'capability:view:projects'])->group(function () {
             Route::get('/', [ProjectController::class, 'index']);
             Route::get('/{id}', [ProjectController::class, 'show']);
-            Route::get('/{id}/financial-summary', [ProjectController::class, 'financialSummary']);
             Route::get('/{id}/documents', [ProjectDocumentController::class, 'index']);
-            Route::get('/{id}/photos', [ProjectPhotoController::class, 'index']);
-            Route::get('/{id}/rab', [ProjectRabController::class, 'index']);
-            Route::get('/{id}/expenses', [ProjectExpenseController::class, 'index']);
-            Route::get('/{id}/invoices', [ProjectInvoiceController::class, 'index']);
-            Route::get('/{id}/reports/progress', [ProjectReportController::class, 'progressReport']);
-            Route::get('/{id}/reports/bast', [ProjectReportController::class, 'bastReport']);
+            Route::get('/{projectId}/documents/{documentId}/download', [ProjectDocumentController::class, 'download']);
 
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectController::class, 'store']);
                 Route::put('/{id}', [ProjectController::class, 'update']);
                 Route::patch('/{id}/payment-toggle', [ProjectController::class, 'paymentToggle']);
                 Route::post('/{id}/milestones', [ProjectController::class, 'storeMilestone']);
-                Route::put('/{id}/milestones/{milestoneId}', [ProjectController::class, 'updateMilestone']);
-                Route::delete('/{id}/milestones/{milestoneId}', [ProjectController::class, 'destroyMilestone']);
-
                 Route::post('/{id}/rab', [ProjectRabController::class, 'store']);
-                Route::put('/{id}/rab/{rabId}', [ProjectRabController::class, 'update']);
-                Route::delete('/{id}/rab/{rabId}', [ProjectRabController::class, 'destroy']);
 
-                Route::post('/{id}/expenses', [ProjectExpenseController::class, 'store']);
-                Route::put('/{id}/expenses/{expenseId}', [ProjectExpenseController::class, 'update']);
-                Route::delete('/{id}/expenses/{expenseId}', [ProjectExpenseController::class, 'destroy']);
-
-                Route::post('/{id}/invoices', [ProjectInvoiceController::class, 'store']);
-                Route::put('/{id}/invoices/{invoiceId}', [ProjectInvoiceController::class, 'update']);
-                Route::patch('/{id}/invoices/{invoiceId}/pay', [ProjectInvoiceController::class, 'markPaid']);
-                Route::delete('/{id}/invoices/{invoiceId}', [ProjectInvoiceController::class, 'destroy']);
-
-                Route::post('/{id}/documents', [ProjectDocumentController::class, 'store']);
+                Route::post('/{id}/documents', [ProjectDocumentController::class, 'store'])->middleware('file.scan');
                 Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
-
-                Route::post('/{id}/photos', [ProjectPhotoController::class, 'store']);
-                Route::delete('/{projectId}/photos/{photoId}', [ProjectPhotoController::class, 'destroy']);
             });
         });
 
@@ -291,40 +245,16 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-        // Admin Division Module (Modul 14 Tugas Admin)
-        Route::prefix('admin')->middleware(['scope'])->group(function () {
-            Route::middleware(['capability:view:leave_records'])->group(function () {
-                Route::get('leaves', [AdminController::class, 'listLeaves']);
-                Route::post('leaves', [AdminController::class, 'storeLeave']);
-                Route::patch('leaves/{id}/status', [AdminController::class, 'updateLeaveStatus']);
-            });
-
-            Route::middleware(['capability:manage:attendance_realization'])->group(function () {
-                Route::get('attendance-realizations', [AdminController::class, 'listAttendanceRealizations']);
-                Route::post('attendance-realizations', [AdminController::class, 'storeAttendanceRealization']);
-                Route::patch('attendance-realizations/{id}/status', [AdminController::class, 'updateAttendanceStatus']);
-            });
-
-            Route::middleware(['capability:write:purchase_voucher'])->group(function () {
-                Route::post('vouchers', [AdminController::class, 'storeVoucher']);
-            });
-            Route::middleware(['capability:write:chair_audit'])->group(function () {
-                Route::post('chair-usage-audits', [AdminController::class, 'storeChairAudit']);
-                Route::post('therapist-revenues', [AdminController::class, 'storeTherapistRevenue']);
-            });
-            Route::middleware(['capability:write:finance_admin'])->group(function () {
-                Route::get('stock-cards', [AdminController::class, 'listStockCards']);
-                Route::post('stock-cards', [AdminController::class, 'storeStockCard']);
-                Route::get('deposits', [AdminController::class, 'listDeposits']);
-                Route::post('deposits', [AdminController::class, 'storeDeposit']);
-                Route::get('cashless', [AdminController::class, 'listCashless']);
-                Route::post('cashless', [AdminController::class, 'storeCashless']);
-                Route::get('laundry', [AdminController::class, 'listLaundry']);
-                Route::post('laundry', [AdminController::class, 'storeLaundry']);
-                Route::get('pnl-support', [AdminController::class, 'getPnlSupport']);
-                Route::get('bonus-records', [AdminController::class, 'listBonusRecords']);
-                Route::post('bonus-records', [AdminController::class, 'storeBonusRecord']);
-            });
+        Route::prefix('cellular')->middleware(['scope', 'capability:view:cellular'])->group(function () {
+            Route::get('outlets', [CellularController::class, 'outlets']);
+            Route::get('products', [ManualWorkflowController::class, 'products']);
+            Route::post('products', [ManualWorkflowController::class, 'createProduct'])->middleware('capability:manage:cellular_catalog');
+            Route::get('stock', [ManualWorkflowController::class, 'stock']);
+            Route::get('movements', [ManualWorkflowController::class, 'movements']);
+            Route::post('stock', [ManualWorkflowController::class, 'adjust'])->middleware('capability:write:cellular_stock');
+            Route::get('sales', [ManualWorkflowController::class, 'sales'])->middleware('capability:view:cellular_sales');
+            Route::post('sales', [ManualWorkflowController::class, 'sell'])->middleware('capability:write:cellular_sale');
+            Route::post('sales/{id}/void', [ManualWorkflowController::class, 'void'])->whereUuid('id')->middleware('capability:void:cellular_sale');
         });
     });
 });

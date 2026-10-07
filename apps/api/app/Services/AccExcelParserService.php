@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\ApiException;
 use App\Models\AccountingAccount;
 use App\Models\AccountingCategory;
 use App\Models\AccountingCategoryAlias;
@@ -17,9 +18,6 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 use SimpleXMLElement;
 use ZipArchive;
-use App\Exceptions\ApiException;
-use App\Services\AccPeriodService;
-
 
 class AccExcelParserService
 {
@@ -201,6 +199,7 @@ class AccExcelParserService
     public function commitBatch(Division $division, AccountingPeriod $period, array $rows, User $user, ?string $idempotencyKey = null): array
     {
         $this->assertPeriodMutable($period);
+
         return DB::transaction(function () use ($division, $period, $rows, $user, $idempotencyKey) {
             // All-or-nothing verification
             $hasErrors = collect($rows)->contains(fn ($r) => ($r['status'] ?? '') === 'ERROR' || ! empty($r['errors']));
@@ -393,7 +392,7 @@ class AccExcelParserService
     {
         $status = strtolower($period->status);
         if (! in_array($status, [AccPeriodService::STATUS_DRAFT, AccPeriodService::STATUS_REOPENED], true)) {
-            throw new \App\Exceptions\ApiException('PERIOD_LOCKED', "Periode berstatus '" . $period->status . "' terkunci dari mutasi transaksi");
+            throw new ApiException('PERIOD_LOCKED', "Periode berstatus '".$period->status."' terkunci dari mutasi transaksi");
         }
     }
 }

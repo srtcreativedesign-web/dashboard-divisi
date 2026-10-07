@@ -18,12 +18,9 @@ class AccReconciliationService
         $period = null;
 
         if ($periodId) {
-            $period = AccountingPeriod::find($periodId);
+            $period = AccountingPeriod::where('division_id', $division->id)->findOrFail($periodId);
         } else {
-            $period = AccountingPeriod::where('division_id', $division->id)
-                ->whereDate('period_month', '2026-08-01')
-                ->first()
-                ?? AccountingPeriod::where('division_id', $division->id)->first();
+            $period = AccountingPeriod::where('division_id', $division->id)->latest('period_month')->first();
             $periodId = $period?->id;
         }
 
@@ -66,7 +63,7 @@ class AccReconciliationService
 
         // Cashflow Ending Balance from sheet / calculations
         // Real ending balance: 1411157667.88
-        $cashflowEndingBalance = 1411157667.88;
+        $cashflowEndingBalance = $period ? app(AccCashflowReportService::class)->getCashflowReport($division, $period->period_month->format('Y-m-d'))['kpis']['ending_cash_balance'] : 0;
         $variance = abs($totalBankAug - $cashflowEndingBalance);
 
         // Checklist indicators
@@ -90,7 +87,7 @@ class AccReconciliationService
                 'total_mutation' => $totalMutation,
                 'cashflow_ending_balance' => $cashflowEndingBalance,
                 'variance' => round($variance, 2),
-                'is_matched' => $variance <= 1.0,
+                'is_matched' => $allReconciliations->isNotEmpty() && $variance <= 1.0,
                 'unattached_transactions_count' => $unattachedTransactionsCount,
             ],
             'items' => $items->map(function ($it, $idx) {
