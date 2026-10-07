@@ -11,6 +11,8 @@
   },
   "scripts": {
     "check:env": "node scripts/check-env.mjs",
+    "release:check": "node scripts/release/quality-gate.mjs",
+    "release:test": "node --test scripts/release/quality-gate.test.mjs",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",

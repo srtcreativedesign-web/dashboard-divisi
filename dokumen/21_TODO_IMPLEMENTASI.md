@@ -50,6 +50,8 @@ Ringkasan terbaru 6 Oktober 2026: 01–03 selesai teknis; 04 parsial (retensi/de
 
 ## Penerimaan pekerjaan
 
+Jalur kesiapan enterprise sejak 7 Oktober 2026: [TODO dan urutan ENT-01–09](46_TODO_KESIAPAN_ENTERPRISE.md). ENT-01 dimulai dari gate teknis lokal serta konfigurasi CI REQ. Verifikasi remote masih terblokir billing GitHub; tidak menutup TODO-13 atau menyatakan kesiapan produksi.
+
 Checklist selesai hanya jika hasil dan bukti dicatat. Tes teknis bukan sign-off bisnis. Tracker rinci dan log tetap disimpan pada Tasks/dashboard-divisi-mvp serta Dashboard.md. Tidak ada estimasi tanggal yang belum didukung scope/dependensi.
 
 ## Jalur UI atas arahan pengguna — 6 Oktober 2026

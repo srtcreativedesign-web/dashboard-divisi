@@ -2,7 +2,7 @@ name: CI — quality gate + migration dry-run
 
 on:
   push:
-    branches: [main, development]
+    branches: [main, development, REQ]
   pull_request:
     branches: [main, development]
 
@@ -10,8 +10,13 @@ jobs:
   quality-gate:
     runs-on: ubuntu-latest
     env:
+      APP_ENV: testing
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+      DB_URL: ''
+      DATABASE_URL: ''
       JWT_SECRET: test-jwt-secret-min-32-karakter-untuk-ci-1234567890
-      APP_KEY: base64:dGVzdC1hcHBrZXktbWluLTMyLWthcmFrdGVyLWNpMTIzNDU2Nzg5MDE=
+      APP_KEY: base64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +31,9 @@ jobs:
           coverage: none
           tools: composer
 
+      - name: Use npm 11
+        run: npm install --global npm@11
+
       - name: Install JS deps (npm workspaces)
         run: npm ci
 
@@ -39,8 +47,11 @@ jobs:
           cp .env.example .env || echo "APP_KEY=${APP_KEY}" > .env
           php artisan key:generate --force || true
 
-      - name: Check env (opsional, non-blocking)
-        run: npm run check:env || echo "check:env skip"
+      - name: Check env
+        run: npm run check:env
+
+      - name: Test orkestrasi pemeriksaan rilis
+        run: npm run release:test
 
       - name: Lint (eslint)
         run: npm run lint
@@ -57,14 +68,16 @@ jobs:
       - name: Build (vite + contracts + db)
         run: npm run build
 
-      - name: Test FE + contracts (vitest, 29+2)
-        run: npm run test
+      - name: Test FE + contracts
+        run: |
+          npm run test --workspace @dashboard-divisi/web
+          npm run test --workspace @dashboard-divisi/contracts
 
       - name: Pint — code style (Laravel)
         working-directory: apps/api
         run: ./vendor/bin/pint --test
 
-      - name: Test BE (php artisan test, sqlite :memory:, 74 tests)
+      - name: Test BE (SQLite in-memory)
         working-directory: apps/api
         run: php artisan test --without-tty
 
@@ -89,7 +102,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      APP_KEY: base64:dGVzdC1hcHBrZXktbWluLTMyLWthcmFrdGVyLWNpMTIzNDU2Nzg5MDE=
+      APP_KEY: base64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
       JWT_SECRET: test-jwt-secret-min-32-karakter-untuk-ci-1234567890
       DB_CONNECTION: pgsql
       DB_HOST: 127.0.0.1
