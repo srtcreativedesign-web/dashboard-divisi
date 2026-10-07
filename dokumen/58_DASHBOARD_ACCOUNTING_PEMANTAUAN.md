@@ -36,3 +36,6 @@ UI Admin dark/light dan mobile 390x844 diperiksa melalui computer-use. Viewport 
 Data native dari seed sebelumnya: delapan voucher, empat approved Rp2.020.001,00, realisasi aktif Rp1.350.000,75, sisa Rp670.000,25, tiga belum lunas dan dua pekerjaan Admin. Belum ada omzet tervalidasi/periode jurnal native, sehingga grafik dan cashflow menunjukkan keadaan belum tersedia; tidak ditanam transaksi untuk membuat grafik terlihat terisi. Skenario tren terisi/nominal Rp0,01/filter bulan dan akses Finance diverifikasi pada tes UI. Pengguna tetap perlu melakukan UAT bisnis semua role/data perusahaan.
 
 Selesai teknis ACC-DASH-002. Scope tahap ini dashboard Accounting; antrean HR/setoran, saldo bank/integrasi, PNL/HPP/bonus/CMO dan dashboard perusahaan lintas semua modul belum diklaim selesai. Tidak menganggap sisa voucher sebagai hutang jurnal atau cashflow sebagai laba. Commit/push REQ tanpa PR.
+
+## Data native setelah ACC-SEED-002
+Grafik yang sebelumnya kosong kini terisi dari 72 rekap omzet UAT tervalidasi September/Oktober; 2 rekap tanggal hari ini tetap draf. Perbandingan bulan berjalan diberi konteks belum lengkap. Inspeksi native September/Oktober dan delapan tes dashboard lulus; scope/nominal/audit/idempotence pada [dokumen 59](59_SEED_OMZET_HARIAN_SEPTEMBER_OKTOBER.md). Cashflow tetap belum memiliki jurnal/periode.
