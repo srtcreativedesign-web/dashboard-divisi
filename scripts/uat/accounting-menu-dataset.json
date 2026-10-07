@@ -1,0 +1,792 @@
+{
+  "batch": "MENU-UAT-20261007",
+  "months": [
+    "2026-09",
+    "2026-10"
+  ],
+  "categories": [
+    {
+      "code": "B990",
+      "name": "UAT / SIMULASI penerimaan kas",
+      "parent": "B"
+    },
+    {
+      "code": "C990",
+      "name": "UAT / SIMULASI biaya outlet",
+      "parent": "C"
+    },
+    {
+      "code": "D990",
+      "name": "UAT / SIMULASI biaya pusat",
+      "parent": "D"
+    }
+  ],
+  "accounts": [
+    {
+      "code": "UAT-MANDIRI-26",
+      "display_name": "MANDIRI UAT / SIMULASI (UAT-001)",
+      "type": "ASSET"
+    },
+    {
+      "code": "UAT-BCA-26",
+      "display_name": "BCA UAT / SIMULASI (UAT-002)",
+      "type": "ASSET"
+    }
+  ],
+  "journal": [
+    {
+      "month": "2026-09",
+      "account": 0,
+      "category": 0,
+      "transaction_date": "2026-09-01",
+      "description": "UAT / SIMULASI penerimaan kas",
+      "reference_no": "MENU-UAT-20261007-2026-09-J0",
+      "debit_amount": 12000000,
+      "credit_amount": 0,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-09",
+      "account": 1,
+      "category": 0,
+      "transaction_date": "2026-09-02",
+      "description": "UAT / SIMULASI penerimaan kas",
+      "reference_no": "MENU-UAT-20261007-2026-09-J1",
+      "debit_amount": 6000000,
+      "credit_amount": 0,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-09",
+      "account": 0,
+      "category": 1,
+      "transaction_date": "2026-09-03",
+      "description": "UAT / SIMULASI biaya outlet",
+      "reference_no": "MENU-UAT-20261007-2026-09-J2",
+      "debit_amount": 0,
+      "credit_amount": 2800000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-09",
+      "account": 1,
+      "category": 1,
+      "transaction_date": "2026-09-04",
+      "description": "UAT / SIMULASI biaya outlet",
+      "reference_no": "MENU-UAT-20261007-2026-09-J3",
+      "debit_amount": 0,
+      "credit_amount": 1200000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-09",
+      "account": 0,
+      "category": 2,
+      "transaction_date": "2026-09-05",
+      "description": "UAT / SIMULASI biaya pusat",
+      "reference_no": "MENU-UAT-20261007-2026-09-J4",
+      "debit_amount": 0,
+      "credit_amount": 1500000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-09",
+      "account": 1,
+      "category": 2,
+      "transaction_date": "2026-09-06",
+      "description": "UAT / SIMULASI biaya pusat",
+      "reference_no": "MENU-UAT-20261007-2026-09-J5",
+      "debit_amount": 0,
+      "credit_amount": 500000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-09",
+      "account": 0,
+      "category": 1,
+      "transaction_date": "2026-09-07",
+      "description": "UAT / SIMULASI biaya outlet - draf",
+      "reference_no": "MENU-UAT-20261007-2026-09-J6",
+      "debit_amount": 0,
+      "credit_amount": 125000,
+      "is_draft": true,
+      "cancel": false
+    },
+    {
+      "month": "2026-09",
+      "account": 1,
+      "category": 2,
+      "transaction_date": "2026-09-07",
+      "description": "UAT / SIMULASI biaya pusat - dibatalkan",
+      "reference_no": "MENU-UAT-20261007-2026-09-J7",
+      "debit_amount": 0,
+      "credit_amount": 75000,
+      "is_draft": false,
+      "cancel": true
+    },
+    {
+      "month": "2026-10",
+      "account": 0,
+      "category": 0,
+      "transaction_date": "2026-10-01",
+      "description": "UAT / SIMULASI penerimaan kas",
+      "reference_no": "MENU-UAT-20261007-2026-10-J0",
+      "debit_amount": 4000000,
+      "credit_amount": 0,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-10",
+      "account": 1,
+      "category": 0,
+      "transaction_date": "2026-10-02",
+      "description": "UAT / SIMULASI penerimaan kas",
+      "reference_no": "MENU-UAT-20261007-2026-10-J1",
+      "debit_amount": 2000000,
+      "credit_amount": 0,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-10",
+      "account": 0,
+      "category": 1,
+      "transaction_date": "2026-10-03",
+      "description": "UAT / SIMULASI biaya outlet",
+      "reference_no": "MENU-UAT-20261007-2026-10-J2",
+      "debit_amount": 0,
+      "credit_amount": 850000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-10",
+      "account": 1,
+      "category": 1,
+      "transaction_date": "2026-10-04",
+      "description": "UAT / SIMULASI biaya outlet",
+      "reference_no": "MENU-UAT-20261007-2026-10-J3",
+      "debit_amount": 0,
+      "credit_amount": 400000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-10",
+      "account": 0,
+      "category": 2,
+      "transaction_date": "2026-10-05",
+      "description": "UAT / SIMULASI biaya pusat",
+      "reference_no": "MENU-UAT-20261007-2026-10-J4",
+      "debit_amount": 0,
+      "credit_amount": 300000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-10",
+      "account": 1,
+      "category": 2,
+      "transaction_date": "2026-10-06",
+      "description": "UAT / SIMULASI biaya pusat",
+      "reference_no": "MENU-UAT-20261007-2026-10-J5",
+      "debit_amount": 0,
+      "credit_amount": 150000,
+      "is_draft": false,
+      "cancel": false
+    },
+    {
+      "month": "2026-10",
+      "account": 0,
+      "category": 1,
+      "transaction_date": "2026-10-07",
+      "description": "UAT / SIMULASI biaya outlet - draf",
+      "reference_no": "MENU-UAT-20261007-2026-10-J6",
+      "debit_amount": 0,
+      "credit_amount": 125000,
+      "is_draft": true,
+      "cancel": false
+    },
+    {
+      "month": "2026-10",
+      "account": 1,
+      "category": 2,
+      "transaction_date": "2026-10-07",
+      "description": "UAT / SIMULASI biaya pusat - dibatalkan",
+      "reference_no": "MENU-UAT-20261007-2026-10-J7",
+      "debit_amount": 0,
+      "credit_amount": 75000,
+      "is_draft": false,
+      "cancel": true
+    }
+  ],
+  "employees": [
+    {
+      "code": "UAT-ACC-26-1",
+      "name": "Pegawai Simulasi Accounting 1",
+      "source_reference": "MENU-UAT-20261007-EMP-0"
+    },
+    {
+      "code": "UAT-ACC-26-2",
+      "name": "Pegawai Simulasi Accounting 2",
+      "source_reference": "MENU-UAT-20261007-EMP-1"
+    },
+    {
+      "code": "UAT-ACC-26-3",
+      "name": "Pegawai Simulasi Accounting 3",
+      "source_reference": "MENU-UAT-20261007-EMP-2"
+    },
+    {
+      "code": "UAT-ACC-26-4",
+      "name": "Pegawai Simulasi Accounting 4",
+      "source_reference": "MENU-UAT-20261007-EMP-3"
+    }
+  ],
+  "hr": [
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-09-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-0-1"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-09-02",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-0-2"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-09-03",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 15,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-0-3"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-09-04",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-0-4"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-09-05",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-0-5"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-10-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-0-1"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-10-02",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-0-2"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-10-03",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 15,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-0-3"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-10-04",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-0-4"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-10-05",
+      "attendance_status": "LEAVE",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-0-5"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-10-06",
+      "attendance_status": "LEAVE",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-0-6"
+    },
+    {
+      "employee": 0,
+      "kind": "attendance",
+      "start_date": "2026-10-07",
+      "attendance_status": "ABSENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-0-7"
+    },
+    {
+      "employee": 0,
+      "kind": "leave",
+      "start_date": "2026-10-05",
+      "end_date": "2026-10-06",
+      "leave_type": "UAT / SIMULASI cuti tahunan",
+      "source_days": "2.00",
+      "approval_reference": "MENU-UAT-20261007-IZIN-0",
+      "source_reference": "MENU-UAT-20261007-LEAVE-0"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-09-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-1-1"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-09-02",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-1-2"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-09-03",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-1-3"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-09-04",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-1-4"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-09-05",
+      "attendance_status": "SICK",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-1-5"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-10-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-1-1"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-10-02",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-1-2"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-10-03",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-1-3"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-10-04",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-1-4"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-10-05",
+      "attendance_status": "SICK",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-1-5"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-10-06",
+      "attendance_status": "ABSENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-1-6"
+    },
+    {
+      "employee": 1,
+      "kind": "attendance",
+      "start_date": "2026-10-07",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-1-7"
+    },
+    {
+      "employee": 1,
+      "kind": "leave",
+      "start_date": "2026-09-14",
+      "end_date": "2026-09-15",
+      "leave_type": "UAT / SIMULASI cuti tahunan",
+      "source_days": "2.00",
+      "approval_reference": "MENU-UAT-20261007-IZIN-1",
+      "source_reference": "MENU-UAT-20261007-LEAVE-1"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-09-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-2-1"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-09-02",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-2-2"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-09-03",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-2-3"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-09-04",
+      "attendance_status": "SICK",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-2-4"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-09-05",
+      "attendance_status": "ABSENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-2-5"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-10-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-2-1"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-10-02",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-2-2"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-10-03",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-2-3"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-10-04",
+      "attendance_status": "SICK",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-2-4"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-10-05",
+      "attendance_status": "LEAVE",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-2-5"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-10-06",
+      "attendance_status": "LEAVE",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-2-6"
+    },
+    {
+      "employee": 2,
+      "kind": "attendance",
+      "start_date": "2026-10-07",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-2-7"
+    },
+    {
+      "employee": 2,
+      "kind": "leave",
+      "start_date": "2026-10-05",
+      "end_date": "2026-10-06",
+      "leave_type": "UAT / SIMULASI cuti tahunan",
+      "source_days": "2.00",
+      "approval_reference": "MENU-UAT-20261007-IZIN-2",
+      "source_reference": "MENU-UAT-20261007-LEAVE-2"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-09-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-3-1"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-09-02",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-3-2"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-09-03",
+      "attendance_status": "SICK",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-3-3"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-09-04",
+      "attendance_status": "ABSENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-3-4"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-09-05",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-09",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-09-3-5"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-10-01",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-3-1"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-10-02",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-3-2"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-10-03",
+      "attendance_status": "SICK",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-3-3"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-10-04",
+      "attendance_status": "ABSENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-3-4"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-10-05",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-3-5"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-10-06",
+      "attendance_status": "PRESENT",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-3-6"
+    },
+    {
+      "employee": 3,
+      "kind": "attendance",
+      "start_date": "2026-10-07",
+      "attendance_status": "OFF",
+      "schedule_reference": "MENU-UAT-20261007-JADWAL-2026-10",
+      "late_minutes": 0,
+      "source_reference": "MENU-UAT-20261007-ATT-2026-10-3-7"
+    },
+    {
+      "employee": 3,
+      "kind": "leave",
+      "start_date": "2026-09-14",
+      "end_date": "2026-09-15",
+      "leave_type": "UAT / SIMULASI cuti tahunan",
+      "source_days": "2.00",
+      "approval_reference": "MENU-UAT-20261007-IZIN-3",
+      "source_reference": "MENU-UAT-20261007-LEAVE-3"
+    }
+  ],
+  "outstandings": [
+    {
+      "month": "2026-09",
+      "description": "MENU-UAT-20261007 2026-09 UAT / SIMULASI kewajiban belum dibayar",
+      "amount": 900000,
+      "due_date": "2026-09-30",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 0
+    },
+    {
+      "month": "2026-09",
+      "description": "MENU-UAT-20261007 2026-09 UAT / SIMULASI kewajiban sebagian",
+      "amount": 1200000,
+      "due_date": "2026-09-30",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 1
+    },
+    {
+      "month": "2026-09",
+      "description": "MENU-UAT-20261007 2026-09 UAT / SIMULASI kewajiban lunas",
+      "amount": 600000,
+      "due_date": "2026-09-30",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 2
+    },
+    {
+      "month": "2026-09",
+      "description": "MENU-UAT-20261007 2026-09 UAT / SIMULASI kewajiban batal",
+      "amount": 250000,
+      "due_date": "2026-09-30",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 3
+    },
+    {
+      "month": "2026-10",
+      "description": "MENU-UAT-20261007 2026-10 UAT / SIMULASI kewajiban belum dibayar",
+      "amount": 900000,
+      "due_date": "2026-10-07",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 0
+    },
+    {
+      "month": "2026-10",
+      "description": "MENU-UAT-20261007 2026-10 UAT / SIMULASI kewajiban sebagian",
+      "amount": 1200000,
+      "due_date": "2026-10-07",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 1
+    },
+    {
+      "month": "2026-10",
+      "description": "MENU-UAT-20261007 2026-10 UAT / SIMULASI kewajiban lunas",
+      "amount": 600000,
+      "due_date": "2026-10-07",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 2
+    },
+    {
+      "month": "2026-10",
+      "description": "MENU-UAT-20261007 2026-10 UAT / SIMULASI kewajiban batal",
+      "amount": 250000,
+      "due_date": "2026-10-07",
+      "category_name": "UAT / SIMULASI biaya outlet",
+      "scenario": 3
+    }
+  ]
+}

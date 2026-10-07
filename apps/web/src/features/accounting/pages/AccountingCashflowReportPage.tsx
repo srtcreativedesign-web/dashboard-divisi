@@ -35,6 +35,10 @@ export default function AccountingCashflowReportPage() {
       ["draft", "pending_approval", "reopened"].includes(p.status)
     ) ?? periods.data?.[0];
 
+  const isSimulation = activePeriod?.notes?.includes('UAT / SIMULASI') ?? false;
+  const exportTitle = `Laporan Arus Kas ${activePeriod?.periodMonth.slice(0, 7) ?? ''}${isSimulation ? ' — UAT / SIMULASI' : ''}`;
+  const exportFilename = `Cashflow_${isSimulation ? 'UAT_' : ''}${activePeriod?.periodMonth.slice(0, 7) ?? 'Report'}`;
+
   const report = useAccountingCashflowReport({ period_month: activePeriod?.periodMonth.slice(0, 10) });
   const { data: reportData, isLoading } = report;
   const cf = reportData?.kpis
@@ -63,8 +67,6 @@ export default function AccountingCashflowReportPage() {
         backofficeExpenses: [],
       };
 
-  // Gabungkan semua item untuk penjelasan cashflow
-  // Saran: Dapatkan rincian pendapatan dari API. Untuk sementara menggunakan nilai agregat.
   const allExpenseCategories: ExpenseCategory[] = [
     ...(reportData?.breakdown.revenue ?? []).map(item => ({ ...item, group: "B", groupLabel: "Pendapatan" })),
     ...cf.operationalExpenses.map((x) => ({
@@ -109,8 +111,8 @@ export default function AccountingCashflowReportPage() {
 
   const handleExportPDF = () => {
     exportToPDF({
-      title: "Laporan Penjelasan Arus Kas",
-      filename: "Cashflow_Report",
+      title: exportTitle,
+      filename: exportFilename,
       columns: exportColumns,
       data: allExpenseCategories,
     });
@@ -119,8 +121,8 @@ export default function AccountingCashflowReportPage() {
 
   const handleExportExcel = () => {
     exportToExcel({
-      title: "Laporan Penjelasan Arus Kas",
-      filename: "Cashflow_Report",
+      title: exportTitle,
+      filename: exportFilename,
       columns: exportColumns,
       data: allExpenseCategories,
     });
@@ -138,11 +140,11 @@ export default function AccountingCashflowReportPage() {
             Laporan Cashflow & Penjelasan Arus Kas
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Laporan Arus Kas resmi periode{" "}
+            Laporan arus kas periode{" "}
             <span className="font-semibold text-navy">
               {reportData?.period.period_month ? new Date(reportData.period.period_month.slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : '—'}
             </span>{" "}
-            dari rekonsiliasi jurnal buku besar.
+            dari jurnal kas yang tercatat.
             {isLoading && (
               <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary dark:text-primary-300 font-medium">
                 <Loader2 className="h-3 w-3 animate-spin" /> Memuat data live...
@@ -178,6 +180,7 @@ export default function AccountingCashflowReportPage() {
         </select>
       </label>
       <AccountingQueryState loading={isLoading || periods.isLoading} error={report.error || periods.error} empty={!reportData} retry={() => { void report.refetch(); void periods.refetch(); }}>
+      {isSimulation && <p role="note" className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">Data UAT / SIMULASI untuk pengujian. Periode masih draf dan saldo bank belum diverifikasi; angka ini bukan laporan keuangan perusahaan.</p>}
       {/* Tabs */}
       <div className="flex border-b border-line">
         <button
@@ -232,6 +235,7 @@ export default function AccountingCashflowReportPage() {
             totalEndingBalance={cf.totalEndingBalance}
             totalOutstanding={cf.totalOutstanding}
             projectedEndingBalance={cf.projectedEndingBalance}
+            revenueItems={reportData?.breakdown.revenue ?? []}
             operationalExpenses={cf.operationalExpenses}
             backofficeExpenses={cf.backofficeExpenses}
           />

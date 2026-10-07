@@ -113,7 +113,7 @@ export function WaterfallChart({
               {title}
             </h3>
             <span className="rounded-pill bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200">
-              Jembatan Kas &amp; P&amp;L
+              Jembatan Arus Kas
             </span>
           </div>
           <p className="mt-0.5 text-xs text-muted font-medium">{subtitle}</p>
@@ -198,7 +198,7 @@ export function WaterfallChart({
             const isPos = step.amount >= 0;
             let fillColor = '#10b981'; // Emerald
             if (step.isTotal) {
-              fillColor = '#0f172a'; // Navy
+              fillColor = 'var(--color-navy)';
             } else if (!isPos) {
               fillColor = '#e11d48'; // Rose
             }
@@ -253,7 +253,7 @@ export function WaterfallChart({
                   textAnchor="middle"
                   fontSize={10}
                   fontWeight={700}
-                  fill={isHovered ? '#0f172a' : '#64748b'}
+                  fill={isHovered ? 'var(--color-navy)' : 'var(--color-subtle)' }
                 >
                   {Math.abs(step.amount) >= 1e9
                     ? `${(step.amount / 1e9).toFixed(1)}M`
@@ -267,7 +267,7 @@ export function WaterfallChart({
                   textAnchor="middle"
                   fontSize={10}
                   fontWeight={isHovered ? 700 : 500}
-                  fill={isHovered ? '#0f172a' : '#64748b'}
+                  fill={isHovered ? 'var(--color-navy)' : 'var(--color-subtle)' }
                 >
                   {step.label.length > 12 ? `${step.label.substring(0, 11)}…` : step.label}
                 </text>
