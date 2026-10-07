@@ -56,9 +56,9 @@ export default function AccountingDashboardPage() {
 
     <section aria-labelledby="accounting-financial-heading" className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><h2 id="accounting-financial-heading" className="text-lg font-semibold text-navy">Ringkasan keuangan</h2><p className="mt-1 text-sm text-slate-500">Cashflow periode {activePeriod ? monthLabel(activePeriod.periodMonth) : 'yang tersedia'}.</p></div>
-        {sortedPeriods.length > 0 && <label className="flex items-center gap-2 text-sm text-slate-600">Periode
-          <select aria-label="Periode ringkasan" className="min-h-10 rounded-input border border-line bg-white px-3 py-2 text-sm font-medium text-navy" value={activePeriod?.periodMonth ?? ''} onChange={event => setSelectedMonth(event.target.value)}>
+        <div><h2 id="accounting-financial-heading" className="text-lg font-semibold text-navy">Ringkasan keuangan</h2><p className="mt-1 text-sm text-subtle">Cashflow periode {activePeriod ? monthLabel(activePeriod.periodMonth) : 'yang tersedia'}.</p></div>
+        {sortedPeriods.length > 0 && <label className="flex items-center gap-2 text-sm text-muted">Periode
+          <select aria-label="Periode ringkasan" className="min-h-10 rounded-input border border-line bg-panel px-3 py-2 text-sm font-medium text-navy" value={activePeriod?.periodMonth ?? ''} onChange={event => setSelectedMonth(event.target.value)}>
             {sortedPeriods.map(period => <option key={period.id} value={period.periodMonth}>{monthLabel(period.periodMonth)}</option>)}
           </select>
         </label>}
@@ -67,15 +67,15 @@ export default function AccountingDashboardPage() {
         <ErrorState description={error.message} onRetry={() => { void periods.refetch(); if (activePeriod) void report.refetch(); }} />
       ) : metrics.length ? (
         <section className="grid gap-4 md:grid-cols-3" aria-label="Ringkasan cashflow">
-          {metrics.map((metric, index) => <article key={metric.label} className={`min-w-0 rounded-card-lg border bg-white p-5 ${index === 2 ? 'border-primary-200 shadow-card' : 'border-line'}`}>
-            <span className="flex h-10 w-10 items-center justify-center rounded-card bg-surface-2 text-primary-700"><metric.icon aria-hidden="true" className="h-5 w-5" /></span>
-            <h3 className="mt-5 text-sm text-slate-600">{metric.label}</h3><p className="mt-2 break-words text-xl font-semibold tracking-tight text-navy tabular-nums xl:text-2xl">{formatRupiah(metric.value)}</p><p className="mt-3 border-t border-line pt-3 text-xs text-slate-500">{metric.note}</p>
+          {metrics.map((metric, index) => <article key={metric.label} className={`min-w-0 rounded-card-lg border bg-panel p-5 ${index === 2 ? 'border-primary-200 shadow-card' : 'border-line'}`}>
+            <span className="flex h-10 w-10 items-center justify-center rounded-card bg-surface-2 text-primary-700 dark:text-primary-300"><metric.icon aria-hidden="true" className="h-5 w-5" /></span>
+            <h3 className="mt-5 text-sm text-muted">{metric.label}</h3><p className="mt-2 break-words text-xl font-semibold tracking-tight text-navy tabular-nums xl:text-2xl">{formatRupiah(metric.value)}</p><p className="mt-3 border-t border-line pt-3 text-xs text-subtle">{metric.note}</p>
           </article>)}
         </section>
       ) : (
-        <div className="flex flex-col items-start gap-5 rounded-card-lg border border-line bg-white p-6 sm:flex-row sm:items-center">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card-lg bg-surface-2 text-primary-700"><ChartNoAxesCombined aria-hidden="true" className="h-7 w-7" /></span>
-          <div className="flex-1"><h3 className="font-semibold text-navy">Belum ada periode Accounting</h3><p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-500">Ringkasan akan muncul setelah periode dan transaksi dicatat. Anda tetap dapat membuka pekerjaan harian di bawah.</p></div>
+        <div className="flex flex-col items-start gap-5 rounded-card-lg border border-line bg-panel p-6 sm:flex-row sm:items-center">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card-lg bg-surface-2 text-primary-700 dark:text-primary-300"><ChartNoAxesCombined aria-hidden="true" className="h-7 w-7" /></span>
+          <div className="flex-1"><h3 className="font-semibold text-navy">Belum ada periode Accounting</h3><p className="mt-1 max-w-xl text-sm leading-relaxed text-subtle">Ringkasan akan muncul setelah periode dan transaksi dicatat. Anda tetap dapat membuka pekerjaan harian di bawah.</p></div>
           {canReadDetail && <Link to="/accounting/periode" className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-input border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-surface">Lihat periode <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>}
         </div>
       )}
@@ -83,25 +83,25 @@ export default function AccountingDashboardPage() {
 
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
       {jobs.length > 0 ? <section aria-label="Pekerjaan Accounting" className="space-y-4">
-        <div><h2 className="text-lg font-semibold text-navy">Pekerjaan harian</h2><p className="mt-1 text-sm text-slate-500">Pilih pekerjaan yang ingin Anda lanjutkan.</p></div>
+        <div><h2 className="text-lg font-semibold text-navy">Pekerjaan harian</h2><p className="mt-1 text-sm text-subtle">Pilih pekerjaan yang ingin Anda lanjutkan.</p></div>
         <div className="grid gap-4 sm:grid-cols-2">
           {jobs.map(item => {
             const detail = workDetails[item.path as keyof typeof workDetails];
             const Icon = detail?.icon ?? FileText;
-            return <Link key={item.path} to={item.path} className="group flex min-w-0 flex-col rounded-card-lg border border-line bg-white p-5 transition-colors hover:border-primary-300 hover:bg-primary-50/40 focus-visible:outline-2 focus-visible:outline-primary">
-              <div className="flex items-center justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-card bg-surface text-primary-700"><Icon aria-hidden="true" className="h-5 w-5" /></span><ArrowRight aria-hidden="true" className="h-4 w-4 text-slate-400 group-hover:text-primary-700" /></div>
-              <p className="mt-5 text-[10px] font-semibold tracking-[0.12em] text-slate-500">{detail?.caption}</p><h3 className="mt-1 text-base font-semibold text-navy">{item.label}</h3>
-              <p className="mb-5 mt-2 text-sm leading-relaxed text-slate-500">{detail?.description}</p><p className="mt-auto border-t border-line pt-3 text-xs font-medium text-primary-700">{detail?.footnote}</p>
+            return <Link key={item.path} to={item.path} className="group flex min-w-0 flex-col rounded-card-lg border border-line bg-panel p-5 transition-colors hover:border-primary-300 hover:bg-primary-50/40 focus-visible:outline-2 focus-visible:outline-primary">
+              <div className="flex items-center justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-card bg-surface text-primary-700 dark:text-primary-300"><Icon aria-hidden="true" className="h-5 w-5" /></span><ArrowRight aria-hidden="true" className="h-4 w-4 text-slate-400 group-hover:text-primary-700" /></div>
+              <p className="mt-5 text-[10px] font-semibold tracking-[0.12em] text-subtle">{detail?.caption}</p><h3 className="mt-1 text-base font-semibold text-navy">{item.label}</h3>
+              <p className="mb-5 mt-2 text-sm leading-relaxed text-subtle">{detail?.description}</p><p className="mt-auto border-t border-line pt-3 text-xs font-medium text-primary-700 dark:text-primary-300">{detail?.footnote}</p>
             </Link>;
           })}
         </div>
-      </section> : <section className="rounded-card-lg border border-line bg-white p-6"><ClipboardCheck aria-hidden="true" className="h-6 w-6 text-primary-700" /><h2 className="mt-3 font-semibold text-navy">Ringkasan untuk peran Anda</h2><p className="mt-2 text-sm leading-relaxed text-slate-500">Akun Anda memiliki akses ringkasan. Detail transaksi dan rekening mengikuti kewenangan Accounting.</p></section>}
+      </section> : <section className="rounded-card-lg border border-line bg-panel p-6"><ClipboardCheck aria-hidden="true" className="h-6 w-6 text-primary-700 dark:text-primary-300" /><h2 className="mt-3 font-semibold text-navy">Ringkasan untuk peran Anda</h2><p className="mt-2 text-sm leading-relaxed text-subtle">Akun Anda memiliki akses ringkasan. Detail transaksi dan rekening mengikuti kewenangan Accounting.</p></section>}
 
       <aside className="space-y-4 xl:pt-[60px]" aria-label="Panduan Accounting">
         {canReadDetail && <section className="rounded-card-lg border border-primary-200 bg-primary-50 p-5">
-          <Clock3 aria-hidden="true" className="h-5 w-5 text-primary-700" /><h2 className="mt-3 font-semibold text-navy">Ingat batas rekap H+1</h2><p className="mt-2 text-sm leading-relaxed text-slate-600">Pengajuan omzet dilakukan pada hari berikutnya, paling lambat <strong className="text-navy">23.59 WIB</strong>.</p><p className="mt-3 text-xs leading-relaxed text-slate-500">Periksa outlet, shift, dan rincian pembayaran sebelum mengajukan.</p>
+          <Clock3 aria-hidden="true" className="h-5 w-5 text-primary-700 dark:text-primary-300" /><h2 className="mt-3 font-semibold text-navy">Ingat batas rekap H+1</h2><p className="mt-2 text-sm leading-relaxed text-muted">Pengajuan omzet dilakukan pada hari berikutnya, paling lambat <strong className="text-navy">23.59 WIB</strong>.</p><p className="mt-3 text-xs leading-relaxed text-subtle">Periksa outlet, shift, dan rincian pembayaran sebelum mengajukan.</p>
         </section>}
-        {canReadDetail && <section className="rounded-card-lg border border-line bg-white p-5"><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Laporan</p><h2 className="mt-2 font-semibold text-navy">Telusuri arus kas</h2><p className="mt-2 text-sm leading-relaxed text-slate-500">Buka rincian penerimaan dan beban untuk pemeriksaan lebih lanjut.</p><Link to="/accounting/cashflow" className="mt-4 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary-700 hover:underline">Buka laporan cashflow <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link></section>}
+        {canReadDetail && <section className="rounded-card-lg border border-line bg-panel p-5"><p className="text-xs font-semibold uppercase tracking-wider text-subtle">Laporan</p><h2 className="mt-2 font-semibold text-navy">Telusuri arus kas</h2><p className="mt-2 text-sm leading-relaxed text-subtle">Buka rincian penerimaan dan beban untuk pemeriksaan lebih lanjut.</p><Link to="/accounting/cashflow" className="mt-4 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary-700 dark:text-primary-300 hover:underline">Buka laporan cashflow <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link></section>}
       </aside>
     </div>
   </div>;

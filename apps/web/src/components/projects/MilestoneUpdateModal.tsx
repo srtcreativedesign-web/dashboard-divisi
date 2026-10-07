@@ -52,14 +52,14 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in">
-      <div className="relative w-full max-w-lg rounded-card-lg bg-white dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
+      <div className="relative w-full max-w-lg rounded-card-lg bg-panel dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-line dark:border-line/20">
           <div>
             <h3 className="text-base font-bold text-navy dark:text-white">
               Pembaruan Progres Milestone
             </h3>
-            <p className="text-xs text-slate-500">Sesuaikan persentase realisasi, jadwal, dan catatan kendala lapangan</p>
+            <p className="text-xs text-subtle">Sesuaikan persentase realisasi, jadwal, dan catatan kendala lapangan</p>
           </div>
           <button
             onClick={onClose}
@@ -70,7 +70,7 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
         </div>
 
         {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-card bg-danger-light p-3 text-xs text-danger border border-danger/30 font-medium">
+          <div className="mt-4 flex items-center gap-2 rounded-card bg-danger-light p-3 text-xs text-danger dark:text-red-300 border border-danger/30 font-medium">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -86,7 +86,7 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
             />
           </div>
 
@@ -104,7 +104,7 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
                   required
                   value={weightPercentage}
                   onChange={(e) => setWeightPercentage(Number(e.target.value))}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary pr-8 transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary pr-8 transition-all"
                 />
                 <Percent className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
               </div>
@@ -123,9 +123,9 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
                   required
                   value={actualPercentage}
                   onChange={(e) => setActualPercentage(Number(e.target.value))}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary pr-8 transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs font-bold text-primary dark:text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary pr-8 transition-all"
                 />
-                <Percent className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-primary" />
+                <Percent className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-primary dark:text-primary-300" />
               </div>
             </div>
           </div>
@@ -137,7 +137,7 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
             >
               <option value="pending">Menunggu (Pending)</option>
               <option value="in_progress">Sedang Berjalan (In Progress)</option>
@@ -156,7 +156,7 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
             </div>
@@ -170,7 +170,7 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
                   type="date"
                   value={completionDate}
                   onChange={(e) => setCompletionDate(e.target.value)}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
             </div>
@@ -185,7 +185,7 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
               placeholder="Catatan inspeksi fisik, kendala cuaca, ketersediaan material, atau approval klien..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
             />
           </div>
 

@@ -70,3 +70,5 @@ Checklist selesai hanya jika hasil dan bukti dicatat. Tes teknis bukan sign-off 
 Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATUS_DAN_DEPENDENSI_PENYELESAIAN.md). Tidak menutup item bisnis/produksi melalui tes teknis.
 
 - [x] TODO-08c / PRJ-UI-003 — direktori vendor lengkap dengan pencarian/pagination, respons lama, pemisahan hasil simpan dan reload serta batas kontak tetap. [Scope/bukti](52_DIREKTORI_VENDOR_PROJECT.md). Peran: keempat peran. Gate final exit 0: 268 backend/2219 assertions, 134 web, dua contracts dan seluruh guard gate/policy/database/scanner. Lint/typecheck/build/Pint lulus. Workflow pembayaran, approval dan UAT tetap terbuka.
+
+- [x] TODO-UI-02b / TODO-07b / UI-ACC-004 — tema terang/gelap Project/Accounting dan kelanjutan jurnal: nominal string/saldo belum tersedia, konteks periode/pending/filter/retry. Peran: Senior Product Designer + Senior Fullstack Programmer. 144 web/typecheck/build lulus; lint hasil pull masih 105 error. [Scope dan batas](54_TEMA_DAN_JURNAL_ACCOUNTING.md). Parent jurnal/PNL/UAT tetap terbuka.

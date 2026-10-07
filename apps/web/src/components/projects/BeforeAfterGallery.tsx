@@ -131,11 +131,11 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
   const getStageBadge = (stage: string) => {
     switch (stage) {
       case 'before':
-        return <span className="inline-flex items-center gap-1 rounded-pill bg-warning-light px-2.5 py-0.5 text-xs font-semibold text-warning border border-warning/30">Sebelum (Pra-Kerja)</span>;
+        return <span className="inline-flex items-center gap-1 rounded-pill bg-warning-light px-2.5 py-0.5 text-xs font-semibold text-warning dark:text-amber-300 border border-warning/30">Sebelum (Pra-Kerja)</span>;
       case 'in_progress':
-        return <span className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/30">Sedang Berjalan</span>;
+        return <span className="inline-flex items-center gap-1 rounded-pill bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-primary dark:text-primary-300 border border-primary/30">Sedang Berjalan</span>;
       case 'after':
-        return <span className="inline-flex items-center gap-1 rounded-pill bg-success-light px-2.5 py-0.5 text-xs font-semibold text-success border border-success/30">Sesudah (Hasil Jadi)</span>;
+        return <span className="inline-flex items-center gap-1 rounded-pill bg-success-light px-2.5 py-0.5 text-xs font-semibold text-success dark:text-emerald-300 border border-success/30">Sesudah (Hasil Jadi)</span>;
       default:
         return null;
     }
@@ -144,13 +144,13 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
   return (
     <div className="space-y-6">
       {/* Control Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-navy-light p-5 rounded-card-lg border border-line dark:border-line/20 shadow-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-panel dark:bg-navy-light p-5 rounded-card-lg border border-line dark:border-line/20 shadow-card">
         <div>
           <h2 className="text-base font-bold text-navy dark:text-white flex items-center gap-2">
-            <Camera className="h-5 w-5 text-primary" />
+            <Camera className="h-5 w-5 text-primary dark:text-primary-300" />
             Dokumentasi Visual (Before - After)
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-subtle mt-1">
             Pantau transformasi fisik lapangan sebelum, selama, dan sesudah pengerjaan proyek.
           </p>
         </div>
@@ -162,8 +162,8 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
               onClick={() => setViewMode('grid')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-input text-xs font-semibold transition-all ${
                 viewMode === 'grid'
-                  ? 'bg-white dark:bg-navy-light text-navy dark:text-white shadow-card'
-                  : 'text-slate-500 hover:text-navy dark:hover:text-white'
+                  ? 'bg-panel dark:bg-navy-light text-navy dark:text-white shadow-card'
+                  : 'text-subtle hover:text-navy dark:hover:text-white'
               }`}
             >
               <Grid className="h-3.5 w-3.5" />
@@ -176,8 +176,8 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-input text-xs font-semibold transition-all ${
                 viewMode === 'compare'
-                  ? 'bg-white dark:bg-navy-light text-navy dark:text-white shadow-card'
-                  : 'text-slate-500 hover:text-navy dark:hover:text-white'
+                  ? 'bg-panel dark:bg-navy-light text-navy dark:text-white shadow-card'
+                  : 'text-subtle hover:text-navy dark:hover:text-white'
               }`}
             >
               <SplitSquareVertical className="h-3.5 w-3.5" />
@@ -213,7 +213,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                 className={`px-3 py-1.5 rounded-input text-xs font-semibold transition-all ${
                   stageFilter === tab.id
                     ? 'bg-navy text-white dark:bg-primary dark:text-white shadow-card'
-                    : 'bg-white dark:bg-navy-light text-slate-600 dark:text-slate-300 border border-line dark:border-line/20 hover:bg-surface'
+                    : 'bg-panel dark:bg-navy-light text-muted dark:text-slate-300 border border-line dark:border-line/20 hover:bg-surface'
                 }`}
               >
                 {tab.label}
@@ -224,11 +224,11 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
           {/* Area Filter */}
           {areas.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 font-medium">Filter Area:</span>
+              <span className="text-xs text-subtle font-medium">Filter Area:</span>
               <select
                 value={areaFilter}
                 onChange={e => setAreaFilter(e.target.value)}
-                className="rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-1.5 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-1.5 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
               >
                 <option value="all">Semua Area</option>
                 {areas.map(a => (
@@ -242,23 +242,23 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
 
       {/* COMPARE MODE */}
       {viewMode === 'compare' && (
-        <div className="bg-white dark:bg-navy-light p-6 rounded-card-lg border border-line dark:border-line/20 shadow-card space-y-6">
+        <div className="bg-panel dark:bg-navy-light p-6 rounded-card-lg border border-line dark:border-line/20 shadow-card space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line dark:border-line/20 pb-4">
             <div>
               <h3 className="text-sm font-bold text-navy dark:text-white">
                 Komparasi Side-by-Side: Sebelum vs Sesudah
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-subtle">
                 Pilih area proyek untuk membandingkan kondisi awal dan hasil akhir serah terima.
               </p>
             </div>
             {areas.length > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium">Pilih Zona Area:</span>
+                <span className="text-xs text-subtle font-medium">Pilih Zona Area:</span>
                 <select
                   value={compareArea}
                   onChange={e => setCompareArea(e.target.value)}
-                  className="rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-1.5 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-1.5 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 >
                   <option value="">Semua Zona</option>
                   {areas.map(a => (
@@ -305,10 +305,10 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
 
                 {/* Slider Handle Divider */}
                 <div
-                  className="absolute inset-y-0 z-20 w-1 bg-white shadow-[0_0_10px_rgba(0,0,0,0.5)] cursor-ew-resize flex items-center justify-center"
+                  className="absolute inset-y-0 z-20 w-1 bg-panel shadow-[0_0_10px_rgba(0,0,0,0.5)] cursor-ew-resize flex items-center justify-center"
                   style={{ left: `${sliderPos}%` }}
                 >
-                  <div className="h-8 w-8 -ml-3.5 rounded-full bg-white shadow-card-hover flex items-center justify-center border-2 border-primary text-primary">
+                  <div className="h-8 w-8 -ml-3.5 rounded-full bg-panel shadow-card-hover flex items-center justify-center border-2 border-primary text-primary dark:text-primary-300">
                     <SplitSquareVertical className="h-4 w-4" />
                   </div>
                 </div>
@@ -326,14 +326,14 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
 
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div className="p-3.5 rounded-card bg-warning-light/40 border border-warning/30">
-                  <p className="font-semibold text-warning">Kondisi Awal ({compareBefore.area_name || 'Umum'})</p>
+                  <p className="font-semibold text-warning dark:text-amber-300">Kondisi Awal ({compareBefore.area_name || 'Umum'})</p>
                   <p className="text-navy dark:text-slate-300 mt-0.5">{compareBefore.caption || 'Foto kondisi eksisting'}</p>
                   <p className="text-slate-400 mt-1 flex items-center gap-1 text-[11px]">
                     <Calendar className="h-3 w-3" /> {compareBefore.taken_at || 'Tanggal tidak dicatat'}
                   </p>
                 </div>
                 <div className="p-3.5 rounded-card bg-success-light/40 border border-success/30">
-                  <p className="font-semibold text-success">Hasil Akhir ({compareAfter.area_name || 'Umum'})</p>
+                  <p className="font-semibold text-success dark:text-emerald-300">Hasil Akhir ({compareAfter.area_name || 'Umum'})</p>
                   <p className="text-navy dark:text-slate-300 mt-0.5">{compareAfter.caption || 'Hasil serah terima fisik'}</p>
                   <p className="text-slate-400 mt-1 flex items-center gap-1 text-[11px]">
                     <Calendar className="h-3 w-3" /> {compareAfter.taken_at || 'Tanggal tidak dicatat'}
@@ -347,7 +347,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
               <p className="text-sm font-semibold text-navy dark:text-white">
                 Membutuhkan minimal 1 foto Before dan 1 foto After untuk komparasi
               </p>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-subtle mt-1">
                 Silakan unggah foto dengan label "Before" dan "After" untuk area ini.
               </p>
             </div>
@@ -382,10 +382,10 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
               {filteredPhotos.map(photo => (
                 <div
                   key={photo.id}
-                  className="group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all flex flex-col"
+                  className="group relative overflow-hidden rounded-2xl border border-line dark:border-slate-800 bg-panel dark:bg-slate-900 shadow-sm hover:shadow-md transition-all flex flex-col"
                 >
                   {/* Photo Container */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                  <div className="relative aspect-video w-full overflow-hidden bg-surface dark:bg-slate-800">
                     <img
                       src={photo.photo_path.startsWith('http') ? photo.photo_path : `/storage/${photo.photo_path}`}
                       alt={photo.caption || 'Foto Progres'}
@@ -411,23 +411,23 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
                       {photo.area_name && (
-                        <div className="flex items-center gap-1 text-xs font-semibold text-primary-600 dark:text-primary-400 mb-1">
+                        <div className="flex items-center gap-1 text-xs font-semibold text-primary-600 dark:text-primary-300 dark:text-primary-400 mb-1">
                           <MapPin className="h-3.5 w-3.5" />
                           <span>{photo.area_name}</span>
                         </div>
                       )}
-                      <p className="text-sm text-slate-800 dark:text-slate-200 font-medium line-clamp-2">
+                      <p className="text-sm text-navy dark:text-slate-200 font-medium line-clamp-2">
                         {photo.caption || 'Dokumentasi lapangan'}
                       </p>
                       {photo.milestone && (
-                        <p className="mt-2 text-xs text-slate-500 flex items-center gap-1">
+                        <p className="mt-2 text-xs text-subtle flex items-center gap-1">
                           <Clock className="h-3 w-3 text-slate-400" />
-                          Tahap: <span className="font-medium text-slate-700 dark:text-slate-300">{photo.milestone.title}</span>
+                          Tahap: <span className="font-medium text-muted dark:text-slate-300">{photo.milestone.title}</span>
                         </p>
                       )}
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                    <div className="mt-3 pt-3 border-t border-line dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {photo.taken_at ? new Date(photo.taken_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
@@ -445,10 +445,10 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
       {/* UPLOAD MODAL */}
       {showUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-card-lg bg-white dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
+          <div className="relative w-full max-w-lg rounded-card-lg bg-panel dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
             <div className="flex items-center justify-between pb-4 border-b border-line dark:border-line/20">
               <h3 className="text-base font-bold text-navy dark:text-white flex items-center gap-2">
-                <Upload className="h-5 w-5 text-primary" />
+                <Upload className="h-5 w-5 text-primary dark:text-primary-300" />
                 Unggah Dokumentasi Foto Proyek
               </h3>
               <button
@@ -460,7 +460,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
             </div>
 
             {uploadError && (
-              <div className="mt-4 flex items-center gap-2 rounded-card bg-danger-light p-3 text-xs text-danger border border-danger/30 font-medium">
+              <div className="mt-4 flex items-center gap-2 rounded-card bg-danger-light p-3 text-xs text-danger dark:text-red-300 border border-danger/30 font-medium">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{uploadError}</span>
               </div>
@@ -477,7 +477,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                   accept="image/*"
                   required
                   onChange={handleFileChange}
-                  className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-input file:border-0 file:text-xs file:font-semibold file:bg-surface-2 file:text-primary hover:file:bg-primary-100 dark:file:bg-navy dark:file:text-slate-300"
+                  className="w-full text-xs text-subtle file:mr-4 file:py-2 file:px-4 file:rounded-input file:border-0 file:text-xs file:font-semibold file:bg-surface-2 file:text-primary hover:file:bg-primary-100 dark:file:bg-navy dark:file:text-slate-300"
                 />
                 {previewUrl && (
                   <div className="mt-3 relative aspect-video w-full rounded-card overflow-hidden border border-line dark:border-line/20">
@@ -503,8 +503,8 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                       onClick={() => setUploadStage(s.id as any)}
                       className={`p-2 rounded-input text-xs font-semibold border text-center transition-all ${
                         uploadStage === s.id
-                          ? 'border-primary bg-surface-2 text-primary dark:bg-navy dark:text-primary-300'
-                          : 'border-line dark:border-line/20 text-slate-600 dark:text-slate-400 hover:bg-surface'
+                          ? 'border-primary bg-surface-2 text-primary dark:text-primary-300 dark:bg-navy dark:text-primary-300'
+                          : 'border-line dark:border-line/20 text-muted dark:text-slate-400 hover:bg-surface'
                       }`}
                     >
                       {s.label}
@@ -523,7 +523,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                   placeholder="Misal: Fasad Depan, Lantai 1, Ruang Server, Ruang Kasir"
                   value={uploadArea}
                   onChange={e => setUploadArea(e.target.value)}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -536,7 +536,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                   <select
                     value={uploadMilestoneId}
                     onChange={e => setUploadMilestoneId(e.target.value)}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="">-- Tidak Ditautkan ke Milestone --</option>
                     {milestones.map(m => (
@@ -555,7 +555,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                   type="date"
                   value={uploadDate}
                   onChange={e => setUploadDate(e.target.value)}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -569,7 +569,7 @@ export const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({ projectI
                   placeholder="Deskripsi kondisi lapangan, catatan spesifikasi material..."
                   value={uploadCaption}
                   onChange={e => setUploadCaption(e.target.value)}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 

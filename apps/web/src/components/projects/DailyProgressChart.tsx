@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useThemeMode } from '../../hooks/useThemeMode';
 import ReactApexChart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
 import { ProjectMilestone } from '../../types/project';
@@ -13,6 +14,7 @@ function contributionAt(m: ProjectMilestone, day: string) {
 }
 
 export function DailyProgressChart({ milestones, days = 14 }: { milestones: ProjectMilestone[]; days?: number }) {
+  const isDark = useThemeMode();
   const [mode, setMode] = useState<'harian' | 'kumulatif'>('harian');
 
   const dates = Array.from({ length: days + 1 }, (_, i) => {
@@ -29,7 +31,8 @@ export function DailyProgressChart({ milestones, days = 14 }: { milestones: Proj
   });
 
   const options: ApexOptions = {
-    chart: { type: 'bar', stacked: true, toolbar: { show: true }, zoom: { enabled: true }, fontFamily: 'inherit' },
+    theme: { mode: isDark ? 'dark' : 'light' },
+    chart: { background: 'transparent', foreColor: isDark ? '#cbd5e1' : '#475569', type: 'bar', stacked: true, toolbar: { show: true }, zoom: { enabled: true }, fontFamily: 'inherit' },
     plotOptions: {
       bar: {
         borderRadius: 6,
@@ -43,19 +46,19 @@ export function DailyProgressChart({ milestones, days = 14 }: { milestones: Proj
       labels: { style: { fontSize: '11px' } },
     },
     yaxis: { labels: { formatter: v => `${Math.round(v * 10) / 10}%` } },
-    tooltip: { y: { formatter: v => `${v}% bobot proyek` } },
+    tooltip: { theme: isDark ? 'dark' : 'light', y: { formatter: v => `${v}% bobot proyek` } },
     legend: { position: 'bottom', fontSize: '12px' },
     responsive: [{ breakpoint: 480, options: { legend: { position: 'bottom', offsetX: -10, offsetY: 0 } } }],
     fill: { opacity: 1 },
-    grid: { borderColor: '#e2e8f0', strokeDashArray: 3 },
+    grid: { borderColor: isDark ? '#334155' : '#e2e8f0', strokeDashArray: 3 },
   };
 
   return (
-    <div className="rounded-card-lg border border-line bg-white p-5 shadow-card">
+    <div className="rounded-card-lg border border-line bg-panel p-5 shadow-card">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
         <div>
           <h2 className="text-base font-bold text-navy">Progres Fisik Harian per Pekerjaan</h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-subtle">
             {mode === 'harian'
               ? `Tambahan progres proyek per hari, ${days} hari terakhir`
               : `Akumulasi progres proyek per hari, ${days} hari terakhir`}
@@ -67,7 +70,7 @@ export function DailyProgressChart({ milestones, days = 14 }: { milestones: Proj
               key={m}
               type="button"
               onClick={() => setMode(m)}
-              className={`px-3 py-1.5 rounded-input capitalize transition-colors ${mode === m ? 'bg-primary-600 text-white' : 'text-slate-600 hover:bg-surface'}`}
+              className={`px-3 py-1.5 rounded-input capitalize transition-colors ${mode === m ? 'bg-primary-600 text-white' : 'text-muted hover:bg-surface'}`}
             >
               {m}
             </button>
@@ -77,7 +80,7 @@ export function DailyProgressChart({ milestones, days = 14 }: { milestones: Proj
       {milestones.length > 0 ? (
         <ReactApexChart key={mode} options={options} series={series} type="bar" height={350} />
       ) : (
-        <p className="py-16 text-center text-sm text-slate-500">Belum ada tahapan pekerjaan.</p>
+        <p className="py-16 text-center text-sm text-subtle">Belum ada tahapan pekerjaan.</p>
       )}
     </div>
   );

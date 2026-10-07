@@ -1,5 +1,10 @@
 /* Dark mode overrides */
 .dark {
+  --color-panel: #1e293b;
+  --color-muted: #cbd5e1;
+  --color-subtle: #94a3b8;
+  --color-primary-50: #082f49;
+  --color-primary-light: #082f49;
   --color-surface: #0f172a;
   --color-surface-2: #1e293b;
   --color-navy: #f8fafc;

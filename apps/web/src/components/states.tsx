@@ -15,7 +15,7 @@ export function LoadingState({ label = 'Memuat data...' }: LoadingStateProps) {
         aria-hidden="true"
         className="h-8 w-8 animate-spin rounded-full border-2 border-line border-t-primary"
       />
-      <p className="text-sm text-slate-600">{label}</p>
+      <p className="text-sm text-muted">{label}</p>
     </div>
   );
 }
@@ -34,11 +34,11 @@ export function EmptyState({
   return (
     <div
       role="status"
-      className="flex flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line bg-white p-10 text-center"
+      className="flex flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line bg-panel p-10 text-center"
     >
       <p className="text-sm font-medium">{title}</p>
       {description ? (
-        <p className="max-w-sm text-xs text-slate-500">{description}</p>
+        <p className="max-w-sm text-xs text-subtle">{description}</p>
       ) : null}
       {action}
     </div>
@@ -62,10 +62,10 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="flex flex-col items-center gap-3 rounded-card border border-danger/30 bg-white p-10 text-center"
+      className="flex flex-col items-center gap-3 rounded-card border border-danger/30 bg-panel p-10 text-center"
     >
       <p className="text-sm font-medium text-danger">{title}</p>
-      <p className="max-w-sm text-xs text-slate-500">{description}</p>
+      <p className="max-w-sm text-xs text-subtle">{description}</p>
       {traceId && (
         <p className="flex items-center gap-2 max-w-sm text-xs font-mono text-slate-400">
           trace_id: {traceId}
@@ -108,10 +108,10 @@ export function NoAccessState({
     <div
       role="alert"
       data-testid="no-access"
-      className="flex flex-col items-center gap-2 rounded-card border border-warning/30 bg-white p-10 text-center"
+      className="flex flex-col items-center gap-2 rounded-card border border-warning/30 bg-panel p-10 text-center"
     >
       <p className="text-sm font-medium text-warning">{title}</p>
-      <p className="max-w-sm text-xs text-slate-500">{description}</p>
+      <p className="max-w-sm text-xs text-subtle">{description}</p>
     </div>
   );
 }

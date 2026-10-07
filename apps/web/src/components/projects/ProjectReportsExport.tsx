@@ -67,7 +67,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
   return (
     <div className="space-y-6">
       {/* ACTION BAR (Hidden when printing) */}
-      <div className="print:hidden flex flex-wrap items-center justify-between gap-4 p-4 rounded-card-lg bg-white dark:bg-navy-light border border-line dark:border-line/20 shadow-card">
+      <div className="print:hidden flex flex-wrap items-center justify-between gap-4 p-4 rounded-card-lg bg-panel dark:bg-navy-light border border-line dark:border-line/20 shadow-card">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -75,7 +75,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
             className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
               reportType === 'progress'
                 ? 'bg-primary text-white shadow-card'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
+                : 'text-muted dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
             }`}
           >
             <FileText className="h-4 w-4" />
@@ -87,7 +87,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
             className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
               reportType === 'bast'
                 ? 'bg-primary text-white shadow-card'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
+                : 'text-muted dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
             }`}
           >
             <Camera className="h-4 w-4" />
@@ -109,7 +109,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
       </div>
 
       {/* DOCUMENT PREVIEW CONTAINER (Ready for Print) */}
-      <div className="relative overflow-hidden rounded-card-lg bg-white text-navy p-8 sm:p-12 border border-line shadow-card-hover print:border-none print:shadow-none print:p-0">
+      <div className="relative overflow-hidden rounded-card-lg bg-panel text-navy p-8 sm:p-12 border border-line shadow-card-hover print:border-none print:shadow-none print:p-0">
         {/* WATERMARK DIAGONAL "DIGITAL TECH" */}
         <div
           aria-hidden="true"
@@ -127,7 +127,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
         <div className="relative z-10 border-b-2 border-navy pb-5 mb-8">
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-[11px] font-bold tracking-widest uppercase text-primary">
+              <span className="text-[11px] font-bold tracking-widest uppercase text-primary dark:text-primary-300">
                 PT DIGITAL TECH REKAYASA &bull; DIVISI MANAJEMEN PROYEK
               </span>
               <h1 className="text-xl sm:text-2xl font-black uppercase text-navy mt-1">
@@ -135,11 +135,11 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                   ? 'Laporan Kemajuan Pekerjaan Fisik & Finansial'
                   : 'Lampiran Visual Berita Acara Serah Terima (BAST)'}
               </h1>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-subtle mt-0.5">
                 Proyek: <span className="font-semibold text-navy">{project.name}</span> ({project.project_code || `PRJ-${project.id}`})
               </p>
             </div>
-            <div className="text-right text-xs text-slate-500">
+            <div className="text-right text-xs text-subtle">
               <p className="font-semibold text-navy">Tanggal Cetak:</p>
               <p>{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
@@ -152,22 +152,22 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
             {/* Metadata Ringkasan */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-card bg-surface border border-line">
               <div>
-                <span className="text-slate-500 block text-[11px]">Klien / Pemberi Tugas</span>
+                <span className="text-subtle block text-[11px]">Klien / Pemberi Tugas</span>
                 <span className="font-bold text-navy text-sm">{project.client_name || '-'}</span>
               </div>
               <div>
-                <span className="text-slate-500 block text-[11px]">Lokasi Pelaksanaan</span>
+                <span className="text-subtle block text-[11px]">Lokasi Pelaksanaan</span>
                 <span className="font-bold text-navy text-sm">{project.location || 'Indonesia'}</span>
               </div>
               <div>
-                <span className="text-slate-500 block text-[11px]">Nilai Kontrak</span>
+                <span className="text-subtle block text-[11px]">Nilai Kontrak</span>
                 <span className="font-bold text-navy text-sm">
                   {formatCurrency(progressData.financial_progress?.contract_value)}
                 </span>
               </div>
               <div>
-                <span className="text-slate-500 block text-[11px]">Progres Fisik Kumulatif</span>
-                <span className="font-black text-primary text-sm">
+                <span className="text-subtle block text-[11px]">Progres Fisik Kumulatif</span>
+                <span className="font-black text-primary dark:text-primary-300 text-sm">
                   {progressData.physical_progress?.actual_percentage}%
                 </span>
               </div>
@@ -180,7 +180,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
               </h3>
               <div className="border border-line rounded-card overflow-hidden">
                 <table className="w-full text-left">
-                  <thead className="bg-surface text-slate-700 font-semibold border-b border-line">
+                  <thead className="bg-surface text-muted font-semibold border-b border-line">
                     <tr>
                       <th className="px-3 py-2.5">No</th>
                       <th className="px-3 py-2.5">Item Pekerjaan</th>
@@ -194,23 +194,23 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                   <tbody className="divide-y divide-line">
                     {progressData.physical_progress?.milestones?.map((ms: any, i: number) => (
                       <tr key={ms.id}>
-                        <td className="px-3 py-2 text-slate-500">{i + 1}</td>
+                        <td className="px-3 py-2 text-subtle">{i + 1}</td>
                         <td className="px-3 py-2 font-medium text-navy">
                           {ms.title}
-                          {ms.notes && <p className="text-[10px] text-slate-500 italic mt-0.5">{ms.notes}</p>}
+                          {ms.notes && <p className="text-[10px] text-subtle italic mt-0.5">{ms.notes}</p>}
                         </td>
-                        <td className="px-3 py-2 text-center text-slate-700">{ms.weight_percentage}%</td>
+                        <td className="px-3 py-2 text-center text-muted">{ms.weight_percentage}%</td>
                         <td className="px-3 py-2 text-center font-bold text-navy">{ms.actual_percentage}%</td>
-                        <td className="px-3 py-2 text-center font-semibold text-primary">{ms.contribution}%</td>
+                        <td className="px-3 py-2 text-center font-semibold text-primary dark:text-primary-300">{ms.contribution}%</td>
                         <td className="px-3 py-2 text-center">
                           <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
-                            ms.status === 'completed' ? 'bg-success-light text-success border border-success/30' :
-                            ms.status === 'in_progress' ? 'bg-surface-2 text-primary border border-primary/30' : 'bg-surface text-slate-700 border border-line'
+                            ms.status === 'completed' ? 'bg-success-light text-success dark:text-emerald-300 border border-success/30' :
+                            ms.status === 'in_progress' ? 'bg-surface-2 text-primary dark:text-primary-300 border border-primary/30' : 'bg-surface text-muted border border-line'
                           }`}>
                             {ms.status}
                           </span>
                         </td>
-                        <td className="px-3 py-2 text-slate-600">{ms.due_date || '-'}</td>
+                        <td className="px-3 py-2 text-muted">{ms.due_date || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -225,26 +225,26 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3 rounded-card border border-line bg-surface">
-                  <span className="text-slate-500 block text-[11px]">Plafon Anggaran RAB</span>
+                  <span className="text-subtle block text-[11px]">Plafon Anggaran RAB</span>
                   <span className="font-bold text-navy text-sm">
                     {formatCurrency(progressData.financial_progress?.total_rab_budget)}
                   </span>
                 </div>
                 <div className="p-3 rounded-card border border-line bg-surface">
-                  <span className="text-slate-500 block text-[11px]">Realisasi Pengeluaran Riil</span>
-                  <span className="font-bold text-success text-sm">
+                  <span className="text-subtle block text-[11px]">Realisasi Pengeluaran Riil</span>
+                  <span className="font-bold text-success dark:text-emerald-300 text-sm">
                     {formatCurrency(progressData.financial_progress?.total_actual_expense)}
                   </span>
                 </div>
                 <div className="p-3 rounded-card border border-line bg-surface">
-                  <span className="text-slate-500 block text-[11px]">Sisa Pagu Anggaran (Variance)</span>
+                  <span className="text-subtle block text-[11px]">Sisa Pagu Anggaran (Variance)</span>
                   <span className="font-bold text-navy text-sm">
                     {formatCurrency(progressData.financial_progress?.budget_variance)}
                   </span>
                 </div>
                 <div className="p-3 rounded-card border border-line bg-surface">
-                  <span className="text-slate-500 block text-[11px]">Penyerapan Anggaran</span>
-                  <span className="font-bold text-primary text-sm">
+                  <span className="text-subtle block text-[11px]">Penyerapan Anggaran</span>
+                  <span className="font-bold text-primary dark:text-primary-300 text-sm">
                     {progressData.financial_progress?.absorption_percentage}%
                   </span>
                 </div>
@@ -254,12 +254,12 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
             {/* DOKUMENTASI TERBARU */}
             {progressData.recent_photos && progressData.recent_photos.length > 0 && (
               <div>
-                <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider mb-3">
+                <h3 className="font-bold text-sm text-navy uppercase tracking-wider mb-3">
                   3. Lampiran Dokumentasi Visual Fisik Terkini
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {progressData.recent_photos.slice(0, 4).map((p: any) => (
-                    <div key={p.id} className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                    <div key={p.id} className="border border-line rounded-xl overflow-hidden bg-surface">
                       <div className="aspect-video w-full overflow-hidden bg-slate-200">
                         <img
                           src={p.photo_path.startsWith('http') ? p.photo_path : `/storage/${p.photo_path}`}
@@ -268,8 +268,8 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                         />
                       </div>
                       <div className="p-2 text-[10px]">
-                        <span className="font-semibold text-slate-800 block capitalize">{p.stage} - {p.area_name || 'Area Umum'}</span>
-                        <span className="text-slate-500 truncate block">{p.caption || '-'}</span>
+                        <span className="font-semibold text-navy block capitalize">{p.stage} - {p.area_name || 'Area Umum'}</span>
+                        <span className="text-subtle truncate block">{p.caption || '-'}</span>
                       </div>
                     </div>
                   ))}
@@ -288,14 +288,14 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                 <p className="font-bold text-navy text-sm">
                   Status Verifikasi Fisik Serah Terima Proyek
                 </p>
-                <p className="text-slate-500 mt-0.5">
+                <p className="text-subtle mt-0.5">
                   Menampilkan komparasi kondisi sebelum pekerjaan dimulai (Before) vs hasil serah terima akhir (After).
                 </p>
               </div>
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-pill text-xs font-bold ${
                 bastData.handover_summary?.is_eligible
-                  ? 'bg-success-light text-success border border-success/30'
-                  : 'bg-warning-light text-warning border border-warning/30'
+                  ? 'bg-success-light text-success dark:text-emerald-300 border border-success/30'
+                  : 'bg-warning-light text-warning dark:text-amber-300 border border-warning/30'
               }`}>
                 {bastData.handover_summary?.is_eligible ? (
                   <>
@@ -324,10 +324,10 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                   <div key={idx} className="border border-line rounded-card-lg p-4 bg-surface/50 space-y-3">
                     <div className="flex items-center justify-between border-b border-line pb-2">
                       <span className="font-bold text-navy text-sm flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-primary" />
+                        <Building2 className="h-4 w-4 text-primary dark:text-primary-300" />
                         Area: {area.area_name}
                       </span>
-                      <span className="text-[11px] text-slate-500 font-medium">
+                      <span className="text-[11px] text-subtle font-medium">
                         {area.total_photos} foto dokumentasi
                       </span>
                     </div>
@@ -335,7 +335,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {/* BEFORE */}
                       <div className="rounded-card border border-warning/30 bg-warning-light/40 p-2.5">
-                        <span className="block text-[11px] font-bold text-warning uppercase mb-1">
+                        <span className="block text-[11px] font-bold text-warning dark:text-amber-300 uppercase mb-1">
                           1. Kondisi Awal (Before)
                         </span>
                         {area.before ? (
@@ -351,7 +351,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                             <p className="text-[9px] text-slate-400">{area.before.taken_at || 'Tanggal tidak dicatat'}</p>
                           </div>
                         ) : (
-                          <div className="aspect-video flex items-center justify-center text-[10px] text-slate-400 italic bg-white rounded-input border border-dashed border-line">
+                          <div className="aspect-video flex items-center justify-center text-[10px] text-slate-400 italic bg-panel rounded-input border border-dashed border-line">
                             Foto Before Belum Ada
                           </div>
                         )}
@@ -359,7 +359,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
 
                       {/* IN PROGRESS */}
                       <div className="rounded-card border border-primary/30 bg-surface-2/60 p-2.5">
-                        <span className="block text-[11px] font-bold text-primary uppercase mb-1">
+                        <span className="block text-[11px] font-bold text-primary dark:text-primary-300 uppercase mb-1">
                           2. Pelaksanaan (In-Progress)
                         </span>
                         {area.in_progress ? (
@@ -375,7 +375,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                             <p className="text-[9px] text-slate-400">{area.in_progress.taken_at || 'Tanggal tidak dicatat'}</p>
                           </div>
                         ) : (
-                          <div className="aspect-video flex items-center justify-center text-[10px] text-slate-400 italic bg-white rounded-input border border-dashed border-line">
+                          <div className="aspect-video flex items-center justify-center text-[10px] text-slate-400 italic bg-panel rounded-input border border-dashed border-line">
                             Foto In-Progress Belum Ada
                           </div>
                         )}
@@ -383,7 +383,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
 
                       {/* AFTER */}
                       <div className="rounded-card border border-success/30 bg-success-light/40 p-2.5">
-                        <span className="block text-[11px] font-bold text-success uppercase mb-1">
+                        <span className="block text-[11px] font-bold text-success dark:text-emerald-300 uppercase mb-1">
                           3. Hasil Akhir (After)
                         </span>
                         {area.after ? (
@@ -399,7 +399,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                             <p className="text-[9px] text-slate-400">{area.after.taken_at || 'Tanggal tidak dicatat'}</p>
                           </div>
                         ) : (
-                          <div className="aspect-video flex items-center justify-center text-[10px] text-slate-400 italic bg-white rounded-input border border-dashed border-line">
+                          <div className="aspect-video flex items-center justify-center text-[10px] text-slate-400 italic bg-panel rounded-input border border-dashed border-line">
                             Foto After Belum Ada
                           </div>
                         )}
@@ -417,7 +417,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
               </h3>
               <div className="border border-line rounded-card overflow-hidden">
                 <table className="w-full text-left">
-                  <thead className="bg-surface text-slate-700 font-semibold border-b border-line">
+                  <thead className="bg-surface text-muted font-semibold border-b border-line">
                     <tr>
                       <th className="px-3 py-2.5">Deliverable</th>
                       <th className="px-3 py-2.5 text-center">Bobot</th>
@@ -433,7 +433,7 @@ export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
                         <td className="px-3 py-2 text-center font-bold text-navy">{ms.actual_percentage}%</td>
                         <td className="px-3 py-2 text-center">
                           {ms.status === 'completed' ? (
-                            <span className="font-semibold text-success flex items-center justify-center gap-1">
+                            <span className="font-semibold text-success dark:text-emerald-300 flex items-center justify-center gap-1">
                               <CheckCircle2 className="h-3.5 w-3.5" /> Terverifikasi
                             </span>
                           ) : (

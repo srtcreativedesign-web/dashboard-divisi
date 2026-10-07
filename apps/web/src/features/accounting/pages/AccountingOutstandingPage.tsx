@@ -161,17 +161,17 @@ export default function AccountingOutstandingPage() {
     <section className="space-y-6">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-primary">
+          <p className="text-sm font-semibold text-primary dark:text-primary-300">
             ACCOUNTING CONTROL CENTER
           </p>
           <h1 className="mt-1 text-2xl font-bold text-navy">
             Hutang & Piutang
           </h1>
-          <p className="mt-1 text-sm text-slate-600 flex items-center">
+          <p className="mt-1 text-sm text-muted flex items-center">
             Pencatatan kewajiban belum lunas, realisasi pembayaran, dan proyeksi
             saldo kas akhir.
             {isLoading && (
-              <span className="ml-2 text-xs text-primary animate-pulse font-medium">
+              <span className="ml-2 text-xs text-primary dark:text-primary-300 animate-pulse font-medium">
                 (Menyinkronkan...)
               </span>
             )}
@@ -190,7 +190,7 @@ export default function AccountingOutstandingPage() {
       <AccountingQueryState loading={isLoading} error={query.error} empty={!serverData} retry={() => void query.refetch()}>
       <OutstandingKpiCards kpis={kpis} activeItemsCount={activeItemsCount} />
 
-      <details className="rounded-xl border border-line bg-white p-4"><summary className="text-sm font-semibold">Analisis umur tagihan {selectedAgingBucket ? '· filter aktif' : ''}</summary><div className="mt-4">
+      <details className="rounded-xl border border-line bg-panel p-4"><summary className="text-sm font-semibold">Analisis umur tagihan {selectedAgingBucket ? '· filter aktif' : ''}</summary><div className="mt-4">
       <AgingBucketBar
         items={items}
         selectedBucket={selectedAgingBucket}
@@ -198,7 +198,7 @@ export default function AccountingOutstandingPage() {
       />
       </div></details>
 
-      <div className="rounded-card-lg border border-line bg-white shadow-sm overflow-hidden">
+      <div className="rounded-card-lg border border-line bg-panel shadow-sm overflow-hidden">
         <OutstandingFilterBar
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}

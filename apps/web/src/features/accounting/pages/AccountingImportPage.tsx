@@ -161,13 +161,13 @@ export default function AccountingImportPage() {
     <section className="space-y-6">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-primary">
+          <p className="text-sm font-semibold text-primary dark:text-primary-300">
             ACCOUNTING CONTROL CENTER
           </p>
           <h1 className="mt-1 text-2xl font-bold text-navy">
             Impor Transaksi Accounting
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-muted">
             Unggah lembar kerja{" "}
             <span className="font-mono font-semibold text-navy">BUDGETING</span>{" "}
             untuk memeriksa data sebelum disimpan ke jurnal.
@@ -176,9 +176,9 @@ export default function AccountingImportPage() {
       </header>
 
       <ol className="grid gap-3 sm:grid-cols-3">
-        {['Siapkan berkas', 'Periksa hasil validasi', 'Simpan ke jurnal'].map((step, index) => <li key={step} className="flex items-center gap-3 rounded-lg border border-line bg-white p-4 text-sm"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-50 font-semibold text-primary-800">{index + 1}</span>{step}</li>)}
+        {['Siapkan berkas', 'Periksa hasil validasi', 'Simpan ke jurnal'].map((step, index) => <li key={step} className="flex items-center gap-3 rounded-lg border border-line bg-panel p-4 text-sm"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-50 font-semibold text-primary-800 dark:text-primary-300">{index + 1}</span>{step}</li>)}
       </ol>
-      <p className="text-sm text-slate-600">Periode tujuan: <strong>{activePeriod?.periodMonth ?? 'Memuat periode…'}</strong>. Data belum tersimpan sampai Anda memilih simpan.</p>
+      <p className="text-sm text-muted">Periode tujuan: <strong>{activePeriod?.periodMonth ?? 'Memuat periode…'}</strong>. Data belum tersimpan sampai Anda memilih simpan.</p>
       <ImportUploadBox
         fileName={fileName}
         onFileUpload={handleFileUpload}
@@ -199,7 +199,7 @@ export default function AccountingImportPage() {
             totalCredit={totalCredit}
           />
 
-          <div className="rounded-card-lg border border-line bg-white shadow-glass">
+          <div className="rounded-card-lg border border-line bg-panel shadow-glass">
             <ImportStagingTable
               rows={stagedRows}
               filterStatus={filterStatus}

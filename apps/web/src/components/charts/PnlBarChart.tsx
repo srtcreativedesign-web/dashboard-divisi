@@ -34,7 +34,7 @@ export function PnlBarChart({ data }: Props) {
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748b', fontSize: 12 }}
+            tick={{ fill: 'var(--color-subtle)', fontSize: 12 }}
             dy={10}
           />
           <YAxis

@@ -5,5 +5,5 @@ export function TableWrap({ children, minWidth = '720px' }: { children: ReactNod
 }
 
 export function TableHead({ children }: { children: ReactNode }) {
-  return <thead className="bg-surface text-slate-500">{children}</thead>;
+  return <thead className="bg-surface text-subtle">{children}</thead>;
 }

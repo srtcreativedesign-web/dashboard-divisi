@@ -51,7 +51,7 @@ export default function ProjectProgressPage() {
   const getMilestoneStatusBadge = (status: string, actual: number) => {
     if (status === 'completed' || actual >= 100) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-success-light text-success border border-success/30">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-success-light text-success dark:text-emerald-300 border border-success/30">
           <span className="h-1.5 w-1.5 rounded-full bg-success" />
           Selesai 100%
         </span>
@@ -59,7 +59,7 @@ export default function ProjectProgressPage() {
     }
     if (status === 'in_progress' || actual > 0) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-primary-50 text-primary-700 border border-primary-200">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-primary-50 text-primary-700 dark:text-primary-300 border border-primary-200">
           <span className="h-1.5 w-1.5 rounded-full bg-primary-600 animate-pulse" />
           Sedang Berjalan
         </span>
@@ -67,14 +67,14 @@ export default function ProjectProgressPage() {
     }
     if (status === 'review') {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-warning-light text-warning border border-warning/30">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-warning-light text-warning dark:text-amber-300 border border-warning/30">
           <span className="h-1.5 w-1.5 rounded-full bg-warning" />
           Dalam Review
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-surface text-slate-600 border border-line">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-surface text-muted border border-line">
         <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
         Belum Mulai
       </span>
@@ -179,10 +179,10 @@ export default function ProjectProgressPage() {
           <div className="space-y-6">
             {/* KPI STATS ROW */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-card border border-line bg-white p-5 shadow-card flex items-center justify-between">
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Capaian Progres Fisik</p>
-                  <h3 className="mt-1.5 text-2xl font-bold text-primary-600">{cumulativeProgress}%</h3>
+                  <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Capaian Progres Fisik</p>
+                  <h3 className="mt-1.5 text-2xl font-bold text-primary-600 dark:text-primary-300">{cumulativeProgress}%</h3>
                   <div className="mt-2 w-24 h-1.5 bg-line rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary-600 rounded-full transition-all duration-700"
@@ -193,9 +193,9 @@ export default function ProjectProgressPage() {
                 <ProgressRing value={cumulativeProgress} size={48} />
               </div>
 
-              <div className="rounded-card border border-line bg-white p-5 shadow-card">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Bobot Milestone</p>
-                <h3 className={`mt-1.5 text-2xl font-bold ${totalWeight === 100 ? 'text-success' : 'text-warning'}`}>
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card">
+                <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Total Bobot Milestone</p>
+                <h3 className={`mt-1.5 text-2xl font-bold ${totalWeight === 100 ? 'text-success dark:text-emerald-300' : 'text-warning dark:text-amber-300'}`}>
                   {totalWeight}%
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
@@ -203,21 +203,21 @@ export default function ProjectProgressPage() {
                 </p>
               </div>
 
-              <div className="rounded-card border border-line bg-white p-5 shadow-card">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tahapan Selesai</p>
-                <h3 className="mt-1.5 text-2xl font-bold text-success">{completedCount}</h3>
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card">
+                <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Tahapan Selesai</p>
+                <h3 className="mt-1.5 text-2xl font-bold text-success dark:text-emerald-300">{completedCount}</h3>
                 <p className="text-xs text-slate-400 mt-0.5">Dari total {milestones.length} tahapan</p>
               </div>
 
-              <div className="rounded-card border border-line bg-white p-5 shadow-card flex items-center justify-between">
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status Lapangan</p>
+                  <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Status Lapangan</p>
                   <h3 className="mt-1.5 text-base font-bold text-navy">
                     {cumulativeProgress >= 100 ? 'Serah Terima (BAST)' : 'Pelaksanaan Fisik'}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">Kondisi lapangan aktif</p>
                 </div>
-                <div className="h-11 w-11 rounded-input bg-surface border border-line flex items-center justify-center text-primary-600">
+                <div className="h-11 w-11 rounded-input bg-surface border border-line flex items-center justify-center text-primary-600 dark:text-primary-300">
                   <CheckSquare className="h-5 w-5" />
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function ProjectProgressPage() {
             <DailyProgressChart milestones={milestones} />
 
             {/* TAB SWITCHER & ACTION BAR */}
-            <div className="rounded-card-lg border border-line bg-white p-4 shadow-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="rounded-card-lg border border-line bg-panel p-4 shadow-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -234,7 +234,7 @@ export default function ProjectProgressPage() {
                   className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
                     activeView === 'table'
                       ? 'bg-primary-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:bg-surface'
+                      : 'text-muted hover:bg-surface'
                   }`}
                 >
                   <CheckSquare className="h-4 w-4" />
@@ -246,7 +246,7 @@ export default function ProjectProgressPage() {
                   className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
                     activeView === 'visuals'
                       ? 'bg-primary-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:bg-surface'
+                      : 'text-muted hover:bg-surface'
                   }`}
                 >
                   <Camera className="h-4 w-4" />
@@ -270,10 +270,10 @@ export default function ProjectProgressPage() {
             {/* ACTIVE VIEW CONTENT */}
             {activeView === 'table' ? (
               /* MILESTONE DATA TABLE */
-              <div className="overflow-hidden rounded-card border border-line bg-white shadow-card">
+              <div className="overflow-hidden rounded-card border border-line bg-panel shadow-card">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-surface text-slate-600 font-semibold border-b border-line">
+                    <thead className="bg-surface text-muted font-semibold border-b border-line">
                       <tr>
                         <th className="px-5 py-3.5 w-12 text-center">No</th>
                         <th className="px-5 py-3.5">Nama Tahapan Pekerjaan</th>
@@ -300,7 +300,7 @@ export default function ProjectProgressPage() {
                               </td>
                               <td className="px-5 py-3.5 min-w-[160px]">
                                 <div className="space-y-1">
-                                  <div className="flex justify-between text-[11px] font-semibold text-slate-700">
+                                  <div className="flex justify-between text-[11px] font-semibold text-muted">
                                     <span>{actual}%</span>
                                   </div>
                                   <div className="w-full h-2 bg-line rounded-full overflow-hidden">
@@ -313,13 +313,13 @@ export default function ProjectProgressPage() {
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-5 py-3.5 text-center text-slate-600 font-medium">
+                              <td className="px-5 py-3.5 text-center text-muted font-medium">
                                 {ms.due_date ? new Date(ms.due_date).toLocaleDateString('id-ID') : '-'}
                               </td>
                               <td className="px-5 py-3.5 text-center">
                                 {getMilestoneStatusBadge(ms.status, actual)}
                               </td>
-                              <td className="px-5 py-3.5 text-slate-500 max-w-xs">
+                              <td className="px-5 py-3.5 text-subtle max-w-xs">
                                 <p className="line-clamp-2">{ms.notes || '-'}</p>
                               </td>
                               <td className="px-5 py-3.5 text-right">
@@ -352,9 +352,9 @@ export default function ProjectProgressPage() {
                         })
                       ) : (
                         <tr>
-                          <td colSpan={8} className="px-5 py-12 text-center text-slate-500">
+                          <td colSpan={8} className="px-5 py-12 text-center text-subtle">
                             <CheckSquare className="h-8 w-8 mx-auto text-slate-300 mb-2" />
-                            <p className="font-semibold text-slate-700">Belum ada tahapan milestone terdaftar</p>
+                            <p className="font-semibold text-muted">Belum ada tahapan milestone terdaftar</p>
                             <p className="text-xs text-slate-400 mt-1">
                               Tambahkan tahapan milestone pekerjaan beserta persentase bobotnya.
                             </p>
@@ -367,7 +367,7 @@ export default function ProjectProgressPage() {
               </div>
             ) : (
               /* BEFORE-AFTER GALLERY EMBEDDED */
-              <div className="rounded-card-lg border border-line bg-white shadow-card p-6">
+              <div className="rounded-card-lg border border-line bg-panel shadow-card p-6">
                 <BeforeAfterGallery projectId={project.id} milestones={project.milestones} />
               </div>
             )}
@@ -375,11 +375,11 @@ export default function ProjectProgressPage() {
             {/* MODAL TAMBAH MILESTONE */}
             {canManage && showAddMilestoneModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs animate-fade-in">
-                <div className="bg-white rounded-card-lg shadow-xl border border-line w-full max-w-md overflow-hidden">
+                <div className="bg-panel rounded-card-lg shadow-xl border border-line w-full max-w-md overflow-hidden">
                   <div className="p-5 border-b border-line flex justify-between items-center bg-surface">
                     <div>
                       <h3 className="text-base font-bold text-navy">Tambah Tahapan Milestone</h3>
-                      <p className="text-xs text-slate-500">Alokasikan bobot pekerjaan dari total 100%</p>
+                      <p className="text-xs text-subtle">Alokasikan bobot pekerjaan dari total 100%</p>
                     </div>
                     <button
                       type="button"
@@ -392,8 +392,8 @@ export default function ProjectProgressPage() {
 
                   <form onSubmit={handleAddMilestone} className="p-6 space-y-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Nama Tahapan Pekerjaan <span className="text-danger">*</span>
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                        Nama Tahapan Pekerjaan <span className="text-danger dark:text-red-300">*</span>
                       </label>
                       <input
                         required
@@ -407,8 +407,8 @@ export default function ProjectProgressPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                          Bobot Pekerjaan (%) <span className="text-danger">*</span>
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                          Bobot Pekerjaan (%) <span className="text-danger dark:text-red-300">*</span>
                         </label>
                         <input
                           required
@@ -423,7 +423,7 @@ export default function ProjectProgressPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                           Target Selesai
                         </label>
                         <input
@@ -461,11 +461,11 @@ export default function ProjectProgressPage() {
             {/* MODAL UPDATE PROGRES LAPANGAN */}
             {canManage && editingMilestone && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs animate-fade-in">
-                <div className="bg-white rounded-card-lg shadow-xl border border-line w-full max-w-md overflow-hidden">
+                <div className="bg-panel rounded-card-lg shadow-xl border border-line w-full max-w-md overflow-hidden">
                   <div className="p-5 border-b border-line flex justify-between items-center bg-surface">
                     <div>
                       <h3 className="text-base font-bold text-navy">Update Progres Lapangan</h3>
-                      <p className="text-xs text-slate-500">{editingMilestone.title} ({editingMilestone.weight_percentage}% Bobot)</p>
+                      <p className="text-xs text-subtle">{editingMilestone.title} ({editingMilestone.weight_percentage}% Bobot)</p>
                     </div>
                     <button
                       type="button"
@@ -479,10 +479,10 @@ export default function ProjectProgressPage() {
                   <form onSubmit={handleUpdateProgress} className="p-6 space-y-4">
                     <div>
                       <div className="flex justify-between items-center mb-1.5">
-                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider">
                           Realisasi Progres Fisik (%)
                         </label>
-                        <span className="font-bold text-primary-600 text-sm">{updateForm.actual_percentage}%</span>
+                        <span className="font-bold text-primary-600 dark:text-primary-300 text-sm">{updateForm.actual_percentage}%</span>
                       </div>
                       <input
                         type="range"
@@ -502,13 +502,13 @@ export default function ProjectProgressPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                           Status Tahapan
                         </label>
                         <select
                           value={updateForm.status}
                           onChange={(e) => setUpdateForm({ ...updateForm, status: e.target.value })}
-                          className="w-full rounded-input border border-line px-3.5 py-2 text-xs font-medium text-navy focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                          className="w-full rounded-input border border-line px-3.5 py-2 text-xs font-medium text-navy focus:outline-none focus:ring-1 focus:ring-primary-500 bg-panel"
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>
@@ -518,7 +518,7 @@ export default function ProjectProgressPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                           Tanggal Selesai Riil
                         </label>
                         <input
@@ -531,7 +531,7 @@ export default function ProjectProgressPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                         Catatan Progres / Kendala Lapangan
                       </label>
                       <textarea

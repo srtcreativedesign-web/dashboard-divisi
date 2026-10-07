@@ -71,6 +71,13 @@ export function AppLayout() {
     document.documentElement.classList.toggle('dark', isDarkMode);
     localStorage.setItem('dashboard-divisi.dark-mode', String(isDarkMode));
   }, [isDarkMode]);
+  useEffect(() => {
+    const syncTheme = (event: StorageEvent) => {
+      if (event.key === 'dashboard-divisi.dark-mode') setIsDarkMode(event.newValue === 'true');
+    };
+    window.addEventListener('storage', syncTheme);
+    return () => window.removeEventListener('storage', syncTheme);
+  }, []);
   useEffect(() => { localStorage.setItem('dashboard-divisi.sidebar-collapsed', String(sidebarCollapsed)); }, [sidebarCollapsed]);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

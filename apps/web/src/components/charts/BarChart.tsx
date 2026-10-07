@@ -38,9 +38,9 @@ export function BarChart({
       >
         {/* Subtle Horizontal Grid Lines */}
         <div className="absolute inset-x-0 inset-y-0 flex flex-col justify-between pointer-events-none opacity-40">
-          <div className="w-full border-b border-dashed border-slate-200" />
-          <div className="w-full border-b border-dashed border-slate-200" />
-          <div className="w-full border-b border-slate-200" />
+          <div className="w-full border-b border-dashed border-line" />
+          <div className="w-full border-b border-dashed border-line" />
+          <div className="w-full border-b border-line" />
         </div>
 
         {data.map((d, idx) => {
@@ -62,7 +62,7 @@ export function BarChart({
                   className={`text-[11px] font-bold mb-1 transition-all tabular-nums ${
                     isActive
                       ? 'text-primary-600 scale-110 font-extrabold'
-                      : 'text-slate-600 group-hover:text-navy group-hover:-translate-y-0.5'
+                      : 'text-muted group-hover:text-navy group-hover:-translate-y-0.5'
                   }`}
                 >
                   {d.value}
@@ -71,10 +71,10 @@ export function BarChart({
 
               {/* Bar column track */}
               <div
-                className={`w-full max-w-[48px] sm:max-w-[64px] h-full bg-slate-100/80 rounded-t-md relative flex items-end justify-center overflow-hidden border transition-all ${
+                className={`w-full max-w-[48px] sm:max-w-[64px] h-full bg-surface/80 rounded-t-md relative flex items-end justify-center overflow-hidden border transition-all ${
                   isActive
                     ? 'border-primary-500 ring-2 ring-primary-500/30 bg-primary-50/30'
-                    : 'border-slate-200/70 group-hover:border-slate-300 group-hover:bg-slate-200/40'
+                    : 'border-line/70 group-hover:border-slate-300 group-hover:bg-slate-200/40'
                 }`}
               >
                 {/* Colored fill */}
@@ -107,8 +107,8 @@ export function BarChart({
               <span
                 className={`text-xs transition-colors truncate max-w-full ${
                   isActive
-                    ? 'text-primary-700 font-bold'
-                    : 'text-slate-600 font-medium group-hover:text-navy'
+                    ? 'text-primary-700 dark:text-primary-300 font-bold'
+                    : 'text-muted font-medium group-hover:text-navy'
                 }`}
                 title={d.label}
               >

@@ -41,8 +41,8 @@ export default function ProjectListPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Daftar Proyek</h1>
-          <p className="text-sm text-slate-500">Manajemen portofolio proyek dan pemantauan status</p>
+          <h1 className="text-2xl font-bold text-navy dark:text-white">Daftar Proyek</h1>
+          <p className="text-sm text-subtle">Manajemen portofolio proyek dan pemantauan status</p>
         </div>
         {canManage && <button
           onClick={() => setCreating(true)}
@@ -55,16 +55,16 @@ export default function ProjectListPage() {
       {canManage && creating && <ProjectCreateForm onCancel={() => setCreating(false)} onCreated={async () => { setCreating(false); setReload(value => value + 1); }} />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
-          <div className="text-sm font-medium text-slate-500">Proyek pada halaman ini</div>
-          <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{loading || error ? '—' : projects.length}</div>
+        <div className="rounded-xl border border-line dark:border-slate-800 bg-panel dark:bg-slate-900 p-5 shadow-sm">
+          <div className="text-sm font-medium text-subtle">Proyek pada halaman ini</div>
+          <div className="mt-2 text-3xl font-bold text-navy dark:text-white">{loading || error ? '—' : projects.length}</div>
         </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
-          <div className="text-sm font-medium text-slate-500">Berjalan pada halaman ini</div>
+        <div className="rounded-xl border border-line dark:border-slate-800 bg-panel dark:bg-slate-900 p-5 shadow-sm">
+          <div className="text-sm font-medium text-subtle">Berjalan pada halaman ini</div>
           <div className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">{loading || error ? '—' : activeProjectsCount}</div>
         </div>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
-          <div className="text-sm font-medium text-slate-500">Batas per halaman</div>
+        <div className="rounded-xl border border-line dark:border-slate-800 bg-panel dark:bg-slate-900 p-5 shadow-sm">
+          <div className="text-sm font-medium text-subtle">Batas per halaman</div>
           <div className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
             50 proyek
           </div>
@@ -78,7 +78,7 @@ export default function ProjectListPage() {
           </div>
           <input
             type="text"
-            className="block w-full rounded-lg border-0 py-2 pl-10 pr-3 text-slate-900 ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 dark:bg-slate-800 dark:text-white dark:ring-slate-700"
+            className="block w-full rounded-lg border-0 py-2 pl-10 pr-3 text-navy ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 dark:bg-slate-800 dark:text-white dark:ring-slate-700"
             aria-label="Cari proyek" maxLength={255}
             placeholder="Cari proyek..."
             value={search}
@@ -89,7 +89,7 @@ export default function ProjectListPage() {
           aria-label="Status proyek"
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="block w-full sm:w-48 rounded-lg border-0 py-2 pl-3 pr-10 text-slate-900 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 dark:bg-slate-800 dark:text-white dark:ring-slate-700"
+          className="block w-full sm:w-48 rounded-lg border-0 py-2 pl-3 pr-10 text-navy ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-primary-600 sm:text-sm sm:leading-6 dark:bg-slate-800 dark:text-white dark:ring-slate-700"
         >
           <option value="">Semua Status</option>
           <option value="planning">Perencanaan</option>
@@ -119,30 +119,30 @@ export default function ProjectListPage() {
           description="Belum ada proyek yang ditambahkan atau tidak ada yang cocok dengan pencarian Anda."
         />
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+        <div className="overflow-x-auto rounded-xl border border-line dark:border-slate-800 bg-panel dark:bg-slate-900 shadow-sm">
           <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead className="bg-slate-50 dark:bg-slate-800/50">
+            <thead className="bg-surface dark:bg-slate-800/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nama Proyek</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Klien</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nilai Kontrak</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Tenggat</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Nama Proyek</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Klien</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Nilai Kontrak</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Tenggat</th>
                 <th className="px-6 py-3 relative">
                   <span className="sr-only">Aksi</span>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-panel dark:bg-slate-900">
               {projects.map((project) => (
-                <tr key={project.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <tr key={project.id} className="hover:bg-surface dark:hover:bg-slate-800/50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-slate-900 dark:text-white">{project.name}</div>
+                    <div className="text-sm font-medium text-navy dark:text-white">{project.name}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-subtle dark:text-slate-400">
                     {project.client_name || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-white">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-navy dark:text-white">
                     {formatRupiah(project.contract_value)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -150,16 +150,16 @@ export default function ProjectListPage() {
                       project.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
                       project.status === 'completed' ? 'bg-green-100 text-green-800' :
                       project.status === 'on_hold' ? 'bg-red-100 text-red-800' :
-                      'bg-slate-100 text-slate-800'
+                      'bg-surface text-navy'
                     }`}>
                       {{ planning: 'Perencanaan', in_progress: 'Berjalan', on_hold: 'Ditunda', completed: 'Selesai' }[project.status]}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-subtle dark:text-slate-400">
                     {project.end_date ? formatDate(project.end_date) : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link to={`/projects/${project.id}`} aria-label={`Detail proyek ${project.name}`} className="inline-flex min-h-10 items-center text-primary-600 underline focus-visible:outline focus-visible:outline-2">
+                    <Link to={`/projects/${project.id}`} aria-label={`Detail proyek ${project.name}`} className="inline-flex min-h-10 items-center text-primary-600 dark:text-primary-300 underline focus-visible:outline focus-visible:outline-2">
                       Detail
                     </Link>
                   </td>

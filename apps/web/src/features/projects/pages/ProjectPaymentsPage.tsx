@@ -58,21 +58,21 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
     switch (status) {
       case 'paid':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-success-light text-success border border-success/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-success-light text-success dark:text-emerald-300 border border-success/30">
             <span className="h-1.5 w-1.5 rounded-full bg-success" />
             Lunas (Paid)
           </span>
         );
       case 'invoiced':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-primary-50 text-primary-700 border border-primary-200">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-primary-50 text-primary-700 dark:text-primary-300 border border-primary-200">
             <span className="h-1.5 w-1.5 rounded-full bg-primary-600 animate-pulse" />
             Ditagihkan
           </span>
         );
       case 'overdue':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-danger-light text-danger border border-danger/30">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-danger-light text-danger dark:text-red-300 border border-danger/30">
             <span className="h-1.5 w-1.5 rounded-full bg-danger" />
             Jatuh Tempo
           </span>
@@ -80,7 +80,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
       case 'draft':
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-surface text-slate-600 border border-line">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-surface text-muted border border-line">
             <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
             Draft
           </span>
@@ -170,38 +170,38 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
           <div className="space-y-6">
             {/* KPI STATS ROW */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-card border border-line bg-white p-5 shadow-card">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Nilai Kontrak</p>
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card">
+                <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Total Nilai Kontrak</p>
                 <h3 className="mt-1.5 text-2xl font-bold text-navy">{formatCurrency(contract)}</h3>
                 <p className="text-xs text-slate-400 mt-0.5">Nilai bruto proyek</p>
               </div>
 
-              <div className="rounded-card border border-line bg-white p-5 shadow-card">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Termin Ditagihkan</p>
-                <h3 className="mt-1.5 text-2xl font-bold text-primary-600">{formatCurrency(totalInvoiced)}</h3>
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card">
+                <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Termin Ditagihkan</p>
+                <h3 className="mt-1.5 text-2xl font-bold text-primary-600 dark:text-primary-300">{formatCurrency(totalInvoiced)}</h3>
                 <p className="text-xs text-slate-400 mt-0.5">{invoices.length} faktur penagihan</p>
               </div>
 
-              <div className="rounded-card border border-line bg-white p-5 shadow-card">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Kas Masuk (Lunas)</p>
-                <h3 className="mt-1.5 text-2xl font-bold text-success">{formatCurrency(totalPaid)}</h3>
-                <p className="text-xs font-semibold text-success mt-0.5">
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card">
+                <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Kas Masuk (Lunas)</p>
+                <h3 className="mt-1.5 text-2xl font-bold text-success dark:text-emerald-300">{formatCurrency(totalPaid)}</h3>
+                <p className="text-xs font-semibold text-success dark:text-emerald-300 mt-0.5">
                   {paidPercentage.toFixed(1)}% dari nilai kontrak
                 </p>
               </div>
 
-              <div className="rounded-card border border-line bg-white p-5 shadow-card">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sisa Piutang Berjalan</p>
-                <h3 className="mt-1.5 text-2xl font-bold text-slate-700">{formatCurrency(remainingUnpaid)}</h3>
+              <div className="rounded-card border border-line bg-panel p-5 shadow-card">
+                <p className="text-[11px] font-bold text-subtle uppercase tracking-wider">Sisa Piutang Berjalan</p>
+                <h3 className="mt-1.5 text-2xl font-bold text-muted">{formatCurrency(remainingUnpaid)}</h3>
                 <p className="text-xs text-slate-400 mt-0.5">Belum terealisasi kas</p>
               </div>
             </div>
 
             {/* ACTION TOOLBAR */}
-            <div className="rounded-card-lg border border-line bg-white p-4 shadow-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="rounded-card-lg border border-line bg-panel p-4 shadow-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-bold text-navy">Faktur & Termin Penagihan Klien</h3>
-                <p className="text-xs text-slate-500">Daftar termin resmi yang diterbitkan dan status pencairan</p>
+                <p className="text-xs text-subtle">Daftar termin resmi yang diterbitkan dan status pencairan</p>
               </div>
               {canManage && (
                 <Button
@@ -217,10 +217,10 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
             </div>
 
             {/* INVOICES TABLE */}
-            <div className="overflow-hidden rounded-card border border-line bg-white shadow-card">
+            <div className="overflow-hidden rounded-card border border-line bg-panel shadow-card">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-surface text-slate-600 font-semibold border-b border-line">
+                  <thead className="bg-surface text-muted font-semibold border-b border-line">
                     <tr>
                       <th className="px-5 py-3.5 w-12 text-center">No</th>
                       <th className="px-5 py-3.5">Faktur / Uraian Termin</th>
@@ -246,7 +246,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                               <p className="font-bold text-navy">{inv.term_name}</p>
                               {inv.notes && <p className="text-[11px] text-slate-400 mt-0.5">{inv.notes}</p>}
                             </td>
-                            <td className="px-5 py-3.5 text-slate-600">
+                            <td className="px-5 py-3.5 text-muted">
                               {relatedMilestone ? (
                                 <span className="inline-flex items-center gap-1 font-medium text-navy">
                                   {relatedMilestone.title} ({relatedMilestone.weight_percentage}%)
@@ -258,13 +258,13 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                             <td className="px-5 py-3.5 text-right font-bold text-navy text-sm">
                               {formatCurrency(amount)}
                             </td>
-                            <td className="px-5 py-3.5 text-center text-slate-600 font-medium">
+                            <td className="px-5 py-3.5 text-center text-muted font-medium">
                               {inv.due_date ? new Date(inv.due_date).toLocaleDateString('id-ID') : '-'}
                             </td>
                             <td className="px-5 py-3.5 text-center">
                               {getInvoiceStatusBadge(inv.status)}
                             </td>
-                            <td className="px-5 py-3.5 text-slate-600 font-mono text-[11px]">
+                            <td className="px-5 py-3.5 text-muted font-mono text-[11px]">
                               {inv.payment_reference || (isPaid ? 'Transfer Bank' : '-')}
                             </td>
                             <td className="px-5 py-3.5 text-right">
@@ -275,14 +275,14 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                                       variant="secondary"
                                       size="sm"
                                       onClick={() => setPayingInvoice(inv)}
-                                      className="text-[11px] text-success hover:border-success/40"
+                                      className="text-[11px] text-success dark:text-emerald-300 hover:border-success/40"
                                     >
-                                      <Check className="h-3 w-3 mr-1 text-success" />
+                                      <Check className="h-3 w-3 mr-1 text-success dark:text-emerald-300" />
                                       Tandai Lunas
                                     </Button>
                                   ) : (
                                     <span className="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
-                                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                                      <CheckCircle2 className="h-3.5 w-3.5 text-success dark:text-emerald-300" />
                                       {inv.paid_date ? new Date(inv.paid_date).toLocaleDateString('id-ID') : 'Lunas'}
                                     </span>
                                   )}
@@ -304,9 +304,9 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                       })
                     ) : (
                       <tr>
-                        <td colSpan={8} className="px-5 py-12 text-center text-slate-500">
+                        <td colSpan={8} className="px-5 py-12 text-center text-subtle">
                           <Receipt className="h-8 w-8 mx-auto text-slate-300 mb-2" />
-                          <p className="font-semibold text-slate-700">Belum ada faktur termin yang diterbitkan</p>
+                          <p className="font-semibold text-muted">Belum ada faktur termin yang diterbitkan</p>
                           <p className="text-xs text-slate-400 mt-1">
                             Buat tagihan termin baru untuk mengelola arus kas penagihan proyek ini.
                           </p>
@@ -319,9 +319,9 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
             </div>
 
             {/* MILESTONE PAYMENT CHECKLIST */}
-            <div className="rounded-card border border-line bg-white shadow-card p-5">
+            <div className="rounded-card border border-line bg-panel shadow-card p-5">
               <h4 className="text-sm font-bold text-navy mb-1">Status Termin Berdasarkan Milestone Fisik</h4>
-              <p className="text-xs text-slate-500 mb-4">
+              <p className="text-xs text-subtle mb-4">
                 Sinkronisasi cepat pembayaran termin dengan tahapan capaian fisik di lapangan.
               </p>
 
@@ -331,7 +331,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                     <div key={ms.id} className="py-3 flex items-center justify-between">
                       <div className="space-y-0.5">
                         <span className="font-semibold text-xs text-navy">{ms.title}</span>
-                        <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        <div className="flex items-center gap-2 text-[11px] text-subtle">
                           <span>Bobot: <strong>{ms.weight_percentage}%</strong></span>
                           <span>&bull;</span>
                           <span>Progres: <strong>{ms.actual_percentage || 0}%</strong></span>
@@ -342,8 +342,8 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                         <span
                           className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-pill border ${
                             ms.payment_status
-                              ? 'bg-success-light text-success border-success/30'
-                              : 'bg-surface text-slate-600 border-line'
+                              ? 'bg-success-light text-success dark:text-emerald-300 border-success/30'
+                              : 'bg-surface text-muted border-line'
                           }`}
                         >
                           {ms.payment_status ? 'Ditandai selesai secara administratif' : 'Belum ditandai selesai'}
@@ -366,7 +366,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                             }`}
                           >
                             <span
-                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-panel shadow-xs transition duration-200 ease-in-out ${
                                 ms.payment_status ? 'translate-x-4' : 'translate-x-0'
                               }`}
                             />
@@ -384,11 +384,11 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
             {/* MODAL TERBITKAN FAKTUR BARU */}
             {showAddInvoiceModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs animate-fade-in">
-                <div className="bg-white rounded-card-lg shadow-xl border border-line w-full max-w-lg overflow-hidden">
+                <div className="bg-panel rounded-card-lg shadow-xl border border-line w-full max-w-lg overflow-hidden">
                   <div className="p-5 border-b border-line flex justify-between items-center bg-surface">
                     <div>
                       <h3 className="text-base font-bold text-navy">Terbitkan Faktur Termin Baru</h3>
-                      <p className="text-xs text-slate-500">Buat penagihan termin berdasarkan milestone pekerjaan</p>
+                      <p className="text-xs text-subtle">Buat penagihan termin berdasarkan milestone pekerjaan</p>
                     </div>
                     <button
                       type="button"
@@ -401,8 +401,8 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
 
                   <form onSubmit={handleAddInvoice} className="p-6 space-y-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Judul / Nama Termin <span className="text-danger">*</span>
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                        Judul / Nama Termin <span className="text-danger dark:text-red-300">*</span>
                       </label>
                       <input
                         required
@@ -415,7 +415,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                         Tautkan ke Milestone (Opsional)
                       </label>
                       <select
@@ -433,7 +433,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                             amount: calculatedAmount || invoiceForm.amount,
                           });
                         }}
-                        className="w-full rounded-input border border-line px-3.5 py-2 text-xs font-medium text-navy focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
+                        className="w-full rounded-input border border-line px-3.5 py-2 text-xs font-medium text-navy focus:outline-none focus:ring-1 focus:ring-primary-500 bg-panel"
                       >
                         <option value="">-- Tanpa Kaitan Milestone --</option>
                         {                        project.milestones?.map((m: any) => (
@@ -446,8 +446,8 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                          Nominal Tagihan (Rp) <span className="text-danger">*</span>
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                          Nominal Tagihan (Rp) <span className="text-danger dark:text-red-300">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
@@ -463,8 +463,8 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                          Jatuh Tempo <span className="text-danger">*</span>
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                          Jatuh Tempo <span className="text-danger dark:text-red-300">*</span>
                         </label>
                         <input
                           required
@@ -477,7 +477,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                         Catatan Rekening / Lampiran
                       </label>
                       <textarea
@@ -515,11 +515,11 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
             {/* MODAL KONFIRMASI PEMBAYARAN */}
             {payingInvoice && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs animate-fade-in">
-                <div className="bg-white rounded-card-lg shadow-xl border border-line w-full max-w-md overflow-hidden">
+                <div className="bg-panel rounded-card-lg shadow-xl border border-line w-full max-w-md overflow-hidden">
                   <div className="p-5 border-b border-line flex justify-between items-center bg-surface">
                     <div>
                       <h3 className="text-base font-bold text-navy">Konfirmasi Penerimaan Dana</h3>
-                      <p className="text-xs text-slate-500">{payingInvoice.term_name}</p>
+                      <p className="text-xs text-subtle">{payingInvoice.term_name}</p>
                     </div>
                     <button
                       type="button"
@@ -532,13 +532,13 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
 
                   <form onSubmit={handleConfirmPayment} className="p-6 space-y-4">
                     <div className="p-3.5 rounded-input bg-primary-50 border border-primary-200 text-xs">
-                      <span className="text-slate-500">Nominal Pelunasan:</span>
+                      <span className="text-subtle">Nominal Pelunasan:</span>
                       <p className="text-lg font-bold text-navy">{formatCurrency(Number(payingInvoice.amount))}</p>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                        Tanggal Penerimaan Dana <span className="text-danger">*</span>
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                        Tanggal Penerimaan Dana <span className="text-danger dark:text-red-300">*</span>
                       </label>
                       <input
                         required
@@ -550,7 +550,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                         Nomor Referensi Transaksi / Bukti Transfer
                       </label>
                       <input
@@ -563,7 +563,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                      <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                         Catatan Tambahan
                       </label>
                       <input

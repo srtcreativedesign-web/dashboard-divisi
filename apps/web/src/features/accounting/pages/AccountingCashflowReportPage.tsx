@@ -131,20 +131,20 @@ export default function AccountingCashflowReportPage() {
     <section className="space-y-6 animate-fade-in-up">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-primary">
+          <p className="text-sm font-semibold text-primary dark:text-primary-300">
             ACCOUNTING CONTROL CENTER
           </p>
           <h1 className="mt-1 text-2xl font-bold text-navy">
             Laporan Cashflow & Penjelasan Arus Kas
           </h1>
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-muted">
             Laporan Arus Kas resmi periode{" "}
             <span className="font-semibold text-navy">
               {reportData?.period.period_month ? new Date(reportData.period.period_month.slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : '—'}
             </span>{" "}
             dari rekonsiliasi jurnal buku besar.
             {isLoading && (
-              <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary font-medium">
+              <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary dark:text-primary-300 font-medium">
                 <Loader2 className="h-3 w-3 animate-spin" /> Memuat data live...
               </span>
             )}
@@ -155,25 +155,25 @@ export default function AccountingCashflowReportPage() {
             type="button"
             disabled={!reportData || isLoading || Boolean(report.error)}
             onClick={handleExportPDF}
-            className="inline-flex items-center gap-1.5 rounded-input border border-line bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-input border border-line bg-panel px-3 py-2 text-xs font-semibold text-muted hover:bg-surface shadow-sm transition-colors"
           >
-            <FileText className="h-4 w-4 text-slate-500" />
+            <FileText className="h-4 w-4 text-subtle" />
             PDF
           </button>
           <button
             type="button"
             disabled={!reportData || isLoading || Boolean(report.error)}
             onClick={handleExportExcel}
-            className="inline-flex items-center gap-1.5 rounded-input border border-line bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-sm transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-input border border-line bg-panel px-3 py-2 text-xs font-semibold text-muted hover:bg-surface shadow-sm transition-colors"
           >
-            <Download className="h-4 w-4 text-slate-500" />
+            <Download className="h-4 w-4 text-subtle" />
             Ekspor Excel
           </button>
         </div>
       </header>
 
       <label className="flex flex-wrap items-center gap-3 text-sm font-medium">Periode laporan
-        <select aria-label="Periode laporan" value={activePeriod?.id ?? ''} onChange={event => setSelectedPeriod(event.target.value)} className="rounded-lg border border-line bg-white px-3 py-2">
+        <select aria-label="Periode laporan" value={activePeriod?.id ?? ''} onChange={event => setSelectedPeriod(event.target.value)} className="rounded-lg border border-line bg-panel px-3 py-2">
           {(periods.data ?? []).map(period => <option key={period.id} value={period.id}>{new Date(period.periodMonth.slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</option>)}
         </select>
       </label>
@@ -185,8 +185,8 @@ export default function AccountingCashflowReportPage() {
           onClick={() => setActiveTab("statement")}
           className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
             activeTab === "statement"
-              ? "border-primary text-primary"
-              : "border-transparent text-slate-500 hover:text-navy"
+              ? "border-primary text-primary dark:text-primary-300"
+              : "border-transparent text-subtle hover:text-navy"
           }`}
         >
           <FileText className="h-4 w-4" />
@@ -197,8 +197,8 @@ export default function AccountingCashflowReportPage() {
           onClick={() => setActiveTab("explanation")}
           className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
             activeTab === "explanation"
-              ? "border-primary text-primary"
-              : "border-transparent text-slate-500 hover:text-navy"
+              ? "border-primary text-primary dark:text-primary-300"
+              : "border-transparent text-subtle hover:text-navy"
           }`}
         >
           <TrendingUp className="h-4 w-4" />

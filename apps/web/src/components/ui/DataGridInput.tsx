@@ -18,10 +18,10 @@ export function DataGridInput<T extends object>({
   onChange,
 }: DataGridInputProps<T>) {
   return (
-    <div className="w-full overflow-x-auto border border-slate-200 rounded-lg bg-white">
+    <div className="w-full overflow-x-auto border border-slate-200 rounded-lg bg-panel">
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium uppercase tracking-wider text-xs">
+          <tr className="bg-slate-50 border-b border-slate-200 text-subtle font-medium uppercase tracking-wider text-xs">
             {columns.map((col) => (
               <th
                 key={String(col.key)}
@@ -42,7 +42,7 @@ export function DataGridInput<T extends object>({
             </tr>
           ) : (
             data.map((row, rowIndex) => (
-              <tr key={rowIndex} className="hover:bg-slate-50/50 group">
+              <tr key={rowIndex} className="hover:bg-surface/50 group">
                 {columns.map((col) => (
                   <td
                     key={String(col.key)}
@@ -55,7 +55,7 @@ export function DataGridInput<T extends object>({
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
                           onChange(rowIndex, col.key, e.target.value)
                         }
-                        className="w-full h-full min-h-[36px] px-3 py-2 outline-none bg-transparent text-slate-900 placeholder-slate-300 focus:ring-1 focus:ring-inset focus:ring-blue-500 focus:bg-white"
+                        className="w-full h-full min-h-[36px] px-3 py-2 outline-none bg-transparent text-navy placeholder-slate-300 focus:ring-1 focus:ring-inset focus:ring-blue-500 focus:bg-white"
                         placeholder="—"
                       />
                     </div>

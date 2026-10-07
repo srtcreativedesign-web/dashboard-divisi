@@ -66,8 +66,8 @@ export default function ProjectVendorPage() {
     <div className="min-w-0 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Mitra & Vendor</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Direktori mitra kerja, sub-kontraktor, dan supplier</p>
+          <h1 className="text-2xl font-bold text-navy dark:text-white">Mitra & Vendor</h1>
+          <p className="text-sm text-subtle dark:text-slate-400">Direktori mitra kerja, sub-kontraktor, dan supplier</p>
         </div>
         {canManage && <button
           disabled={saving}
@@ -79,11 +79,11 @@ export default function ProjectVendorPage() {
       </div>
 
       {notice && <p role="status" className="text-sm text-emerald-700">{notice}</p>}
-      {!canReadContact && <p className="text-sm text-slate-500 dark:text-slate-400">Kontak vendor hanya tersedia untuk pengguna yang berwenang.</p>}
-      {canManage && editing !== undefined && <form onSubmit={save} className="space-y-4 rounded-card-lg border border-line bg-white p-5 dark:bg-slate-900" aria-label={editing ? 'Edit vendor' : 'Tambah vendor'}>
+      {!canReadContact && <p className="text-sm text-subtle dark:text-slate-400">Kontak vendor hanya tersedia untuk pengguna yang berwenang.</p>}
+      {canManage && editing !== undefined && <form onSubmit={save} className="space-y-4 rounded-card-lg border border-line bg-panel p-5 dark:bg-slate-900" aria-label={editing ? 'Edit vendor' : 'Tambah vendor'}>
         <h2 className="font-semibold text-navy">{editing ? 'Edit vendor' : 'Tambah vendor'}</h2>
         <fieldset disabled={saving} className="grid gap-4 sm:grid-cols-2">
-          {(['name', 'category', 'contact_person', 'phone', 'email'] as const).map(key => <label key={key} className="text-sm text-slate-700 dark:text-slate-300">
+          {(['name', 'category', 'contact_person', 'phone', 'email'] as const).map(key => <label key={key} className="text-sm text-muted dark:text-slate-300">
             {{ name: 'Nama vendor', category: 'Kategori', contact_person: 'Nama kontak', phone: 'Telepon', email: 'Email' }[key]}
             <input required={key === 'name'} type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'} maxLength={255} value={form[key]} onChange={event => setForm(current => ({ ...current, [key]: event.target.value }))} className="mt-1 block w-full rounded-input border border-line px-3 py-2" />
           </label>)}
@@ -92,32 +92,32 @@ export default function ProjectVendorPage() {
         <div className="flex gap-3"><button type="submit" disabled={saving} className="rounded-input bg-primary px-4 py-2 text-sm text-white">{saving ? 'Menyimpan...' : 'Simpan vendor'}</button><button type="button" disabled={saving} onClick={() => setEditing(undefined)} className="rounded-input border border-line px-4 py-2 text-sm">Batal</button></div>
       </form>}
 
-      <label className="block text-sm text-slate-700 dark:text-slate-300">Cari vendor<input type="search" maxLength={255} disabled={saving} value={search} onChange={event => { setSearch(event.target.value); setPage(1); }} className="mt-2 w-full rounded-input border border-line bg-white px-3 py-2 dark:bg-slate-900 dark:text-white" /></label>
+      <label className="block text-sm text-muted dark:text-slate-300">Cari vendor<input type="search" maxLength={255} disabled={saving} value={search} onChange={event => { setSearch(event.target.value); setPage(1); }} className="mt-2 w-full rounded-input border border-line bg-panel px-3 py-2 dark:bg-slate-900 dark:text-white" /></label>
       {loading && <LoadingState />}
       {error && <ErrorState description={error} onRetry={() => setReload(value => value + 1)} />}
-      {!loading && !error && <><p className="text-sm text-slate-500 dark:text-slate-400">{total} vendor sesuai pencarian · maksimal 50 vendor per halaman</p>
-      <div className="max-w-full overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      {!loading && !error && <><p className="text-sm text-subtle dark:text-slate-400">{total} vendor sesuai pencarian · maksimal 50 vendor per halaman</p>
+      <div className="max-w-full overflow-x-auto rounded-xl border border-line dark:border-slate-800 bg-panel dark:bg-slate-900 shadow-sm">
         {vendors.length > 0 ? (
           <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-            <thead className="bg-slate-50 dark:bg-slate-800/50">
+            <thead className="bg-surface dark:bg-slate-800/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nama Vendor</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kategori</th>
-                {canReadContact && <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kontak</th>}
-                {canManage && <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>}
+                <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Nama Vendor</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Kategori</th>
+                {canReadContact && <th className="px-6 py-3 text-left text-xs font-medium text-subtle uppercase tracking-wider">Kontak</th>}
+                {canManage && <th className="px-6 py-3 text-right text-xs font-medium text-subtle uppercase tracking-wider">Aksi</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-panel dark:bg-slate-900">
               {vendors.map((v) => (
-                <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">{v.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">{v.category}</td>
-                  {canReadContact && <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                <tr key={v.id} className="hover:bg-surface dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-navy dark:text-white">{v.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-subtle dark:text-slate-400">{v.category}</td>
+                  {canReadContact && <td className="px-6 py-4 whitespace-nowrap text-sm text-subtle dark:text-slate-400">
                     <div>{v.contact_person}</div>
                     <div className="text-xs">{v.phone}</div>
                   </td>}
                   {canManage && <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button disabled={saving} onClick={() => openForm(v)} aria-label={`Edit ${v.name}`} className="min-h-10 text-primary-600 hover:text-primary-900 dark:text-primary-300">Edit</button>
+                    <button disabled={saving} onClick={() => openForm(v)} aria-label={`Edit ${v.name}`} className="min-h-10 text-primary-600 dark:text-primary-300 hover:text-primary-900 dark:text-primary-300">Edit</button>
                   </td>}
                 </tr>
               ))}

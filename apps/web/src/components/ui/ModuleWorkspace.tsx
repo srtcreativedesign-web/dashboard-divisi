@@ -31,7 +31,7 @@ export function ModuleWorkspace({ children }: { children: ReactNode }) {
             className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
               index === active
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                : 'border-transparent text-subtle hover:text-slate-700 hover:border-slate-300'
             }`}
           >
             {item.props.title}

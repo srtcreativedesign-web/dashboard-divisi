@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/inter';
+@import './dark-mode.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -23,6 +24,9 @@
   --color-sage: #89b4e1;
   --color-mint: #ffffff;
 
+  --color-panel: #ffffff;
+  --color-muted: #475569;
+  --color-subtle: #64748b;
   --color-navy: #0f172a;
   --color-navy-light: #1e293b;
   --color-surface: #f8fafc;
@@ -105,9 +109,11 @@ table td {
     radial-gradient(at 0% 100%, rgba(15, 23, 42, 0.03) 0, transparent 50%);
   background-attachment: fixed;
 }
-@import './dark-mode.css';
+
 @layer base {
-  body { margin: 0; }
+  :root { color-scheme: light; }
+  body { margin: 0; background: var(--color-surface); color: var(--color-navy); }
+  input:not([type=checkbox]):not([type=radio]), select, textarea { background-color: var(--color-panel); color: var(--color-navy); }
   button, input, select, textarea { font: inherit; }
   button:not(:disabled), summary { cursor: pointer; }
   button:disabled { cursor: not-allowed; }

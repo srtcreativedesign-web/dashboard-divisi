@@ -5,9 +5,9 @@ type Size = 'sm' | 'md' | 'lg';
 
 const variantClasses: Record<Variant, string> = {
   primary: 'bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 border-transparent shadow-card hover:shadow-card-hover hover:-translate-y-0.5',
-  secondary: 'bg-white text-navy border-line hover:bg-surface hover:-translate-y-0.5',
-  ghost: 'bg-transparent text-slate-600 border-transparent hover:bg-surface',
-  danger: 'bg-gradient-to-r from-danger to-danger-light text-white hover:opacity-90 border-transparent hover:-translate-y-0.5',
+  secondary: 'bg-panel text-navy border-line hover:bg-surface hover:-translate-y-0.5',
+  ghost: 'bg-transparent text-muted border-transparent hover:bg-surface',
+  danger: 'bg-gradient-to-r from-red-700 to-red-800 text-white hover:opacity-90 border-transparent hover:-translate-y-0.5',
 };
 
 const sizeClasses: Record<Size, string> = {

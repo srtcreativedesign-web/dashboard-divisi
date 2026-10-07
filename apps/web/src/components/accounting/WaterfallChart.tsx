@@ -102,10 +102,10 @@ export function WaterfallChart({
 
   return (
     <section
-      className="rounded-card-lg border border-line/60 bg-white/95 backdrop-blur-md p-5 shadow-xs"
+      className="rounded-card-lg border border-line/60 bg-panel/95 backdrop-blur-md p-5 shadow-xs"
       data-testid="waterfall-chart-section"
     >
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-3">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-navy flex items-center gap-2">
@@ -116,28 +116,28 @@ export function WaterfallChart({
               Jembatan Kas &amp; P&amp;L
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-slate-600 font-medium">{subtitle}</p>
+          <p className="mt-0.5 text-xs text-muted font-medium">{subtitle}</p>
         </div>
 
         {/* Legend */}
         <div className="flex items-center gap-3 text-xs self-start sm:self-auto">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-xs bg-emerald-500"></span>
-            <span className="font-semibold text-slate-600">Inflow / Masuk</span>
+            <span className="font-semibold text-muted">Inflow / Masuk</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-xs bg-rose-500"></span>
-            <span className="font-semibold text-slate-600">Beban / Keluar</span>
+            <span className="font-semibold text-muted">Beban / Keluar</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-xs bg-navy"></span>
-            <span className="font-semibold text-slate-600">Saldo Akhir</span>
+            <span className="font-semibold text-muted">Saldo Akhir</span>
           </div>
         </div>
       </div>
 
       {/* SVG Container */}
-      <div className="relative mt-4 w-full select-none overflow-hidden rounded-xl bg-slate-50/40 p-2 border border-slate-100">
+      <div className="relative mt-4 w-full select-none overflow-hidden rounded-xl bg-surface/40 p-2 border border-line">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="w-full h-auto overflow-visible"
@@ -153,7 +153,7 @@ export function WaterfallChart({
                 y1={line.y}
                 x2={padLeft + chartW}
                 y2={line.y}
-                stroke="#e2e8f0"
+                stroke="var(--color-line)"
                 strokeWidth={1}
                 strokeDasharray="4 4"
               />

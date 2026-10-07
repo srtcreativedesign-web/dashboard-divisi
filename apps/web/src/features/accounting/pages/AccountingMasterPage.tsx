@@ -45,7 +45,7 @@ function Field({
         })}
       </span>
       {error && (
-        <span id={id} className="mt-1 block text-xs text-danger" role="alert">
+        <span id={id} className="mt-1 block text-xs text-danger dark:text-red-300" role="alert">
           {error}
         </span>
       )}
@@ -216,15 +216,15 @@ export default function AccountingMasterPage() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-navy">Master Data Accounting</h1>
-          <p className="mt-1 text-sm text-slate-500 max-w-xl">
+          <p className="mt-1 text-sm text-subtle max-w-xl">
             {canWrite 
               ? "Kelola kategori buku kas, daftar rekening, dan relasi outlet. Pastikan kode unik sesuai standar perusahaan."
               : "Daftar referensi kategori dan rekening yang digunakan dalam penjurnalan dan pelaporan."}
           </p>
         </div>
         <div className="flex items-center gap-2">
-           <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-slate-100 rounded-md text-slate-600">
-             <ShieldCheck className="w-4 h-4 text-primary" />
+           <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-surface rounded-md text-muted">
+             <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-300" />
              {canWrite ? 'Dapat mengelola' : 'Hanya baca'}
            </span>
         </div>
@@ -235,17 +235,17 @@ export default function AccountingMasterPage() {
           <Button variant={activeTab === 'categories' ? 'primary' : 'secondary'} onClick={() => { setActiveTab('categories'); setSearch(''); }}>Kategori ({categories.data?.length ?? '—'})</Button>
           <Button variant={activeTab === 'accounts' ? 'primary' : 'secondary'} onClick={() => { setActiveTab('accounts'); setSearch(''); }}>Rekening ({accounts.data?.length ?? '—'})</Button>
         </div>
-        <input aria-label="Cari master data" value={search} onChange={event => setSearch(event.target.value)} placeholder="Cari kode atau nama…" className="w-full rounded-lg border border-line bg-white px-3 text-sm sm:w-72" />
+        <input aria-label="Cari master data" value={search} onChange={event => setSearch(event.target.value)} placeholder="Cari kode atau nama…" className="w-full rounded-lg border border-line bg-panel px-3 text-sm sm:w-72" />
       </div>
       <div className="space-y-6">
         <div hidden={activeTab !== 'categories'}>
-          <div className="rounded-card border border-line bg-white flex flex-col overflow-hidden">
-            <div className="border-b border-line bg-slate-50/50 p-4 flex items-center justify-between">
+          <div className="rounded-card border border-line bg-panel flex flex-col overflow-hidden">
+            <div className="border-b border-line bg-surface/50 p-4 flex items-center justify-between">
               <div>
                 <h2 className="font-bold text-navy flex items-center gap-2">
                   <Tag className="w-4 h-4 text-slate-400" /> Kategori Jurnal
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5">Klasifikasi arus kas (mis. PNJL, BIAYA).</p>
+                <p className="text-xs text-subtle mt-0.5">Klasifikasi arus kas (mis. PNJL, BIAYA).</p>
               </div>
               {canWrite && (
                 <Button
@@ -273,18 +273,18 @@ export default function AccountingMasterPage() {
                 className="max-h-[65vh] overflow-auto" tabIndex={0}
               >
                 <table className="w-full text-left text-sm" role="table">
-                  <thead className="sticky top-0 bg-slate-50 border-b border-line z-10 shadow-sm">
+                  <thead className="sticky top-0 bg-surface border-b border-line z-10 shadow-sm">
                     <tr>
-                      <th scope="col" className="p-3 font-semibold text-slate-600 w-24">Kode</th>
-                      <th scope="col" className="p-3 font-semibold text-slate-600">Nama Kategori</th>
-                      <th scope="col" className="p-3 font-semibold text-slate-600 text-center w-24">Status</th>
+                      <th scope="col" className="p-3 font-semibold text-muted w-24">Kode</th>
+                      <th scope="col" className="p-3 font-semibold text-muted">Nama Kategori</th>
+                      <th scope="col" className="p-3 font-semibold text-muted text-center w-24">Status</th>
                       <th scope="col" className="sr-only">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
                     {filteredCategories?.map((x) => (
-                      <tr className="hover:bg-slate-50/50 transition-colors group" key={x.id}>
-                        <td className="p-3 font-mono text-slate-600">{x.code}</td>
+                      <tr className="hover:bg-surface/50 transition-colors group" key={x.id}>
+                        <td className="p-3 font-mono text-muted">{x.code}</td>
                         <td className="p-3 font-medium text-navy">
                           {x.name}
                           {x.requiresOutlet && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Wajib outlet</span>}
@@ -292,7 +292,7 @@ export default function AccountingMasterPage() {
                         <td className="p-3 text-center">
                           {x.isActive 
                             ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Aktif</span>
-                            : <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">Inaktif</span>
+                            : <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface text-muted">Inaktif</span>
                           }
                         </td>
                         <td className="p-3 w-20">
@@ -334,11 +334,11 @@ export default function AccountingMasterPage() {
             <DetailSheet isOpen={editor === 'category'} onClose={() => setEditor(null)} title={catEditing ? 'Edit kategori' : 'Tambah kategori'}>
             <form
               onSubmit={(e) => void submitCat(e)}
-              className="rounded-card border border-line bg-white overflow-hidden"
+              className="rounded-card border border-line bg-panel overflow-hidden"
               noValidate
               aria-label={catEditing ? "Form edit kategori" : "Form tambah kategori"}
             >
-              <div className="border-b border-line bg-slate-50/50 p-4">
+              <div className="border-b border-line bg-surface/50 p-4">
                 <h2 className="font-bold text-navy">
                   {catEditing ? "Edit Kategori" : "Tambah Kategori"}
                 </h2>
@@ -361,17 +361,17 @@ export default function AccountingMasterPage() {
                     disabled={catMut.create.isPending || catMut.update.isPending}
                   />
                 </Field>
-                <label className="flex items-center gap-2.5 text-sm p-3 border border-line rounded-input bg-slate-50/50 cursor-pointer hover:bg-slate-50 transition-colors">
+                <label className="flex items-center gap-2.5 text-sm p-3 border border-line rounded-input bg-surface/50 cursor-pointer hover:bg-surface transition-colors">
                   <input
                     type="checkbox"
                     checked={catForm.requires_outlet ?? false}
                     onChange={(e) => setCatForm({ ...catForm, requires_outlet: e.target.checked })}
-                    className="rounded text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+                    className="rounded text-primary dark:text-primary-300 focus:ring-primary w-4 h-4 cursor-pointer"
                     disabled={catMut.create.isPending || catMut.update.isPending}
                   />
                   <div>
                     <span className="block font-medium text-navy leading-none">Wajibkan Outlet</span>
-                    <span className="text-xs text-slate-500 mt-1 block">Jurnal untuk kategori ini wajib di-tag ke outlet.</span>
+                    <span className="text-xs text-subtle mt-1 block">Jurnal untuk kategori ini wajib di-tag ke outlet.</span>
                   </div>
                 </label>
                 <div className="flex gap-2 pt-2">
@@ -401,13 +401,13 @@ export default function AccountingMasterPage() {
         </div>
 
         <div hidden={activeTab !== 'accounts'}>
-          <div className="rounded-card border border-line bg-white flex flex-col overflow-hidden">
-            <div className="border-b border-line bg-slate-50/50 p-4 flex items-center justify-between">
+          <div className="rounded-card border border-line bg-panel flex flex-col overflow-hidden">
+            <div className="border-b border-line bg-surface/50 p-4 flex items-center justify-between">
               <div>
                 <h2 className="font-bold text-navy flex items-center gap-2">
                   <WalletCards className="w-4 h-4 text-slate-400" /> Daftar Rekening
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5">Pemetaan akun (Asset, Liability, Revenue).</p>
+                <p className="text-xs text-subtle mt-0.5">Pemetaan akun (Asset, Liability, Revenue).</p>
               </div>
               {canWrite && (
                 <Button
@@ -435,24 +435,24 @@ export default function AccountingMasterPage() {
                 className="max-h-[65vh] overflow-auto" tabIndex={0}
               >
                 <table className="w-full text-left text-sm" role="table">
-                  <thead className="sticky top-0 bg-slate-50 border-b border-line z-10 shadow-sm">
+                  <thead className="sticky top-0 bg-surface border-b border-line z-10 shadow-sm">
                     <tr>
-                      <th scope="col" className="p-3 font-semibold text-slate-600 w-24">Kode</th>
-                      <th scope="col" className="p-3 font-semibold text-slate-600">Rekening</th>
-                      <th scope="col" className="p-3 font-semibold text-slate-600 w-28">Tipe</th>
-                      <th scope="col" className="p-3 font-semibold text-slate-600 w-32">Relasi outlet</th>
+                      <th scope="col" className="p-3 font-semibold text-muted w-24">Kode</th>
+                      <th scope="col" className="p-3 font-semibold text-muted">Rekening</th>
+                      <th scope="col" className="p-3 font-semibold text-muted w-28">Tipe</th>
+                      <th scope="col" className="p-3 font-semibold text-muted w-32">Relasi outlet</th>
                       <th scope="col" className="sr-only">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line">
                     {filteredAccounts?.map((x) => (
-                      <tr className="hover:bg-slate-50/50 transition-colors group" key={x.id}>
-                        <td className="p-3 font-mono text-slate-600">{x.code}</td>
+                      <tr className="hover:bg-surface/50 transition-colors group" key={x.id}>
+                        <td className="p-3 font-mono text-muted">{x.code}</td>
                         <td className="p-3 font-medium text-navy">
                            {x.displayName}
-                           {!x.isActive && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Inaktif</span>}
+                           {!x.isActive && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface text-muted">Inaktif</span>}
                         </td>
-                        <td className="p-3 text-slate-500 capitalize">{x.type}</td>
+                        <td className="p-3 text-subtle capitalize">{x.type}</td>
                         <td className="p-3">
                            {x.outletIds?.length 
                               ? <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-medium text-[11px]">{x.outletIds.length} Relasi</span>
@@ -498,11 +498,11 @@ export default function AccountingMasterPage() {
             <DetailSheet isOpen={editor === 'account'} onClose={() => setEditor(null)} title={accEditing ? 'Edit rekening' : 'Tambah rekening'}>
             <form
               onSubmit={(e) => void submitAcc(e)}
-              className="rounded-card border border-line bg-white overflow-hidden"
+              className="rounded-card border border-line bg-panel overflow-hidden"
               noValidate
               aria-label={accEditing ? "Form edit rekening" : "Form tambah rekening"}
             >
-              <div className="border-b border-line bg-slate-50/50 p-4">
+              <div className="border-b border-line bg-surface/50 p-4">
                 <h2 className="font-bold text-navy">
                   {accEditing ? "Edit Rekening" : "Tambah Rekening"}
                 </h2>
@@ -530,7 +530,7 @@ export default function AccountingMasterPage() {
                     value={accForm.type}
                     onChange={(e) => setAccForm({ ...accForm, type: e.target.value })}
                     disabled={accMut.create.isPending || accMut.update.isPending}
-                    className="bg-white"
+                    className="bg-panel"
                   >
                     {ACC_TYPES.map((t) => (
                       <option key={t} value={t}>
@@ -543,7 +543,7 @@ export default function AccountingMasterPage() {
                   <label className="text-sm font-medium block">
                     Relasi Outlet <span className="text-slate-400 font-normal ml-1">(Opsional)</span>
                   </label>
-                  <p className="text-[11px] text-slate-500 mb-2 mt-0.5 leading-tight">Batasi akses akun ini hanya ke outlet tertentu. Kosongkan untuk akses global.</p>
+                  <p className="text-[11px] text-subtle mb-2 mt-0.5 leading-tight">Batasi akses akun ini hanya ke outlet tertentu. Kosongkan untuk akses global.</p>
                   <div className="flex gap-2">
                     <input
                       value={outletInput}
@@ -568,8 +568,8 @@ export default function AccountingMasterPage() {
                     </Button>
                   </div>
                   {(accForm.outlet_ids ?? []).length > 0 && (
-                    <div className="mt-3 p-3 bg-slate-50 border border-line rounded-lg">
-                      <p className="text-[11px] font-semibold text-slate-500 uppercase mb-2">Terhubung dengan:</p>
+                    <div className="mt-3 p-3 bg-surface border border-line rounded-lg">
+                      <p className="text-[11px] font-semibold text-subtle uppercase mb-2">Terhubung dengan:</p>
                       <ul
                         className="flex flex-wrap gap-2"
                         aria-label="Daftar outlet terpilih"
@@ -577,7 +577,7 @@ export default function AccountingMasterPage() {
                         {accForm.outlet_ids?.map((id) => (
                           <li
                             key={id}
-                            className="flex items-center gap-1.5 rounded-md bg-white border border-line px-2 py-1 text-xs font-medium text-navy shadow-sm"
+                            className="flex items-center gap-1.5 rounded-md bg-panel border border-line px-2 py-1 text-xs font-medium text-navy shadow-sm"
                           >
                             <span>{id}</span>
                             <button

@@ -31,3 +31,5 @@ Setiap penyelesaian berikutnya wajib menyebut scope, peran, bukti tes, dampak da
 Anotasi check-run 112600805552: job tidak dimulai karena akun terkunci akibat billing. Gate final lokal lulus 267 backend/2207 assertions, 128 web, dua contracts serta semua pemeriksaan teknis. ENT-09a selesai; daftar dependensi di atas tetap berlaku.
 
 Kemajuan berikutnya: PRJ-UI-003 direktori vendor selesai teknis, dengan search/pagination, respons lama, simpan/reload terpisah dan batas kontak tetap. [Scope/bukti](52_DIREKTORI_VENDOR_PROJECT.md). Gate final exit 0: 268 backend/2219 assertions, 134 web, dua contracts dan seluruh guard gate/policy/database/scanner. Lint/typecheck/build/Pint lulus. Tidak menutup penerimaan pengguna, pembayaran Project atau integrasi.
+
+Setelah pull development b8620c5, UI-ACC-004 memperbaiki tema dan kelanjutan jurnal sesuai dokumen 54. 144 web/typecheck/build lulus; baseline lint development 105 error masih terbuka, sehingga gate keseluruhan belum lulus. API baru Project belum tersedia. Tidak menggantikan definisi PNL/HPP/bonus/CMO atau UAT.
