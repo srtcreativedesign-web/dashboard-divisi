@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Accounting\DepositController;
 use App\Http\Controllers\Api\V1\Accounting\HrRecapController;
 use App\Http\Controllers\Api\V1\Accounting\OmzetController;
 use App\Http\Controllers\Api\V1\Accounting\VoucherController;
+use App\Http\Controllers\Api\V1\Accounting\VoucherPaymentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\Cellular\CellularController;
@@ -83,6 +84,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('recaps/{id}/void', [HrRecapController::class, 'void'])->whereUuid('id')->middleware('capability:write:acc_hr');
             });
             Route::prefix('vouchers')->middleware('capability:view:acc_detail')->group(function () {
+                Route::post('{id}/payments', [VoucherPaymentController::class, 'store'])->whereUuid('id')->middleware(['capability:execute:payment', 'file.scan']);
+                Route::post('{id}/payments/{paymentId}/void', [VoucherPaymentController::class, 'void'])->whereUuid(['id', 'paymentId'])->middleware('capability:approve:voucher');
+                Route::get('{id}/payments/{paymentId}/download', [VoucherPaymentController::class, 'download'])->whereUuid(['id', 'paymentId']);
                 Route::get('outlets', [VoucherController::class, 'outlets']);
                 Route::get('/', [VoucherController::class, 'index']);
                 Route::get('{id}', [VoucherController::class, 'show'])->whereUuid('id');

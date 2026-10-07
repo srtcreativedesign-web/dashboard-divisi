@@ -62,3 +62,6 @@ ACC-A01/ACC-A02 kini memiliki master pegawai minimal, rekap manual dan histori k
 ## ACC-A10 manual — 6 Oktober 2026
 
 Setoran dan penerimaan aktual terpisah; tiga tabel acc_deposits/acc_deposit_receipts/acc_deposit_events. Referensi bukti eksternal, nilai integer sen, alokasi sumber validated, version/history/audit. Tahap manual selesai teknis; unggahan, settlement/jurnal dan UAT terbuka. [Acuan dan bukti](42_REKAP_SETORAN_MANUAL.md). Peran: keempat peran.
+
+## acc_voucher_payments — 7 Oktober 2026
+FK voucher_id ke acc_vouchers (restrict delete), amount_cents bigint, tanggal/metode/referensi/notes, reference hash unik per voucher, actor/status recorded|voided, metadata bukti privat dan voided_by/at/reason. API menyajikan amount string dua desimal, menyembunyikan file_path/source_key/amount_cents. Aktif summed per voucher menghasilkan paid_amount/remaining_amount/status UNPAID|PARTIAL|PAID. Voucher version bertambah setiap payment/void, event dan audit wajib. Tidak menghubungkan tabel ini secara otomatis ke jurnal. Dokumen 56.

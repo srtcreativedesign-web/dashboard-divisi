@@ -3,6 +3,7 @@
 namespace App\Models\Accounting;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Voucher extends Model
 {
@@ -25,5 +26,10 @@ class Voucher extends Model
         return $this->bank_account ? '••••'.substr($this->bank_account, -4) : null;
     }
 
-    protected $casts = ['amount' => 'decimal:2', 'version' => 'integer', 'bank_account' => 'encrypted'];
+    public function payments(): HasMany
+    {
+        return $this->hasMany(VoucherPayment::class, 'voucher_id');
+    }
+
+    protected $casts = ['amount' => 'decimal:2', 'version' => 'integer', 'bank_account' => 'encrypted', 'approved_at' => 'immutable_datetime', 'reviewed_at' => 'immutable_datetime', 'submitted_at' => 'immutable_datetime'];
 }

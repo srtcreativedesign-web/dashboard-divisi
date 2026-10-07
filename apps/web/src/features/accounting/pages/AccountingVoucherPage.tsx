@@ -1,8 +1,9 @@
 import { formatRupiah as rupiah, formatDate } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
 import { WorkflowGuide } from '../ui/WorkflowGuide';
+import { VoucherPayments } from '../ui/VoucherPayments';
 import { VoucherDocument } from '../ui/VoucherDocumentPreview';
-import { exportVoucherPdf } from '../ui/voucherDocument';
+import { exportVoucherPdf, paymentStatusNames } from '../ui/voucherDocument';
 import { FileText, Wallet, ClipboardList } from 'lucide-react';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,7 +16,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../../components/states
 
 const statusLabels = { draft: 'Draf', submitted: 'Menunggu pemeriksaan', correction: 'Perlu koreksi', pending_approval: 'Menunggu Manager', approved: 'Disetujui' };
 const typeLabels = { BILLING: 'Tagihan Angkasa Pura', PURCHASING: 'Pembelian stok outlet', OPERATIONAL: 'Pengeluaran operasional' };
-const actionLabels: Record<string, string> = { attachment_uploaded: 'Lampiran ditambahkan', created: 'Draf dibuat', updated: 'Draf diperbarui', submit: 'Diajukan', review: 'Diperiksa', decide: 'Keputusan Manager' };
+const actionLabels: Record<string, string> = { attachment_uploaded: 'Lampiran ditambahkan', created: 'Draf dibuat', updated: 'Draf diperbarui', submit: 'Diajukan', review: 'Diperiksa', decide: 'Keputusan Manager', payment_recorded: 'Realisasi dicatat Finance', payment_voided: 'Catatan realisasi dibatalkan' };
 const localDate = () => {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
   return ['year', 'month', 'day'].map(type => parts.find(part => part.type === type)!.value).join('-');
@@ -41,6 +42,7 @@ export default function AccountingVoucherPage() {
   const [input, setInput] = useState<VoucherInput>(emptyInput);
   const [reason, setReason] = useState('');
   const [failure, setFailure] = useState<string | null>(null);
+  const [paymentBusy, setPaymentBusy] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [attachmentFile, setAttachmentFile] = useState<{ recordId: string; file: File } | null>(null);
   const directory = useQuery({ queryKey: ['vouchers', 'outlets'], queryFn: async () => (await voucherApi.outlets()).data });
@@ -57,7 +59,7 @@ export default function AccountingVoucherPage() {
   const attachment = useMutation({ mutationFn: ({ record, file }: { record: VoucherRecord; file: File }) => voucherApi.attach(record, file), onSuccess: response => { setAttachmentFile(null); saved(response.data); }, onError: failed });
   const documentDownload = useMutation({ mutationFn: exportVoucherPdf, onError: failed });
   const download = useMutation({ mutationFn: ({ record, file }: { record: VoucherRecord; file: NonNullable<VoucherRecord['attachments']>[number] }) => voucherApi.downloadAttachment(record, file), onError: failed });
-  const busy = save.isPending || action.isPending || attachment.isPending || download.isPending || documentDownload.isPending;
+  const busy = paymentBusy || save.isPending || action.isPending || attachment.isPending || download.isPending || documentDownload.isPending;
   const openForm = (record?: VoucherRecord) => {
     if (busy || !writer) return;
     setEditing(record ? { id: record.id, version: record.version } : undefined);
@@ -76,7 +78,7 @@ export default function AccountingVoucherPage() {
   const mayDecide = approver && record?.status === 'pending_approval' && !owns && record.reviewed_by !== user?.id;
   return <div className="space-y-6">
     <header className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-semibold text-navy">Voucher pengeluaran</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Admin mengajukan voucher, Staff Accounting memeriksa, dan Manager memberikan persetujuan.</p></div>{writer && <Button onClick={() => openForm()}>Buat voucher</Button>}</header>
-    <p className="text-sm text-subtle">Voucher disetujui menjadi dasar proses berikutnya. Pembayaran, stok dan jurnal belum otomatis berubah.</p>
+    <p className="text-sm text-subtle">Voucher disetujui menjadi dasar proses berikutnya. Realisasi pembayaran dicatat Finance dengan bukti. Stok dan jurnal belum otomatis berubah.</p>
     {feedback && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{feedback}</p>}
     <div className="grid gap-3 sm:grid-cols-3">{[[FileText,'Susun pengajuan','Identitas, penerima dan rincian kebutuhan.'],[Wallet,'Rencanakan pembayaran','Prioritas, metode dan tujuan pembayaran.'],[ClipboardList,'Telusuri pemeriksaan','Draf, pemeriksaan Accounting dan persetujuan Manager.']].map(([Icon,title,description])=>{ const Symbol = Icon as typeof FileText; return <div key={String(title)} className="rounded-xl border border-line bg-panel p-4"><Symbol className="h-5 w-5 text-primary dark:text-primary-300" /><h2 className="mt-3 text-sm font-semibold">{String(title)}</h2><p className="mt-1 text-xs text-subtle">{String(description)}</p></div>; })}</div>
     <WorkflowGuide kind="voucher" />
@@ -89,7 +91,7 @@ export default function AccountingVoucherPage() {
     </div>
     {directory.error && <ErrorState description={directory.error.message} onRetry={() => void directory.refetch()} />}
     {list.isLoading ? <LoadingState /> : list.error ? <ErrorState description={list.error.message} onRetry={() => void list.refetch()} /> : list.data && <>
-      {list.data.items.length ? <div className="overflow-x-auto rounded-card border border-line bg-panel"><table className="w-full text-left text-sm"><caption className="p-4 text-left font-semibold">Daftar voucher ({list.data.total})</caption><thead className="bg-surface"><tr>{['Tanggal / jatuh tempo', 'Penerima / referensi', 'Outlet / jenis', 'Nominal', 'Status', 'Aksi'].map(label => <th scope="col" key={label} className="px-4 py-3">{label}</th>)}</tr></thead><tbody>{list.data.items.map(item => <tr className="border-t border-line" key={item.id}><td className="px-4 py-3 whitespace-nowrap">{formatDate(item.voucher_date)}<span className="block text-xs text-subtle">Jatuh tempo {formatDate(item.due_date)}</span></td><td className="px-4 py-3">{item.entity_name}<span className="block text-xs text-subtle">{item.source_reference}</span></td><td className="px-4 py-3">{item.outlet_name}<span className="block text-xs text-subtle">{typeLabels[item.type]}</span></td><td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{rupiah(item.amount)}</td><td className="px-4 py-3"><StatusBadge status={item.status} label={statusLabels[item.status]} /></td><td className="px-4 py-3"><Button variant="secondary" size="sm" onClick={() => { setSelected(item.id); setReason(''); setFailure(null); setFeedback(null); }}>Lihat</Button></td></tr>)}</tbody></table></div> : <EmptyState title="Belum ada voucher pada filter ini" />}
+      {list.data.items.length ? <div className="overflow-x-auto rounded-card border border-line bg-panel"><table className="w-full text-left text-sm"><caption className="p-4 text-left font-semibold">Daftar voucher ({list.data.total})</caption><thead className="bg-surface"><tr>{['Tanggal / jatuh tempo', 'Penerima / referensi', 'Outlet / jenis', 'Nominal', 'Status', 'Pembayaran', 'Aksi'].map(label => <th scope="col" key={label} className="px-4 py-3">{label}</th>)}</tr></thead><tbody>{list.data.items.map(item => <tr className="border-t border-line" key={item.id}><td className="px-4 py-3 whitespace-nowrap">{formatDate(item.voucher_date)}<span className="block text-xs text-subtle">Jatuh tempo {formatDate(item.due_date)}</span></td><td className="px-4 py-3">{item.entity_name}<span className="block text-xs text-subtle">{item.source_reference}</span></td><td className="px-4 py-3">{item.outlet_name}<span className="block text-xs text-subtle">{typeLabels[item.type]}</span></td><td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{rupiah(item.amount)}</td><td className="px-4 py-3"><StatusBadge status={item.status} label={statusLabels[item.status]} /></td><td className="px-4 py-3 text-xs">{item.status!=='approved' ? 'Menunggu persetujuan' : item.payment_summary ? <><span className="block font-semibold">{paymentStatusNames[item.payment_summary.status]}</span><span className="block text-subtle">Sisa {rupiah(item.payment_summary.remaining_amount)}</span></> : 'Belum tersedia'}</td><td className="px-4 py-3"><Button variant="secondary" size="sm" disabled={busy} onClick={() => { setSelected(item.id); setReason(''); setFailure(null); setFeedback(null); }}>Lihat</Button></td></tr>)}</tbody></table></div> : <EmptyState title="Belum ada voucher pada filter ini" />}
       <div className="flex items-center justify-between text-sm"><span>Halaman {list.data.current_page} dari {list.data.last_page}</span><div className="flex gap-2"><Button variant="secondary" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</Button><Button variant="secondary" disabled={page >= list.data.last_page} onClick={() => setPage(page + 1)}>Berikutnya</Button></div></div>
     </>}
     <DetailSheet isOpen={formOpen} onClose={() => !busy && setFormOpen(false)} title={editing ? 'Edit voucher' : 'Buat voucher'} size="xl" subtitle="Lengkapi identitas, rincian kebutuhan, dan rencana pembayaran. Simpan sebagai draf sebelum diajukan.">
@@ -140,6 +142,7 @@ export default function AccountingVoucherPage() {
         {editable && <div className="flex flex-wrap gap-2"><Button variant="secondary" disabled={busy} onClick={() => openForm(record)}>Edit draf</Button><Button disabled={busy} onClick={() => perform('submit')}>Ajukan pemeriksaan</Button></div>}
         {(mayReview || mayDecide) && <div className="space-y-3"><label className="block text-sm">Catatan pemeriksaan / keputusan<textarea className={inputClass} disabled={busy} maxLength={2000} value={reason} onChange={event => setReason(event.target.value)} /></label><p className="text-xs text-subtle">Minimal 10 karakter. Catatan dicatat pada riwayat voucher.</p><div className="flex flex-wrap gap-2">{mayReview && <><Button disabled={busy || reason.trim().length < 10} onClick={() => perform('review', 'validate')}>Teruskan ke Manager</Button><Button variant="secondary" disabled={busy || reason.trim().length < 10} onClick={() => perform('review', 'return')}>Kembalikan untuk koreksi</Button></>}{mayDecide && <><Button disabled={busy || reason.trim().length < 10} onClick={() => perform('decide', 'approve')}>Setujui voucher</Button><Button variant="secondary" disabled={busy || reason.trim().length < 10} onClick={() => perform('decide', 'reject')}>Kembalikan untuk koreksi</Button></>}</div></div>}
         {record.status === 'approved' && <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">Voucher disetujui dan terkunci. Status ini belum menyatakan pembayaran selesai.</p>}
+        <VoucherPayments key={record.id+'-'+record.version} record={record} finance={can('execute:payment')} manager={approver} onSaved={saved} onBusyChange={setPaymentBusy} />
         <section className="space-y-2"><h3 className="font-semibold">Riwayat voucher</h3>{record.events?.map(event => <article key={event.id} className="border-l-2 border-line pl-3 text-sm"><p>{actionLabels[event.action] ?? event.action} · {event.actor_role} · Versi {event.metadata.version}</p><p className="text-subtle">{statusLabels[event.metadata.status]} · {rupiah(event.metadata.snapshot.amount)} · {event.metadata.snapshot.source_reference}</p>{event.metadata.reason && <p>{event.metadata.reason}</p>}<p className="text-xs text-subtle">{event.created_at}</p></article>)}</section>
       </div>}
     </DetailSheet>

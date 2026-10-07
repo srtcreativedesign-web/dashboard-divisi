@@ -5,6 +5,7 @@ namespace App\Services\Accounting;
 use App\Exceptions\ApiException;
 use App\Models\Accounting\Voucher;
 use App\Models\Accounting\VoucherAttachment;
+use App\Models\Accounting\VoucherPayment;
 use App\Services\AuditService;
 use App\Services\MutationFileRollback;
 use App\Services\OrgReadModelService;
@@ -41,9 +42,14 @@ class VoucherService
                 $query->where($field, $filters[$field]);
             }
         }
-        $page = $query->orderByDesc('voucher_date')->orderByDesc('created_at')->orderBy('id')->paginate(25);
+        $page = $query->withSum(['payments' => fn ($q) => $q->where('status', 'recorded')], 'amount_cents')->orderByDesc('voucher_date')->orderByDesc('created_at')->orderBy('id')->paginate(25);
 
-        return ['items' => $page->items(), 'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage()];
+        return ['items' => collect($page->items())->map(function ($record) {
+            $data = $record->toArray();
+            unset($data['payments_sum_amount_cents']);
+
+            return $data + ['payment_summary' => VoucherPaymentService::summary($record)];
+        })->all(), 'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage()];
     }
 
     public function detail(string $id, ?array $user = null): array
@@ -60,7 +66,7 @@ class VoucherService
             $data['bank_account'] = $record->bank_account;
         }
 
-        return $data + ['events' => $events, 'attachments' => VoucherAttachment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray()];
+        return $data + ['payment_summary' => VoucherPaymentService::summary($record), 'payments' => VoucherPayment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray(), 'events' => $events, 'attachments' => VoucherAttachment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray()];
     }
 
     public function attach(string $id, int $version, UploadedFile $file, array $user): array
@@ -251,6 +257,6 @@ class VoucherService
             $this->event($record, $action, $user, $reason ?: null);
         });
 
-        return $this->detail($id);
+        return $this->detail($id, $user);
     }
 }

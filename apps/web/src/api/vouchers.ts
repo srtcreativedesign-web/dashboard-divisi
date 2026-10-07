@@ -24,6 +24,8 @@ export interface VoucherInput {
   description: string;
 }
 export interface VoucherRecord extends VoucherInput {
+  payment_summary?: { paid_amount: string; remaining_amount: string; status: 'UNPAID' | 'PARTIAL' | 'PAID' };
+  payments?: VoucherPayment[];
   bank_account_masked?: string | null;
   created_at?: string;
   reviewed_at?: string | null;
@@ -44,8 +46,20 @@ export interface VoucherRecord extends VoucherInput {
 }
 export interface VoucherList { items: VoucherRecord[]; total: number; current_page: number; last_page: number }
 export interface VoucherAttachment { id: string; original_name: string; mime_type: string; size_bytes: number; sha256: string; uploaded_by: string; created_at: string }
+export interface VoucherPaymentInput { paid_date: string; amount: string; method: 'CASH' | 'BANK'; reference: string; notes: string }
+export interface VoucherPayment extends VoucherPaymentInput { id: string; status: 'recorded' | 'voided'; created_by: string; created_at: string; original_name: string; voided_at?: string | null; void_reason?: string | null }
 const base = '/accounting/vouchers';
 export const voucherApi = {
+  recordPayment: (record: VoucherRecord, input: VoucherPaymentInput, file: File) => {
+    const form = new FormData(); form.append('version',String(record.version)); form.append('file',file);
+    Object.entries(input).forEach(([key,value]) => form.append(key,value));
+    return api.upload<VoucherRecord>(base+'/'+record.id+'/payments',form);
+  },
+  voidPayment: (record: VoucherRecord, payment: VoucherPayment, reason: string) => api.post<VoucherRecord>(base+'/'+record.id+'/payments/'+payment.id+'/void',{version:record.version,reason}),
+  downloadPayment: async (record: VoucherRecord, payment: VoucherPayment) => {
+    const blob=await downloadFile(base+'/'+record.id+'/payments/'+payment.id+'/download');
+    const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=payment.original_name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  },
   attach: (record: VoucherRecord, file: File) => {
     const form = new FormData(); form.append('version', String(record.version)); form.append('file', file);
     return api.upload<VoucherRecord>(base + '/' + record.id + '/attachments', form);

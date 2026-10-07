@@ -38,3 +38,5 @@ Verifikasi: 270 tes backend/2241 assertions lulus; setelah penambahan aturan str
 Cara mencoba: masuk sebagai Admin ACC → Accounting → Voucher Pengeluaran → Buat voucher → isi outlet aktif dan rincian → Simpan draf → lihat pratinjau/unduh PDF → Ajukan pemeriksaan. Accounting dan Manager memeriksa dengan akun berbeda. Hanya pembuat yang bisa mengubah draf/koreksi; approved terkunci. File invoice/bukti tetap melalui alur lampiran dengan scanner existing.
 
 Batas: nama perusahaan opsional demi kompatibilitas, perlu diisi Admin agar dokumen lengkap. Satu nominal pengajuan, belum tabel multi-barang. Akses menulis masih Admin ACC pusat lintas outlet MVP; belum membuka izin Admin Project/Cellular atau menambahkan Reflexy. Pembayaran nyata, BAST, tanda tangan elektronik, lima jenjang seperti gambar dan posting jurnal otomatis membutuhkan kontrak proses tersendiri. Referensi gambar tidak disalin sebagai transaksi.
+
+Kelanjutan 7 Oktober 2026: realisasi pembayaran Finance dan pembatalan catatan Manager diimplementasikan pada dokumen 56. Batas pembayaran pada tahap awal dokumen ini menjadi histori scope; jurnal/BAST/transfer dana tetap terpisah.

@@ -17,6 +17,10 @@ describe('Dokumen voucher pengeluaran',()=>{
   expect(pdf).toContain('****9012');
   expect(pdf).not.toContain('123456789012');
  });
+ it('PDF membedakan status persetujuan, realisasi dan pembatalan catatan',async()=>{
+  const doc=await createVoucherPdf({...record,status:'approved',payment_summary:{paid_amount:'150.25',remaining_amount:'849.75',status:'PARTIAL'},payments:[{id:'p1',amount:'150.25',method:'BANK',reference:'TRANSFER-UJI',notes:'Realisasi anonim',paid_date:'2026-10-07',status:'voided',void_reason:'Catatan salah, bukan refund',created_by:'finance',created_at:'2026-10-07',original_name:'bukti.pdf'}]});
+  expect(doc.output()).toContain('Sebagian dibayar');expect(doc.output()).toContain('Catatan realisasi pembayaran');expect(doc.output()).toContain('Dibatalkan: Catatan salah, bukan refund');expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(3);
+ });
  it('menulis rupiah dan sen tanpa pembulatan float',()=>{
   expect(voucherTerbilang('360000')).toBe('Tiga Ratus Enam Puluh Ribu Rupiah');
   expect(voucherTerbilang('360000.25')).toBe('Tiga Ratus Enam Puluh Ribu Rupiah dan Dua Puluh Lima Sen');

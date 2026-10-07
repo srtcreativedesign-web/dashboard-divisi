@@ -21,7 +21,7 @@ BOD saat ini membaca lintas modul dengan division_code null. FIN legacy pada Sta
 - Manager: baca ringkasan/jurnal/master; kelola master/periode; persetujuan periode, voucher, selisih omzet dan izin terlambat. Capability approve:pnl tidak membuktikan alur PNL final sudah ada.
 - Admin: input jurnal dan beberapa transaksi pendukung; buat/ajukan omzet serta voucher; baca laporan. Voucher hanya dapat diedit/diajukan oleh Admin pembuat. Handover belum dirancang.
 - Staff Accounting: baca laporan/jurnal/master dan beberapa laporan khusus; pemeriksaan omzet/voucher; capability pajak, kontrak, PNL/Ecsys sebagian belum memiliki fitur aktif.
-- Staff Finance: baca laporan/jurnal/master, input transaksi/hutang-piutang dan pengajuan periode. Capability execute:payment belum terhubung ke voucher.
+- Staff Finance: baca laporan/jurnal/master, input transaksi/hutang-piutang dan pengajuan periode. Capability execute:payment terhubung ke pencatatan realisasi voucher approved dengan bukti wajib; bukan transfer dana. Pembatalan catatan oleh Manager ACC melalui approve:voucher. Lihat dokumen 56.
 - Head Operasional, SPV, Leader: baca ringkasan/laporan pada domain ACC.
 - Admin Gudang: baca laporan; capability inventory terdapat dalam policy tetapi belum menjadi alur gudang end-to-end.
 

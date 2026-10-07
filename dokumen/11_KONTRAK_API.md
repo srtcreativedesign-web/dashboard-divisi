@@ -101,3 +101,6 @@ ACC-A01/ACC-A02 kini memiliki master pegawai minimal, rekap manual dan histori k
 ## Pembaruan ACC-A10 tahap manual — 6 Oktober 2026
 
 Rekap setoran tersedia pada /accounting/setoran dan tujuh route /api/v1/accounting/deposits. Admin alokasi ke satu kanal omzet tervalidasi; Finance penerimaan aktual bertahap. Nominal eksak, referensi unik, version/row lock, histori dan audit wajib. Tiga tabel acc_deposits/acc_deposit_receipts/acc_deposit_events, event append-only pada runtime. Bukti berupa referensi eksternal; unggahan, settlement/fee/jurnal otomatis dan UAT tetap terbuka. [Acuan dan bukti lengkap](42_REKAP_SETORAN_MANUAL.md). Peran: keempat peran.
+
+## Realisasi voucher — 7 Oktober 2026
+POST /accounting/vouchers/{id}/payments: execute:payment + view:acc_detail, multipart version/paid_date/amount string/method CASH|BANK/reference/notes/file, file.scan wajib. POST /accounting/vouchers/{id}/payments/{paymentId}/void: approve:voucher, version/reason. GET .../{paymentId}/download: view:acc_detail, parent/hash/private storage. Mutasi mengembalikan VoucherRecord detail dengan payment_summary dan payments; list hanya summary. approved tidak diganti menjadi paid. Source/scope/status/aktor/versi/total/ref/audit ditegakkan server. Referensi normalisasi unik permanen per voucher, termasuk voided. Tidak ada PUT/DELETE pembayaran. Rincian dokumen 56.
