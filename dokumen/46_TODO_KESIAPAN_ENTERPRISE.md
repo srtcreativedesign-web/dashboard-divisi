@@ -53,3 +53,5 @@ UAT, matriks bisnis, integrasi, kapasitas dan operasi produksi tetap terbuka. EN
 - [ ] ENT-09b — UAT semua role, sumber nyata, tabel panjang dan penerimaan UX perusahaan. ENT-09 induk tetap terbuka.
 
 Daftar dependensi seluruh item: [dokumen 51](51_STATUS_DAN_DEPENDENSI_PENYELESAIAN.md). Anotasi run REQ 37561895204 kembali mengonfirmasi akun GitHub terkunci karena billing; ENT-01b tetap terbuka.
+
+- [x] ENT-09a-2 / PRJ-UI-003 — direktori vendor Project: pencarian/pagination, respons lama dan simpan/reload terpisah; urutan nama/id serta batas kontak diuji. [Scope/bukti](52_DIREKTORI_VENDOR_PROJECT.md). Gate final exit 0: 268 backend/2219 assertions, 134 web, dua contracts dan seluruh guard gate/policy/database/scanner. Lint/typecheck/build/Pint lulus. Tidak menutup ENT-04/ENT-09b atau UAT.

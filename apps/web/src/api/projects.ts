@@ -63,7 +63,7 @@ export const projectApi = {
 export const vendorApi = {
   createVendor: async (data: Partial<ProjectVendor>) => (await api.post<ProjectVendor>('/vendors', data)).data,
   updateVendor: async (id: number, data: Partial<ProjectVendor>) => (await api.put<ProjectVendor>(`/vendors/${id}`, data)).data,
-  getVendors: async (params?: { search?: string; per_page?: number }) => {
+  getVendors: async (params?: { search?: string; per_page?: number; page?: number }) => {
     const response = await api.get<PaginatedResponse<ProjectVendor>>(`/vendors`, params ? Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined).map(([key, value]) => [key, String(value)])) : undefined);
     return response.data;
   }

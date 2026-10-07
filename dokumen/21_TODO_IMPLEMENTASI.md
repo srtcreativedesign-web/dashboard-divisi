@@ -68,3 +68,5 @@ Checklist selesai hanya jika hasil dan bukti dicatat. Tes teknis bukan sign-off 
 - [x] TODO-UI-02a / ENT-09a — perbaikan teknis Project/Cellular/HR: pagination, request lama, konteks koreksi/pembatalan, akses keyboard, kontainer tabel dan tema. [Scope/bukti](50_PENYELESAIAN_TEKNIS_UI_LINTAS_MODUL.md). Peran: keempat peran. Gate final 267 backend/128 web/dua contracts lulus. Parent TODO-UI-02 dan UAT semua role/data nyata tetap terbuka.
 
 Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATUS_DAN_DEPENDENSI_PENYELESAIAN.md). Tidak menutup item bisnis/produksi melalui tes teknis.
+
+- [x] TODO-08c / PRJ-UI-003 — direktori vendor lengkap dengan pencarian/pagination, respons lama, pemisahan hasil simpan dan reload serta batas kontak tetap. [Scope/bukti](52_DIREKTORI_VENDOR_PROJECT.md). Peran: keempat peran. Gate final exit 0: 268 backend/2219 assertions, 134 web, dua contracts dan seluruh guard gate/policy/database/scanner. Lint/typecheck/build/Pint lulus. Workflow pembayaran, approval dan UAT tetap terbuka.
