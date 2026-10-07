@@ -24,10 +24,11 @@ import { Button } from '../ui/Button';
 
 interface ProjectReportsExportProps {
   project: Project;
+  initialReportType?: 'progress' | 'bast' | 'lpj';
 }
 
-export function ProjectReportsExport({ project }: ProjectReportsExportProps) {
-  const [reportType, setReportType] = useState<'progress' | 'bast' | 'lpj'>('progress');
+export function ProjectReportsExport({ project, initialReportType = 'progress' }: ProjectReportsExportProps) {
+  const [reportType, setReportType] = useState<'progress' | 'bast' | 'lpj'>(initialReportType);
   const [progressData, setProgressData] = useState<any>(null);
   const [bastData, setBastData] = useState<any>(null);
   const [financialSummary, setFinancialSummary] = useState<any>(null);
