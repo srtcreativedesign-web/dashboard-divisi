@@ -93,12 +93,14 @@ export function AppLayout() {
   if (authLoading) return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
   if (!user) return <Navigate to="/login" replace />;
 
-  const isAccounting = location.pathname.startsWith('/accounting');
-  const isProject = location.pathname.startsWith('/projects');
-  const isCellular = location.pathname.startsWith('/cellular');
+  const normalizedDiv = normalizeDivisionCode(user.divisionCode);
+  const isAccounting = location.pathname.startsWith('/accounting') || (normalizedDiv === 'ACC' && location.pathname === '/dashboard');
+  const isProject = location.pathname.startsWith('/projects') || (normalizedDiv === 'PROJECT' && location.pathname === '/dashboard');
+  const isCellular = location.pathname.startsWith('/cellular') || ((normalizedDiv === 'CELL' || normalizedDiv === 'CELLULAR') && location.pathname === '/dashboard');
   const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : isProject ? PROJECT_MENU_ITEMS : isCellular ? CELLULAR_MENU_ITEMS : MENU_ITEMS;
   const moduleCode = (itemPath: string) => itemPath.startsWith('/accounting') ? 'ACC' : itemPath.startsWith('/projects') ? 'PROJECT' : itemPath.startsWith('/cellular') ? 'CELL' : null;
-  const visibleMenu = [{ path: '/dashboard', label: 'Workspace ERP', roles: [user.role], capability: undefined, group: undefined }, ...menuItems.filter(item => item.path !== '/dashboard')].filter(item => item.roles.includes(user.role as never) && canAccessDivision(user, moduleCode(item.path)) && (!item.capability || hasCapability(user.role as never, item.capability, user.divisionCode)));
+  const rawList = (isProject || isAccounting || isCellular) ? menuItems : [{ path: '/dashboard', label: 'Workspace ERP', roles: [user.role], capability: undefined, group: undefined }, ...menuItems.filter(item => item.path !== '/dashboard')];
+  const visibleMenu = rawList.filter(item => item.roles.includes(user.role as never) && canAccessDivision(user, moduleCode(item.path)) && (!item.capability || hasCapability(user.role as never, item.capability, user.divisionCode)));
   const activeMenu = menuItems.find(item => item.path === location.pathname);
   const roleLabel = roleDisplay(user.role);
   const scopeLabel = normalizeDivisionCode(user.divisionCode) ?? 'Semua modul MVP';
