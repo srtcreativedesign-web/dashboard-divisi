@@ -1,108 +1,102 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, Banknote, CalendarDays, ChartNoAxesCombined, ClipboardCheck, Clock3, FileText, Receipt, Users, Wallet } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CalendarDays, ChartNoAxesCombined, ClipboardCheck, FileText, RefreshCw, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { accountingApi } from '../../../api/accounting';
+import { omzetApi } from '../../../api/omzet';
+import { dashboardApi } from '../api/dashboard';
 import { ACCOUNTING_MENU_ITEMS } from '../../../config/menus';
 import { ErrorState, LoadingState } from '../../../components/states';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
-import { formatRupiah } from '../ui/format';
+import { formatRupiah, formatDate } from '../ui/format';
 
-const monthLabel = (month: string) => new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${month.slice(0, 7)}-01T00:00:00Z`));
-const workDetails = {
-  '/accounting/omzet': { icon: ChartNoAxesCombined, caption: 'PENDAPATAN OUTLET', description: 'Catat omzet tiap shift dan periksa kesesuaian pembayarannya.', footnote: 'Batas pengajuan H+1 · 23.59 WIB' },
-  '/accounting/vouchers': { icon: FileText, caption: 'TAGIHAN & PEMBELIAN', description: 'Siapkan tagihan, lengkapi bukti, dan ikuti proses persetujuan.', footnote: 'Draf → pemeriksaan → persetujuan' },
-  '/accounting/setoran': { icon: Wallet, caption: 'PENERIMAAN DANA', description: 'Cocokkan setoran outlet dengan dana yang benar-benar diterima.', footnote: 'Pencatatan dan pencocokan setoran' },
-  '/accounting/kepegawaian': { icon: Users, caption: 'ADMINISTRASI TIM', description: 'Kelola rekap cuti dan realisasi absensi dari laporan manual.', footnote: 'Cuti dan kehadiran dalam satu tempat' },
+const monthLabel = (month: string) => new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(month.slice(0, 7) + '-01T00:00:00Z'));
+const currentMonth = () => {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit' }).formatToParts(new Date());
+  return parts.find(p => p.type === 'year')!.value + '-' + parts.find(p => p.type === 'month')!.value;
 };
+const centsLabel = (value: bigint) => formatRupiah(String(value / 100n) + '.' + String(value % 100n).padStart(2, '0'));
+const panel = 'rounded-card-lg border border-line bg-panel';
+const statusNames = { draft: 'Draf', correction: 'Perlu koreksi', submitted: 'Pemeriksaan Accounting', pending_approval: 'Persetujuan Manager', approved: 'Disetujui' };
+const moneyCents = (value: string | null) => value && /^\d+\.\d{2}$/.test(value) ? BigInt(value.replace('.', '')) : 0n;
 
 export default function AccountingDashboardPage() {
   const { user } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState('');
   const can = (capability: string) => Boolean(user && hasCapability(user.role, capability, user.divisionCode));
-  const canReadDetail = can('view:acc_detail');
+  const detail = can('view:acc_detail');
   const periods = useQuery({ queryKey: ['accounting', 'dashboard-periods'], queryFn: async () => (await accountingApi.periods()).data });
   const sortedPeriods = periods.data?.slice().sort((a, b) => b.periodMonth.localeCompare(a.periodMonth)) ?? [];
-  const activePeriod = sortedPeriods.find(period => period.periodMonth === selectedMonth) ?? sortedPeriods[0];
-  const report = useQuery({
-    queryKey: ['accounting', 'dashboard-cashflow-summary', activePeriod?.periodMonth],
-    enabled: Boolean(activePeriod),
-    queryFn: async () => (await accountingApi.cashflowSummary({ period_month: activePeriod!.periodMonth.slice(0, 7) })).data,
-  });
-  const loading = periods.isLoading || Boolean(activePeriod && report.isLoading);
-  const error = periods.error ?? report.error;
+  const month = selectedMonth || sortedPeriods[0]?.periodMonth.slice(0, 7) || currentMonth();
+  const activePeriod = sortedPeriods.find(p => p.periodMonth.slice(0, 7) === month);
+  const report = useQuery({ queryKey: ['accounting', 'dashboard-cashflow-summary', month], enabled: Boolean(activePeriod), queryFn: async () => (await accountingApi.cashflowSummary({ period_month: month })).data });
+  const operations = useQuery({ queryKey: ['accounting', 'dashboard-operations', month], enabled: detail && !periods.isLoading, queryFn: async () => (await dashboardApi.operations(month)).data });
+  const annual = useQuery({ queryKey: ['accounting', 'dashboard-annual-omzet', month.slice(0, 4)], enabled: detail && !periods.isLoading, queryFn: async () => (await omzetApi.annual(Number(month.slice(0, 4)))).data });
+  const data = operations.data?.counts ? operations.data : undefined;
+  const monthTrend = annual.data?.months?.find(m => m.month === month);
+  const previousDate = new Date(month + '-01T00:00:00Z'); previousDate.setUTCMonth(previousDate.getUTCMonth() - 1);
+  const previous = annual.data?.months?.find(m => m.month === previousDate.toISOString().slice(0, 7));
+  const difference = monthTrend?.amount !== null && monthTrend?.amount !== undefined && previous?.amount !== null && previous?.amount !== undefined ? moneyCents(monthTrend.amount) - moneyCents(previous.amount) : null;
   const jobs = ACCOUNTING_MENU_ITEMS.filter(item => item.group === 'Pekerjaan harian' && item.capability && can(item.capability));
-  const metrics = report.data ? [
-    { label: 'Penerimaan tercatat', value: report.data.kpis.total_revenue, icon: Banknote, note: 'Penerimaan pada periode terpilih' },
-    { label: 'Beban tercatat', value: report.data.kpis.total_expenses, icon: Receipt, note: 'Beban pada periode terpilih' },
-    { label: 'Saldo akhir cashflow', value: report.data.kpis.ending_cash_balance, icon: Wallet, note: 'Saldo berdasarkan laporan cashflow' },
-  ] : [];
+  const queues = data ? [
+    { name: 'Lengkapi draf voucher', count: data.counts.draft, status: 'draft', enabled: can('write:voucher'), note: 'Lengkapi lalu ajukan untuk pemeriksaan.' },
+    { name: 'Perbaiki voucher', count: data.counts.correction, status: 'correction', enabled: can('write:voucher'), note: 'Pengajuan dikembalikan untuk koreksi.' },
+    { name: 'Pemeriksaan voucher', count: data.counts.submitted, status: 'submitted', enabled: can('validate:voucher'), note: 'Periksa rincian sebelum diteruskan ke Manager.' },
+    { name: 'Persetujuan voucher', count: data.counts.pending_approval, status: 'pending_approval', enabled: can('approve:voucher'), note: 'Pengajuan sudah diperiksa Accounting.' },
+    { name: 'Realisasi voucher', count: data.unpaid_count, status: 'approved', enabled: can('execute:payment'), note: 'Voucher disetujui yang masih memiliki sisa.' },
+  ].filter(q => q.enabled) : [];
+  const pending = queues.reduce((total, q) => total + q.count, 0);
+  const monthOptions = [...new Set([currentMonth(), ...sortedPeriods.map(p => p.periodMonth.slice(0, 7)), ...Array.from({ length: 12 }, (_, i) => month.slice(0, 4) + '-' + String(i + 1).padStart(2, '0'))])].sort().reverse();
+  const max = annual.data?.months?.reduce((n, m) => moneyCents(m.amount) > n ? moneyCents(m.amount) : n, 0n) ?? 0n;
+  const refresh = () => { void periods.refetch(); if (activePeriod) void report.refetch(); if (detail) { void operations.refetch(); void annual.refetch(); } };
+  const linkTo = (status = '') => '/accounting/vouchers?month=' + month + (status ? '&status=' + status : '');
 
-  return <div className="space-y-7 pb-6">
-    <header className="overflow-hidden rounded-card-lg bg-navy text-white">
-      <div className="flex flex-col justify-between gap-6 p-6 sm:p-8 lg:flex-row lg:items-center">
-        <div className="max-w-xl">
-          <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary-200"><span className="h-px w-6 bg-primary-300" aria-hidden="true" />Keuangan & administrasi</p>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Dashboard Accounting</h1>
-          <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-300">Ruang kerja tim pusat lintas divisi. Mulai pekerjaan harian dan pantau keuangan dari satu tempat.</p>
-        </div>
-        <div className="flex shrink-0 items-start gap-3 border-t border-white/15 pt-5 lg:max-w-64 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-          <CalendarDays aria-hidden="true" className="mt-0.5 h-5 w-5 text-primary-200" />
-          <div><p className="text-xs text-slate-300">Periode ringkasan</p><p className="mt-1 text-base font-semibold">{activePeriod ? monthLabel(activePeriod.periodMonth) : loading ? 'Memuat periode…' : error ? 'Belum dapat dimuat' : 'Belum ada periode'}</p><p className="mt-1 text-xs leading-relaxed text-slate-300">Berdasarkan periode yang tercatat di sistem.</p></div>
-        </div>
-      </div>
+  return <div className="space-y-6 pb-6">
+    <header className="flex flex-wrap items-end justify-between gap-5 border-b border-line pb-6">
+      <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary-700 dark:text-primary-300">Accounting · Tim pusat lintas divisi</p><h1 className="text-2xl font-semibold tracking-tight text-navy sm:text-3xl">Dashboard Accounting</h1><p className="mt-2 text-sm text-subtle">Pantau keuangan, perkembangan omzet, dan pekerjaan yang perlu ditindaklanjuti.</p></div>
+      <div className="flex flex-wrap items-center gap-2"><label className="flex items-center gap-2 rounded-input border border-line bg-panel px-3 py-2"><CalendarDays aria-hidden="true" className="h-4 w-4 text-subtle" /><span className="sr-only">Periode ringkasan</span><select aria-label="Periode ringkasan" className="min-h-8 bg-panel text-sm font-medium text-navy" value={month} onChange={e => setSelectedMonth(e.target.value)}>{monthOptions.map(m => <option key={m} value={m}>{monthLabel(m)}</option>)}</select></label><button type="button" onClick={refresh} className="flex min-h-12 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-medium text-navy hover:bg-surface"><RefreshCw aria-hidden="true" className={'h-4 w-4 ' + (operations.isFetching || report.isFetching ? 'animate-spin motion-reduce:animate-none' : '')} />Muat ulang</button></div>
     </header>
 
-    <section aria-labelledby="accounting-financial-heading" className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div><h2 id="accounting-financial-heading" className="text-lg font-semibold text-navy">Ringkasan keuangan</h2><p className="mt-1 text-sm text-subtle">Cashflow periode {activePeriod ? monthLabel(activePeriod.periodMonth) : 'yang tersedia'}.</p></div>
-        {sortedPeriods.length > 0 && <label className="flex items-center gap-2 text-sm text-muted">Periode
-          <select aria-label="Periode ringkasan" className="min-h-10 rounded-input border border-line bg-panel px-3 py-2 text-sm font-medium text-navy" value={activePeriod?.periodMonth ?? ''} onChange={event => setSelectedMonth(event.target.value)}>
-            {sortedPeriods.map(period => <option key={period.id} value={period.periodMonth}>{monthLabel(period.periodMonth)}</option>)}
-          </select>
-        </label>}
-      </div>
-      {loading ? <LoadingState label="Memuat dashboard Accounting..." /> : error ? (
-        <ErrorState description={error.message} onRetry={() => { void periods.refetch(); if (activePeriod) void report.refetch(); }} />
-      ) : metrics.length ? (
-        <section className="grid gap-4 md:grid-cols-3" aria-label="Ringkasan cashflow">
-          {metrics.map((metric, index) => <article key={metric.label} className={`min-w-0 rounded-card-lg border bg-panel p-5 ${index === 2 ? 'border-primary-200 shadow-card' : 'border-line'}`}>
-            <span className="flex h-10 w-10 items-center justify-center rounded-card bg-surface-2 text-primary-700 dark:text-primary-300"><metric.icon aria-hidden="true" className="h-5 w-5" /></span>
-            <h3 className="mt-5 text-sm text-muted">{metric.label}</h3><p className="mt-2 break-words text-xl font-semibold tracking-tight text-navy tabular-nums xl:text-2xl">{formatRupiah(metric.value)}</p><p className="mt-3 border-t border-line pt-3 text-xs text-subtle">{metric.note}</p>
-          </article>)}
-        </section>
-      ) : (
-        <div className="flex flex-col items-start gap-5 rounded-card-lg border border-line bg-panel p-6 sm:flex-row sm:items-center">
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card-lg bg-surface-2 text-primary-700 dark:text-primary-300"><ChartNoAxesCombined aria-hidden="true" className="h-7 w-7" /></span>
-          <div className="flex-1"><h3 className="font-semibold text-navy">Belum ada periode Accounting</h3><p className="mt-1 max-w-xl text-sm leading-relaxed text-subtle">Ringkasan akan muncul setelah periode dan transaksi dicatat. Anda tetap dapat membuka pekerjaan harian di bawah.</p></div>
-          {canReadDetail && <Link to="/accounting/periode" className="inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-input border border-line px-4 py-2 text-sm font-semibold text-navy hover:bg-surface">Lihat periode <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>}
+    {detail && <section aria-label="Ringkasan operasional" className="space-y-3">
+      {operations.isLoading || periods.isLoading ? <LoadingState label="Memuat ringkasan operasional..." /> : operations.error ? <ErrorState description={operations.error.message} onRetry={() => { void operations.refetch(); }} /> : data ? <>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: 'Omzet tervalidasi', value: monthTrend?.amount != null ? formatRupiah(monthTrend.amount) : 'Belum tersedia', note: annual.error ? 'Laporan omzet belum dapat dimuat' : annual.isLoading ? 'Memuat laporan omzet…' : (monthTrend ? monthTrend.validated_count + ' rekap tervalidasi · ' + monthLabel(month) : 'Belum ada rekap tervalidasi pada bulan ini'), icon: ChartNoAxesCombined },
+            { label: 'Pengeluaran disetujui', value: data.counts.approved ? formatRupiah(data.approved_amount) : 'Belum tersedia', note: data.counts.approved + ' voucher · belum merupakan beban jurnal', icon: FileText },
+            { label: 'Sisa realisasi voucher', value: data.counts.approved ? formatRupiah(data.remaining_amount) : 'Belum tersedia', note: data.unpaid_count + ' voucher belum lunas · ' + data.overdue_count + ' lewat jatuh tempo', icon: Wallet },
+            { label: queues.length ? 'Perlu tindakan Anda' : 'Menunggu proses', value: String(queues.length ? pending : data.counts.submitted + data.counts.pending_approval), note: queues.length ? 'Antrean voucher sesuai kewenangan akun' : 'Pemeriksaan Accounting & persetujuan Manager', icon: ClipboardCheck },
+          ].map((kpi, index) => <article key={kpi.label} className={panel + ' min-w-0 p-5 ' + (index === 2 ? 'border-primary-300' : '')}><div className="flex items-center justify-between gap-3"><h2 className="text-sm font-medium text-muted">{kpi.label}</h2><kpi.icon aria-hidden="true" className="h-5 w-5 shrink-0 text-primary-700 dark:text-primary-300" /></div><p className="mt-5 break-words text-xl font-semibold tracking-tight text-navy tabular-nums">{kpi.value}</p><p className="mt-3 text-xs leading-relaxed text-subtle">{kpi.note}</p></article>)}
         </div>
-      )}
+        <p className="text-xs text-subtle">Voucher berdasarkan tanggal voucher dalam bulan terpilih. Realisasi adalah pencatatan pembayaran aktif; bukan saldo bank atau hutang jurnal.</p>
+      </> : <p className={panel + ' p-5 text-sm text-subtle'}>Ringkasan operasional belum tersedia.</p>}
+    </section>}
+
+    <div className={'grid gap-5 ' + (detail ? 'lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)]' : '')}>
+      {detail && <section className={panel + ' min-w-0 p-5 sm:p-6'} aria-label="Tren omzet">
+        <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-lg font-semibold text-navy">Tren omzet outlet</h2><p className="mt-1 text-xs text-subtle">Tahun {month.slice(0, 4)} · hanya rekap tervalidasi</p></div><Link to="/accounting/omzet-tahunan" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Laporan tahunan <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link></div>
+        {annual.isLoading || periods.isLoading ? <LoadingState label="Memuat tren omzet..." /> : annual.error ? <ErrorState description={annual.error.message} onRetry={() => { void annual.refetch(); }} /> : annual.data?.months ? <>
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs text-subtle">{monthLabel(month)}</p><p className="mt-1 text-2xl font-semibold text-navy tabular-nums">{monthTrend?.amount != null ? formatRupiah(monthTrend.amount) : 'Belum ada omzet tervalidasi'}</p></div><p className="max-w-64 text-xs text-subtle">{difference !== null ? (difference >= 0n ? 'Naik ' : 'Turun ') + centsLabel(difference < 0n ? -difference : difference) + ' dibanding bulan sebelumnya' : 'Perbandingan muncul setelah kedua bulan memiliki data.'}</p></div>
+          <div className={'mt-6 grid grid-cols-12 items-end gap-1 border-b border-line pb-2 ' + (annual.data.validated_count ? 'h-40' : 'h-14')} aria-label="Omzet per bulan">
+            {annual.data.months.map(m => { const cents = moneyCents(m.amount); const height = max > 0n ? Number(cents * 100n / max) : 0; return <button key={m.month} type="button" onClick={() => setSelectedMonth(m.month)} aria-label={monthLabel(m.month) + ': ' + (m.amount === null ? 'belum ada data' : formatRupiah(m.amount))} aria-pressed={m.month === month} className="group flex h-full min-w-0 flex-col justify-end rounded-t focus-visible:outline-2 focus-visible:outline-primary" title={m.amount === null ? 'Belum ada data tervalidasi' : formatRupiah(m.amount)}><span className={'mx-auto w-3/4 rounded-t transition-colors ' + (m.month === month ? 'bg-primary-600' : 'bg-primary-200 dark:bg-primary-900 group-hover:bg-primary-400')} style={{ height: cents === 0n ? 0 : Math.max(height, 2) + '%'}} /><span className={'mt-2 text-[10px] sm:text-xs ' + (m.month === month ? 'font-bold text-primary-700 dark:text-primary-300' : 'text-subtle')}>{new Intl.DateTimeFormat('id-ID', { month: 'short', timeZone: 'UTC' }).format(new Date(m.month + '-01T00:00:00Z'))}</span></button>; })}
+          </div><p className="mt-3 text-xs text-subtle">Klik bulan untuk melihat ringkasannya. Bulan tanpa data tidak ditampilkan sebagai omzet nol.</p>
+        </> : <p className="py-8 text-sm text-subtle">Belum ada laporan omzet tervalidasi.</p>}
+      </section>}
+      <section className={panel + ' p-5 sm:p-6'} aria-label="Prioritas pekerjaan"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-navy">Prioritas pekerjaan</h2><ClipboardCheck aria-hidden="true" className="h-5 w-5 text-subtle" /></div><p className="mt-1 text-xs text-subtle">{monthLabel(month)} · sesuai akses akun</p>
+        {queues.length ? <div className="mt-4 divide-y divide-line">{queues.map(q => <Link key={q.name} to={linkTo(q.status)} className="group flex items-start justify-between gap-3 py-4"><div><h3 className="text-sm font-semibold text-navy">{q.name}</h3><p className="mt-1 text-xs leading-relaxed text-subtle">{q.note}</p></div><span className="flex items-center gap-2 text-lg font-semibold text-primary-700 dark:text-primary-300 tabular-nums">{q.count}<ArrowRight aria-hidden="true" className="h-4 w-4" /></span></Link>)}</div> : <p className="mt-6 text-sm leading-relaxed text-subtle">{detail && operations.isLoading ? 'Memuat antrean pekerjaan…' : 'Ringkasan mengikuti kewenangan akun. Pemeriksaan dan perubahan transaksi tersedia pada role yang berizin.'}</p>}
+        {can('write:omzet') && <Link to={'/accounting/omzet?month=' + month} className="mt-4 flex items-start justify-between gap-3 rounded-input border border-line bg-surface p-3"><div><p className="text-sm font-semibold text-navy">Rekap omzet H+1</p><p className="mt-1 text-xs text-subtle">Pengajuan paling lambat 23.59 WIB pada H+1.</p></div><ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0 text-subtle" /></Link>}
+      </section>
+    </div>
+
+    <section className={panel + ' p-5 sm:p-6'} aria-labelledby="accounting-financial-heading"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 id="accounting-financial-heading" className="text-lg font-semibold text-navy">Ringkasan keuangan</h2><p className="mt-1 text-xs text-subtle">Cashflow {monthLabel(month)} · berdasarkan transaksi jurnal</p></div>{detail && <Link to="/accounting/cashflow" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Buka laporan cashflow <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link>}</div>
+      {periods.isLoading || (activePeriod && report.isLoading) ? <LoadingState label="Memuat dashboard Accounting..." /> : periods.error || report.error ? <ErrorState description={(periods.error ?? report.error)!.message} onRetry={() => { void periods.refetch(); if (activePeriod) void report.refetch(); }} /> : report.data && activePeriod ? <section className="mt-5 grid gap-5 sm:grid-cols-3" aria-label="Ringkasan cashflow">{[{ label: 'Penerimaan tercatat', value: report.data.kpis.total_revenue }, { label: 'Beban tercatat', value: report.data.kpis.total_expenses }, { label: 'Saldo akhir cashflow', value: report.data.kpis.ending_cash_balance }].map(k => <article key={k.label} className="border-l-2 border-primary-200 pl-4"><h3 className="text-xs text-subtle">{k.label}</h3><p className="mt-2 break-words text-xl font-semibold text-navy tabular-nums">{formatRupiah(k.value)}</p></article>)}</section> : <div className="mt-5 rounded-input bg-surface p-4"><h3 className="text-sm font-semibold text-navy">{sortedPeriods.length ? 'Belum ada periode jurnal pada bulan ini' : 'Belum ada periode Accounting'}</h3><p className="mt-1 text-xs leading-relaxed text-subtle">Cashflow akan tersedia setelah periode dan transaksi jurnal dicatat. Voucher dan omzet tetap memiliki ringkasan tersendiri.</p>{detail && <Link to="/accounting/periode" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Lihat periode <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>}</div>}
     </section>
 
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
-      {jobs.length > 0 ? <section aria-label="Pekerjaan Accounting" className="space-y-4">
-        <div><h2 className="text-lg font-semibold text-navy">Pekerjaan harian</h2><p className="mt-1 text-sm text-subtle">Pilih pekerjaan yang ingin Anda lanjutkan.</p></div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {jobs.map(item => {
-            const detail = workDetails[item.path as keyof typeof workDetails];
-            const Icon = detail?.icon ?? FileText;
-            return <Link key={item.path} to={item.path} className="group flex min-w-0 flex-col rounded-card-lg border border-line bg-panel p-5 transition-colors hover:border-primary-300 hover:bg-primary-50/40 focus-visible:outline-2 focus-visible:outline-primary">
-              <div className="flex items-center justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-card bg-surface text-primary-700 dark:text-primary-300"><Icon aria-hidden="true" className="h-5 w-5" /></span><ArrowRight aria-hidden="true" className="h-4 w-4 text-slate-400 group-hover:text-primary-700" /></div>
-              <p className="mt-5 text-[10px] font-semibold tracking-[0.12em] text-subtle">{detail?.caption}</p><h3 className="mt-1 text-base font-semibold text-navy">{item.label}</h3>
-              <p className="mb-5 mt-2 text-sm leading-relaxed text-subtle">{detail?.description}</p><p className="mt-auto border-t border-line pt-3 text-xs font-medium text-primary-700 dark:text-primary-300">{detail?.footnote}</p>
-            </Link>;
-          })}
-        </div>
-      </section> : <section className="rounded-card-lg border border-line bg-panel p-6"><ClipboardCheck aria-hidden="true" className="h-6 w-6 text-primary-700 dark:text-primary-300" /><h2 className="mt-3 font-semibold text-navy">Ringkasan untuk peran Anda</h2><p className="mt-2 text-sm leading-relaxed text-subtle">Akun Anda memiliki akses ringkasan. Detail transaksi dan rekening mengikuti kewenangan Accounting.</p></section>}
+    {detail && data && <div className="grid gap-5 lg:grid-cols-[minmax(260px,1fr)_minmax(0,1.65fr)]">
+      <section className={panel + ' p-5 sm:p-6'} aria-label="Status voucher"><h2 className="text-lg font-semibold text-navy">Alur voucher</h2><p className="mt-1 text-xs text-subtle">{data.total} voucher pada bulan terpilih</p><div className="mt-5 space-y-4">{Object.entries(statusNames).map(([status, label]) => { const count = data.counts[status as keyof typeof data.counts]; return <Link key={status} to={linkTo(status)} className="block"><div className="flex justify-between gap-2 text-xs"><span className="text-muted">{label}</span><span className="font-semibold text-navy tabular-nums">{count}</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2"><div className="h-full rounded-full bg-primary-500" style={{ width: (data.total ? count / data.total * 100 : 0) + '%' }} /></div></Link>; })}</div></section>
+      <section className={panel + ' min-w-0 overflow-hidden'} aria-label="Voucher jatuh tempo"><div className="flex flex-wrap items-start justify-between gap-3 p-5 sm:p-6"><div><h2 className="text-lg font-semibold text-navy">Jadwal realisasi</h2><p className="mt-1 text-xs text-subtle">Hingga lima voucher disetujui dengan sisa, urut jatuh tempo</p></div><Link to={linkTo('approved')} className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Lihat voucher <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link></div>{data.due_vouchers.length ? <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-left text-sm"><caption className="sr-only">Voucher disetujui yang belum lunas</caption><thead className="border-y border-line bg-surface text-xs text-subtle"><tr><th className="px-5 py-3 font-medium">Voucher / sumber</th><th className="px-4 py-3 font-medium">Jatuh tempo</th><th className="px-5 py-3 text-right font-medium">Sisa</th></tr></thead><tbody className="divide-y divide-line">{data.due_vouchers.map(v => <tr key={v.id}><td className="px-5 py-4"><Link className="font-medium text-primary-700 dark:text-primary-300 hover:underline" to={linkTo('approved') + '&voucher=' + v.id}>{v.source_reference}</Link><p className="mt-1 text-xs text-subtle">{v.outlet_name} · {v.source_division_code}</p></td><td className="whitespace-nowrap px-4 py-4 text-muted">{formatDate(v.due_date)}</td><td className="whitespace-nowrap px-5 py-4 text-right font-semibold text-navy tabular-nums">{formatRupiah(v.remaining_amount)}</td></tr>)}</tbody></table></div> : <p className="px-5 pb-6 text-sm text-subtle">Tidak ada voucher disetujui dengan sisa realisasi pada bulan ini.</p>}</section>
+    </div>}
 
-      <aside className="space-y-4 xl:pt-[60px]" aria-label="Panduan Accounting">
-        {canReadDetail && <section className="rounded-card-lg border border-primary-200 bg-primary-50 p-5">
-          <Clock3 aria-hidden="true" className="h-5 w-5 text-primary-700 dark:text-primary-300" /><h2 className="mt-3 font-semibold text-navy">Ingat batas rekap H+1</h2><p className="mt-2 text-sm leading-relaxed text-muted">Pengajuan omzet dilakukan pada hari berikutnya, paling lambat <strong className="text-navy">23.59 WIB</strong>.</p><p className="mt-3 text-xs leading-relaxed text-subtle">Periksa outlet, shift, dan rincian pembayaran sebelum mengajukan.</p>
-        </section>}
-        {canReadDetail && <section className="rounded-card-lg border border-line bg-panel p-5"><p className="text-xs font-semibold uppercase tracking-wider text-subtle">Laporan</p><h2 className="mt-2 font-semibold text-navy">Telusuri arus kas</h2><p className="mt-2 text-sm leading-relaxed text-subtle">Buka rincian penerimaan dan beban untuk pemeriksaan lebih lanjut.</p><Link to="/accounting/cashflow" className="mt-4 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary-700 dark:text-primary-300 hover:underline">Buka laporan cashflow <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link></section>}
-      </aside>
-    </div>
+    {jobs.length > 0 && <nav aria-label="Pekerjaan Accounting" className="flex flex-wrap items-center gap-2 border-t border-line pt-5"><p className="mr-2 text-xs font-semibold text-subtle">Buka modul</p>{jobs.map(item => <Link key={item.path} to={item.path} className="inline-flex min-h-10 items-center gap-2 rounded-input border border-line bg-panel px-3 text-xs font-medium text-navy hover:bg-surface">{item.label}<ArrowUpRight aria-hidden="true" className="h-3 w-3" /></Link>)}</nav>}
   </div>;
 }

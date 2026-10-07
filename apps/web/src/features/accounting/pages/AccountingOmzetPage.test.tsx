@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -27,7 +28,7 @@ beforeEach(() => {
   vi.mocked(omzetApi.detail).mockResolvedValue(envelope(fixture));
 });
 afterEach(() => { cleanup(); client.clear(); });
-const mount = () => render(<QueryClientProvider client={client}><AccountingOmzetPage /></QueryClientProvider>);
+const mount = (route = '/accounting') => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[route]}><AccountingOmzetPage /></MemoryRouter></QueryClientProvider>);
 
 describe('Alur rekap omzet sesuai role', () => {
   it('Admin menyimpan draf dengan outlet lintas divisi dan rincian pembayaran', async () => {
@@ -84,4 +85,13 @@ describe('Alur rekap omzet sesuai role', () => {
     expect(screen.queryByRole('button', { name: 'Edit draf' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Ajukan pemeriksaan' })).not.toBeInTheDocument();
   });
+});
+
+it('drill-down dashboard mempertahankan bulan/status valid dan mengabaikan filter palsu', async () => {
+  mount('/accounting?month=2026-07&status=submitted');
+  await waitFor(() => expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ month: '2026-07', status: 'submitted' })));
+  cleanup(); client.clear(); vi.mocked(omzetApi.list).mockClear();
+  mount('/accounting?month=2026-13&status=paid');
+  await waitFor(() => expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: '' })));
+  expect(vi.mocked(omzetApi.list).mock.calls[0]![0].month).not.toBe('2026-13');
 });

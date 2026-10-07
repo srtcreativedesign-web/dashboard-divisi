@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import { formatRupiah as rupiah, formatDate } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
 import { WorkflowGuide } from '../ui/WorkflowGuide';
@@ -31,12 +32,15 @@ export default function AccountingVoucherPage() {
   const reviewer = can('validate:voucher');
   const approver = can('approve:voucher');
   const client = useQueryClient();
-  const [month, setMonth] = useState(localDate().slice(0, 7));
-  const [status, setStatus] = useState('');
+  const [searchParams] = useSearchParams();
+  const initialMonth = searchParams.get('month') ?? '';
+  const initialStatus = searchParams.get('status') ?? '';
+  const [month, setMonth] = useState(/^\d{4}-(0[1-9]|1[0-2])$/.test(initialMonth) ? initialMonth : localDate().slice(0, 7));
+  const [status, setStatus] = useState(["draft","submitted","correction","pending_approval","approved"].includes(initialStatus) ? initialStatus : '');
   const [type, setType] = useState('');
   const [outlet, setOutlet] = useState('');
   const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(() => { const id = searchParams.get('voucher'); return id && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id) ? id : null; });
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<{ id: string; version: number }>();
   const [input, setInput] = useState<VoucherInput>(emptyInput);

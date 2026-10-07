@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Accounting\AccountingCashflowController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingDashboardController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingImportController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingMasterController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingOutstandingController;
@@ -64,6 +65,7 @@ Route::prefix('v1')->group(function () {
 
         // Accounting domain
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
+            Route::get('dashboard/operations', [AccountingDashboardController::class, 'operations'])->middleware('capability:view:acc_detail');
             Route::prefix('deposits')->middleware('capability:view:acc_deposits')->group(function () {
                 Route::get('sources', [DepositController::class, 'sources']);
                 Route::get('reconciliation', [DepositController::class, 'reconciliation']);

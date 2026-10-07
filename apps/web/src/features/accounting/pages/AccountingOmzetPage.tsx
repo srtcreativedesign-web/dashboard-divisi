@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import { formatRupiah as rupiah, formatDate } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
 import { WorkflowGuide } from '../ui/WorkflowGuide';
@@ -27,9 +28,12 @@ export default function AccountingOmzetPage() {
   const approver = can('approve:omzet');
   const unlockApprover = can('manage:omzet_unlock');
   const client = useQueryClient();
-  const [month, setMonth] = useState(localDate().slice(0, 7));
+  const [searchParams] = useSearchParams();
+  const initialMonth = searchParams.get('month') ?? '';
+  const initialStatus = searchParams.get('status') ?? '';
+  const [month, setMonth] = useState(/^\d{4}-(0[1-9]|1[0-2])$/.test(initialMonth) ? initialMonth : localDate().slice(0, 7));
   const [outlet, setOutlet] = useState('');
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(["draft","submitted","correction","pending_approval","validated"].includes(initialStatus) ? initialStatus : '');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
