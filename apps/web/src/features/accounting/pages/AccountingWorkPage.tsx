@@ -8,6 +8,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../../components/states
 import { formatDate, formatRupiah } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
 import { currentWorkMonth, useAccountingWork, workLabels, workStatuses, type WorkKind, type WorkStatus } from '../hooks/useAccountingWork';
+import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 
 export type AccountingWorkMode = 'admin' | 'accounting' | 'manager' | 'finance';
 const headings = { admin: 'Pengajuan Admin', accounting: 'Pemeriksaan Accounting', manager: 'Persetujuan Manager', finance: 'Realisasi Finance' };
@@ -40,10 +41,15 @@ export default function AccountingWorkPage({ mode }: { mode?: AccountingWorkMode
   const roleLabel = isWriter ? 'Admin Accounting' : isReviewer ? 'Staff Accounting' : isFinance ? 'Staff Finance' : 'Pembaca / pengambil keputusan';
 
   return <div className="space-y-6 pb-10 animate-fade-in text-navy">
-    <header className="flex flex-col justify-between gap-4 border-b border-line pb-5 sm:flex-row sm:items-center">
-      <div><div className="flex flex-wrap items-center gap-2"><span className="rounded-input border border-primary-200 bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700 dark:border-primary-900 dark:bg-primary-950 dark:text-primary-300">Divisi Accounting</span><span className="text-xs font-medium text-subtle">Dokumen & Persetujuan · {roleLabel}</span></div><h1 className="mt-1 text-2xl font-bold tracking-tight">{heading}</h1><p className="mt-1 text-sm text-subtle">Pilih jenis dokumen dan periode, lalu buka dokumen pada antrean yang ingin Anda kerjakan.</p></div>
-      {writer && <Link to={base + '?new=1&month=' + month} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input bg-primary-700 px-4 text-sm font-semibold text-white hover:bg-primary-800"><FilePlus2 aria-hidden="true" className="h-4 w-4" />{kind === 'omzet' ? 'Buat rekap' : 'Buat voucher'}</Link>}
-    </header>
+    <DivisionPageHeader division="Divisi Accounting" descriptor={`Pekerjaan Saya · ${roleLabel}`} title={heading} description="Temukan dokumen yang menjadi tanggung jawab Anda, pahami tahapnya, lalu selesaikan tindakan yang tersedia." actions={writer ? <Link to={base + '?new=1&month=' + month} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input bg-primary-700 px-4 text-sm font-semibold text-white hover:bg-primary-800"><FilePlus2 aria-hidden="true" className="h-4 w-4" />{kind === 'omzet' ? 'Buat rekap' : 'Buat voucher'}</Link> : undefined} />
+    <section aria-label="Konteks antrean" className="grid overflow-hidden rounded-card-lg border border-line bg-line shadow-card sm:grid-cols-2 xl:grid-cols-4">
+      {[
+        { label: 'Jenis dokumen', value: kind === 'omzet' ? 'Rekap omzet' : 'Voucher pengeluaran' },
+        { label: 'Periode', value: month },
+        { label: 'Tahap aktif', value: statusLabel },
+        { label: 'Penanggung jawab', value: owner },
+      ].map(item => <div key={item.label} className="bg-panel px-5 py-4"><p className="text-[10px] font-bold uppercase tracking-wider text-subtle">{item.label}</p><p className="mt-1.5 text-sm font-bold text-navy">{item.value}</p></div>)}
+    </section>
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line" aria-label="Jenis pekerjaan">
       <div className="flex gap-5">{(mode === 'finance' ? ['voucher'] as const : ['omzet', 'voucher'] as const).map(value => <button key={value} type="button" aria-pressed={kind === value} onClick={() => { setKind(value); setPage(1); }} className={'min-h-12 border-b-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-primary ' + (kind === value ? 'border-primary-600 text-primary-700 dark:text-primary-300' : 'border-transparent text-subtle hover:text-navy')}>{value === 'omzet' ? 'Rekap omzet' : 'Voucher pengeluaran'}</button>)}</div><Link to="/accounting" className={linkClass}>Dashboard Accounting <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link>
     </div>

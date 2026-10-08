@@ -99,7 +99,7 @@ describe('Accounting Master Data CRUD', () => {
   it('ACC user sees MASTER route via navigation', async () => {
     history.pushState({}, '', '/accounting');
     render(<App />);
-    fireEvent.click(await screen.findByRole('button', { name: 'Pembukuan & Kontrol' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Data & Integrasi' }));
     const masterLinks = await screen.findAllByRole('link', { name: 'Master Akun & Kategori' });
     expect(masterLinks.length).toBeGreaterThan(0);
     masterLinks.forEach(link => {

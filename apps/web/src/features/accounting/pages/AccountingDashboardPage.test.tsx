@@ -37,7 +37,7 @@ describe('Dashboard ringkasan Accounting', () => {
   it('Finance melihat pintasan setoran tanpa pintasan data pegawai', async () => {
     role='FINANCE';
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
-    expect(await screen.findByRole('link',{name:/Setoran & Penerimaan/})).toHaveAttribute('href','/accounting/kas-bank/setoran');
+    expect(await screen.findByRole('link',{name:/Setoran Outlet/})).toHaveAttribute('href','/accounting/kas-bank/setoran');
     expect(screen.queryByRole('link',{name:/Cuti/})).not.toBeInTheDocument();
   });
   it('mengganti periode ringkasan tanpa mengambil detail transaksi', async () => {

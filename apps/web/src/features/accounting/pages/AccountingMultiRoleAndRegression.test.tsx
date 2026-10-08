@@ -22,8 +22,8 @@ describe('Navigasi dan batas akses Accounting', () => {
   it('Staff Accounting melihat menu laporan sesuai pekerjaannya', async () => {
     open('ACCOUNTING', 'ACC', '/accounting');
     const nav = await screen.findByRole('navigation', { name: 'Navigasi Accounting' });
-    fireEvent.click(within(nav).getByRole('button', { name: 'Pembukuan & Kontrol' }));
-    expect(within(nav).getByRole('link', { name: 'Catatan Transaksi' })).toBeInTheDocument();
+    fireEvent.click(within(nav).getByRole('button', { name: 'Pembukuan' }));
+    expect(within(nav).getByRole('link', { name: 'Jurnal Transaksi' })).toBeInTheDocument();
     expect(within(nav).getByRole('link', { name: 'Hutang & Piutang' })).toBeInTheDocument();
     expect(within(nav).queryByRole('link', { name: 'Dashboard Proyek' })).not.toBeInTheDocument();
   });

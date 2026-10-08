@@ -15,6 +15,7 @@ import { hasCapability } from '../../../session/capability';
 import { Button } from '../../../components/ui/Button';
 import { DetailSheet } from '../../../components/ui/DetailSheet';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/states';
+import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 
 const statusLabels = { draft: 'Draf', submitted: 'Menunggu pemeriksaan', correction: 'Perlu koreksi', pending_approval: 'Menunggu Manager', approved: 'Disetujui' };
 const typeLabels = { BILLING: 'Tagihan Angkasa Pura', PURCHASING: 'Pembelian stok outlet', OPERATIONAL: 'Pengeluaran operasional' };
@@ -83,7 +84,8 @@ export default function AccountingVoucherPage() {
   const mayReview = reviewer && record?.status === 'submitted' && !owns;
   const mayDecide = approver && record?.status === 'pending_approval' && !owns && record.reviewed_by !== user?.id;
   return <div className="space-y-6">
-    <header className="flex flex-col justify-between gap-4 border-b border-line pb-5 sm:flex-row sm:items-center"><div><Link to="/accounting/dokumen/register" className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300">← Register dokumen</Link><h1 className="text-2xl font-bold tracking-tight text-navy">Voucher pengeluaran</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Admin mengajukan voucher, Staff Accounting memeriksa, dan Manager memberikan persetujuan.</p></div>{writer && <Button onClick={() => openForm()}>Buat voucher</Button>}</header>
+    <DivisionPageHeader division="Divisi Accounting" descriptor="Tagihan & Pembayaran · Voucher" title="Voucher pengeluaran" description="Kelola pengajuan dari Admin, pemeriksaan Accounting, keputusan Manager, dan realisasi Finance dalam satu dokumen yang dapat ditelusuri." actions={writer ? <Button onClick={() => openForm()}>Buat voucher</Button> : undefined} />
+    <Link to="/accounting/dokumen/register" className="inline-flex min-h-10 items-center text-sm font-semibold text-primary-700 dark:text-primary-300">← Kembali ke semua dokumen</Link>
     <p className="text-sm text-subtle">Voucher disetujui menjadi dasar proses berikutnya. Realisasi pembayaran dicatat Finance dengan bukti. Stok dan jurnal belum otomatis berubah.</p>
     {feedback && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{feedback}</p>}
     <WorkflowGuide kind="voucher" />

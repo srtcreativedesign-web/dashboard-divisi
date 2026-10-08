@@ -1,11 +1,11 @@
 import { useEffect, useId, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Banknote, BookOpenText, ChevronDown, ClipboardCheck, FileText, LayoutDashboard, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, BookOpenText, ChevronDown, ClipboardCheck, Database, FileText, LayoutDashboard, TrendingUp, Users } from 'lucide-react';
 import { ACCOUNTING_MENU_ITEMS, ACCOUNTING_NAV_GROUPS, type MenuItem } from '../../config/menus';
 import type { AuthUser } from '../../api/auth';
 import { canAccessDivision, hasCapability } from '../../session/capability';
 
-const icons = { documents: ClipboardCheck, revenue: TrendingUp, expenses: FileText, cash: Banknote, people: Users, books: BookOpenText };
+const icons = { work: ClipboardCheck, daily: TrendingUp, payments: FileText, books: BookOpenText, reports: BarChart3, support: Users, data: Database };
 const linkClass = 'flex min-h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-primary ';
 export function AccountingNavigation({ user, compact = false, onNavigate }: { user: AuthUser; compact?: boolean; onNavigate: () => void }) {
   const location = useLocation();
@@ -13,7 +13,7 @@ export function AccountingNavigation({ user, compact = false, onNavigate }: { us
   const visible = (item: MenuItem) => item.roles.includes(user.role as never) && canAccessDivision(user, 'ACC') && (!item.capability || hasCapability(user.role, item.capability, user.divisionCode));
   const groups = ACCOUNTING_NAV_GROUPS.map(group => ({ ...group, children: group.children.filter(visible) })).filter(group => group.children.length);
   const activeGroup = groups.find(group => group.children.some(item => item.path === location.pathname))?.id;
-  const [expanded, setExpanded] = useState<string[]>(() => activeGroup ? [activeGroup] : ['documents']);
+  const [expanded, setExpanded] = useState<string[]>(() => activeGroup ? [activeGroup] : ['work']);
   useEffect(() => { if (activeGroup) setExpanded(previous => previous.includes(activeGroup) ? previous : [...previous, activeGroup]); }, [activeGroup]);
   const leaf = (item: MenuItem, nested = false) => <NavLink key={item.path} to={item.path} end onClick={onNavigate} title={compact ? item.label : undefined} className={({ isActive }) => linkClass + (isActive ? 'bg-primary-50 font-semibold text-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800') + (nested && !compact ? ' ml-4 border-l border-line' : '')}>
     {(!nested || compact) && <LayoutDashboard aria-hidden="true" className="h-[18px] w-[18px] shrink-0" />}<span className={compact ? 'sr-only' : ''}>{item.label}</span>
@@ -21,7 +21,7 @@ export function AccountingNavigation({ user, compact = false, onNavigate }: { us
   const dashboard = ACCOUNTING_MENU_ITEMS[0]!;
   return <nav aria-label="Navigasi Accounting" className="space-y-2 px-3">
     {visible(dashboard) && leaf(dashboard)}
-    {!compact && <p className="px-3 pb-1 pt-5 text-[10px] font-bold uppercase tracking-widest text-subtle">Proses bisnis</p>}
+    {!compact && <p className="px-3 pb-1 pt-5 text-[10px] font-bold uppercase tracking-widest text-subtle">Ruang kerja Accounting</p>}
     {groups.map(group => {
       const Icon = icons[group.id as keyof typeof icons];
       const open = expanded.includes(group.id);

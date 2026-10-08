@@ -51,7 +51,7 @@ export default function AccountingDashboardPage() {
   const previousDate = new Date(month + '-01T00:00:00Z'); previousDate.setUTCMonth(previousDate.getUTCMonth() - 1);
   const previous = annual.data?.months?.find(m => m.month === previousDate.toISOString().slice(0, 7));
   const difference = monthTrend?.amount !== null && monthTrend?.amount !== undefined && previous?.amount !== null && previous?.amount !== undefined ? moneyCents(monthTrend.amount) - moneyCents(previous.amount) : null;
-  const jobs = ACCOUNTING_MENU_ITEMS.filter(item => ['Setoran & Penerimaan', 'Cuti & Absensi'].includes(item.label) && item.capability && can(item.capability));
+  const jobs = ACCOUNTING_MENU_ITEMS.filter(item => ['/accounting/kas-bank/setoran', '/accounting/administrasi/pegawai'].includes(item.path) && item.capability && can(item.capability));
   const queues = data ? [
     { name: 'Lengkapi draf voucher', count: data.counts.draft, status: 'draft', enabled: can('write:voucher'), note: 'Lengkapi lalu ajukan untuk pemeriksaan.' },
     { name: 'Perbaiki voucher', count: data.counts.correction, status: 'correction', enabled: can('write:voucher'), note: 'Pengajuan dikembalikan untuk koreksi.' },

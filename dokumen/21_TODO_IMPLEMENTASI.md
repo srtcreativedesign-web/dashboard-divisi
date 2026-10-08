@@ -109,3 +109,5 @@ Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATU
 
 - [x] UI-SYSTEM-001a — Tetapkan UI Project sebagai dasar bahasa visual lintas divisi; header bersama dan konteks kerja Accounting berbasis periode/role/cakupan diterapkan. Peran: keempat peran. [Keputusan dan batas](70_STANDAR_UI_LINTAS_DIVISI.md). Penyelarasan seluruh halaman detail dan UAT semua role tetap terbuka.
 - [ ] UI-SYSTEM-001b — Terapkan standar bersama pada daftar/detail/form Accounting, lalu Cellular, dengan konteks dan tindakan khusus role; lakukan QA terang/gelap/mobile dan UAT pengguna.
+- [x] ACC-IA-001a — Arsitektur menu Accounting diubah menjadi ruang kerja berbasis pekerjaan; register, omzet dan voucher mendapat konteks kerja serta header bersama. Peran: keempat peran. [Keputusan dan batas](71_ARSITEKTUR_FITUR_ACCOUNTING_BERBASIS_PEKERJAAN.md). Fitur yang belum memiliki definisi/backend tetap backlog.
+- [ ] ACC-IA-001b — Selaraskan isi setoran, pencocokan, jurnal, periode, hutang-piutang, rekonsiliasi, cashflow, HR, master dan impor dengan kontrak halaman; lanjutkan walkthrough seluruh role dan UAT pengguna.
