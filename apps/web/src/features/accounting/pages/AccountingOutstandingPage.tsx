@@ -1,4 +1,5 @@
 import { AccountingQueryState } from "../../../components/accounting/AccountingStates";
+import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useToast } from "../../../components/ui/Toast";
@@ -159,33 +160,14 @@ export default function AccountingOutstandingPage() {
 
   return (
     <section className="space-y-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-primary dark:text-primary-300">
-            ACCOUNTING CONTROL CENTER
-          </p>
-          <h1 className="mt-1 text-2xl font-bold text-navy">
-            Hutang & Piutang
-          </h1>
-          <p className="mt-1 text-sm text-muted flex items-center">
-            Pencatatan kewajiban belum lunas, realisasi pembayaran, dan proyeksi
-            saldo kas akhir.
-            {isLoading && (
-              <span className="ml-2 text-xs text-primary dark:text-primary-300 animate-pulse font-medium">
-                (Menyinkronkan...)
-              </span>
-            )}
-          </p>
-        </div>
-        <button
+      <AccountingPageHeader area="Pembukuan · Kewajiban" title="Hutang & piutang" description={`Pencatatan kewajiban belum lunas, realisasi pembayaran, dan proyeksi saldo kas akhir.${isLoading ? ' Menyinkronkan data…' : ''}`} actions={<button
           type="button"
           onClick={() => setIsCreateDrawerOpen(true)}
           className="inline-flex items-center justify-center gap-2 rounded-input bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all"
         >
           <Plus className="h-4 w-4" />
           Catat Kewajiban Baru
-        </button>
-      </header>
+        </button>} />
 
       <AccountingQueryState loading={isLoading} error={query.error} empty={!serverData} retry={() => void query.refetch()}>
       <OutstandingKpiCards kpis={kpis} activeItemsCount={activeItemsCount} />

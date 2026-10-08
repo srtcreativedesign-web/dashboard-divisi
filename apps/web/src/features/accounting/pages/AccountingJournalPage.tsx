@@ -21,6 +21,7 @@ import { Plus } from "lucide-react";
 import { JournalTable } from "../../../components/accounting/JournalTable";
 import { JournalFormDrawer } from "../../../components/accounting/JournalFormDrawer";
 import { JournalFilterBar } from "../../../components/accounting/JournalFilterBar";
+import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 
 export default function AccountingJournalPage() {
   const { user } = useAuth();
@@ -137,15 +138,11 @@ export default function AccountingJournalPage() {
 
   return (
     <section className="space-y-5">
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-navy">Jurnal Aktual</h1>
-          <p className="text-sm text-muted mt-1">
-            Catat debit dan kredit, lampirkan bukti, dan telusuri koreksi jurnal.
-          </p>
-        </div>
-        
-        {canWrite && (
+      <AccountingPageHeader
+        area="Pembukuan · Transaksi"
+        title="Jurnal transaksi"
+        description="Catat debit dan kredit, lampirkan bukti, dan telusuri koreksi jurnal pada periode aktif."
+        actions={canWrite ? (
           <button
             onClick={handleCreateNew}
             className="inline-flex items-center justify-center gap-2 rounded-input bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -153,8 +150,8 @@ export default function AccountingJournalPage() {
             <Plus className="h-4 w-4" />
             Jurnal Baru
           </button>
-        )}
-      </header>
+        ) : undefined}
+      />
 
       <JournalFilterBar
         periods={periods.data ?? []}

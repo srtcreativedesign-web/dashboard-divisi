@@ -18,6 +18,7 @@ import {
 import { useAuth } from "../../../session/AuthContext";
 import { DetailSheet } from "../../../components/ui/DetailSheet";
 import { Button } from "../../../components/ui/Button";
+import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 
 function Field({
   label,
@@ -213,22 +214,12 @@ export default function AccountingMasterPage() {
 
   return (
     <section className="space-y-8 pb-12 animate-fade-in">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-navy">Master Data Accounting</h1>
-          <p className="mt-1 text-sm text-subtle max-w-xl">
-            {canWrite 
-              ? "Kelola kategori buku kas, daftar rekening, dan relasi outlet. Pastikan kode unik sesuai standar perusahaan."
-              : "Daftar referensi kategori dan rekening yang digunakan dalam penjurnalan dan pelaporan."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+      <AccountingPageHeader area="Data & Integrasi · Referensi" title="Master akun & kategori" description={canWrite ? "Kelola kategori buku kas, daftar rekening, dan relasi outlet sesuai standar perusahaan." : "Lihat referensi kategori dan rekening yang digunakan dalam penjurnalan dan pelaporan."} actions={<div className="flex items-center gap-2">
            <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-surface rounded-md text-muted">
              <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-300" />
              {canWrite ? 'Dapat mengelola' : 'Hanya baca'}
            </span>
-        </div>
-      </header>
+        </div>} />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2" aria-label="Tipe master data">

@@ -8,7 +8,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../../components/states
 import { formatDate, formatRupiah } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
 import { currentWorkMonth, useAccountingWork, workLabels, workStatuses, type WorkKind, type WorkStatus } from '../hooks/useAccountingWork';
-import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 export type AccountingWorkMode = 'admin' | 'accounting' | 'manager' | 'finance';
 const headings = { admin: 'Pengajuan Admin', accounting: 'Pemeriksaan Accounting', manager: 'Persetujuan Manager', finance: 'Realisasi Finance' };
@@ -41,7 +41,7 @@ export default function AccountingWorkPage({ mode }: { mode?: AccountingWorkMode
   const roleLabel = isWriter ? 'Admin Accounting' : isReviewer ? 'Staff Accounting' : isFinance ? 'Staff Finance' : 'Pembaca / pengambil keputusan';
 
   return <div className="space-y-6 pb-10 animate-fade-in text-navy">
-    <DivisionPageHeader division="Divisi Accounting" descriptor={`Pekerjaan Saya · ${roleLabel}`} title={heading} description="Temukan dokumen yang menjadi tanggung jawab Anda, pahami tahapnya, lalu selesaikan tindakan yang tersedia." actions={writer ? <Link to={base + '?new=1&month=' + month} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input bg-primary-700 px-4 text-sm font-semibold text-white hover:bg-primary-800"><FilePlus2 aria-hidden="true" className="h-4 w-4" />{kind === 'omzet' ? 'Buat rekap' : 'Buat voucher'}</Link> : undefined} />
+    <AccountingPageHeader area={`Pekerjaan Saya · ${roleLabel}`} title={heading} description="Temukan dokumen yang menjadi tanggung jawab Anda, pahami tahapnya, lalu selesaikan tindakan yang tersedia." actions={writer ? <Link to={base + '?new=1&month=' + month} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-input bg-primary-700 px-4 text-sm font-semibold text-white hover:bg-primary-800"><FilePlus2 aria-hidden="true" className="h-4 w-4" />{kind === 'omzet' ? 'Buat rekap' : 'Buat voucher'}</Link> : undefined} />
     <section aria-label="Konteks antrean" className="grid overflow-hidden rounded-card-lg border border-line bg-line shadow-card sm:grid-cols-2 xl:grid-cols-4">
       {[
         { label: 'Jenis dokumen', value: kind === 'omzet' ? 'Rekap omzet' : 'Voucher pengeluaran' },

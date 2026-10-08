@@ -21,7 +21,7 @@ describe('Accounting Master Data CRUD isolation', () => {
 
   it('renders ACC Master Data page and shows empty state when no data', async () => {
     render(<App />);
-    expect(await screen.findByRole('heading', { name: /Master Data Accounting/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Master akun & kategori/i })).toBeInTheDocument();
     const emptyStates = await screen.findAllByText(/Belum ada data/i);
     expect(emptyStates.length).toBeGreaterThan(0);
   });
@@ -53,7 +53,7 @@ describe('Accounting Master Data form accessibility', () => {
 
   it('form has proper headings and interactive buttons', async () => {
     render(<App />);
-    expect(await screen.findByRole('heading', { name: /Master Data Accounting/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Master akun & kategori/i })).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: /Tambah kategori/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
     expect(await screen.findByRole('button', { name: /Tambah rekening/i })).toBeInTheDocument();

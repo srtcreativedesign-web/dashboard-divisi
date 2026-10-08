@@ -4,6 +4,7 @@ import { ApiException } from '../../../api/client';
 import { Button } from '../../../components/ui/Button';
 import { useCellularPreview } from '../hooks/useCellularPreview';
 import { comparePreviews, metricLabels, previewProfiles, type PreviewProfile, type ReportPreview } from '../api/cellularPreview';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const inputClass = 'mt-1 w-full rounded-lg border border-line bg-panel p-2 text-navy';
 const money = (value: number | null | undefined) => value == null ? 'Belum terbaca' : new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 2 }).format(value);
@@ -41,7 +42,7 @@ export default function CellularReportPreviewPage() {
   }
 
   return <div className="space-y-6 text-navy">
-    <header><Link className="text-sm font-semibold text-primary-700 dark:text-primary-300" to="/accounting/dokumen/register">← Kembali ke ruang kerja Accounting</Link><p className="mt-4 text-sm text-muted">Fasilitas pendukung pemeriksaan</p><h1 className="mt-1 text-2xl font-semibold">Periksa sumber laporan Excel</h1><p className="mt-2 max-w-3xl text-sm text-muted">Baca laporan DATA CELLULAR T3, bandingkan angka harian, lalu telusuri sel asal. Hasil belum menjadi transaksi atau persetujuan Accounting.</p></header>
+    <AccountingPageHeader area="Data & Integrasi · Sumber Cellular" title="Periksa sumber laporan Excel" description="Baca laporan DATA CELLULAR T3, bandingkan angka harian, lalu telusuri sel asal. Hasil belum menjadi transaksi atau persetujuan Accounting." actions={<Link className="inline-flex min-h-10 items-center rounded-input border border-line bg-panel px-3 text-sm font-semibold text-primary-700 shadow-card hover:bg-surface dark:text-primary-300" to="/accounting/dokumen/register">Kembali ke register</Link>} />
     <form onSubmit={submit} className="rounded-xl border border-line bg-panel p-5">
       <div className="grid gap-4 md:grid-cols-3">
         <label className="text-sm">Periode laporan<input type="month" required min="2000-01" max="2099-12" className={inputClass} value={month} disabled={mutation.isPending} onChange={e => { setMonth(e.target.value); setPreviews([]); setSelected(''); setMessage(''); }} /></label>

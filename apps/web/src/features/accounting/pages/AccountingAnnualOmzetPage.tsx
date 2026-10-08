@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { omzetApi } from '../../../api/omzet';
 import { LoadingState, ErrorState, EmptyState } from '../../../components/states';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const rupiah = (value: string | null) => {
   if (value === null) return 'Belum ada rekap tervalidasi';
@@ -13,7 +14,7 @@ export default function AccountingAnnualOmzetPage() {
   const valid = /^\d{4}$/.test(year) && Number(year) >= 1900;
   const report = useQuery({ queryKey: ['omzet', 'annual', year], enabled: valid, queryFn: async () => (await omzetApi.annual(Number(year))).data });
   return <div className="space-y-6">
-    <header><h1 className="text-2xl font-semibold text-navy">Omzet tahunan</h1><p className="mt-2 text-sm text-subtle">Omzet outlet dari rekap tervalidasi. Angka ini belum menyatakan laba, setoran, atau kelengkapan seluruh shift.</p></header>
+    <AccountingPageHeader area="Laporan & Analisis · Kinerja Outlet" title="Omzet tahunan" description="Bandingkan omzet outlet dari rekap tervalidasi per bulan dan tahun. Angka ini belum menyatakan laba, setoran, atau kelengkapan seluruh shift." />
     <label className="block text-sm">Tahun<input className="ml-3 rounded-input border border-line px-3 py-2" type="number" min="1900" max="9999" value={year} onChange={event => setYear(event.target.value)} /></label>
     {!valid ? <p role="alert">Masukkan tahun empat digit antara 1900 dan 9999.</p> : report.isLoading ? <LoadingState /> : report.error ? <ErrorState description={report.error.message} onRetry={() => void report.refetch()} /> : report.data && <>
       <section className="rounded-card-lg border border-line bg-panel p-5"><h2 className="font-semibold">Total omzet tercatat {report.data.year}</h2><p className="mt-2 text-xl">{rupiah(report.data.amount)}</p><p className="mt-2 text-sm text-subtle">{report.data.validated_count} rekap tervalidasi; {report.data.pending_count} rekap belum tervalidasi dan belum masuk nominal.</p></section>

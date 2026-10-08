@@ -15,7 +15,7 @@ import { hasCapability } from '../../../session/capability';
 import { Button } from '../../../components/ui/Button';
 import { DetailSheet } from '../../../components/ui/DetailSheet';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/states';
-import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const statusLabels = { draft: 'Draf', submitted: 'Menunggu pemeriksaan', correction: 'Perlu koreksi', pending_approval: 'Menunggu Manager', approved: 'Disetujui' };
 const typeLabels = { BILLING: 'Tagihan Angkasa Pura', PURCHASING: 'Pembelian stok outlet', OPERATIONAL: 'Pengeluaran operasional' };
@@ -84,7 +84,7 @@ export default function AccountingVoucherPage() {
   const mayReview = reviewer && record?.status === 'submitted' && !owns;
   const mayDecide = approver && record?.status === 'pending_approval' && !owns && record.reviewed_by !== user?.id;
   return <div className="space-y-6">
-    <DivisionPageHeader division="Divisi Accounting" descriptor="Tagihan & Pembayaran · Voucher" title="Voucher pengeluaran" description="Kelola pengajuan dari Admin, pemeriksaan Accounting, keputusan Manager, dan realisasi Finance dalam satu dokumen yang dapat ditelusuri." actions={writer ? <Button onClick={() => openForm()}>Buat voucher</Button> : undefined} />
+      <AccountingPageHeader area="Tagihan & Pembayaran · Voucher" title="Voucher pengeluaran" description="Kelola pengajuan dari Admin, pemeriksaan Accounting, keputusan Manager, dan realisasi Finance dalam satu dokumen yang dapat ditelusuri." actions={writer ? <Button onClick={() => openForm()}>Buat voucher</Button> : undefined} />
     <Link to="/accounting/dokumen/register" className="inline-flex min-h-10 items-center text-sm font-semibold text-primary-700 dark:text-primary-300">← Kembali ke semua dokumen</Link>
     <p className="text-sm text-subtle">Voucher disetujui menjadi dasar proses berikutnya. Realisasi pembayaran dicatat Finance dengan bukti. Stok dan jurnal belum otomatis berubah.</p>
     {feedback && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{feedback}</p>}

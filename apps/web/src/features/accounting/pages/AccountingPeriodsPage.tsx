@@ -9,6 +9,7 @@ import { useAuth } from "../../../session/AuthContext";
 import { StatusPill } from "../../../components/StatusPill";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
+import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 
 export default function AccountingPeriodsPage() {
   const query = useAccountingPeriods();
@@ -56,24 +57,12 @@ export default function AccountingPeriodsPage() {
 
   return (
     <section className="space-y-8 pb-12 animate-fade-in">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-navy">
-            Periode Accounting
-          </h1>
-          <p className="mt-1 text-sm text-subtle max-w-xl">
-            {isAdmin
-              ? "Kelola siklus akuntansi tiap bulan. Ajukan periode yang sudah direkonsiliasi kepada manager."
-              : "Review dan setujui periode akuntansi yang telah diajukan oleh admin."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+      <AccountingPageHeader area="Pembukuan · Kontrol Periode" title="Periode & penutupan" description={isAdmin ? "Kelola siklus Accounting tiap bulan dan ajukan periode yang sudah direkonsiliasi kepada Manager." : "Tinjau dan putuskan periode Accounting yang telah diajukan sesuai kewenangan Anda."} actions={<div className="flex items-center gap-2">
           <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-surface rounded-md text-muted">
             <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-300" />
             {isAdmin ? "Akses Admin" : isManager ? "Akses Manager" : "Hanya baca"}
           </span>
-        </div>
-      </header>
+        </div>} />
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-3">

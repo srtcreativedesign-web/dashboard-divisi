@@ -6,6 +6,7 @@ import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/states';
 import { channelLabels, formatDate, formatRupiah } from '../ui/format';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 export default function AccountingDepositReconciliationPage() {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export default function AccountingDepositReconciliationPage() {
   if (!allowed) return <p role="alert">Akses pencocokan setoran tidak tersedia untuk akun ini.</p>;
 
   return <div className="space-y-6 pb-6">
-    <header><p className="text-xs font-semibold uppercase tracking-wider text-primary-700 dark:text-primary-300">Penelusuran sumber</p><h1 className="mt-2 text-2xl font-semibold text-navy">Pencocokan omzet & setoran</h1><p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">Bandingkan pembayaran outlet, setoran yang dicatat, dan penerimaan Finance per kanal. Sisa pencatatan bukan laba atau rugi.</p></header>
+    <AccountingPageHeader area="Penerimaan Harian · Penelusuran Sumber" title="Pencocokan omzet & setoran" description="Bandingkan pembayaran outlet, setoran yang dicatat, dan penerimaan Finance per kanal. Sisa pencatatan bukan laba atau rugi." />
     <section className="rounded-card-lg border border-line bg-panel p-5">
       <div className="flex flex-wrap items-end gap-4"><label className="text-sm font-medium text-navy">Bulan tanggal bisnis omzet<input type="month" required value={month} onChange={event => { setMonth(event.target.value); setPage(1); }} className="mt-2 block min-h-10 rounded-input border border-line px-3 py-2" /></label><button disabled={!validMonth || report.isFetching} onClick={() => void report.refetch()} className="min-h-10 rounded-input border border-line px-4 text-sm font-semibold disabled:opacity-50">Muat ulang</button></div>
       <p className="mt-4 text-sm leading-relaxed text-subtle">Bulan mengikuti omzet, bukan tanggal setoran. Penerimaan tercatat dari semua tanggal ikut dihitung, termasuk setelah bulan omzet. Ini belum merupakan rekonsiliasi rekening bank.</p>

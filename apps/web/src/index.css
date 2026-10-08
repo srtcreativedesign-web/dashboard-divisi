@@ -130,6 +130,53 @@ table td {
 .workspace-content table { font-variant-numeric: tabular-nums; }
 .workspace-content td, .workspace-content th { vertical-align: middle; }
 .workspace-content input:not([type=checkbox]):not([type=radio]):not([type=file]), .workspace-content select { min-height: 2.75rem; }
+
+/* Accounting follows the same surface rhythm used by the Project workspace. */
+.accounting-workspace > :is(div, section) {
+  animation: fade-in 0.3s ease-out;
+}
+.accounting-workspace :is(section, article, details).rounded-xl,
+.accounting-workspace div.rounded-xl.border {
+  border-radius: var(--radius-card-lg);
+  box-shadow: var(--shadow-card);
+}
+.accounting-workspace :is(section, article, details).rounded-lg.border,
+.accounting-workspace div.rounded-lg.border {
+  border-radius: var(--radius-card);
+}
+.accounting-workspace table thead {
+  background: var(--color-surface);
+  color: var(--color-subtle);
+}
+.accounting-workspace table thead th {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.accounting-workspace table tbody tr {
+  transition: background-color 150ms ease;
+}
+.accounting-workspace table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+}
+.accounting-workspace label {
+  font-weight: 550;
+  color: var(--color-muted);
+}
+.accounting-workspace input:not([type=checkbox]):not([type=radio]),
+.accounting-workspace select,
+.accounting-workspace textarea {
+  border-radius: var(--radius-input);
+  border-color: var(--color-line);
+}
+.accounting-workspace input:not([type=checkbox]):not([type=radio]):focus,
+.accounting-workspace select:focus,
+.accounting-workspace textarea:focus {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 14%, transparent);
+  outline: none;
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

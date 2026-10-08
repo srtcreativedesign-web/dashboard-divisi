@@ -6,6 +6,7 @@ import { useToast } from '../../../components/ui/Toast';
 import { Button } from '../../../components/ui/Button';
 import { AccountingQueryState } from '../../../components/accounting/AccountingStates';
 import { useAccountingReconciliations, useReconciliationMutations } from '../../../hooks/useAccounting';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const rupiah = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 2 }).format(value);
 const statusLabels: Record<string, string> = { draft: 'Draf', submitted: 'Menunggu persetujuan', approved: 'Disetujui', closed: 'Ditutup', reopened: 'Dibuka kembali' };
@@ -37,10 +38,7 @@ export default function AccountingReconciliationPage() {
   };
   const pending = Object.values(mutations).some(mutation => mutation.isPending);
   return <section className="space-y-6">
-    <header className="flex flex-wrap items-start justify-between gap-4">
-      <div><h1 className="font-bold">Rekonsiliasi Bank</h1><p className="mt-2 text-sm text-subtle">Bandingkan saldo rekening dengan buku kas, lalu tinjau kesiapan penutupan periode.</p></div>
-      <Button variant="secondary" onClick={() => void query.refetch()} disabled={query.isFetching}><RefreshCw className="h-4 w-4" />Muat ulang</Button>
-    </header>
+    <AccountingPageHeader area="Pembukuan · Kas & Bank" title="Rekonsiliasi bank" description="Bandingkan saldo rekening dengan buku kas, lalu tinjau kesiapan penutupan periode." actions={<Button variant="secondary" onClick={() => void query.refetch()} disabled={query.isFetching}><RefreshCw className="h-4 w-4" />Muat ulang</Button>} />
     <AccountingQueryState loading={query.isLoading} error={query.error} empty={!data || !period} retry={() => void query.refetch()} emptyTitle="Belum ada periode rekonsiliasi">
       {summary && period && <>
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-panel px-5 py-4">

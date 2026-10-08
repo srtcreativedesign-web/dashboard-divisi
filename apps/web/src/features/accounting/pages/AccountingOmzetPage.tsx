@@ -11,7 +11,7 @@ import { hasCapability } from '../../../session/capability';
 import { DetailSheet } from '../../../components/ui/DetailSheet';
 import { Button } from '../../../components/ui/Button';
 import { EmptyState, ErrorState, LoadingState } from '../../../components/states';
-import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const statusLabels = { draft: 'Draf', submitted: 'Menunggu pemeriksaan', correction: 'Perlu koreksi', pending_approval: 'Menunggu Manager', validated: 'Tervalidasi' };
 const amountFields = [['outlet_amount', 'Omzet laporan outlet'], ['cash_amount', 'Tunai'], ['qris_amount', 'QRIS'], ['edc_amount', 'EDC'], ['transfer_amount', 'Transfer'], ['other_amount', 'Pembayaran lainnya']] as const;
@@ -74,7 +74,7 @@ export default function AccountingOmzetPage() {
   const editable = record && ['draft', 'correction'].includes(record.status);
   const pendingUnlocks = record?.unlock_requests?.filter(request => request.status === 'pending') ?? [];
   return <div className="space-y-6">
-    <DivisionPageHeader division="Divisi Accounting" descriptor="Penerimaan Harian · Omzet Outlet" title="Rekap omzet H+1" description="Catat omzet per outlet dan shift, kirim untuk pemeriksaan Accounting, lalu selesaikan selisih sebelum pencocokan setoran." actions={writer ? <Button onClick={() => openForm()}>Buat rekap</Button> : undefined} />
+      <AccountingPageHeader area="Penerimaan Harian · Omzet Outlet" title="Rekap omzet H+1" description="Catat omzet per outlet dan shift, kirim untuk pemeriksaan Accounting, lalu selesaikan selisih sebelum pencocokan setoran." actions={writer ? <Button onClick={() => openForm()}>Buat rekap</Button> : undefined} />
     <Link to="/accounting/dokumen/register" className="inline-flex min-h-10 items-center text-sm font-semibold text-primary-700 dark:text-primary-300">← Kembali ke semua dokumen</Link>
     {feedback && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{feedback}</p>}
     {failure && !selected && !formOpen && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{failure}</p>}

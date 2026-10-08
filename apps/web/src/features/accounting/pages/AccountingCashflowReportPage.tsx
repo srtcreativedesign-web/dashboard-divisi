@@ -1,6 +1,7 @@
 import { AccountingQueryState } from "../../../components/accounting/AccountingStates";
+import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 import { useState } from "react";
-import { Download, TrendingUp, FileText, Loader2 } from "lucide-react";
+import { Download, TrendingUp, FileText } from "lucide-react";
 import {
   useAccountingPeriods,
   useAccountingCashflowReport,
@@ -131,28 +132,7 @@ export default function AccountingCashflowReportPage() {
 
   return (
     <section className="space-y-6 animate-fade-in-up">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-primary dark:text-primary-300">
-            ACCOUNTING CONTROL CENTER
-          </p>
-          <h1 className="mt-1 text-2xl font-bold text-navy">
-            Laporan Cashflow & Penjelasan Arus Kas
-          </h1>
-          <p className="mt-1 text-sm text-muted">
-            Laporan arus kas periode{" "}
-            <span className="font-semibold text-navy">
-              {reportData?.period.period_month ? new Date(reportData.period.period_month.slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : '—'}
-            </span>{" "}
-            dari jurnal kas yang tercatat.
-            {isLoading && (
-              <span className="inline-flex items-center gap-1 ml-2 text-xs text-primary dark:text-primary-300 font-medium">
-                <Loader2 className="h-3 w-3 animate-spin" /> Memuat data live...
-              </span>
-            )}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+      <AccountingPageHeader area="Laporan & Analisis · Arus Kas" title="Laporan cashflow" description={`Arus kas ${reportData?.period.period_month ? new Date(reportData.period.period_month.slice(0, 10) + 'T00:00:00').toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : 'periode aktif'} dari jurnal kas yang tercatat.${isLoading ? ' Memuat data terbaru…' : ''}`} actions={<div className="flex items-center gap-2">
           <button
             type="button"
             disabled={!reportData || isLoading || Boolean(report.error)}
@@ -171,8 +151,7 @@ export default function AccountingCashflowReportPage() {
             <Download className="h-4 w-4 text-subtle" />
             Ekspor Excel
           </button>
-        </div>
-      </header>
+        </div>} />
 
       <label className="flex flex-wrap items-center gap-3 text-sm font-medium">Periode laporan
         <select aria-label="Periode laporan" value={activePeriod?.id ?? ''} onChange={event => setSelectedPeriod(event.target.value)} className="rounded-lg border border-line bg-panel px-3 py-2">

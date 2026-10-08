@@ -3,6 +3,7 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { hrApi, type HrRecord, type HrValues } from '../api/hr';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const today = () => new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const statusNames: Record<string,string> = { PRESENT:'Hadir',ABSENT:'Tidak hadir',LEAVE:'Cuti',SICK:'Sakit',OFF:'Libur' };
@@ -38,7 +39,7 @@ export default function AccountingHrPage() {
   const textField=(key:keyof ReturnType<typeof empty>,label:string,options:{type?:string;min?:string;max?:string;maxLength?:number;minLength?:number;pattern?:string}={})=><Field label={label}><input required className={fieldClass} value={input[key]} onChange={e=>setInput({...input,[key]:e.target.value})} {...options}/></Field>;
   if(!can('view:acc_hr'))return <p className="p-6" role="alert">Akses rekap kepegawaian tidak tersedia untuk akun ini.</p>;
   return <div className="min-w-0 space-y-5 p-4 sm:p-6">
-    <header><h1 className="text-2xl font-bold">Rekap Cuti & Absensi</h1><p className="mt-1 text-sm text-subtle dark:text-slate-400">Accounting pusat mencatat sumber manual. Belum menghitung saldo cuti, gaji, atau bonus.</p></header>
+    <AccountingPageHeader area="Operasional Pendukung · Data Pegawai" title="Rekap cuti & absensi" description="Catat dan telusuri sumber administrasi pegawai untuk kebutuhan Accounting pusat. Modul ini belum menghitung saldo cuti, gaji, atau bonus." />
     {notice&&<p role="status" className="rounded-lg bg-green-50 p-3 text-green-800">{notice}</p>}
     {mutation.error&&<p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{mutation.error.message}</p>}
     {[employees,records,detail].filter(q=>q.error).map((q,i)=><p key={i} role="alert" className="text-red-700">{q.error?.message}<button className="ml-3 underline" onClick={()=>void q.refetch()}>Coba lagi</button></p>)}

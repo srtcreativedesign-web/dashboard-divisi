@@ -13,7 +13,7 @@ import { hasCapability } from '../../../session/capability';
 import { formatRupiah, formatDate } from '../ui/format';
 import { KPICard, KPICardGrid } from '../../../components/ui/primitives';
 import { Card, CardHeader } from '../../../components/ui/Card';
-import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 import { roleDisplay } from '../../../config/session';
 
 const monthLabel = (month: string) => new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(month.slice(0, 7) + '-01T00:00:00Z'));
@@ -67,9 +67,8 @@ export default function AccountingDashboardPage() {
   const dashboardCopy = roleDashboardCopy[user?.role ?? ''] ?? { title: 'Dashboard Accounting', description: 'Pantau pekerjaan, pendapatan, pengeluaran, dan posisi keuangan sesuai kewenangan akun.' };
 
   return <div className="space-y-6 pb-6">
-    <DivisionPageHeader
-      division="Divisi Accounting"
-      descriptor="Kontrol Keuangan & Kepatuhan"
+    <AccountingPageHeader
+      area="Kontrol Keuangan & Kepatuhan"
       title={dashboardCopy.title}
       description={dashboardCopy.description}
       actions={<><label className="flex items-center gap-2 rounded-input border border-line bg-panel px-3 py-1.5 shadow-card"><CalendarDays aria-hidden="true" className="h-4 w-4 text-subtle" /><span className="sr-only">Periode ringkasan</span><select aria-label="Periode ringkasan" className="min-h-8 bg-panel text-sm font-medium text-navy" value={month} onChange={e => setSelectedMonth(e.target.value)}>{monthOptions.map(m => <option key={m} value={m}>{monthLabel(m)}</option>)}</select></label><button type="button" onClick={refresh} className="flex min-h-11 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-medium text-navy shadow-card hover:bg-surface"><RefreshCw aria-hidden="true" className={'h-4 w-4 ' + (operations.isFetching || report.isFetching ? 'animate-spin motion-reduce:animate-none' : '')} />Muat ulang</button></>}

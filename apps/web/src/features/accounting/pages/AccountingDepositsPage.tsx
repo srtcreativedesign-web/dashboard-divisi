@@ -10,6 +10,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { depositsApi, type DepositInput, type DepositSource } from '../api/deposits';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const blank=():DepositInput=>({omzet_id:'',channel:'',deposit_date:today(),amount:'',destination:'',source_reference:'',evidence_reference:''});
 const inputClass='mt-1 w-full rounded-lg border border-line bg-panel p-2';
@@ -37,7 +38,7 @@ function DepositWorkspace({sourceFilter}:{sourceFilter:string|null}){
  const button=(label:string)=><Button type="submit" disabled={mutation.isPending}>{mutation.isPending?'Menyimpan...':label}</Button>;
  if(!can('view:acc_deposits'))return <p role="alert" className="p-6">Akses rekap setoran tidak tersedia untuk akun ini.</p>;
  return <div className="space-y-6">
-  <header className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-bold">Rekap Setoran</h1><p className="mt-2 text-sm text-muted">Setoran berdasarkan omzet tervalidasi. Penerimaan dicatat Finance dari bukti aktual; sisa belum diterima bukan laba atau rugi.</p></div>{!sourceFiltered&&can('write:acc_deposits')&&<Button onClick={()=>{setSelected(null);setFormOpen(true);setNotice('');mutation.reset();}}>Buat setoran</Button>}</header>
+  <AccountingPageHeader area="Penerimaan Harian · Setoran Outlet" title="Rekap setoran" description="Telusuri setoran dari omzet tervalidasi dan penerimaan aktual Finance. Sisa belum diterima bukan laba atau rugi." actions={!sourceFiltered&&can('write:acc_deposits')?<Button onClick={()=>{setSelected(null);setFormOpen(true);setNotice('');mutation.reset();}}>Buat setoran</Button>:undefined} />
   <WorkflowGuide kind="setoran" />
   <Link to="/accounting/kas-bank/pencocokan" className="inline-flex min-h-10 items-center text-sm font-semibold text-primary-700 dark:text-primary-300 underline">Cocokkan pembayaran omzet dengan setoran dan penerimaan</Link>
   {notice&&!selected&&<p role="status" className="text-green-700">{notice}</p>}{mutation.error&&!formOpen&&!selected&&<p role="alert" className="text-red-700">{mutation.error.message}</p>}
