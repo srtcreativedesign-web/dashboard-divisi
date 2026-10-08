@@ -1,3 +1,4 @@
+import { AccountingStart } from '../ui/AccountingStart';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, ArrowUpRight, CalendarDays, ChartNoAxesCombined, ClipboardCheck, FileText, RefreshCw, Wallet } from 'lucide-react';
@@ -57,6 +58,8 @@ export default function AccountingDashboardPage() {
       <div>{detail && <Link className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300" to="/accounting/dokumen/register">Buka register dokumen →</Link>}<p className="mb-2 inline-flex rounded-input border border-primary-200 bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700 dark:border-primary-900 dark:bg-primary-950 dark:text-primary-300">Divisi Accounting · Kontrol Keuangan</p><h1 className="text-2xl font-bold tracking-tight text-navy">Dashboard Accounting</h1><p className="mt-2 text-sm text-subtle">Kontrol pendapatan outlet, tagihan, kas dan proses persetujuan lintas divisi.</p></div>
       <div className="flex flex-wrap items-center gap-2"><label className="flex items-center gap-2 rounded-input border border-line bg-panel px-3 py-2"><CalendarDays aria-hidden="true" className="h-4 w-4 text-subtle" /><span className="sr-only">Periode ringkasan</span><select aria-label="Periode ringkasan" className="min-h-8 bg-panel text-sm font-medium text-navy" value={month} onChange={e => setSelectedMonth(e.target.value)}>{monthOptions.map(m => <option key={m} value={m}>{monthLabel(m)}</option>)}</select></label><button type="button" onClick={refresh} className="flex min-h-12 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-medium text-navy hover:bg-surface"><RefreshCw aria-hidden="true" className={'h-4 w-4 ' + (operations.isFetching || report.isFetching ? 'animate-spin motion-reduce:animate-none' : '')} />Muat ulang</button></div>
     </header>
+
+    <AccountingStart month={month} />
 
     {detail && <section aria-label="Ringkasan operasional" className="space-y-3">
       {operations.isLoading || periods.isLoading ? <LoadingState label="Memuat ringkasan operasional..." /> : operations.error ? <ErrorState description={operations.error.message} onRetry={() => { void operations.refetch(); }} /> : data ? <>

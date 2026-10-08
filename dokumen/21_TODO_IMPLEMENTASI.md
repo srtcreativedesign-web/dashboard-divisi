@@ -101,3 +101,5 @@ Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATU
 
 - [x] ACC-RESET-001 — Reset navigasi Accounting enam kelompok submenu, antrean per role, dashboard acuan visual Project dan register/detail persisten. Dokumen 67 menggantikan keputusan navigasi 66. Regresi 195/196 + perbaikan selector/4 tes ulang lulus; typecheck/build/lint scoped/QA Staff terang-gelap-mobile lulus. REQ tanpa PR.
 - [ ] ACC-RESET-002 — Walkthrough native semua role, penerimaan pengguna dan iterasi fungsi menu target (staging/Ecsys/ledger/PNL/bonus/CMO); tidak ditutup dengan reset UI.
+
+- [x] ACC-FIRST-USE-001 — Arahan mulai kerja per role di dashboard dan petunjuk urutan register; 19 tes/typecheck/build/lint scoped/QA Staff native lulus. Dokumen 68. UAT pengguna pertama dan staging/alur sumber tetap terbuka.
