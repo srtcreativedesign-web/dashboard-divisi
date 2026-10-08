@@ -19,9 +19,13 @@ class Project extends Model
 
     protected $fillable = [
         'division_code',
+        'project_code',
         'name',
         'client_name',
+        'location',
+        'description',
         'contract_value',
+        'classification',
         'status',
         'start_date',
         'end_date',
@@ -40,5 +44,20 @@ class Project extends Model
     public function documents()
     {
         return $this->hasMany(ProjectDocument::class);
+    }
+
+    public function pettyCashes()
+    {
+        return $this->hasMany(ProjectPettyCash::class);
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(ProjectExpense::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(ProjectInvoice::class);
     }
 }

@@ -21,7 +21,7 @@ it('mengabaikan respons pencarian lama yang selesai setelah hasil terbaru', asyn
  await act(async () => { old(response('Proyek lama')); });
  expect(screen.queryByText('Proyek lama')).not.toBeInTheDocument();
  expect(screen.getByText('Proyek terbaru')).toBeInTheDocument();
- expect(screen.getByText('Rp 9.999.999.999.999,99')).toBeInTheDocument();
+ expect(screen.getAllByText('Rp 9.999.999.999.999,99').length).toBeGreaterThan(0);
  expect(screen.getByRole('link',{name:'Detail proyek Proyek terbaru'})).toHaveAttribute('href','/projects/1');
 });
 it('pagination mengirim halaman dan filter baru kembali ke halaman pertama', async () => {

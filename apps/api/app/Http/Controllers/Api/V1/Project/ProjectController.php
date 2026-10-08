@@ -12,11 +12,21 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->validate(['status' => 'nullable|in:planning,in_progress,on_hold,completed', 'search' => 'nullable|string|max:255', 'per_page' => 'nullable|integer|min:1|max:100', 'page' => 'nullable|integer|min:1']);
+        $filters = $request->validate([
+            'status' => 'nullable|in:planning,in_progress,on_hold,completed',
+            'classification' => 'nullable|in:new,maintenance',
+            'search' => 'nullable|string|max:255',
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+        ]);
         $query = Project::query();
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['classification'])) {
+            $query->where('classification', $filters['classification']);
         }
 
         if (! empty($filters['search'])) {
@@ -39,14 +49,21 @@ class ProjectController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'project_code' => 'nullable|string|max:100',
             'client_name' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'contract_value' => 'numeric|min:0|max:9999999999999.99|decimal:0,2',
+            'classification' => 'nullable|in:new,maintenance',
             'status' => 'in:planning,in_progress,on_hold,completed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
         ]);
 
         $validated['division_code'] = 'PROJECT';
+        if (empty($validated['classification'])) {
+            $validated['classification'] = 'new';
+        }
         $this->validateDates($validated);
         $project = Project::create($validated);
 
@@ -59,8 +76,12 @@ class ProjectController extends Controller
 
         $validated = $request->validate([
             'name' => 'string|max:255',
+            'project_code' => 'nullable|string|max:100',
             'client_name' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
             'contract_value' => 'numeric|min:0|max:9999999999999.99|decimal:0,2',
+            'classification' => 'nullable|in:new,maintenance',
             'status' => 'in:planning,in_progress,on_hold,completed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
@@ -109,6 +130,76 @@ class ProjectController extends Controller
         ]);
 
         return response()->json($milestone, 201);
+    }
+
+    public function financialSummary($id)
+    {
+        $project = Project::with(['rabs.expenses', 'expenses', 'invoices'])->findOrFail($id);
+
+        $contractValue = (float) $project->contract_value;
+        $totalRabBudget = (float) $project->rabs->sum('total_price');
+        $totalActualExpense = (float) $project->expenses->sum('amount');
+        $budgetVariance = $totalRabBudget - $totalActualExpense;
+        $budgetAbsorptionPct = $totalRabBudget > 0 ? round(($totalActualExpense / $totalRabBudget) * 100, 2) : 0;
+
+        $realizedGrossProfit = $contractValue - $totalActualExpense;
+        $realizedMarginPct = $contractValue > 0 ? round(($realizedGrossProfit / $contractValue) * 100, 2) : 0;
+
+        $invoicedAmount = (float) $project->invoices->whereIn('status', ['invoiced', 'paid', 'overdue'])->sum('amount');
+        $paidAmount = (float) $project->invoices->where('status', 'paid')->sum('amount');
+        $outstandingReceivable = max(0, $invoicedAmount - $paidAmount);
+
+        // Kategori RAB vs Aktual
+        $categoryBreakdown = [];
+        $rabByCategory = $project->rabs->groupBy('category');
+        $expensesByCategory = $project->expenses->groupBy('category');
+
+        $allCategories = $rabByCategory->keys()->merge($expensesByCategory->keys())->unique();
+
+        foreach ($allCategories as $cat) {
+            $budget = (float) ($rabByCategory->get($cat)?->sum('total_price') ?? 0);
+            $actual = (float) ($expensesByCategory->get($cat)?->sum('amount') ?? 0);
+            $categoryBreakdown[] = [
+                'category' => $cat,
+                'budget' => $budget,
+                'actual' => $actual,
+                'variance' => $budget - $actual,
+                'absorption_percentage' => $budget > 0 ? round(($actual / $budget) * 100, 2) : 0,
+                'is_over_budget' => $actual > $budget,
+            ];
+        }
+
+        // Over-budget RAB items
+        $overBudgetItems = [];
+        foreach ($project->rabs as $rab) {
+            $actualItem = (float) $rab->expenses->sum('amount');
+            $budgetItem = (float) $rab->total_price;
+            if ($actualItem > $budgetItem) {
+                $overBudgetItems[] = [
+                    'id' => $rab->id,
+                    'item_name' => $rab->item_name,
+                    'category' => $rab->category,
+                    'budget' => $budgetItem,
+                    'actual' => $actualItem,
+                    'overrun' => $actualItem - $budgetItem,
+                ];
+            }
+        }
+
+        return response()->json([
+            'contract_value' => $contractValue,
+            'total_rab_budget' => $totalRabBudget,
+            'total_actual_expense' => $totalActualExpense,
+            'budget_variance' => $budgetVariance,
+            'budget_absorption_percentage' => $budgetAbsorptionPct,
+            'realized_gross_profit' => $realizedGrossProfit,
+            'realized_margin_percentage' => $realizedMarginPct,
+            'invoiced_amount' => $invoicedAmount,
+            'paid_amount' => $paidAmount,
+            'outstanding_receivable' => $outstandingReceivable,
+            'category_breakdown' => $categoryBreakdown,
+            'over_budget_items' => $overBudgetItems,
+        ]);
     }
 
     private function validateDates(array $dates): void

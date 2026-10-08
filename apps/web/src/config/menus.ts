@@ -57,14 +57,22 @@ export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
 
 
 export const PROJECT_MENU_ITEMS: MenuItem[] = [
-  { path: '/projects', label: 'Dashboard Proyek', roles: MVP_ROLES, capability: 'view:projects' },
-  { path: '/projects/list', label: 'Proyek Berjalan', roles: MVP_ROLES, capability: 'view:projects' },
-  { path: '/projects/progress', label: 'Progres Proyek', roles: MVP_ROLES, capability: 'view:projects' },
-  { path: '/projects/payments', label: 'Progres Pembayaran', roles: MVP_ROLES, capability: 'view:projects' },
-  { path: '/projects/vendors', label: 'Mitra & Vendor', roles: MVP_ROLES, capability: 'view:projects' },
-  { path: '/projects/documents', label: 'Dokumentasi', roles: MVP_ROLES, capability: 'view:projects' },
-  { path: '/projects/rab', label: 'Anggaran & RAB', roles: MVP_ROLES, capability: 'view:projects' },
-  { path: '/projects/timeline', label: 'Time Plan', roles: MVP_ROLES, capability: 'view:projects' },
+  // Kategori Project
+  { path: '/projects', label: 'Dashboard Proyek', group: 'Project', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/new', label: 'Proyek Baru', group: 'Project', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/maintenance', label: 'Proyek Maintenance', group: 'Project', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/timeline', label: 'Time Plan', group: 'Project', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/vendors', label: 'Mitra & Vendor', group: 'Project', roles: MVP_ROLES, capability: 'view:projects' },
+
+  // Kategori Keuangan
+  { path: '/projects/rab', label: 'Anggaran & RAB', group: 'Keuangan', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/payments', label: 'Progres Pembayaran', group: 'Keuangan', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/petty-cash', label: 'Petty Cash Proyek', group: 'Keuangan', roles: MVP_ROLES, capability: 'view:projects' },
+
+  // Kategori Laporan
+  { path: '/projects/progress', label: 'Progres Proyek', group: 'Laporan', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/lpj', label: 'LPJ & Laporan', group: 'Laporan', roles: MVP_ROLES, capability: 'view:projects' },
+  { path: '/projects/documents', label: 'Dokumentasi', group: 'Laporan', roles: MVP_ROLES, capability: 'view:projects' },
 ];
 
 export const CELLULAR_MENU_ITEMS: MenuItem[] = [

@@ -23,6 +23,7 @@ const DOC_TYPES = [
   { value: 'Kontrak / SPK', label: 'Kontrak & SPK' },
   { value: 'Gambar Kerja (DED)', label: 'Gambar Kerja (DED)' },
   { value: 'BAST & Serah Terima', label: 'BAST & Serah Terima' },
+  { value: 'LPJ & Pertanggungjawaban', label: 'LPJ & Pertanggungjawaban' },
   { value: 'Addendum & Change Order', label: 'Addendum / Tambah Kurang' },
   { value: 'General', label: 'Lainnya / Umum' },
 ];

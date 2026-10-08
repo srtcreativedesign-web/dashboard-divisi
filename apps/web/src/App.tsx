@@ -43,7 +43,9 @@ const ProjectProgressPage = lazy(() => import('./features/projects/pages/Project
 const ProjectPaymentsPage = lazy(() => import('./features/projects/pages/ProjectPaymentsPage'));
 const ProjectDocumentsPage = lazy(() => import('./features/projects/pages/ProjectDocumentsPage'));
 const ProjectRabPage = lazy(() => import('./features/projects/pages/ProjectRabPage'));
+const ProjectPettyCashPage = lazy(() => import('./features/projects/pages/ProjectPettyCashPage'));
 const ProjectTimelinePage = lazy(() => import('./features/projects/pages/ProjectTimelinePage'));
+const ProjectLpjPage = lazy(() => import('./features/projects/pages/ProjectLpjPage'));
 
 const CellularOperationsPage = lazy(() => import('./features/cellular/pages/CellularOperationsPage'));
 const CellularDashboardPage = lazy(() => import('./features/cellular/pages/CellularDashboardPage'));
@@ -134,13 +136,17 @@ export default function App() {
 
                   {/* Project Routes */}
                   <Route path="/projects" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/new" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectListPage forcedClassification="new" /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/maintenance" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectListPage forcedClassification="maintenance" /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/list" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectListPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/progress" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectProgressPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/payments" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectPaymentsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/vendors" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectVendorPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/documents" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDocumentsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/rab" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectRabPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/petty-cash" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectPettyCashPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/timeline" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectTimelinePage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/lpj" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectLpjPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/:id" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDetailPage /></RouteSuspense></RouteGuard>} />
 
                   <Route path="/cellular/operasional" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />

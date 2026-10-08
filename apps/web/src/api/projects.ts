@@ -1,8 +1,8 @@
-import { Project, PaginatedResponse, ProjectVendor, ProjectRab, ProjectExpense, ProjectInvoice, FinancialSummary, ProjectDocument } from '../types/project';
+import { Project, PaginatedResponse, ProjectVendor, ProjectRab, ProjectExpense, ProjectInvoice, FinancialSummary, ProjectDocument, ProjectPettyCash, ProjectPettyCashResponse } from '../types/project';
 import { api, downloadFile } from './client';
 
 export const projectApi = {
-  getProjects: async (params?: { status?: string; search?: string; per_page?: number; page?: number }) => {
+  getProjects: async (params?: { status?: string; search?: string; classification?: string; per_page?: number; page?: number }) => {
     const response = await api.get<PaginatedResponse<Project>>(`/projects`, params ? Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined).map(([key, value]) => [key, String(value)])) : undefined);
     return response.data;
   },
@@ -168,10 +168,51 @@ export const projectApi = {
     const response = await api.get<any>(`/projects/${projectId}/reports/bast`);
     return response.data;
   },
+
+  // Petty Cash Endpoints
+  getPettyCash: async (projectId: number, params?: { type?: string; category?: string; search?: string; start_date?: string; end_date?: string }) => {
+    const response = await api.get<ProjectPettyCashResponse>(`/projects/${projectId}/petty-cash`, params as Record<string, string | undefined>);
+    return response.data;
+  },
+
+  addPettyCash: async (projectId: number, form: FormData | Record<string, any>) => {
+    if (form instanceof FormData) {
+      const response = await api.upload<ProjectPettyCash>(`/projects/${projectId}/petty-cash`, form);
+      return response.data;
+    }
+    const response = await api.post<ProjectPettyCash>(`/projects/${projectId}/petty-cash`, form);
+    return response.data;
+  },
+
+  updatePettyCash: async (projectId: number, id: number, form: FormData | Record<string, any>) => {
+    if (form instanceof FormData) {
+      const response = await api.upload<ProjectPettyCash>(`/projects/${projectId}/petty-cash/${id}`, form);
+      return response.data;
+    }
+    const response = await api.put<ProjectPettyCash>(`/projects/${projectId}/petty-cash/${id}`, form);
+    return response.data;
+  },
+
+  deletePettyCash: async (projectId: number, id: number) => {
+    const response = await api.delete<{ message: string }>(`/projects/${projectId}/petty-cash/${id}`);
+    return response.data;
+  },
+
+  downloadPettyCashReceipt: async (projectId: number, id: number, filename?: string) => {
+    const blob = await downloadFile(`/projects/${projectId}/petty-cash/${id}/download`);
+    const url = URL.createObjectURL(blob);
+    const link = window.document.createElement('a');
+    link.href = url;
+    link.download = filename || `bukti-petty-cash-${id}`;
+    window.document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  },
 };
 
 export const vendorApi = {
-  getVendors: async (params?: { search?: string; per_page?: number; page?: number }) => {
+  getVendors: async (params?: { search?: string; classification?: string; per_page?: number; page?: number }) => {
     const response = await api.get<PaginatedResponse<ProjectVendor>>(`/vendors`, params ? Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined).map(([key, value]) => [key, String(value)])) : undefined);
     return response.data;
   },

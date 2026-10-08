@@ -23,4 +23,9 @@ class ProjectRab extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function expenses()
+    {
+        return $this->hasMany(ProjectExpense::class);
+    }
 }

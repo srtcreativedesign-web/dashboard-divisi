@@ -23,6 +23,9 @@ use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
 use App\Http\Controllers\Api\V1\Project\ProjectController;
 use App\Http\Controllers\Api\V1\Project\ProjectDocumentController;
+use App\Http\Controllers\Api\V1\Project\ProjectExpenseController;
+use App\Http\Controllers\Api\V1\Project\ProjectInvoiceController;
+use App\Http\Controllers\Api\V1\Project\ProjectPettyCashController;
 use App\Http\Controllers\Api\V1\Project\ProjectRabController;
 use App\Http\Controllers\Api\V1\Project\ProjectVendorController;
 use Illuminate\Support\Facades\Route;
@@ -228,8 +231,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix('projects')->middleware(['scope', 'capability:view:projects'])->group(function () {
             Route::get('/', [ProjectController::class, 'index']);
             Route::get('/{id}', [ProjectController::class, 'show']);
+            Route::get('/{id}/financial-summary', [ProjectController::class, 'financialSummary']);
             Route::get('/{id}/documents', [ProjectDocumentController::class, 'index']);
             Route::get('/{projectId}/documents/{documentId}/download', [ProjectDocumentController::class, 'download']);
+            Route::get('/{projectId}/petty-cash', [ProjectPettyCashController::class, 'index']);
+            Route::get('/{projectId}/petty-cash/{id}/download', [ProjectPettyCashController::class, 'downloadReceipt']);
+            Route::get('/{projectId}/invoices', [ProjectInvoiceController::class, 'index']);
+            Route::get('/{projectId}/expenses', [ProjectExpenseController::class, 'index']);
 
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectController::class, 'store']);
@@ -240,6 +248,19 @@ Route::prefix('v1')->group(function () {
 
                 Route::post('/{id}/documents', [ProjectDocumentController::class, 'store'])->middleware('file.scan');
                 Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
+
+                Route::post('/{projectId}/petty-cash', [ProjectPettyCashController::class, 'store'])->middleware('file.scan');
+                Route::put('/{projectId}/petty-cash/{id}', [ProjectPettyCashController::class, 'update'])->middleware('file.scan');
+                Route::delete('/{projectId}/petty-cash/{id}', [ProjectPettyCashController::class, 'destroy']);
+
+                Route::post('/{projectId}/invoices', [ProjectInvoiceController::class, 'store']);
+                Route::put('/{projectId}/invoices/{invoiceId}', [ProjectInvoiceController::class, 'update']);
+                Route::patch('/{projectId}/invoices/{invoiceId}/pay', [ProjectInvoiceController::class, 'markPaid']);
+                Route::delete('/{projectId}/invoices/{invoiceId}', [ProjectInvoiceController::class, 'destroy']);
+
+                Route::post('/{projectId}/expenses', [ProjectExpenseController::class, 'store'])->middleware('file.scan');
+                Route::put('/{projectId}/expenses/{expenseId}', [ProjectExpenseController::class, 'update'])->middleware('file.scan');
+                Route::delete('/{projectId}/expenses/{expenseId}', [ProjectExpenseController::class, 'destroy']);
             });
         });
 
