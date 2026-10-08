@@ -27,6 +27,8 @@ const AccountingJournalPage = lazy(() => import('./features/accounting/pages/Acc
 const AccountingPeriodsPage = lazy(() => import('./features/accounting/pages/AccountingPeriodsPage'));
 const AccountingMasterPage = lazy(() => import('./features/accounting/pages/AccountingMasterPage'));
 const AccountingImportPage = lazy(() => import('./features/accounting/pages/AccountingImportPage'));
+const AccountingEntryPage = lazy(() => import('./features/accounting/pages/AccountingEntryPage'));
+const AccountingWorkPage = lazy(() => import('./features/accounting/pages/AccountingWorkPage'));
 const CellularReportPreviewPage = lazy(() => import('./features/accounting/pages/CellularReportPreviewPage'));
 const AccountingOutstandingPage = lazy(() => import('./features/accounting/pages/AccountingOutstandingPage'));
 const AccountingCashflowReportPage = lazy(() => import('./features/accounting/pages/AccountingCashflowReportPage'));
@@ -99,7 +101,8 @@ export default function App() {
                   <Route path="/accounting/vouchers" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingVoucherPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/omzet" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingOmzetPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/omzet-tahunan" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingAnnualOmzetPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingEntryPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/pekerjaan" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingWorkPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/dashboard" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/jurnal" element={<RouteGuard capability="view:acc_journal" divisionCode="ACC"><RouteSuspense><AccountingJournalPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/preview-cellular" element={<RouteGuard capability="preview:cellular_report" divisionCode="ACC"><RouteSuspense><CellularReportPreviewPage /></RouteSuspense></RouteGuard>} />

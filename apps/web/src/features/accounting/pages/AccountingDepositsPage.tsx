@@ -21,7 +21,8 @@ function DepositWorkspace({sourceFilter}:{sourceFilter:string|null}){
  const {user}=useAuth();const can=(c:string)=>!!user&&hasCapability(user.role,c,user.divisionCode);const client=useQueryClient();
  const sourceFiltered=sourceFilter!==null;const validSource=!!sourceFilter&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(sourceFilter);
  const [formOpen,setFormOpen]=useState(false);
- const [month,setMonth]=useState(today().slice(0,7));const [page,setPage]=useState(1);const [sourceMonth,setSourceMonth]=useState(today().slice(0,7));const [sourcePage,setSourcePage]=useState(1);const [source,setSource]=useState<DepositSource|null>(null);
+ const [params]=useSearchParams();const requestedMonth=params.get('month');
+ const [month,setMonth]=useState(requestedMonth&&/^20\d{2}-(0[1-9]|1[0-2])$/.test(requestedMonth)?requestedMonth:today().slice(0,7));const [page,setPage]=useState(1);const [sourceMonth,setSourceMonth]=useState(today().slice(0,7));const [sourcePage,setSourcePage]=useState(1);const [source,setSource]=useState<DepositSource|null>(null);
  const [form,setForm]=useState(blank);const [selected,setSelected]=useState<string|null>(null);const [receipt,setReceipt]=useState({received_date:today(),amount:'',evidence_reference:''});const [cancel,setCancel]=useState<{receipt?:string}|null>(null);const [reason,setReason]=useState('');const [notice,setNotice]=useState('');
  const list=useQuery({queryKey:['acc-deposits','list',sourceFiltered?'source':'month',sourceFiltered?sourceFilter:month,page],queryFn:()=>sourceFiltered?depositsApi.list(month,page,sourceFilter!):depositsApi.list(month,page),enabled:can('view:acc_deposits')&&(sourceFiltered?validSource:/^\d{4}-\d{2}$/.test(month))});
  const sources=useQuery({queryKey:['acc-deposits','sources',sourceMonth,sourcePage],queryFn:()=>depositsApi.sources(sourceMonth,sourcePage),enabled:!sourceFiltered&&can('write:acc_deposits')&&/^\d{4}-\d{2}$/.test(sourceMonth)});

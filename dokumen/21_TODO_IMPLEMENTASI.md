@@ -95,3 +95,6 @@ Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATU
 - [ ] ACC-CEL-SCOPE-003 — pemetaan semua outlet dan akses Admin Cellular sesuai scope.
 - [ ] ACC-CEL-INTEGRATION-004 — sumber operasi/shift ke H+1, Accounting dan settlement. Formula fee/HPP/bonus/CMO menunggu keputusan bisnis.
 - [ ] ENT-DEPENDENCY-PATCH — remediasi tiga advisory baseline Laravel/CommonMark dan regresi.
+
+- [x] ACC-WORK-001a — ruang kerja Admin/Staff Accounting dari omzet/voucher persisten, antrean role, deep-link/URL context dan fasilitas sumber pendukung. Scope/verifikasi dokumen 66.
+- [ ] ACC-WORK-001b — walkthrough pengguna serta integrasi staging sumber, jadwal laporan dan rekonsiliasi Ecsys. Tidak ditutup melalui perubahan UI.

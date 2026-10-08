@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { depositsApi } from '../api/deposits';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
@@ -10,7 +10,9 @@ import { channelLabels, formatDate, formatRupiah } from '../ui/format';
 export default function AccountingDepositReconciliationPage() {
   const { user } = useAuth();
   const allowed = Boolean(user && hasCapability(user.role, 'view:acc_deposits', user.divisionCode));
-  const [month, setMonth] = useState(() => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).slice(0, 7));
+  const [params] = useSearchParams();
+  const requestedMonth = params.get('month');
+  const [month, setMonth] = useState(() => requestedMonth && /^20\d{2}-(0[1-9]|1[0-2])$/.test(requestedMonth) ? requestedMonth : new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).slice(0, 7));
   const [page, setPage] = useState(1);
   const validMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(month);
   const report = useQuery({ queryKey: ['acc-deposits', 'reconciliation', month, page], queryFn: () => depositsApi.reconciliation(month, page), enabled: allowed && validMonth });

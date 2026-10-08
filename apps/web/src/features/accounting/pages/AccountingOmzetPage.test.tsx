@@ -95,3 +95,21 @@ it('drill-down dashboard mempertahankan bulan/status valid dan mengabaikan filte
   await waitFor(() => expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: '' })));
   expect(vi.mocked(omzetApi.list).mock.calls[0]![0].month).not.toBe('2026-13');
 });
+
+it('tautan antrean membuka UUID rekap langsung; UUID palsu tidak memicu detail', async () => {
+  const id = '11111111-1111-4111-8111-111111111111';
+  mount('/accounting/omzet?rekap=' + id);
+  await waitFor(() => expect(omzetApi.detail).toHaveBeenCalledWith(id));
+  cleanup(); client.clear(); vi.mocked(omzetApi.detail).mockClear();
+  mount('/accounting/omzet?rekap=private-path');
+  await screen.findByRole('button', { name: 'Lihat' });
+  expect(omzetApi.detail).not.toHaveBeenCalled();
+});
+it('tautan buat membuka form draf hanya untuk Admin', async () => {
+  mount('/accounting/omzet?new=1');
+  expect(await screen.findByRole('form', { name: 'Form rekap omzet' })).toBeInTheDocument();
+  cleanup(); client.clear(); identity.role = 'ACCOUNTING';
+  mount('/accounting/omzet?new=1');
+  await screen.findByRole('button', { name: 'Lihat' });
+  expect(screen.queryByRole('form', { name: 'Form rekap omzet' })).not.toBeInTheDocument();
+});

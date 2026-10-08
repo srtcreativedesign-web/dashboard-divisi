@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { formatRupiah as rupiah, formatDate } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
 import { WorkflowGuide } from '../ui/WorkflowGuide';
@@ -41,7 +41,7 @@ export default function AccountingVoucherPage() {
   const [outlet, setOutlet] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string | null>(() => { const id = searchParams.get('voucher'); return id && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id) ? id : null; });
-  const [formOpen, setFormOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(() => writer && searchParams.get('new') === '1');
   const [editing, setEditing] = useState<{ id: string; version: number }>();
   const [input, setInput] = useState<VoucherInput>(emptyInput);
   const [reason, setReason] = useState('');
@@ -55,6 +55,7 @@ export default function AccountingVoucherPage() {
   const saved = (record: VoucherRecord) => {
     client.setQueryData(['vouchers', 'detail', record.id], record);
     void client.invalidateQueries({ queryKey: ['vouchers', 'list'] });
+    void client.invalidateQueries({ queryKey: ['accounting-work'] });
     setSelected(record.id); setFormOpen(false); setReason(''); setFailure(null); setFeedback('Voucher berhasil diperbarui.');
   };
   const failed = (error: Error) => { setFailure(error.message); setFeedback(null); };
@@ -81,7 +82,7 @@ export default function AccountingVoucherPage() {
   const mayReview = reviewer && record?.status === 'submitted' && !owns;
   const mayDecide = approver && record?.status === 'pending_approval' && !owns && record.reviewed_by !== user?.id;
   return <div className="space-y-6">
-    <header className="flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-2xl font-semibold text-navy">Voucher pengeluaran</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Admin mengajukan voucher, Staff Accounting memeriksa, dan Manager memberikan persetujuan.</p></div>{writer && <Button onClick={() => openForm()}>Buat voucher</Button>}</header>
+    <header className="flex flex-wrap items-start justify-between gap-4"><div><Link to="/accounting/pekerjaan" className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300">← Ruang kerja Accounting</Link><h1 className="text-2xl font-semibold text-navy">Voucher pengeluaran</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Admin mengajukan voucher, Staff Accounting memeriksa, dan Manager memberikan persetujuan.</p></div>{writer && <Button onClick={() => openForm()}>Buat voucher</Button>}</header>
     <p className="text-sm text-subtle">Voucher disetujui menjadi dasar proses berikutnya. Realisasi pembayaran dicatat Finance dengan bukti. Stok dan jurnal belum otomatis berubah.</p>
     {feedback && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{feedback}</p>}
     <div className="grid gap-3 sm:grid-cols-3">{[[FileText,'Susun pengajuan','Identitas, penerima dan rincian kebutuhan.'],[Wallet,'Rencanakan pembayaran','Prioritas, metode dan tujuan pembayaran.'],[ClipboardList,'Telusuri pemeriksaan','Draf, pemeriksaan Accounting dan persetujuan Manager.']].map(([Icon,title,description])=>{ const Symbol = Icon as typeof FileText; return <div key={String(title)} className="rounded-xl border border-line bg-panel p-4"><Symbol className="h-5 w-5 text-primary dark:text-primary-300" /><h2 className="mt-3 text-sm font-semibold">{String(title)}</h2><p className="mt-1 text-xs text-subtle">{String(description)}</p></div>; })}</div>
@@ -146,7 +147,7 @@ export default function AccountingVoucherPage() {
         {editable && <div className="flex flex-wrap gap-2"><Button variant="secondary" disabled={busy} onClick={() => openForm(record)}>Edit draf</Button><Button disabled={busy} onClick={() => perform('submit')}>Ajukan pemeriksaan</Button></div>}
         {(mayReview || mayDecide) && <div className="space-y-3"><label className="block text-sm">Catatan pemeriksaan / keputusan<textarea className={inputClass} disabled={busy} maxLength={2000} value={reason} onChange={event => setReason(event.target.value)} /></label><p className="text-xs text-subtle">Minimal 10 karakter. Catatan dicatat pada riwayat voucher.</p><div className="flex flex-wrap gap-2">{mayReview && <><Button disabled={busy || reason.trim().length < 10} onClick={() => perform('review', 'validate')}>Teruskan ke Manager</Button><Button variant="secondary" disabled={busy || reason.trim().length < 10} onClick={() => perform('review', 'return')}>Kembalikan untuk koreksi</Button></>}{mayDecide && <><Button disabled={busy || reason.trim().length < 10} onClick={() => perform('decide', 'approve')}>Setujui voucher</Button><Button variant="secondary" disabled={busy || reason.trim().length < 10} onClick={() => perform('decide', 'reject')}>Kembalikan untuk koreksi</Button></>}</div></div>}
         {record.status === 'approved' && <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">Voucher disetujui dan terkunci. Status ini belum menyatakan pembayaran selesai.</p>}
-        <VoucherPayments key={record.id+'-'+record.version} record={record} finance={can('execute:payment')} manager={approver} onSaved={saved} onBusyChange={setPaymentBusy} />
+        {record.status === 'approved' && <VoucherPayments key={record.id+'-'+record.version} record={record} finance={can('execute:payment')} manager={approver} onSaved={saved} onBusyChange={setPaymentBusy} />}
         <section className="space-y-2"><h3 className="font-semibold">Riwayat voucher</h3>{record.events?.map(event => <article key={event.id} className="border-l-2 border-line pl-3 text-sm"><p>{actionLabels[event.action] ?? event.action} · {event.actor_role} · Versi {event.metadata.version}</p><p className="text-subtle">{statusLabels[event.metadata.status]} · {rupiah(event.metadata.snapshot.amount)} · {event.metadata.snapshot.source_reference}</p>{event.metadata.reason && <p>{event.metadata.reason}</p>}<p className="text-xs text-subtle">{event.created_at}</p></article>)}</section>
       </div>}
     </DetailSheet>

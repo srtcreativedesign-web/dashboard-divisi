@@ -1,0 +1,10 @@
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, expect, it, vi } from 'vitest';
+import AccountingEntryPage from './AccountingEntryPage';
+const identity = vi.hoisted(() => ({ role: 'ADMIN', divisionCode: 'ACC' }));
+vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: identity }) }));
+vi.mock('./AccountingWorkPage', () => ({ default: () => <p>Antrean kerja</p> }));
+vi.mock('./AccountingDashboardPage', () => ({ default: () => <p>Pemantauan</p> }));
+afterEach(cleanup);
+it.each(['ADMIN', 'ACCOUNTING'])('beranda %s membuka ruang kerja', role => { identity.role = role; render(<AccountingEntryPage />); expect(screen.getByText('Antrean kerja')).toBeInTheDocument(); });
+it('beranda Manager tetap membuka pemantauan', () => { identity.role = 'MANAGER'; render(<AccountingEntryPage />); expect(screen.getByText('Pemantauan')).toBeInTheDocument(); });
