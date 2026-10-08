@@ -1,3 +1,4 @@
+import { DocumentWorkflow } from '../ui/DocumentWorkflow';
 import { Link, useSearchParams } from 'react-router-dom';
 import { formatRupiah as rupiah, formatDate } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -72,8 +73,8 @@ export default function AccountingOmzetPage() {
   const editable = record && ['draft', 'correction'].includes(record.status);
   const pendingUnlocks = record?.unlock_requests?.filter(request => request.status === 'pending') ?? [];
   return <div className="space-y-6">
-    <header className="flex flex-wrap items-start justify-between gap-4">
-      <div><Link to="/accounting/pekerjaan" className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300">← Ruang kerja Accounting</Link><h1 className="text-2xl font-semibold text-navy">Rekap omzet H+1</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Rekap per outlet dan shift, diperiksa oleh tim Accounting pusat. Pengajuan dibuka pada H+1 hingga pukul 23.59 WIB.</p></div>
+    <header className="flex flex-col justify-between gap-4 border-b border-line pb-5 sm:flex-row sm:items-center">
+      <div><Link to="/accounting/dokumen/register" className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300">← Register dokumen</Link><h1 className="text-2xl font-bold tracking-tight text-navy">Rekap omzet H+1</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Rekap per outlet dan shift, diperiksa oleh tim Accounting pusat. Pengajuan dibuka pada H+1 hingga pukul 23.59 WIB.</p></div>
       {writer && <Button onClick={() => openForm()}>Buat rekap</Button>}
     </header>
     {feedback && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{feedback}</p>}
@@ -109,10 +110,11 @@ export default function AccountingOmzetPage() {
         {!directory.data?.length && <p className="text-sm text-subtle">Direktori outlet aktif harus tersedia sebelum rekap dibuat.</p>}
       </form>
     </DetailSheet>
-    <DetailSheet isOpen={Boolean(selected)} onClose={() => !busy && setSelected(null)} title="Detail rekap omzet">
+    <DetailSheet isOpen={Boolean(selected)} onClose={() => !busy && setSelected(null)} title="Detail rekap omzet" size="xl">
       {detail.isLoading ? <LoadingState /> : detail.error ? <ErrorState description={detail.error.message} onRetry={() => void detail.refetch()} /> : record && <div className="space-y-5">
         {failure && <p role="alert" className="text-sm text-red-700">{failure}<Button variant="secondary" onClick={() => void detail.refetch()}>Muat ulang detail</Button></p>}
         <div><h2 className="font-semibold">{record.outlet_name}</h2><p className="mt-1 text-sm">{formatDate(record.business_date)} · Shift {record.shift} · <StatusBadge status={record.status} label={statusLabels[record.status]} /></p><p className="mt-1 text-xs text-subtle">Referensi: {record.source_reference}</p></div>
+        <DocumentWorkflow status={record.status} kind="omzet" version={record.version} />
         <dl className="space-y-2 text-sm">{[...amountFields.map(([key,label]) => [label, rupiah(record[key])]), ['Total pembayaran', rupiah(record.received_amount)], ['Selisih pembayaran', rupiah(record.payment_difference)], ['Laporan AP', record.ap_amount === null ? 'Belum dicocokkan / tidak berlaku' : rupiah(record.ap_amount)], ['Selisih AP', record.ap_difference === null ? '—' : rupiah(record.ap_difference)]].map(([label,value]) => <div key={label} className="flex justify-between gap-4 border-b border-line pb-2"><dt>{label}</dt><dd className="text-right font-medium">{value}</dd></div>)}</dl>
         {record.notes && <p className="text-sm">Catatan Admin: {record.notes}</p>}
         {record.review_notes && <p className="text-sm">Catatan pemeriksaan: {record.review_notes}</p>}

@@ -15,7 +15,7 @@ describe('Accounting Master Data CRUD', () => {
     localStorage.clear();
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
       if (url.includes('/auth/me')) return ok({ id: 'test', name: 'Pengguna Uji', role: localStorage.getItem('dashboard-divisi.role-demo'), divisionCode: localStorage.getItem('dashboard-divisi.division-demo') });
@@ -99,10 +99,11 @@ describe('Accounting Master Data CRUD', () => {
   it('ACC user sees MASTER route via navigation', async () => {
     history.pushState({}, '', '/accounting');
     render(<App />);
-    const masterLinks = await screen.findAllByRole('link', { name: /Master Data/i });
+    fireEvent.click(await screen.findByRole('button', { name: 'Pembukuan & Kontrol' }));
+    const masterLinks = await screen.findAllByRole('link', { name: 'Master Akun & Kategori' });
     expect(masterLinks.length).toBeGreaterThan(0);
     masterLinks.forEach(link => {
-      expect(link).toHaveAttribute('href', '/accounting/master');
+      expect(link).toHaveAttribute('href', '/accounting/pembukuan/master');
     });
   });
 });

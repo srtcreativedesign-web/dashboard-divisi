@@ -15,7 +15,7 @@ describe('Accounting Master Data CRUD isolation', () => {
     localStorage.clear();
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => String(input).includes('/auth/me') ? ok({ id: 'test', name: 'Pengguna Uji', role: localStorage.getItem('dashboard-divisi.role-demo'), divisionCode: localStorage.getItem('dashboard-divisi.division-demo') }) : ok([])));
   });
 
@@ -36,7 +36,7 @@ describe('Accounting Master Data CRUD isolation', () => {
   it('rejects non-ACC direct master data route', async () => {
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'WRAP');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     render(<App />);
     expect(await screen.findByText(/tidak memiliki izin/i)).toBeInTheDocument();
   });
@@ -47,7 +47,7 @@ describe('Accounting Master Data form accessibility', () => {
     localStorage.clear();
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => String(input).includes('/auth/me') ? ok({ id: 'test', name: 'Pengguna Uji', role: localStorage.getItem('dashboard-divisi.role-demo'), divisionCode: localStorage.getItem('dashboard-divisi.division-demo') }) : ok([])));
   });
 

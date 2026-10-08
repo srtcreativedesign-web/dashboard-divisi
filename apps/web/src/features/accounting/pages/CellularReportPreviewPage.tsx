@@ -41,7 +41,7 @@ export default function CellularReportPreviewPage() {
   }
 
   return <div className="space-y-6 text-navy">
-    <header><Link className="text-sm font-semibold text-primary-700 dark:text-primary-300" to="/accounting/pekerjaan">← Kembali ke ruang kerja Accounting</Link><p className="mt-4 text-sm text-muted">Fasilitas pendukung pemeriksaan</p><h1 className="mt-1 text-2xl font-semibold">Periksa sumber laporan Excel</h1><p className="mt-2 max-w-3xl text-sm text-muted">Baca laporan DATA CELLULAR T3, bandingkan angka harian, lalu telusuri sel asal. Hasil belum menjadi transaksi atau persetujuan Accounting.</p></header>
+    <header><Link className="text-sm font-semibold text-primary-700 dark:text-primary-300" to="/accounting/dokumen/register">← Kembali ke ruang kerja Accounting</Link><p className="mt-4 text-sm text-muted">Fasilitas pendukung pemeriksaan</p><h1 className="mt-1 text-2xl font-semibold">Periksa sumber laporan Excel</h1><p className="mt-2 max-w-3xl text-sm text-muted">Baca laporan DATA CELLULAR T3, bandingkan angka harian, lalu telusuri sel asal. Hasil belum menjadi transaksi atau persetujuan Accounting.</p></header>
     <form onSubmit={submit} className="rounded-xl border border-line bg-panel p-5">
       <div className="grid gap-4 md:grid-cols-3">
         <label className="text-sm">Periode laporan<input type="month" required min="2000-01" max="2099-12" className={inputClass} value={month} disabled={mutation.isPending} onChange={e => { setMonth(e.target.value); setPreviews([]); setSelected(''); setMessage(''); }} /></label>

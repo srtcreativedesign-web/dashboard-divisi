@@ -24,10 +24,10 @@ export function useAccountingWork(kind: WorkKind, month: string, outlet: string,
     const actualStatus = state === 'done' ? (kind === 'omzet' ? 'validated' : 'approved') : state;
     if (kind === 'omzet') {
       const { data } = await omzetApi.list({ month, outlet_id: outlet, status: actualStatus, page: String(requestedPage) });
-      return { ...data, items: data.items.map(r => ({ id: r.id, date: r.business_date, context: `Shift ${r.shift}`, outlet: r.outlet_name, division: r.source_division_code, amount: r.outlet_amount, reference: r.source_reference, note: r.review_notes || r.decision_notes || r.notes, version: r.version, deadline: r.submission_window.deadline, canSubmit: r.submission_window.can_submit, requiresAp: r.requires_ap })) };
+      return { ...data, items: data.items.map(r => ({ id: r.id, date: r.business_date, context: `Shift ${r.shift}`, outlet: r.outlet_name, division: r.source_division_code, amount: r.outlet_amount, reference: r.source_reference, note: r.review_notes || r.decision_notes || r.notes, version: r.version, deadline: r.submission_window.deadline, canSubmit: r.submission_window.can_submit, requiresAp: r.requires_ap, paymentStatus: null as string | null })) };
     }
     const { data } = await voucherApi.list({ month, outlet_id: outlet, status: actualStatus, type: '', page: String(requestedPage) });
-    return { ...data, items: data.items.map(r => ({ id: r.id, date: r.voucher_date, context: r.voucher_no, outlet: r.outlet_name, division: r.source_division_code, amount: r.amount, reference: r.entity_name, note: r.review_notes || r.decision_notes || r.description, version: r.version, deadline: r.due_date, canSubmit: true, requiresAp: false })) };
+    return { ...data, items: data.items.map(r => ({ id: r.id, date: r.voucher_date, context: r.voucher_no, outlet: r.outlet_name, division: r.source_division_code, amount: r.amount, reference: r.entity_name, note: r.review_notes || r.decision_notes || r.description, version: r.version, deadline: r.due_date, canSubmit: true, requiresAp: false, paymentStatus: r.payment_summary?.status ?? null })) };
   };
   const query = useQuery({ queryKey: ['accounting-work', kind, month, outlet, status, page], queryFn: () => list(status, page), enabled: allowed && validMonth });
   const counts = useQueries({ queries: workStatuses.map(state => ({ queryKey: ['accounting-work', kind, month, outlet, state, 1], queryFn: () => list(state, 1), enabled: allowed && validMonth })) });

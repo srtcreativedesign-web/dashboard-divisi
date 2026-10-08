@@ -32,7 +32,7 @@ describe('Dashboard ringkasan Accounting', () => {
   it('Finance melihat pintasan setoran tanpa pintasan data pegawai', async () => {
     role='FINANCE';
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
-    expect(await screen.findByRole('link',{name:/Rekap Setoran/})).toHaveAttribute('href','/accounting/setoran');
+    expect(await screen.findByRole('link',{name:/Setoran & Penerimaan/})).toHaveAttribute('href','/accounting/kas-bank/setoran');
     expect(screen.queryByRole('link',{name:/Cuti/})).not.toBeInTheDocument();
   });
   it('mengganti periode ringkasan tanpa mengambil detail transaksi', async () => {
@@ -55,7 +55,7 @@ describe('Dashboard ringkasan Accounting', () => {
     const summary = vi.spyOn(accountingApi, 'cashflowSummary');
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
     expect(await screen.findByText('Belum ada periode Accounting')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Rekap Omzet H\+1/ })).toHaveAttribute('href', '/accounting/omzet');
+    expect(screen.getByRole('link', { name: /Buka register dokumen/ })).toHaveAttribute('href', '/accounting/dokumen/register');
     expect(screen.queryByRole('region', { name: 'Ringkasan cashflow' })).not.toBeInTheDocument();
     expect(summary).not.toHaveBeenCalled();
   });
@@ -64,7 +64,7 @@ describe('Dashboard ringkasan Accounting', () => {
     vi.spyOn(accountingApi, 'periods').mockRejectedValueOnce(new Error('Periode gagal dimuat')).mockResolvedValue({ data: [], meta: { trace_id: 'ui-test' } });
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
     expect(await screen.findByRole('alert')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Voucher Pengeluaran/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Buka register dokumen/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Coba Lagi' }));
     expect(await screen.findByText('Belum ada periode Accounting')).toBeInTheDocument();
   });
@@ -100,7 +100,7 @@ describe('Pemantauan operasional', () => {
     expect(await screen.findByText('Naik Rp 0,01 dibanding bulan sebelumnya')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', {name:'Juli 2026: Rp 1,00'}));
     await waitFor(() => expect(dashboardApi.operations).toHaveBeenCalledWith('2026-07'));
-    expect(await screen.findByRole('link', {name:/Realisasi voucher/})).toHaveAttribute('href','/accounting/vouchers?month=2026-07&status=approved');
+    expect(await screen.findByRole('link', {name:/Realisasi voucher/})).toHaveAttribute('href','/accounting/pengeluaran/voucher?month=2026-07&status=approved');
     expect(screen.getByText('Belum ada periode jurnal pada bulan ini')).toBeInTheDocument();
   });
 });

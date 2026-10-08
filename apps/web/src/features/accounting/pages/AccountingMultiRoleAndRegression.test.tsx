@@ -21,17 +21,18 @@ describe('Navigasi dan batas akses Accounting', () => {
   });
   it('Staff Accounting melihat menu laporan sesuai pekerjaannya', async () => {
     open('ACCOUNTING', 'ACC', '/accounting');
-    const nav = await screen.findByRole('navigation', { name: 'Navigasi utama' });
-    expect(within(nav).getByRole('link', { name: 'Jurnal Transaksi' })).toBeInTheDocument();
+    const nav = await screen.findByRole('navigation', { name: 'Navigasi Accounting' });
+    fireEvent.click(within(nav).getByRole('button', { name: 'Pembukuan & Kontrol' }));
+    expect(within(nav).getByRole('link', { name: 'Catatan Transaksi' })).toBeInTheDocument();
     expect(within(nav).getByRole('link', { name: 'Hutang & Piutang' })).toBeInTheDocument();
     expect(within(nav).queryByRole('link', { name: 'Dashboard Proyek' })).not.toBeInTheDocument();
   });
   it('Manager Cellular tidak dapat membuka jurnal Accounting', async () => {
-    open('MANAGER', 'CELL', '/accounting/jurnal');
+    open('MANAGER', 'CELL', '/accounting/pembukuan/transaksi');
     expect(await screen.findByText(/tidak memiliki izin view:acc_journal/)).toBeInTheDocument();
   });
   it('BOD tetap membaca laporan dan tidak memperoleh akses master', async () => {
-    open('BOD', null, '/accounting/master');
+    open('BOD', null, '/accounting/pembukuan/master');
     expect(await screen.findByText(/tidak memiliki izin view:acc_master/)).toBeInTheDocument();
   });
 });

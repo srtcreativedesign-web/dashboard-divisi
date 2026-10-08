@@ -1,3 +1,4 @@
+import { AccountingLegacyRedirect } from './features/accounting/ui/AccountingLegacyRedirect';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -22,7 +23,6 @@ const AccountingHrPage = lazy(() => import('./features/accounting/pages/Accounti
 const AccountingVoucherPage = lazy(() => import('./features/accounting/pages/AccountingVoucherPage'));
 const AccountingOmzetPage = lazy(() => import('./features/accounting/pages/AccountingOmzetPage'));
 const AccountingAnnualOmzetPage = lazy(() => import('./features/accounting/pages/AccountingAnnualOmzetPage'));
-const AccountingDashboardPage = lazy(() => import('./features/accounting/pages/AccountingDashboardPage'));
 const AccountingJournalPage = lazy(() => import('./features/accounting/pages/AccountingJournalPage'));
 const AccountingPeriodsPage = lazy(() => import('./features/accounting/pages/AccountingPeriodsPage'));
 const AccountingMasterPage = lazy(() => import('./features/accounting/pages/AccountingMasterPage'));
@@ -95,23 +95,42 @@ export default function App() {
                   />
 
                   {/* Accounting Routes */}
-                  <Route path="/accounting/setoran" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositsPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/pencocokan-setoran" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositReconciliationPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/kepegawaian" element={<RouteGuard capability="view:acc_hr" divisionCode="ACC"><RouteSuspense><AccountingHrPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/vouchers" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingVoucherPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/omzet" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingOmzetPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/omzet-tahunan" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingAnnualOmzetPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/kas-bank/setoran" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/setoran" element={<AccountingLegacyRedirect to="/accounting/kas-bank/setoran" />} />
+                  <Route path="/accounting/kas-bank/pencocokan" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositReconciliationPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/pencocokan-setoran" element={<AccountingLegacyRedirect to="/accounting/kas-bank/pencocokan" />} />
+                  <Route path="/accounting/administrasi/pegawai" element={<RouteGuard capability="view:acc_hr" divisionCode="ACC"><RouteSuspense><AccountingHrPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/kepegawaian" element={<AccountingLegacyRedirect to="/accounting/administrasi/pegawai" />} />
+                  <Route path="/accounting/pengeluaran/voucher" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingVoucherPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/vouchers" element={<AccountingLegacyRedirect to="/accounting/pengeluaran/voucher" />} />
+                  <Route path="/accounting/pendapatan/rekap" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingOmzetPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/omzet" element={<AccountingLegacyRedirect to="/accounting/pendapatan/rekap" />} />
+                  <Route path="/accounting/pendapatan/analisis" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingAnnualOmzetPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/omzet-tahunan" element={<AccountingLegacyRedirect to="/accounting/pendapatan/analisis" />} />
                   <Route path="/accounting" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingEntryPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/pekerjaan" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingWorkPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/dashboard" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/jurnal" element={<RouteGuard capability="view:acc_journal" divisionCode="ACC"><RouteSuspense><AccountingJournalPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/preview-cellular" element={<RouteGuard capability="preview:cellular_report" divisionCode="ACC"><RouteSuspense><CellularReportPreviewPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/impor" element={<RouteGuard capability="submit:acc_period" divisionCode="ACC"><RouteSuspense><AccountingImportPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/outstanding" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingOutstandingPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/cashflow" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingCashflowReportPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/rekonsiliasi" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingReconciliationPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/periode" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingPeriodsPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dokumen/pengajuan" element={<RouteGuard capability="write:omzet" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="admin" mode="admin" /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dokumen/pemeriksaan" element={<RouteGuard capability="validate:omzet" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="accounting" mode="accounting" /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dokumen/persetujuan" element={<RouteGuard capability="approve:voucher" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="manager" mode="manager" /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dokumen/realisasi" element={<RouteGuard capability="execute:payment" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="finance" mode="finance" /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dokumen/register" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingWorkPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/pekerjaan" element={<AccountingLegacyRedirect to="/accounting/dokumen/register" />} />
+                  <Route path="/accounting/dashboard" element={<AccountingLegacyRedirect to="/accounting" />} />
+                  <Route path="/accounting/pembukuan/transaksi" element={<RouteGuard capability="view:acc_journal" divisionCode="ACC"><RouteSuspense><AccountingJournalPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/jurnal" element={<AccountingLegacyRedirect to="/accounting/pembukuan/transaksi" />} />
+                  <Route path="/accounting/pendapatan/sumber" element={<RouteGuard capability="preview:cellular_report" divisionCode="ACC"><RouteSuspense><CellularReportPreviewPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/preview-cellular" element={<AccountingLegacyRedirect to="/accounting/pendapatan/sumber" />} />
+                  <Route path="/accounting/pembukuan/impor" element={<RouteGuard capability="submit:acc_period" divisionCode="ACC"><RouteSuspense><AccountingImportPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/impor" element={<AccountingLegacyRedirect to="/accounting/pembukuan/impor" />} />
+                  <Route path="/accounting/pembukuan/hutang-piutang" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingOutstandingPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/outstanding" element={<AccountingLegacyRedirect to="/accounting/pembukuan/hutang-piutang" />} />
+                  <Route path="/accounting/kas-bank/cashflow" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingCashflowReportPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/cashflow" element={<AccountingLegacyRedirect to="/accounting/kas-bank/cashflow" />} />
+                  <Route path="/accounting/kas-bank/rekonsiliasi" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingReconciliationPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/rekonsiliasi" element={<AccountingLegacyRedirect to="/accounting/kas-bank/rekonsiliasi" />} />
+                  <Route path="/accounting/pembukuan/periode" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingPeriodsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/periode" element={<AccountingLegacyRedirect to="/accounting/pembukuan/periode" />} />
+                  <Route path="/accounting/pembukuan/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/master" element={<AccountingLegacyRedirect to="/accounting/pembukuan/master" />} />
 
                   {/* Project Routes */}
                   <Route path="/projects" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDashboardPage /></RouteSuspense></RouteGuard>} />

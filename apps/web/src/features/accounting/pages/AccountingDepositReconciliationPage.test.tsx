@@ -18,8 +18,8 @@ it('menampilkan nominal eksak, sumber dan dasar pencocokan untuk Accounting', as
   expect(within(region).getByRole('cell', { name: 'Rp 999.999.999.999,99' })).toBeInTheDocument();
   expect(within(region).getByRole('cell', { name: 'Rp 0,01' })).toBeInTheDocument();
   expect(screen.getByText(/Penerimaan tercatat dari semua tanggal/)).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Buka rekap setoran' })).toHaveAttribute('href', '/accounting/setoran');
-  expect(screen.getByRole('link', { name: 'Buka setoran sumber ini' })).toHaveAttribute('href', '/accounting/setoran?omzet_id=source');
+  expect(screen.getByRole('link', { name: 'Buka rekap setoran' })).toHaveAttribute('href', '/accounting/kas-bank/setoran');
+  expect(screen.getByRole('link', { name: 'Buka setoran sumber ini' })).toHaveAttribute('href', '/accounting/kas-bank/setoran?omzet_id=source');
 });
 it('role ringkasan tidak meminta rincian pencocokan', () => {
   role = 'HEAD_OPS';

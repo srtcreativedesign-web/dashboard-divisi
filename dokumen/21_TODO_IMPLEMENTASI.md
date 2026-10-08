@@ -98,3 +98,6 @@ Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATU
 
 - [x] ACC-WORK-001a — ruang kerja Admin/Staff Accounting dari omzet/voucher persisten, antrean role, deep-link/URL context dan fasilitas sumber pendukung. Scope/verifikasi dokumen 66.
 - [ ] ACC-WORK-001b — walkthrough pengguna serta integrasi staging sumber, jadwal laporan dan rekonsiliasi Ecsys. Tidak ditutup melalui perubahan UI.
+
+- [x] ACC-RESET-001 — Reset navigasi Accounting enam kelompok submenu, antrean per role, dashboard acuan visual Project dan register/detail persisten. Dokumen 67 menggantikan keputusan navigasi 66. Regresi 195/196 + perbaikan selector/4 tes ulang lulus; typecheck/build/lint scoped/QA Staff terang-gelap-mobile lulus. REQ tanpa PR.
+- [ ] ACC-RESET-002 — Walkthrough native semua role, penerimaan pengguna dan iterasi fungsi menu target (staging/Ecsys/ledger/PNL/bonus/CMO); tidak ditutup dengan reset UI.

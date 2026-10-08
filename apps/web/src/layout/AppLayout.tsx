@@ -1,3 +1,4 @@
+import { AccountingNavigation } from '../components/accounting/AccountingNavigation';
 import { Fragment, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
 import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, ShieldCheck, ShieldAlert, CreditCard, PanelLeftClose, PanelLeftOpen, Moon, Sun, FileText, CheckSquare, Package, Coins, FolderKanban, ClipboardCheck } from 'lucide-react';
@@ -111,7 +112,7 @@ export function AppLayout() {
   const activeMenu = menuItems.find(item => item.path === location.pathname);
   const roleLabel = roleDisplay(user.role);
   const scopeLabel = normalizeDivisionCode(user.divisionCode) ?? 'Semua modul MVP';
-  const navigation = (compact = false) => (
+  const navigation = (compact = false) => isAccounting ? <AccountingNavigation user={user} compact={compact} onNavigate={() => setDrawerOpen(false)} /> : (
     <nav aria-label="Navigasi utama" className="space-y-1 px-3">
       {visibleMenu.map((item,index) => {
         const Icon = ICON_MAP[item.path] ?? LayoutDashboard;

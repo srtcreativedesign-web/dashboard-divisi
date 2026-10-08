@@ -6,5 +6,5 @@ vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: identit
 vi.mock('./AccountingWorkPage', () => ({ default: () => <p>Antrean kerja</p> }));
 vi.mock('./AccountingDashboardPage', () => ({ default: () => <p>Pemantauan</p> }));
 afterEach(cleanup);
-it.each(['ADMIN', 'ACCOUNTING'])('beranda %s membuka ruang kerja', role => { identity.role = role; render(<AccountingEntryPage />); expect(screen.getByText('Antrean kerja')).toBeInTheDocument(); });
+it.each(['ADMIN', 'ACCOUNTING'])('beranda %s membuka dashboard baru', role => { identity.role = role; render(<AccountingEntryPage />); expect(screen.getByText('Pemantauan')).toBeInTheDocument(); });
 it('beranda Manager tetap membuka pemantauan', () => { identity.role = 'MANAGER'; render(<AccountingEntryPage />); expect(screen.getByText('Pemantauan')).toBeInTheDocument(); });

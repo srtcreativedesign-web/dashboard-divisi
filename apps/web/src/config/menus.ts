@@ -16,25 +16,45 @@ export const MENU_ITEMS: MenuItem[] = [
   ...MVP_MODULES.map(module => ({ path: module.path, label: module.name, roles: MVP_ROLES, capability: module.capability })),
 ];
 
-export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
-  { path: '/accounting', label: 'Beranda Accounting', group: 'Ringkasan', roles: MVP_ROLES, capability: 'view:acc_report' },
-  { path: '/accounting/dashboard', label: 'Dashboard Pemantauan', group: 'Ringkasan', roles: MVP_ROLES, capability: 'view:acc_report' },
-  { path: '/accounting/pekerjaan', label: 'Ruang Kerja Accounting', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/omzet', label: 'Rekap Omzet H+1', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/vouchers', label: 'Voucher Pengeluaran', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/setoran', label: 'Rekap Setoran', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_deposits' },
-  { path: '/accounting/kepegawaian', label: 'Rekap Cuti & Absensi', group: 'Pekerjaan harian', roles: MVP_ROLES, capability: 'view:acc_hr' },
-  { path: '/accounting/omzet-tahunan', label: 'Omzet Tahunan', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/pencocokan-setoran', label: 'Pencocokan Setoran', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_deposits' },
-  { path: '/accounting/jurnal', label: 'Jurnal Transaksi', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_journal' },
-  { path: '/accounting/cashflow', label: 'Laporan Cashflow', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/outstanding', label: 'Hutang & Piutang', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/rekonsiliasi', label: 'Rekonsiliasi Bank', group: 'Laporan & pencocokan', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/preview-cellular', label: 'Periksa Sumber Excel', group: 'Pengaturan', roles: MVP_ROLES, capability: 'preview:cellular_report' },
-  { path: '/accounting/impor', label: 'Impor Excel', group: 'Pengaturan', roles: MVP_ROLES, capability: 'submit:acc_period' },
-  { path: '/accounting/periode', label: 'Periode Akuntansi', group: 'Pengaturan', roles: MVP_ROLES, capability: 'view:acc_detail' },
-  { path: '/accounting/master', label: 'Master Data & COA', group: 'Pengaturan', roles: MVP_ROLES, capability: 'view:acc_master' },
+export interface AccountingNavGroup { id: string; label: string; children: MenuItem[] }
+export const ACCOUNTING_NAV_GROUPS: AccountingNavGroup[] = [
+  { id: 'documents', label: 'Dokumen & Persetujuan', children: [
+    { path: '/accounting/dokumen/register', label: 'Register Dokumen', roles: MVP_ROLES, capability: 'view:acc_detail' },
+    { path: '/accounting/dokumen/pengajuan', label: 'Pengajuan Admin', roles: ['ADMIN'], capability: 'write:omzet' },
+    { path: '/accounting/dokumen/pemeriksaan', label: 'Pemeriksaan Accounting', roles: ['ACCOUNTING'], capability: 'validate:omzet' },
+    { path: '/accounting/dokumen/persetujuan', label: 'Persetujuan Manager', roles: ['MANAGER'], capability: 'approve:voucher' },
+    { path: '/accounting/dokumen/realisasi', label: 'Realisasi Finance', roles: ['FINANCE'], capability: 'execute:payment' },
+  ] },
+  { id: 'revenue', label: 'Pendapatan Outlet', children: [
+    { path: '/accounting/pendapatan/rekap', label: 'Rekap Omzet H+1', roles: MVP_ROLES, capability: 'view:acc_detail' },
+    { path: '/accounting/pendapatan/analisis', label: 'Analisis Omzet Outlet', roles: MVP_ROLES, capability: 'view:acc_detail' },
+    { path: '/accounting/pendapatan/sumber', label: 'Sumber Laporan Cellular', roles: MVP_ROLES, capability: 'preview:cellular_report' },
+  ] },
+  { id: 'expenses', label: 'Tagihan & Pengeluaran', children: [
+    { path: '/accounting/pengeluaran/voucher', label: 'Voucher Pengeluaran', roles: MVP_ROLES, capability: 'view:acc_detail' },
+  ] },
+  { id: 'cash', label: 'Kas & Bank', children: [
+    { path: '/accounting/kas-bank/setoran', label: 'Setoran & Penerimaan', roles: MVP_ROLES, capability: 'view:acc_deposits' },
+    { path: '/accounting/kas-bank/pencocokan', label: 'Pencocokan Setoran', roles: MVP_ROLES, capability: 'view:acc_deposits' },
+    { path: '/accounting/kas-bank/rekonsiliasi', label: 'Rekonsiliasi Bank', roles: MVP_ROLES, capability: 'view:acc_detail' },
+    { path: '/accounting/kas-bank/cashflow', label: 'Laporan Cashflow', roles: MVP_ROLES, capability: 'view:acc_detail' },
+  ] },
+  { id: 'people', label: 'Administrasi Pegawai', children: [
+    { path: '/accounting/administrasi/pegawai', label: 'Cuti & Absensi', roles: MVP_ROLES, capability: 'view:acc_hr' },
+  ] },
+  { id: 'books', label: 'Pembukuan & Kontrol', children: [
+    { path: '/accounting/pembukuan/transaksi', label: 'Catatan Transaksi', roles: MVP_ROLES, capability: 'view:acc_journal' },
+    { path: '/accounting/pembukuan/hutang-piutang', label: 'Hutang & Piutang', roles: MVP_ROLES, capability: 'view:acc_detail' },
+    { path: '/accounting/pembukuan/periode', label: 'Periode & Penutupan', roles: MVP_ROLES, capability: 'view:acc_detail' },
+    { path: '/accounting/pembukuan/master', label: 'Master Akun & Kategori', roles: MVP_ROLES, capability: 'view:acc_master' },
+    { path: '/accounting/pembukuan/impor', label: 'Impor Transaksi', roles: MVP_ROLES, capability: 'submit:acc_period' },
+  ] },
 ];
+export const ACCOUNTING_MENU_ITEMS: MenuItem[] = [
+  { path: '/accounting', label: 'Dashboard Accounting', roles: MVP_ROLES, capability: 'view:acc_report' },
+  ...ACCOUNTING_NAV_GROUPS.flatMap(group => group.children.map(item => ({ ...item, group: group.label }))),
+];
+
 
 export const PROJECT_MENU_ITEMS: MenuItem[] = [
   { path: '/projects', label: 'Dashboard Proyek', roles: MVP_ROLES, capability: 'view:projects' },

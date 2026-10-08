@@ -1,3 +1,4 @@
+import { DocumentWorkflow } from '../ui/DocumentWorkflow';
 import { Link, useSearchParams } from 'react-router-dom';
 import { formatRupiah as rupiah, formatDate } from '../ui/format';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -5,7 +6,7 @@ import { WorkflowGuide } from '../ui/WorkflowGuide';
 import { VoucherPayments } from '../ui/VoucherPayments';
 import { VoucherDocument } from '../ui/VoucherDocumentPreview';
 import { exportVoucherPdf, paymentStatusNames } from '../ui/voucherDocument';
-import { FileText, Wallet, ClipboardList } from 'lucide-react';
+
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { voucherApi, type VoucherInput, type VoucherRecord } from '../../../api/vouchers';
@@ -82,10 +83,9 @@ export default function AccountingVoucherPage() {
   const mayReview = reviewer && record?.status === 'submitted' && !owns;
   const mayDecide = approver && record?.status === 'pending_approval' && !owns && record.reviewed_by !== user?.id;
   return <div className="space-y-6">
-    <header className="flex flex-wrap items-start justify-between gap-4"><div><Link to="/accounting/pekerjaan" className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300">← Ruang kerja Accounting</Link><h1 className="text-2xl font-semibold text-navy">Voucher pengeluaran</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Admin mengajukan voucher, Staff Accounting memeriksa, dan Manager memberikan persetujuan.</p></div>{writer && <Button onClick={() => openForm()}>Buat voucher</Button>}</header>
+    <header className="flex flex-col justify-between gap-4 border-b border-line pb-5 sm:flex-row sm:items-center"><div><Link to="/accounting/dokumen/register" className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300">← Register dokumen</Link><h1 className="text-2xl font-bold tracking-tight text-navy">Voucher pengeluaran</h1><p className="mt-2 max-w-3xl text-sm text-subtle">Admin mengajukan voucher, Staff Accounting memeriksa, dan Manager memberikan persetujuan.</p></div>{writer && <Button onClick={() => openForm()}>Buat voucher</Button>}</header>
     <p className="text-sm text-subtle">Voucher disetujui menjadi dasar proses berikutnya. Realisasi pembayaran dicatat Finance dengan bukti. Stok dan jurnal belum otomatis berubah.</p>
     {feedback && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{feedback}</p>}
-    <div className="grid gap-3 sm:grid-cols-3">{[[FileText,'Susun pengajuan','Identitas, penerima dan rincian kebutuhan.'],[Wallet,'Rencanakan pembayaran','Prioritas, metode dan tujuan pembayaran.'],[ClipboardList,'Telusuri pemeriksaan','Draf, pemeriksaan Accounting dan persetujuan Manager.']].map(([Icon,title,description])=>{ const Symbol = Icon as typeof FileText; return <div key={String(title)} className="rounded-xl border border-line bg-panel p-4"><Symbol className="h-5 w-5 text-primary dark:text-primary-300" /><h2 className="mt-3 text-sm font-semibold">{String(title)}</h2><p className="mt-1 text-xs text-subtle">{String(description)}</p></div>; })}</div>
     <WorkflowGuide kind="voucher" />
     <div className="flex flex-wrap gap-4 rounded-card border border-line bg-panel p-4">
       <label className="text-sm">Bulan<input type="month" className={inputClass} value={month} onChange={event => { setMonth(event.target.value); setPage(1); }} /></label>
@@ -130,6 +130,7 @@ export default function AccountingVoucherPage() {
     <DetailSheet isOpen={Boolean(selected)} onClose={() => !busy && setSelected(null)} title="Detail voucher" size="xl">
       {detail.isLoading ? <LoadingState /> : detail.error ? <ErrorState description={detail.error.message} onRetry={() => void detail.refetch()} /> : record && <div className="space-y-5">
         {failure && <p role="alert" className="text-sm text-red-700">{failure}</p>}
+        <DocumentWorkflow status={record.status} kind="voucher" version={record.version} paymentStatus={record.payment_summary?.status} />
         <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-sm font-semibold"><StatusBadge status={record.status} label={statusLabels[record.status]} /> · Versi {record.version}</span><Button variant="secondary" size="sm" disabled={busy} onClick={() => void detail.refetch()}>Muat ulang voucher</Button></div>
         <div className="flex flex-wrap gap-3"><Button variant="secondary" disabled={busy} onClick={()=>documentDownload.mutate(record)}>{documentDownload.isPending?'Menyiapkan PDF...':'Unduh voucher PDF'}</Button><p className="text-xs text-subtle self-center">Dokumen sesuai versi tersimpan, bukan bukti pembayaran.</p></div>
         <details className="rounded-xl border border-line p-4"><summary className="cursor-pointer font-semibold">Pratinjau dokumen pengeluaran</summary><div className="mt-4"><VoucherDocument record={record}/></div></details>

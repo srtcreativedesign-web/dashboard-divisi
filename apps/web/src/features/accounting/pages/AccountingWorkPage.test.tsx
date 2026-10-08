@@ -15,7 +15,7 @@ const fixture: OmzetRecord = {
   id: '11111111-1111-4111-8111-111111111111', outlet_id: 'outlet-1', outlet_name: 'Outlet anonim', source_division_code: 'CELL', business_date: '2026-10-04', shift: '1', outlet_amount: '1000.00', cash_amount: '1000', qris_amount: '0', edc_amount: '0', transfer_amount: '0', other_amount: '0', source_reference: 'Sumber anonim', notes: '', requires_ap: false, status: 'correction', version: 2, received_amount: '1000', payment_difference: '0', ap_amount: null, ap_difference: null, review_notes: 'Perbaiki rincian tunai', decision_notes: null, events: [], unlock_requests: [], submission_window: { opens_at: '2026-10-05T00:00:00+07:00', deadline: '2026-10-05T23:59:59+07:00', can_submit: false, can_request_unlock: true, has_permit: false },
 };
 let client: QueryClient;
-const mount = (route = '/accounting/pekerjaan') => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[route]}><AccountingWorkPage /></MemoryRouter></QueryClientProvider>);
+const mount = (route = '/accounting/dokumen/register') => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[route]}><AccountingWorkPage /></MemoryRouter></QueryClientProvider>);
 beforeEach(() => {
   vi.clearAllMocks(); identity.role = 'ADMIN'; identity.divisionCode = 'ACC';
   client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -27,7 +27,7 @@ afterEach(() => { cleanup(); client.clear(); });
 describe('Ruang kerja Accounting dari transaksi persisten', () => {
   it('Admin diarahkan ke koreksi, alasan dan laporan yang sama; total tidak memakai panjang halaman', async () => {
     mount();
-    expect(await screen.findByRole('heading', { name: 'Ruang kerja Admin Accounting' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Register dokumen Accounting' })).toBeInTheDocument();
     expect(await screen.findByText('Perbaiki rincian tunai')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Lengkapi dan ajukan/ })).toHaveAttribute('href', expect.stringContaining('rekap=' + fixture.id));
     expect(screen.getByText('47 laporan · halaman 1 dari 3')).toBeInTheDocument();
@@ -59,9 +59,9 @@ describe('Ruang kerja Accounting dari transaksi persisten', () => {
     const voucher: VoucherRecord = { id: fixture.id, type: 'OPERATIONAL', outlet_id: fixture.outlet_id, outlet_name: fixture.outlet_name, source_division_code: 'CELL', voucher_date: '2026-09-04', due_date: '2026-10-04', entity_name: 'Penerima anonim', source_reference: 'Anonim', amount: '1000', description: 'Kebutuhan outlet', status: 'approved', version: 1, voucher_no: 'V/ANONIM', created_by: 'admin', reviewed_by: null, approved_by: null, review_notes: null, decision_notes: null, events: [] };
     vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [voucher], total: 1, current_page: 1, last_page: 1 }));
     mount(); fireEvent.click(screen.getByRole('button', { name: 'Voucher pengeluaran' }));
-    fireEvent.click(await screen.findByRole('button', { name: /Selesai diperiksa/ }));
+    fireEvent.click(await screen.findByRole('button', { name: /Disetujui/ }));
     expect(await screen.findByRole('link', { name: /Lihat hasil/ })).toHaveAttribute('href', expect.stringContaining('voucher=' + fixture.id));
-    expect(screen.getByText(/Voucher disetujui belum berarti sudah dibayar/)).toBeInTheDocument();
+    expect(screen.getByText(/Persetujuan berbeda dari pembayaran/)).toBeInTheDocument();
     expect(screen.queryByText(/batas .*WIB/)).not.toBeInTheDocument();
   });
   it('request gagal tetap error dan tidak membuat jumlah nol palsu', async () => {
@@ -73,8 +73,16 @@ describe('Ruang kerja Accounting dari transaksi persisten', () => {
 });
 
 it('mengembalikan konteks voucher, periode, status dan halaman dari URL', async () => {
-  mount('/accounting/pekerjaan?kind=voucher&month=2026-09&status=submitted&page=2&outlet=outlet-1');
+  mount('/accounting/dokumen/register?kind=voucher&month=2026-09&status=submitted&page=2&outlet=outlet-1');
   await waitFor(() => expect(voucherApi.list).toHaveBeenCalledWith({ month: '2026-09', status: 'submitted', page: '2', outlet_id: 'outlet-1', type: '' }));
   expect(screen.getByLabelText('Periode pekerjaan')).toHaveValue('2026-09');
   expect(screen.getByRole('button', { name: 'Voucher pengeluaran' })).toHaveAttribute('aria-pressed', 'true');
+});
+
+it('Finance membuka dokumen voucher disetujui tanpa tombol input atau keputusan', async () => {
+  identity.role = 'FINANCE'; mount();
+  await waitFor(() => expect(voucherApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: 'approved' })));
+  expect(screen.getByRole('button', { name: 'Voucher pengeluaran' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.queryByRole('link', { name: 'Buat voucher' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: /Tinjau keputusan/ })).not.toBeInTheDocument();
 });
