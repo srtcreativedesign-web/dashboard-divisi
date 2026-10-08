@@ -86,3 +86,12 @@ Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATU
 - [x] ACC-SEED-003 — Seed menu Accounting September/Oktober: periode/master, 20 jurnal termasuk 4 impor, 8 outstanding, 12 setoran/8 penerimaan, 4 pegawai/48 absensi/4 cuti, 4 saldo bank UAT. Keempat peran. 189 pemeriksaan native/idempotence, 281 backend/2403 assertions, 161 web; parser JSON dan hardcode/kontras cashflow diperbaiki. [Scope/bukti](60_SEED_MENU_ACCOUNTING.md). Saldo bank belum diverifikasi; UAT bisnis/produksi dan backlog layanan legacy tetap terbuka.
 
 - [x] UI-ACC-005 — Penajaman visual dashboard Accounting: kartu omzet utama, hierarki angka, antrean koreksi dan disclosure metrik. Keempat peran. 12 tes dashboard/role, lint scoped, typecheck/build dan QA Admin desktop terang/gelap/mobile lulus. [Scope/bukti](61_PENAJAMAN_VISUAL_DASHBOARD_ACCOUNTING.md). Kontras sidebar gelap/cache identitas antartab, UAT bisnis dan lint global tetap terbuka. REQ tanpa PR.
+
+## Lanjutan 8 Oktober 2026 — laporan Cellular
+
+- [x] ACC-CEL-PREVIEW-001a — adapter lima sumber DATA CELLULAR T3, preview API/UI, akses pusat, scanner dan test (dokumen 65).
+- [ ] ACC-CEL-PREVIEW-001b — QA visual gabungan, terang/gelap/mobile dan penerimaan pemilik data.
+- [ ] ACC-CEL-STAGING-002 — staging privat, versi/duplikat persisten, audit dan workflow penyelesaian sumber.
+- [ ] ACC-CEL-SCOPE-003 — pemetaan semua outlet dan akses Admin Cellular sesuai scope.
+- [ ] ACC-CEL-INTEGRATION-004 — sumber operasi/shift ke H+1, Accounting dan settlement. Formula fee/HPP/bonus/CMO menunggu keputusan bisnis.
+- [ ] ENT-DEPENDENCY-PATCH — remediasi tiga advisory baseline Laravel/CommonMark dan regresi.

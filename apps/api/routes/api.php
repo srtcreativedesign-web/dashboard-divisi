@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\Accounting\AccountingMasterController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingOutstandingController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingReconciliationController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingTransactionController;
+use App\Http\Controllers\Api\V1\Accounting\CellularPreviewController;
 use App\Http\Controllers\Api\V1\Accounting\DepositController;
 use App\Http\Controllers\Api\V1\Accounting\HrRecapController;
 use App\Http\Controllers\Api\V1\Accounting\OmzetController;
@@ -65,6 +66,7 @@ Route::prefix('v1')->group(function () {
 
         // Accounting domain
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
+            Route::post('cellular-preview', [CellularPreviewController::class, 'preview'])->middleware(['capability:preview:cellular_report', 'throttle:10,1', 'file.scan']);
             Route::get('dashboard/operations', [AccountingDashboardController::class, 'operations'])->middleware('capability:view:acc_detail');
             Route::prefix('deposits')->middleware('capability:view:acc_deposits')->group(function () {
                 Route::get('sources', [DepositController::class, 'sources']);

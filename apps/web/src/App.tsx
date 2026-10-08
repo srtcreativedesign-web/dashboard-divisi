@@ -27,6 +27,7 @@ const AccountingJournalPage = lazy(() => import('./features/accounting/pages/Acc
 const AccountingPeriodsPage = lazy(() => import('./features/accounting/pages/AccountingPeriodsPage'));
 const AccountingMasterPage = lazy(() => import('./features/accounting/pages/AccountingMasterPage'));
 const AccountingImportPage = lazy(() => import('./features/accounting/pages/AccountingImportPage'));
+const CellularReportPreviewPage = lazy(() => import('./features/accounting/pages/CellularReportPreviewPage'));
 const AccountingOutstandingPage = lazy(() => import('./features/accounting/pages/AccountingOutstandingPage'));
 const AccountingCashflowReportPage = lazy(() => import('./features/accounting/pages/AccountingCashflowReportPage'));
 const AccountingReconciliationPage = lazy(() => import('./features/accounting/pages/AccountingReconciliationPage'));
@@ -101,6 +102,7 @@ export default function App() {
                   <Route path="/accounting" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/dashboard" element={<RouteGuard capability="view:acc_report" divisionCode="ACC"><RouteSuspense><AccountingDashboardPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/jurnal" element={<RouteGuard capability="view:acc_journal" divisionCode="ACC"><RouteSuspense><AccountingJournalPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/preview-cellular" element={<RouteGuard capability="preview:cellular_report" divisionCode="ACC"><RouteSuspense><CellularReportPreviewPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/impor" element={<RouteGuard capability="submit:acc_period" divisionCode="ACC"><RouteSuspense><AccountingImportPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/outstanding" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingOutstandingPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/cashflow" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingCashflowReportPage /></RouteSuspense></RouteGuard>} />

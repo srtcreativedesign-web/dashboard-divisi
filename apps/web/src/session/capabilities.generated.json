@@ -11,6 +11,7 @@
         "manage:acc_master",
         "manage:acc_period",
         "manage:omzet_unlock",
+        "preview:cellular_report",
         "view:acc_deposits",
         "view:acc_detail",
         "view:acc_hr",
@@ -36,6 +37,7 @@
         "attach:voucher",
         "import:acc_transaction",
         "manage:acc_employees",
+        "preview:cellular_report",
         "submit:acc_period",
         "view:acc_deposits",
         "view:acc_detail",
@@ -64,6 +66,7 @@
       ],
       "ACCOUNTING": [
         "attach:voucher",
+        "preview:cellular_report",
         "submit:acc_period",
         "validate:omzet",
         "validate:voucher",
