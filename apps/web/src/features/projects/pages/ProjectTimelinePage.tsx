@@ -134,7 +134,7 @@ export default function ProjectTimelinePage() {
                   <tbody className="divide-y divide-line">
                     {milestones.length > 0 ? (
                       milestones.map((ms, idx) => {
-                        const actual = ms.actual_percentage || 0;
+                        const actual = ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0);
                         const dueDate = ms.due_date ? new Date(ms.due_date) : null;
                         const isOverdue = dueDate && dueDate < now && actual < 100;
                         const isDone = actual >= 100 || ms.status === 'completed';
@@ -173,7 +173,7 @@ export default function ProjectTimelinePage() {
                               )}
                             </td>
                             <td className="px-5 py-3.5 text-right font-bold text-navy">
-                              {ms.actual_percentage || 0}%
+                              {ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0)}%
                             </td>
                           </tr>
                         );
@@ -200,7 +200,7 @@ export default function ProjectTimelinePage() {
               <div className="relative pl-6 space-y-8 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-line">
                 {milestones.length > 0 ? (
                   milestones.map((ms, idx) => {
-                    const actual = ms.actual_percentage || 0;
+                    const actual = ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0);
                     const isDone = actual >= 100 || ms.status === 'completed';
                     const isInProgress = !isDone && (actual > 0 || ms.status === 'in_progress');
 
@@ -229,7 +229,7 @@ export default function ProjectTimelinePage() {
                               Bobot: {ms.weight_percentage}%
                             </span>
                             <span className="text-[10px] font-semibold text-slate-400">
-                              Progres: {ms.actual_percentage || 0}%
+                              Progres: {ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0)}%
                             </span>
                           </div>
                           <p className="text-xs text-subtle">

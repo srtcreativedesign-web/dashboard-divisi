@@ -178,3 +178,5 @@ Keempat peran: kontrak dokumen 65 sebelum kode, backup DB/source tervalidasi ter
 8 Oktober 2026 — ACC-FIRST-USE-001: dashboard memberi satu tindakan mulai kerja sesuai capability beserta tiga langkah; register menjelaskan pemilihan jenis/periode/status. Backup terverifikasi; 19 tes/typecheck/build/lint scoped/QA Staff native lulus. Keempat peran, REQ tanpa PR; staging sumber dan UAT pengguna pertama tetap terbuka.
 
 8 Oktober 2026 — ACC-DASH-003: panduan generik diganti meja kerja transaksi nyata omzet/voucher menurut role, antrean berisi otomatis dipilih, detail/periode/pagination/refresh, konteks sumber dan mobile vertikal. Backup/dokumen 69 sebelum kode. 200 tes/typecheck/lint scoped/build/diff-check dan QA Staff desktop terang-gelap/mobile/detail lulus. Keempat peran; tidak menilai sendiri 100. Staging/jadwal/ledger/PNL serta UAT pengguna/all-role terbuka. REQ tanpa PR.
+
+- 2026-10-08: Seed Project dua bulan tersimpan di PostgreSQL (batch PRJ-UAT-202609-202610); 8 proyek dan relasi keuangan. Backup dibuat, idempotensi dan akses role diuji; metadata skema dan klaim LPJ fiktif diperbaiki. Detail: dokumen/71_SEED_UAT_PROJECT_SEPTEMBER_OKTOBER.md.

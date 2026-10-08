@@ -354,7 +354,7 @@ function ProjectPaymentsContent({ project, refreshProject }: { project: any; ref
                         <div className="flex items-center gap-2 text-[11px] text-subtle">
                           <span>Bobot: <strong>{ms.weight_percentage}%</strong></span>
                           <span>&bull;</span>
-                          <span>Progres: <strong>{ms.actual_percentage || 0}%</strong></span>
+                          <span>Progres: <strong>{ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0)}%</strong></span>
                         </div>
                       </div>
 

@@ -97,7 +97,7 @@ export default function ProjectProgressPage() {
 
         milestones.forEach((m) => {
           const weight = m.weight_percentage || 0;
-          const actual = m.actual_percentage || 0;
+          const actual = m.actual_percentage ?? (m.status === 'completed' ? 100 : 0);
           totalWeight += weight;
           cumulativeProgress += (actual / 100) * weight;
           if (m.status === 'completed' || actual >= 100) {
@@ -110,8 +110,8 @@ export default function ProjectProgressPage() {
 
         const milestoneChartData = milestones.map((m, idx) => ({
           label: `M${idx + 1}`,
-          value: m.actual_percentage || 0,
-          color: m.status === 'completed' || (m.actual_percentage || 0) >= 100 ? '#15803d' : '#0284c7',
+          value: m.actual_percentage ?? (m.status === 'completed' ? 100 : 0),
+          color: m.status === 'completed' || (m.actual_percentage ?? (m.status === 'completed' ? 100 : 0)) >= 100 ? '#15803d' : '#0284c7',
         }));
 
 
@@ -139,7 +139,7 @@ export default function ProjectProgressPage() {
         const handleOpenEdit = (m: ProjectMilestone) => {
           setEditingMilestone(m);
           setUpdateForm({
-            actual_percentage: m.actual_percentage || 0,
+            actual_percentage: m.actual_percentage ?? (m.status === 'completed' ? 100 : 0),
             status: m.status || 'pending',
             completion_date: m.completion_date || '',
             notes: m.notes || '',
@@ -302,7 +302,7 @@ export default function ProjectProgressPage() {
                     <tbody className="divide-y divide-line">
                       {milestones.length > 0 ? (
                         milestones.map((ms, idx) => {
-                          const actual = ms.actual_percentage || 0;
+                          const actual = ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0);
                           return (
                             <tr key={ms.id} className="hover:bg-surface/80 transition-colors">
                               <td className="px-5 py-3.5 text-center text-slate-400 font-medium">{idx + 1}</td>

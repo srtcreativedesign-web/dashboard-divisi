@@ -26,3 +26,13 @@ describe('Dashboard Project hasil pull', () => {
     expect(load).toHaveBeenCalledTimes(2);
   });
 });
+
+it('risiko berasal dari status tersimpan tanpa vendor atau deadline fiktif', async () => {
+  vi.spyOn(Math, 'random').mockReturnValue(0.99);
+  vi.spyOn(projectApi, 'getProjects').mockResolvedValue({ data: [{ id: 1, division_code: 'PROJECT', name: 'Proyek ditunda UAT', status: 'on_hold', contract_value: '1000000', end_date: '2099-10-31', created_at: '2026-09-01', updated_at: '2026-10-08' }, { id: 2, division_code: 'PROJECT', name: 'Proyek aman UAT', status: 'in_progress', contract_value: '2000000', end_date: '2099-10-31', created_at: '2026-09-01', updated_at: '2026-10-08' }] } as PaginatedResponse<Project>);
+  render(<MemoryRouter><ProjectDashboardPage /></MemoryRouter>);
+  expect(await screen.findByText('Proyek ditunda')).toBeInTheDocument();
+  expect(screen.queryByText('Vendor: PT Rekayasa Digital')).not.toBeInTheDocument();
+  expect(screen.queryByText('Deadline dekat')).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Inspeksi' })).toHaveAttribute('href', '/projects/progress?project_id=1');
+});

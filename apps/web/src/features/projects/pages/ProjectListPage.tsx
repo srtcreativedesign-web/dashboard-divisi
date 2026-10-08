@@ -211,7 +211,7 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
           <div>
             <p className="text-xs font-medium text-subtle uppercase tracking-wider">Proyek Selesai</p>
             <h3 className="mt-1 text-2xl font-bold text-success">{completedProjectsCount}</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Serah terima BAST selesai</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">Status proyek selesai; periksa dokumen BAST</p>
           </div>
           <div className="h-10 w-10 rounded-input bg-success-light flex items-center justify-center text-success border border-success/30">
             <CheckCircle2 className="h-5 w-5" />

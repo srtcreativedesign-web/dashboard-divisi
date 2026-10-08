@@ -130,7 +130,7 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
   if (project?.milestones && project.milestones.length > 0) {
     project.milestones.forEach((m) => {
       const weight = m.weight_percentage || 0;
-      const actual = m.actual_percentage || 0;
+      const actual = m.actual_percentage ?? (m.status === 'completed' ? 100 : 0);
       cumulativeProgress += (actual / 100) * weight;
     });
   }

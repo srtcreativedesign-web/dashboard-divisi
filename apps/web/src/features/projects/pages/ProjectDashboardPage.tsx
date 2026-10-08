@@ -9,7 +9,6 @@ import {
   Activity,
   ArrowRight,
   Clock,
-  HardHat,
   Wallet
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -69,7 +68,7 @@ export default function ProjectDashboardPage() {
   };
 
   const activeProjects = projects.filter(p => p.status === 'in_progress');
-  const delayedProjects = projects.filter(p => p.status === 'on_hold' || (p.status === 'in_progress' && Math.random() > 0.7)); // Simulated risk
+  const delayedProjects = projects.filter(p => p.status === 'on_hold' || (p.status === 'in_progress' && Boolean(p.end_date) && p.end_date! < new Date().toLocaleDateString('en-CA')));
 
   const totalValue = activeProjects.reduce((acc, curr) => acc + parseFloat(curr.contract_value.toString()), 0);
 
@@ -287,8 +286,7 @@ export default function ProjectDashboardPage() {
                     <h4 className="font-semibold text-navy text-sm">{project.name}</h4>
                     <p className="text-xs text-subtle mt-0.5 line-clamp-1">{project.description}</p>
                     <div className="flex items-center gap-4 mt-2.5 text-xs font-medium text-subtle">
-                      <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-warning dark:text-amber-300" /> Deadline dekat</span>
-                      <span className="flex items-center gap-1.5"><HardHat className="h-3.5 w-3.5 text-slate-400" /> Vendor: PT Rekayasa Digital</span>
+                      <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-warning dark:text-amber-300" /> {project.status === 'on_hold' ? 'Proyek ditunda' : 'Melewati tanggal selesai'}</span>
                     </div>
                   </div>
                   <Link

@@ -36,6 +36,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
   const [invoices, setInvoices] = useState<any[]>([]);
   const [rabList, setRabList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadReports();
@@ -43,14 +44,14 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
 
   const loadReports = async () => {
     try {
-      setLoading(true);
+      setLoading(true); setError(null);
       const [prog, bast, fin, rabs, exps, invs] = await Promise.all([
         projectApi.getProgressReport(project.id).catch(() => null),
         projectApi.getBastReport(project.id).catch(() => null),
-        projectApi.getFinancialSummary(project.id).catch(() => null),
-        projectApi.getRab(project.id).catch(() => []),
-        projectApi.getExpenses(project.id).catch(() => []),
-        projectApi.getInvoices(project.id).catch(() => []),
+        projectApi.getFinancialSummary(project.id),
+        Promise.resolve(project.rabs || []),
+        projectApi.getExpenses(project.id),
+        projectApi.getInvoices(project.id),
       ]);
       setProgressData(prog);
       setBastData(bast);
@@ -59,7 +60,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
       setExpenses(exps || []);
       setInvoices(invs || []);
     } catch (err) {
-      console.error('Failed to load reports', err);
+      setError('Data laporan belum lengkap. Coba muat ulang sebelum mencetak.');
     } finally {
       setLoading(false);
     }
@@ -82,6 +83,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
     return <LoadingState label="Menyiapkan data generator laporan proyek..." />;
   }
 
+  if (error) return <div role="alert">{error}<button onClick={loadReports}>Coba lagi</button></div>;
   return (
     <div className="space-y-6">
       {/* ACTION BAR (Hidden when printing) */}
@@ -158,7 +160,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
           <div className="flex items-start justify-between">
             <div>
               <span className="text-[11px] font-bold tracking-widest uppercase text-primary dark:text-primary-300">
-                PT DIGITAL TECH REKAYASA &bull; DIVISI MANAJEMEN PROYEK
+                DASHBOARD DIVISI &bull; DIVISI MANAJEMEN PROYEK
               </span>
               <h1 className="text-xl sm:text-2xl font-black uppercase text-navy mt-1">
                 {reportType === 'progress'
@@ -488,15 +490,15 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
         {/* 3. LPJ (LAPORAN PERTANGGUNGJAWABAN) VIEW */}
         {reportType === 'lpj' && (() => {
           const contractVal = Number(project.contract_value) || 0;
-          const totalRab = financialSummary?.total_rab ?? rabList.reduce((acc: number, r: any) => acc + (Number(r.amount) || (Number(r.unit_price) * Number(r.volume)) || 0), 0);
-          const totalExpenses = financialSummary?.total_expenses ?? expenses.reduce((acc: number, e: any) => acc + (Number(e.amount) || 0), 0);
+          const totalRab = financialSummary?.total_rab_budget ?? rabList.reduce((acc: number, r: any) => acc + (Number(r.total_price) || (Number(r.unit_price) * Number(r.volume)) || 0), 0);
+          const totalExpenses = financialSummary?.total_actual_expense ?? expenses.reduce((acc: number, e: any) => acc + (Number(e.amount) || 0), 0);
           const variance = totalRab - totalExpenses;
           const grossProfit = contractVal - totalExpenses;
           const profitMargin = contractVal > 0 ? ((grossProfit / contractVal) * 100).toFixed(1) : '0.0';
           const absorptionRate = totalRab > 0 ? ((totalExpenses / totalRab) * 100).toFixed(1) : '0.0';
 
           const milestones = project.milestones || progressData?.physical_progress?.milestones || [];
-          const actualProgressTotal = milestones.reduce((acc: number, m: any) => acc + ((Number(m.actual_percentage) || 0) * (Number(m.weight_percentage) || 0) / 100), 0);
+          const actualProgressTotal = milestones.reduce((acc: number, m: any) => acc + (Number(m.actual_percentage ?? (m.status === 'completed' ? 100 : 0)) * (Number(m.weight_percentage) || 0) / 100), 0);
 
           // Group expenses by category
           const expByCat: Record<string, number> = {};
@@ -507,7 +509,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
           const catEntries = Object.entries(expByCat);
 
           // Invoices summary
-          const totalBilled = invoices.reduce((acc: number, i: any) => acc + (Number(i.amount) || 0), 0);
+          const totalBilled = invoices.filter((i: any) => !['draft', 'cancelled'].includes(i.status)).reduce((acc: number, i: any) => acc + (Number(i.amount) || 0), 0);
           const totalPaid = invoices.filter((i: any) => i.status === 'paid').reduce((acc: number, i: any) => acc + (Number(i.amount) || 0), 0);
           const unpaid = totalBilled - totalPaid;
 
@@ -521,11 +523,11 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
                     Pernyataan Pertanggungjawaban Pelaksanaan Proyek
                   </span>
                   <span className="px-2.5 py-0.5 rounded-pill text-[10px] font-bold bg-success-light text-success border border-success/30 uppercase">
-                    Audit Status: Closed & Accountable
+                    Draf laporan · belum diverifikasi
                   </span>
                 </div>
                 <p className="text-slate-600 leading-relaxed text-justify">
-                  Laporan Pertanggungjawaban (LPJ) ini disusun sebagai dokumen resmi akuntabilitas teknis dan finansial atas penyelesaian seluruh lingkup pekerjaan proyek <strong>{project.name}</strong> ({project.project_code || `PRJ-${project.id}`}) yang dilaksanakan untuk pemberi tugas <strong>{project.client_name || 'Klien'}</strong>. Seluruh alokasi anggaran, pengadaan material, pekerjaan lapangan, dan serah terima hasil kerja telah diselesaikan sesuai dengan ketentuan kontrak kerja dan spesifikasi teknis yang disepakati.
+                  Laporan Pertanggungjawaban (LPJ) ini disusun sebagai draf ringkasan teknis dan finansial untuk pemeriksaan pekerjaan proyek <strong>{project.name}</strong> ({project.project_code || `PRJ-${project.id}`}) yang dilaksanakan untuk pemberi tugas <strong>{project.client_name || 'Klien'}</strong>. Status, capaian milestone, biaya dan tagihan mengikuti data tersimpan. Laporan ini belum membuktikan persetujuan audit atau serah terima.
                 </p>
               </div>
 
@@ -550,7 +552,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
                   <div>
                     <span className="text-subtle block text-[11px]">Status Penyelesaian</span>
                     <span className="font-bold text-success text-sm flex items-center gap-1">
-                      <CheckCircle2 className="h-4 w-4" /> 100% Selesai
+                      <CheckCircle2 className="h-4 w-4" /> {{ planning: 'Perencanaan', in_progress: 'Berjalan', on_hold: 'Ditunda', completed: 'Selesai' }[project.status]}
                     </span>
                   </div>
                   <div>
@@ -589,18 +591,18 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
                     <span className="text-[10px] text-slate-400 block mt-0.5">Serapan {absorptionRate}% dari RAB</span>
                   </div>
                   <div className="p-3.5 rounded-card border border-line bg-surface">
-                    <span className="text-subtle block text-[11px]">Efisiensi Anggaran (Variance)</span>
+                    <span className="text-subtle block text-[11px]">Sisa pagu terhadap biaya tercatat</span>
                     <span className={`font-bold text-base ${variance >= 0 ? 'text-success' : 'text-danger'}`}>
                       {formatCurrency(variance)}
                     </span>
                     <span className="text-[10px] text-slate-400 block mt-0.5">
-                      {variance >= 0 ? 'Hemat dari rencana' : 'Over budget'}
+                      {variance >= 0 ? 'Belum digunakan' : 'Over budget'}
                     </span>
                   </div>
                   <div className="p-3.5 rounded-card border border-line bg-surface">
-                    <span className="text-subtle block text-[11px]">Gross Margin Proyek</span>
+                    <span className="text-subtle block text-[11px]">Selisih kontrak dan biaya tercatat</span>
                     <span className="font-bold text-primary text-base">{formatCurrency(grossProfit)}</span>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">Margin laba kotor: {profitMargin}%</span>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">Rasio sementara, bukan laba final: {profitMargin}%</span>
                   </div>
                 </div>
 
@@ -671,7 +673,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
                         </tr>
                       ) : (
                         milestones.map((ms: any, i: number) => {
-                          const isDone = ms.status === 'completed' || (ms.actual_percentage || 0) >= 100;
+                          const isDone = ms.status === 'completed' || (ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0)) >= 100;
                           return (
                             <tr key={ms.id || i}>
                               <td className="px-3 py-2 text-subtle">{i + 1}</td>
@@ -680,9 +682,9 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
                                 {ms.notes && <p className="text-[10px] text-subtle italic mt-0.5">{ms.notes}</p>}
                               </td>
                               <td className="px-3 py-2 text-center text-slate-700">{ms.weight_percentage}%</td>
-                              <td className="px-3 py-2 text-center font-bold text-navy">{ms.actual_percentage || 0}%</td>
+                              <td className="px-3 py-2 text-center font-bold text-navy">{ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0)}%</td>
                               <td className="px-3 py-2 text-subtle">{ms.due_date || '-'}</td>
-                              <td className="px-3 py-2 text-slate-600">{ms.completion_date || ms.due_date || '-'}</td>
+                              <td className="px-3 py-2 text-slate-600">{ms.completion_date || 'Belum tercatat'}</td>
                               <td className="px-3 py-2 text-center">
                                 {isDone ? (
                                   <span className="inline-flex items-center gap-1 text-success font-semibold">
@@ -752,7 +754,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
               <div className="p-4 rounded-card border border-line bg-surface space-y-2">
                 <span className="font-bold text-navy text-xs uppercase block">VI. Kesimpulan & Penutup</span>
                 <p className="text-slate-600 leading-relaxed text-justify">
-                  Pelaksanaan proyek <strong>{project.name}</strong> telah rampung secara menyeluruh dengan realisasi fisik mencapai 100%. Laporan Pertanggungjawaban ini disusun dengan sebenar-benarnya berdasarkan rekapitulasi data lapangan, sistem manajemen biaya (RAB vs Realisasi), dan dokumen serah terima pekerjaan yang sah.
+                  Pelaksanaan proyek <strong>{project.name}</strong> memiliki capaian milestone {actualProgressTotal.toFixed(1)}% berdasarkan data tersimpan. Laporan masih memerlukan pemeriksaan biaya, bukti dan keputusan pihak berwenang sebelum menjadi dokumen final.
                 </p>
               </div>
             </div>
@@ -761,7 +763,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
 
         {/* CATATAN: Kepatuhan aturan user: "tapi gak perlu kolom ttd" - TIDAK ADA KOLOM TANDA TANGAN */}
         <div className="relative z-10 mt-12 pt-4 border-t border-line text-center text-[10px] text-slate-400">
-          Dokumen ini digenerate secara otomatis oleh Sistem Dashboard Divisi &bull; PT Digital Tech Rekayasa
+          Dokumen ini digenerate secara otomatis oleh Sistem Dashboard Divisi &bull; Dashboard Divisi
         </div>
       </div>
     </div>
