@@ -19,6 +19,7 @@ import {
   ArrowRight,
   ExternalLink,
   Wallet,
+  ClipboardCheck,
 } from 'lucide-react';
 
 interface ProjectPageLayoutProps {
@@ -137,13 +138,14 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
   cumulativeProgress = Math.min(100, Math.round(cumulativeProgress * 10) / 10);
 
   const subNavLinks = project ? [
-    { label: 'Detail & Tabular', path: `/projects/${project.id}`, icon: FolderKanban },
+    { label: 'Detail Proyek', path: `/projects/${project.id}`, icon: FolderKanban },
     { label: 'Tahapan & Progres', path: `/projects/progress?project_id=${project.id}`, icon: CheckSquare },
     { label: 'Anggaran & RAB', path: `/projects/rab?project_id=${project.id}`, icon: Calculator },
     { label: 'Termin & Pembayaran', path: `/projects/payments?project_id=${project.id}`, icon: Receipt },
     { label: 'Kas Kecil (Petty Cash)', path: `/projects/petty-cash?project_id=${project.id}`, icon: Wallet },
     { label: 'Time Plan', path: `/projects/timeline?project_id=${project.id}`, icon: Clock },
     { label: 'Berkas Dokumen', path: `/projects/documents?project_id=${project.id}`, icon: FileText },
+    { label: 'LPJ & Laporan', path: `/projects/lpj?project_id=${project.id}`, icon: ClipboardCheck },
   ] : [];
 
   return (

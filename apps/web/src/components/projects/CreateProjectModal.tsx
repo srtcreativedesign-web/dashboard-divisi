@@ -8,16 +8,17 @@ interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (project: Project) => void;
+  initialClassification?: 'new' | 'maintenance';
 }
 
-export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProjectModalProps) {
+export function CreateProjectModal({ isOpen, onClose, onSuccess, initialClassification = 'new' }: CreateProjectModalProps) {
   const [form, setForm] = useState({
     name: '',
     project_code: '',
     client_name: '',
     location: '',
     contract_value: '',
-    classification: 'new' as 'new' | 'maintenance',
+    classification: initialClassification,
     status: 'planning',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
@@ -25,6 +26,15 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setForm(prev => ({
+        ...prev,
+        classification: initialClassification,
+      }));
+    }
+  }, [isOpen, initialClassification]);
 
   if (!isOpen) return null;
 

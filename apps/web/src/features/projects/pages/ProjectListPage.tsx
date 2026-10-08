@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { projectApi } from '../../../api/projects';
 import { Project } from '../../../types/project';
 import {
@@ -16,23 +16,44 @@ import {
   Clock,
   CheckCircle2,
   ChevronRight,
+  Wrench,
 } from 'lucide-react';
 import { LoadingState, EmptyState } from '../../../components/states';
 import { CreateProjectModal } from '../../../components/projects/CreateProjectModal';
+import { ProjectStageCard } from '../../../components/projects/ProjectStageCard';
+import { MilestoneUpdateModal } from '../../../components/projects/MilestoneUpdateModal';
+import { ProjectRabDetailModal } from '../../../components/projects/ProjectRabDetailModal';
+import { ProjectMilestone } from '../../../types/project';
 import { Button } from '../../../components/ui/Button';
 import { BarChart } from '../../../components/charts';
 
-export default function ProjectListPage() {
+export default function ProjectListPage({ forcedClassification }: { forcedClassification?: 'new' | 'maintenance' } = {}) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const effectiveClassification = forcedClassification ?? (
+    location.pathname.startsWith('/projects/maintenance') ? 'maintenance' :
+    location.pathname.startsWith('/projects/new') ? 'new' : undefined
+  );
+
   const [projects, setProjects] = useState<Project[]>([]);
   const [allProjects, setAllProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [classificationFilter, setClassificationFilter] = useState('');
+  const [classificationFilter, setClassificationFilter] = useState(effectiveClassification || '');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [activeRabProject, setActiveRabProject] = useState<Project | null>(null);
+  const [activeMilestoneModal, setActiveMilestoneModal] = useState<{
+    project: Project;
+    milestone: ProjectMilestone;
+  } | null>(null);
+
+  useEffect(() => {
+    setClassificationFilter(effectiveClassification || '');
+  }, [effectiveClassification]);
 
   useEffect(() => {
     projectApi.getProjects({ per_page: 100 }).then(res => setAllProjects(res.data)).catch(() => {});
@@ -62,6 +83,77 @@ export default function ProjectListPage() {
       setLoading(false);
     }
   };
+
+  const handleStageClick = async (project: Project, milestone: ProjectMilestone) => {
+    if (milestone.id < 0) {
+      try {
+        const fresh = await projectApi.syncStandardMilestones(project.id);
+        setProjects((prev) =>
+          prev.map((p) => (p.id === project.id ? { ...p, milestones: fresh } : p))
+        );
+        const target =
+          fresh.find((m) =>
+            m.title.toUpperCase().includes(milestone.title.replace(/^\d+\.\s*/, '').toUpperCase())
+          ) || fresh[0] || milestone;
+        setActiveMilestoneModal({ project, milestone: target });
+      } catch (e) {
+        console.error(e);
+        setActiveMilestoneModal({ project, milestone });
+      }
+    } else {
+      setActiveMilestoneModal({ project, milestone });
+    }
+  };
+
+  const handleMilestoneUpdated = (updatedMilestone: ProjectMilestone) => {
+    if (!activeMilestoneModal) return;
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== activeMilestoneModal.project.id) return p;
+        const currentMilestones = p.milestones || [];
+        const nextMilestones = currentMilestones.map((m) =>
+          m.id === updatedMilestone.id ? updatedMilestone : m
+        );
+        return { ...p, milestones: nextMilestones };
+      })
+    );
+  };
+
+  const handleDeleteProject = async (project: Project) => {
+    const ok = window.confirm(
+      `Apakah Anda yakin ingin menghapus proyek "${project.name}" (${project.project_code || 'PRJ-' + project.id})? Tindakan ini tidak dapat dibatalkan.`
+    );
+    if (!ok) return;
+
+    try {
+      await projectApi.deleteProject(project.id);
+      setProjects((prev) => prev.filter((p) => p.id !== project.id));
+      setAllProjects((prev) => prev.filter((p) => p.id !== project.id));
+    } catch (err: any) {
+      alert(err?.message || 'Gagal menghapus proyek.');
+    }
+  };
+
+  const isNewMode = effectiveClassification === 'new';
+  const isMaintenanceMode = effectiveClassification === 'maintenance';
+
+  const pageTitle = isNewMode
+    ? 'Daftar Proyek Baru'
+    : isMaintenanceMode
+    ? 'Daftar Proyek Maintenance'
+    : 'Daftar Semua Proyek';
+
+  const pageSubtitle = isNewMode
+    ? 'Pantau progres konstruksi pembangunan, milestone pengadaan, dan serah terima proyek baru.'
+    : isMaintenanceMode
+    ? 'Pantau agenda pemeliharaan rutin, perbaikan sarana, dan retensi servis berkala.'
+    : 'Pantau progres fisik, tahapan milestone, kontrol anggaran RAB, galeri visual, dan BAST.';
+
+  const categoryBadgeLabel = isNewMode
+    ? 'Konstruksi & Proyek Baru'
+    : isMaintenanceMode
+    ? 'Pemeliharaan & Maintenance'
+    : 'Semua Kategori';
 
   const portfolioSource = allProjects.length > 0 ? allProjects : projects;
   const newProjectsCount = portfolioSource.filter(p => (p.classification || 'new') === 'new').length;
@@ -171,13 +263,13 @@ export default function ProjectListPage() {
               Divisi Proyek
             </span>
             <span className="text-xs text-slate-300">&bull;</span>
-            <span className="text-xs text-slate-500 font-medium">Manajemen Portofolio & Kontrol Lapangan</span>
+            <span className="text-xs text-slate-500 font-medium">{categoryBadgeLabel}</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-navy mt-1">
-            Daftar Proyek & Monitoring
+            {pageTitle}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Pantau progres fisik, tahapan milestone, kontrol anggaran RAB, galeri visual, dan BAST.
+            {pageSubtitle}
           </p>
         </div>
         <Button
@@ -186,7 +278,7 @@ export default function ProjectListPage() {
           onClick={() => setShowCreateModal(true)}
         >
           <Plus className="h-4 w-4" />
-          Tambah Proyek Baru
+          {isNewMode ? 'Tambah Proyek Baru' : isMaintenanceMode ? 'Tambah Proyek Maintenance' : 'Tambah Proyek Baru'}
         </Button>
       </div>
 
@@ -465,69 +557,17 @@ export default function ProjectListPage() {
           }
         />
       ) : viewMode === 'grid' ? (
-        /* GRID CARDS VIEW */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {projects.map((project) => {
-            const contract = parseFloat(project.contract_value.toString());
-            return (
-              <div
-                key={project.id}
-                onClick={() => navigate(`/projects/${project.id}`)}
-                className="group relative flex flex-col justify-between rounded-card-lg border border-line bg-white p-5 shadow-card hover:shadow-card-hover hover:border-primary-400 transition-all cursor-pointer overflow-hidden"
-              >
-                <div>
-                  {/* Top Bar: Code, Classification & Status */}
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="font-mono text-[11px] font-bold text-slate-600 bg-surface border border-line px-2 py-0.5 rounded-input">
-                        {project.project_code || `PRJ-${project.id}`}
-                      </span>
-                      {getClassificationBadge(project.classification)}
-                    </div>
-                    {getStatusBadge(project.status)}
-                  </div>
-
-                  {/* Title & Description */}
-                  <h3 className="text-base font-bold text-navy group-hover:text-primary-600 transition-colors line-clamp-1">
-                    {project.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 line-clamp-2 mt-1">
-                    {project.description || 'Tidak ada deskripsi detail pekerjaan.'}
-                  </p>
-
-                  {/* Client & Location */}
-                  <div className="mt-4 space-y-1.5 text-xs text-slate-600">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      <span className="truncate">{project.client_name || 'Klien Internal'}</span>
-                    </div>
-                    {project.location && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                        <span className="truncate">{project.location}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Bottom Bar: Contract & Date */}
-                <div className="mt-5 pt-4 border-t border-line flex items-center justify-between text-xs">
-                  <div>
-                    <span className="text-[10px] text-slate-400 block font-medium uppercase tracking-wider">Nilai Kontrak</span>
-                    <span className="font-bold text-navy text-sm">
-                      {formatCurrency(contract)}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-400 block font-medium uppercase tracking-wider">Tenggat Waktu</span>
-                    <span className="font-semibold text-slate-700">
-                      {project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        /* GRID STAGE CARDS VIEW */
+        <div className="space-y-4">
+          {projects.map((project) => (
+            <ProjectStageCard
+              key={project.id}
+              project={project}
+              onStageClick={handleStageClick}
+              onDeleteProject={handleDeleteProject}
+              onRabClick={(p) => setActiveRabProject(p)}
+            />
+          ))}
         </div>
       ) : (
         /* TABLE VIEW */
@@ -587,12 +627,36 @@ export default function ProjectListPage() {
       {/* MODAL TAMBAH PROYEK */}
       <CreateProjectModal
         isOpen={showCreateModal}
+        initialClassification={effectiveClassification || 'new'}
         onClose={() => setShowCreateModal(false)}
         onSuccess={() => {
           fetchProjects();
           projectApi.getProjects({ per_page: 100 }).then(res => setAllProjects(res.data)).catch(() => {});
         }}
       />
+
+      {/* MODAL UPDATE MILESTONE STAGE */}
+      {activeMilestoneModal && (
+        <MilestoneUpdateModal
+          isOpen={!!activeMilestoneModal}
+          project={activeMilestoneModal.project}
+          milestone={activeMilestoneModal.milestone}
+          onClose={() => setActiveMilestoneModal(null)}
+          onSuccess={handleMilestoneUpdated}
+        />
+      )}
+
+      {/* MODAL DETAIL RAB & PDF */}
+      {activeRabProject && (
+        <ProjectRabDetailModal
+          isOpen={!!activeRabProject}
+          project={activeRabProject}
+          onClose={() => setActiveRabProject(null)}
+          onSuccess={() => {
+            fetchProjects();
+          }}
+        />
+      )}
     </div>
   );
 }

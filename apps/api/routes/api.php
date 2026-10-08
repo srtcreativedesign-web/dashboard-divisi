@@ -229,13 +229,20 @@ Route::prefix('v1')->group(function () {
             Route::get('/{projectId}/petty-cash/{id}/download', [ProjectPettyCashController::class, 'downloadReceipt']);
             Route::get('/{projectId}/invoices', [ProjectInvoiceController::class, 'index']);
             Route::get('/{projectId}/expenses', [ProjectExpenseController::class, 'index']);
+            Route::get('/{projectId}/rab', [ProjectRabController::class, 'index']);
 
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectController::class, 'store']);
                 Route::put('/{id}', [ProjectController::class, 'update']);
+                Route::delete('/{id}', [ProjectController::class, 'destroy']);
                 Route::patch('/{id}/payment-toggle', [ProjectController::class, 'paymentToggle']);
                 Route::post('/{id}/milestones', [ProjectController::class, 'storeMilestone']);
+                Route::put('/{projectId}/milestones/{milestoneId}', [ProjectController::class, 'updateMilestone']);
+                Route::post('/{id}/milestones/ensure-standard', [ProjectController::class, 'syncStandardMilestones']);
                 Route::post('/{id}/rab', [ProjectRabController::class, 'store']);
+                Route::put('/{projectId}/rab/batch', [ProjectRabController::class, 'batchSync']);
+                Route::put('/{projectId}/rab/{rabId}', [ProjectRabController::class, 'update']);
+                Route::delete('/{projectId}/rab/{rabId}', [ProjectRabController::class, 'destroy']);
 
                 Route::post('/{id}/documents', [ProjectDocumentController::class, 'store'])->middleware('file.scan');
                 Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
