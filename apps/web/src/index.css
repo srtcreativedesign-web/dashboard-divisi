@@ -131,7 +131,7 @@ table td {
 .workspace-content td, .workspace-content th { vertical-align: middle; }
 .workspace-content input:not([type=checkbox]):not([type=radio]):not([type=file]), .workspace-content select { min-height: 2.75rem; }
 
-/* Shared surface rhythm for Accounting, Project, and Cellular workspaces. */
+/* Accounting and Cellular adopt the surface rhythm of the existing Project workspace. */
 .division-workspace > :is(div, section) {
   animation: fade-in 0.3s ease-out;
 }
@@ -170,10 +170,7 @@ table td {
 }
 .division-workspace input:not([type=checkbox]):not([type=radio]),
 .division-workspace select,
-.division-workspace textarea,
-dialog input:not([type=checkbox]):not([type=radio]),
-dialog select,
-dialog textarea {
+.division-workspace textarea {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.625rem 0.75rem;
@@ -185,17 +182,14 @@ dialog textarea {
   color: var(--color-navy);
   transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }
-.division-workspace textarea,
-dialog textarea {
+.division-workspace textarea {
   min-height: 6rem;
   resize: vertical;
 }
-.division-workspace input[type=file],
-dialog input[type=file] {
+.division-workspace input[type=file] {
   padding: 0.4rem;
 }
-.division-workspace input[type=file]::file-selector-button,
-dialog input[type=file]::file-selector-button {
+.division-workspace input[type=file]::file-selector-button {
   margin-right: 0.75rem;
   border: 0;
   border-radius: 0.5rem;
@@ -206,23 +200,18 @@ dialog input[type=file]::file-selector-button {
 }
 .division-workspace input:not([type=checkbox]):not([type=radio]):focus,
 .division-workspace select:focus,
-.division-workspace textarea:focus,
-dialog input:not([type=checkbox]):not([type=radio]):focus,
-dialog select:focus,
-dialog textarea:focus {
+.division-workspace textarea:focus {
   border-color: var(--color-primary-500);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 14%, transparent);
   outline: none;
 }
-.division-workspace :is(input, select, textarea):disabled,
-dialog :is(input, select, textarea):disabled {
+.division-workspace :is(input, select, textarea):disabled {
   cursor: not-allowed;
   background: var(--color-surface);
   color: var(--color-subtle);
   opacity: 0.72;
 }
-.division-workspace :is(input[type=checkbox], input[type=radio]),
-dialog :is(input[type=checkbox], input[type=radio]) {
+.division-workspace :is(input[type=checkbox], input[type=radio]) {
   accent-color: var(--color-primary-600);
 }
 .division-workspace form > :is(h2, h3):first-child {

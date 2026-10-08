@@ -10,7 +10,7 @@ Urutan layar yang menjadi acuan adalah: identitas dan tujuan halaman, tindakan u
 
 ## Implementasi tahap kedua
 
-`AppLayout` sekarang memberi kontrak `division-workspace` yang sama kepada Accounting, Project, dan Cellular. Kontrak ini berlaku pada isi halaman, bukan hanya dashboard: surface panel, tabel, hover baris, label, input, select, textarea, unggah berkas, fokus keyboard, field nonaktif, radius, shadow, dan animasi. Dialog serta side sheet memakai aturan input yang sama agar formulir yang muncul di portal tidak kembali ke gaya lama.
+`AppLayout` sekarang memberi kontrak `division-workspace` kepada Accounting dan Cellular dengan Divisi Project sebagai acuan visual yang tidak diubah. Kontrak ini berlaku pada isi halaman, bukan hanya dashboard: surface panel, tabel, hover baris, label, input, select, textarea, unggah berkas, fokus keyboard, field nonaktif, radius, shadow, dan animasi.
 
 ## Status Divisi Accounting
 
@@ -20,7 +20,7 @@ Perbedaan role dipertahankan melalui capability. Admin mengerjakan draf/koreksi;
 
 ## Status Divisi Project
 
-Dashboard Project tetap menjadi acuan visual utama. Layout halaman Project, daftar proyek, vendor, serta detail proyek sekarang memakai `DivisionPageHeader`; halaman modul yang memakai `ProjectPageLayout` otomatis menerima header yang sama. Tabel, panel, dan formulir menerima kontrak workspace yang sama dengan Accounting.
+Dashboard dan seluruh halaman Project tetap menjadi acuan visual utama. Tidak ada komponen, layout, tabel, formulir, atau aturan workspace baru yang diterapkan ke Divisi Project pada tahap penyelarasan ini.
 
 ## Status Divisi Cellular
 
@@ -31,7 +31,7 @@ Dashboard Cellular sekarang memakai `DivisionPageHeader`, KPI bersama, dan panel
 - Shell aplikasi lintas divisi: selaras.
 - Accounting seluruh menu dan input: memakai kontrak visual baru.
 - Role Accounting: selaras secara visual dan tetap berbeda secara kewenangan.
-- Project: baseline visual dipertahankan dan header halaman utama telah dimigrasikan ke komponen bersama.
+- Project: dipertahankan sebagai baseline visual dan tidak diubah oleh pekerjaan penyelarasan Accounting serta Cellular.
 - Cellular: dashboard, halaman operasional, tab, tabel, dan input memakai kontrak visual bersama.
 - Keselarasan berarti bahasa visual dan pola interaksi yang sama; menu, data, tindakan, serta hak akses tetap mengikuti pekerjaan tiap divisi dan role.
 

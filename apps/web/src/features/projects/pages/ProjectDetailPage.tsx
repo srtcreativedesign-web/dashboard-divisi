@@ -7,7 +7,6 @@ import { LoadingState, EmptyState } from '../../../components/states';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
 import { Button } from '../../../components/ui/Button';
-import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 
 export default function ProjectDetailPage() {
   const { user } = useAuth();
@@ -137,21 +136,29 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="space-y-6">
-      <button
-        type="button"
-        onClick={() => navigate('/projects/list')}
-        className="inline-flex items-center gap-2 text-xs font-semibold text-muted transition-colors hover:text-navy"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Kembali ke daftar proyek
-      </button>
-
-      <DivisionPageHeader
-        division="Divisi Project"
-        descriptor={`${project.project_code || `PRJ-${project.id}`} · ${project.client_name || 'Klien Internal'}`}
-        title={project.name}
-        description="Pantau progres, pembayaran, RAB, milestone, dan dokumen proyek dalam satu ruang kerja."
-        actions={(
+      {/* HEADER HERO - UNIFIED CLEAN LIGHT THEME */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/projects/list')}
+            className="p-2 rounded-lg border border-line bg-panel hover:bg-surface text-muted transition-colors shadow-2xs"
+            title="Kembali ke daftar proyek"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[11px] font-bold text-muted bg-surface border border-line px-2 py-0.5 rounded-input">
+                {project.project_code || `PRJ-${project.id}`}
+              </span>
+              <span className="text-xs text-slate-300">&bull;</span>
+              <span className="text-xs text-subtle font-medium">{project.client_name || 'Klien Internal'}</span>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-navy mt-0.5">{project.name}</h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <span className={`inline-flex items-center rounded-pill px-3 py-1 text-xs font-semibold ${
             project.status === 'in_progress' ? 'bg-primary-50 text-primary-700 dark:text-primary-300 border border-primary-200' :
             project.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
@@ -160,8 +167,8 @@ export default function ProjectDetailPage() {
           }`}>
             {project.status.replace('_', ' ').toUpperCase()}
           </span>
-        )}
-      />
+        </div>
+      </div>
 
       {/* TABS - CLEAN UNIFIED LIGHT BORDER */}
       <div className="border-b border-line">

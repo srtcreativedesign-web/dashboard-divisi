@@ -5,7 +5,6 @@ import { vendorApi } from '../../../api/projects';
 import { LoadingState, EmptyState, ErrorState } from '../../../components/states';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
-import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 
 const emptyForm = { name: '', category: '', contact_person: '', phone: '', email: '' };
 
@@ -65,13 +64,19 @@ export default function ProjectVendorPage() {
 
   return (
     <div className="min-w-0 space-y-6">
-      <DivisionPageHeader division="Divisi Proyek" descriptor="Pengadaan · Mitra Kerja" title="Mitra & vendor" description="Kelola direktori mitra kerja, subkontraktor, dan pemasok sesuai kewenangan akun." actions={canManage ? <button
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-navy dark:text-white">Mitra & Vendor</h1>
+          <p className="text-sm text-subtle dark:text-slate-400">Direktori mitra kerja, sub-kontraktor, dan supplier</p>
+        </div>
+        {canManage && <button
           disabled={saving}
           onClick={() => openForm(null)}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500"
         >
           + Tambah Vendor
-        </button> : undefined} />
+        </button>}
+      </div>
 
       {notice && <p role="status" className="text-sm text-emerald-700">{notice}</p>}
       {!canReadContact && <p className="text-sm text-subtle dark:text-slate-400">Kontak vendor hanya tersedia untuk pengguna yang berwenang.</p>}

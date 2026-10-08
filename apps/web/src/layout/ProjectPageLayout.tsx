@@ -5,7 +5,6 @@ import { Project } from '../types/project';
 import { ProjectSelector } from '../components/projects/ProjectSelector';
 import { LoadingState, EmptyState } from '../components/states';
 import { Button } from '../components/ui/Button';
-import { DivisionPageHeader } from '../components/ui/DivisionPageHeader';
 import {
   Building2,
   Calendar,
@@ -149,7 +148,27 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
 
   return (
     <div className="space-y-6">
-      <DivisionPageHeader division="Divisi Proyek" descriptor="Manajemen Portofolio & Kontrol Lapangan" title={title} description={description} actions={<ProjectSelector selectedProjectId={projectId} onSelectProject={handleSelectProject} />} />
+      {/* ENTERPRISE HERO BANNER */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-line pb-5">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-input text-[10px] font-bold tracking-wider uppercase bg-primary-50 text-primary-700 border border-primary-200">
+              Divisi Proyek
+            </span>
+            <span className="text-xs text-slate-300">&bull;</span>
+            <span className="text-xs text-muted font-medium">Manajemen Portofolio & Kontrol Lapangan</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-navy mt-1">
+            {title}
+          </h1>
+          <p className="text-xs sm:text-sm text-muted mt-0.5">
+            {description}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <ProjectSelector selectedProjectId={projectId} onSelectProject={handleSelectProject} />
+        </div>
+      </div>
 
       {/* ACTIVE PROJECT CONTEXT CARD */}
       {project && (
