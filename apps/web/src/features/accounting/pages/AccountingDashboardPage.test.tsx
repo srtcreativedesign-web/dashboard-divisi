@@ -60,7 +60,9 @@ describe('Dashboard ringkasan Accounting', () => {
     const summary = vi.spyOn(accountingApi, 'cashflowSummary');
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
     expect(await screen.findByText('Belum ada periode Accounting')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Buka register dokumen/ })).toHaveAttribute('href', '/accounting/dokumen/register');
+    expect(screen.getByRole('link', { name: /Buka register dokumen/ })).toHaveAttribute('href', '/accounting/dokumen/register?month=2026-10');
+    expect(screen.getByRole('heading', { name: 'Meja Kerja Admin Accounting' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Konteks kerja Accounting' })).toHaveTextContent('Lintas divisi');
     expect(screen.queryByRole('region', { name: 'Ringkasan cashflow' })).not.toBeInTheDocument();
     expect(summary).not.toHaveBeenCalled();
   });

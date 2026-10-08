@@ -11,6 +11,10 @@ import { ErrorState, LoadingState } from '../../../components/states';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
 import { formatRupiah, formatDate } from '../ui/format';
+import { KPICard, KPICardGrid } from '../../../components/ui/primitives';
+import { Card, CardHeader } from '../../../components/ui/Card';
+import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
+import { roleDisplay } from '../../../config/session';
 
 const monthLabel = (month: string) => new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(month.slice(0, 7) + '-01T00:00:00Z'));
 const currentMonth = () => {
@@ -21,6 +25,13 @@ const centsLabel = (value: bigint) => formatRupiah(String(value / 100n) + '.' + 
 const panel = 'rounded-card-lg border border-line bg-panel shadow-xs';
 const statusNames = { draft: 'Draf', correction: 'Perlu koreksi', submitted: 'Pemeriksaan Accounting', pending_approval: 'Persetujuan Manager', approved: 'Disetujui' };
 const moneyCents = (value: string | null) => value && /^\d+\.\d{2}$/.test(value) ? BigInt(value.replace('.', '')) : 0n;
+
+const roleDashboardCopy: Record<string, { title: string; description: string }> = {
+  ADMIN: { title: 'Meja Kerja Admin Accounting', description: 'Lengkapi rekap H+1 dan voucher, perbaiki dokumen yang dikembalikan, lalu pantau status pengajuannya.' },
+  STAFF_ACCOUNTING: { title: 'Pusat Pemeriksaan Accounting', description: 'Periksa sumber transaksi, selisih, voucher, dan kesiapan dokumen sebelum diteruskan untuk keputusan.' },
+  MANAGER: { title: 'Pusat Keputusan Accounting', description: 'Tinjau pengajuan, materialitas selisih, risiko jatuh tempo, dan keputusan yang menunggu persetujuan.' },
+  FINANCE: { title: 'Kontrol Realisasi Keuangan', description: 'Pantau voucher yang telah disetujui, jadwal jatuh tempo, pembayaran, dan sisa realisasi.' },
+};
 
 export default function AccountingDashboardPage() {
   const { user } = useAuth();
@@ -53,48 +64,91 @@ export default function AccountingDashboardPage() {
   const max = annual.data?.months?.reduce((n, m) => moneyCents(m.amount) > n ? moneyCents(m.amount) : n, 0n) ?? 0n;
   const refresh = () => { if (detail) void queryClient.invalidateQueries({ queryKey: ['accounting-desk'] }); void periods.refetch(); if (activePeriod) void report.refetch(); if (detail) { void operations.refetch(); void annual.refetch(); } };
   const linkTo = (status = '') => '/accounting/pengeluaran/voucher?month=' + month + (status ? '&status=' + status : '');
+  const dashboardCopy = roleDashboardCopy[user?.role ?? ''] ?? { title: 'Dashboard Accounting', description: 'Pantau pekerjaan, pendapatan, pengeluaran, dan posisi keuangan sesuai kewenangan akun.' };
 
   return <div className="space-y-6 pb-6">
-    <header className="flex flex-wrap items-end justify-between gap-5 border-b border-line pb-6">
-      <div>{detail && <Link className="mt-3 block w-fit text-xs font-semibold text-primary-700 dark:text-primary-300" to="/accounting/dokumen/register">Buka register dokumen →</Link>}<p className="mb-2 inline-flex rounded-input border border-primary-200 bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700 dark:border-primary-900 dark:bg-primary-950 dark:text-primary-300">Divisi Accounting · Kontrol Keuangan</p><h1 className="text-2xl font-bold tracking-tight text-navy">Dashboard Accounting</h1><p className="mt-2 text-sm text-subtle">Kerjakan laporan dan pengajuan, lalu pantau pendapatan serta realisasi keuangan.</p></div>
-      <div className="flex flex-wrap items-center gap-2"><label className="flex items-center gap-2 rounded-input border border-line bg-panel px-3 py-2"><CalendarDays aria-hidden="true" className="h-4 w-4 text-subtle" /><span className="sr-only">Periode ringkasan</span><select aria-label="Periode ringkasan" className="min-h-8 bg-panel text-sm font-medium text-navy" value={month} onChange={e => setSelectedMonth(e.target.value)}>{monthOptions.map(m => <option key={m} value={m}>{monthLabel(m)}</option>)}</select></label><button type="button" onClick={refresh} className="flex min-h-12 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-medium text-navy hover:bg-surface"><RefreshCw aria-hidden="true" className={'h-4 w-4 ' + (operations.isFetching || report.isFetching ? 'animate-spin motion-reduce:animate-none' : '')} />Muat ulang</button></div>
-    </header>
+    <DivisionPageHeader
+      division="Divisi Accounting"
+      descriptor="Kontrol Keuangan & Kepatuhan"
+      title={dashboardCopy.title}
+      description={dashboardCopy.description}
+      actions={<><label className="flex items-center gap-2 rounded-input border border-line bg-panel px-3 py-1.5 shadow-card"><CalendarDays aria-hidden="true" className="h-4 w-4 text-subtle" /><span className="sr-only">Periode ringkasan</span><select aria-label="Periode ringkasan" className="min-h-8 bg-panel text-sm font-medium text-navy" value={month} onChange={e => setSelectedMonth(e.target.value)}>{monthOptions.map(m => <option key={m} value={m}>{monthLabel(m)}</option>)}</select></label><button type="button" onClick={refresh} className="flex min-h-11 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-medium text-navy shadow-card hover:bg-surface"><RefreshCw aria-hidden="true" className={'h-4 w-4 ' + (operations.isFetching || report.isFetching ? 'animate-spin motion-reduce:animate-none' : '')} />Muat ulang</button></>}
+    />
+
+    <section aria-label="Konteks kerja Accounting" className="overflow-hidden rounded-card-lg border border-line bg-panel shadow-card">
+      <div className="grid gap-px bg-line sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: 'Periode kerja', value: monthLabel(month), note: activePeriod ? `Periode jurnal ${activePeriod.status === 'open' ? 'terbuka' : activePeriod.status}` : 'Belum ada periode jurnal' },
+          { label: 'Peran aktif', value: user ? roleDisplay(user.role) : 'Pengguna', note: 'Tindakan mengikuti kewenangan akun' },
+          { label: 'Cakupan data', value: 'Lintas divisi', note: 'Accounting pusat · sumber outlet' },
+          { label: 'Register dokumen', value: detail ? 'Tersedia' : 'Ringkasan', note: detail ? 'Telusuri status dan penanggung jawab' : 'Detail dibatasi oleh kewenangan' },
+        ].map(item => <div key={item.label} className="bg-panel px-5 py-4"><p className="text-[10px] font-bold uppercase tracking-wider text-subtle">{item.label}</p><p className="mt-1.5 text-sm font-bold text-navy">{item.value}</p><p className="mt-1 text-xs leading-relaxed text-subtle">{item.note}</p></div>)}
+      </div>
+      {detail && <div className="flex justify-end border-t border-line bg-surface px-5 py-2.5"><Link className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300" to={'/accounting/dokumen/register?month=' + month}>Buka register dokumen <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" /></Link></div>}
+    </section>
 
     <AccountingActionDesk key={month} month={month} />
 
     {detail && <section aria-label="Ringkasan operasional" className="space-y-3">
       {operations.isLoading || periods.isLoading ? <LoadingState label="Memuat ringkasan operasional..." /> : operations.error ? <ErrorState description={operations.error.message} onRetry={() => { void operations.refetch(); }} /> : data ? <>
-        <div className="grid gap-0 divide-y divide-line overflow-hidden rounded-xl border border-line bg-panel sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4">
-          {[
-            { label: 'Omzet tervalidasi', value: monthTrend?.amount != null ? formatRupiah(monthTrend.amount) : 'Belum tersedia', note: annual.error ? 'Laporan omzet belum dapat dimuat' : annual.isLoading ? 'Memuat laporan omzet…' : (monthTrend ? monthTrend.validated_count + ' rekap tervalidasi · ' + monthLabel(month) : 'Belum ada rekap tervalidasi pada bulan ini'), icon: ChartNoAxesCombined },
-            { label: 'Pengeluaran disetujui', value: data.counts.approved ? formatRupiah(data.approved_amount) : 'Belum tersedia', note: data.counts.approved + ' voucher disetujui', icon: FileText },
-            { label: 'Sisa realisasi voucher', value: data.counts.approved ? formatRupiah(data.remaining_amount) : 'Belum tersedia', note: data.unpaid_count + ' voucher belum lunas · ' + data.overdue_count + ' lewat jatuh tempo', icon: Wallet },
-            { label: queues.length ? 'Voucher untuk Anda' : 'Menunggu proses', value: String(queues.length ? pending : data.counts.submitted + data.counts.pending_approval), note: queues.length ? 'Voucher untuk Anda tindak lanjuti' : 'Pemeriksaan & persetujuan', icon: ClipboardCheck },
-          ].map((kpi) => <article key={kpi.label} className={
-            'min-w-0 px-5 py-4 sm:border-r sm:border-line last:border-r-0'
-          }>
-            <div className="flex items-start justify-between gap-3">
-              <h2 className={'text-sm font-medium leading-relaxed ' + 'text-muted'}>{kpi.label}</h2>
-              <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ' + 'bg-surface text-primary-700 dark:text-primary-300'}><kpi.icon aria-hidden="true" className="h-4 w-4" /></span>
-            </div>
-            <p className={'mt-3 break-words text-xl font-bold tracking-tight tabular-nums text-navy'}>{kpi.value}</p>
-            <p className={'mt-3 text-xs leading-relaxed ' + 'text-subtle'}>{kpi.note}</p>
-          </article>)}
-        </div>
+        <KPICardGrid columns={4}>
+          <KPICard
+            variant="gradient"
+            label="Omzet tervalidasi"
+            value={monthTrend?.amount != null ? formatRupiah(monthTrend.amount) : 'Belum tersedia'}
+            note={annual.error ? 'Laporan omzet belum dapat dimuat' : annual.isLoading ? 'Memuat laporan omzet…' : (monthTrend ? monthTrend.validated_count + ' rekap tervalidasi · ' + monthLabel(month) : 'Belum ada rekap tervalidasi pada bulan ini')}
+            icon={<ChartNoAxesCombined aria-hidden="true" className="h-5 w-5" />}
+            trend={difference !== null ? {
+              value: centsLabel(difference < 0n ? -difference : difference),
+              label: 'dibanding bulan lalu',
+              positive: difference >= 0n,
+            } : undefined}
+            action={<Link to="/accounting/pendapatan/analisis" className="inline-flex items-center gap-1 text-xs font-semibold text-white">Laporan tahunan <ArrowUpRight className="h-3.5 w-3.5" /></Link>}
+          />
+          <KPICard
+            label="Pengeluaran disetujui"
+            value={data.counts.approved ? formatRupiah(data.approved_amount) : 'Belum tersedia'}
+            note={data.counts.approved + ' voucher disetujui'}
+            icon={<FileText aria-hidden="true" className="h-5 w-5" />}
+          />
+          <KPICard
+            label="Sisa realisasi voucher"
+            value={data.counts.approved ? formatRupiah(data.remaining_amount) : 'Belum tersedia'}
+            note={data.unpaid_count + ' voucher belum lunas · ' + data.overdue_count + ' lewat jatuh tempo'}
+            icon={<Wallet aria-hidden="true" className="h-5 w-5" />}
+          />
+          <KPICard
+            label={queues.length ? 'Voucher untuk Anda' : 'Menunggu proses'}
+            value={String(queues.length ? pending : data.counts.submitted + data.counts.pending_approval)}
+            note={queues.length ? 'Voucher untuk Anda tindak lanjuti' : 'Pemeriksaan & persetujuan'}
+            icon={<ClipboardCheck aria-hidden="true" className="h-5 w-5" />}
+          />
+        </KPICardGrid>
         <details className="text-xs text-subtle"><summary className="w-fit cursor-pointer rounded py-1 font-medium focus-visible:outline-2 focus-visible:outline-primary">Dasar angka dan periode</summary><p className="mt-2 max-w-3xl leading-relaxed">Voucher mengikuti tanggal voucher. Pengeluaran disetujui belum merupakan beban jurnal; realisasi adalah catatan pembayaran aktif, bukan saldo bank atau hutang jurnal.</p></details>
-      </> : <p className={panel + ' p-5 text-sm text-subtle'}>Ringkasan operasional belum tersedia.</p>}
+      </> : <p className="rounded-card-lg border border-line bg-panel p-5 shadow-xs text-sm text-subtle">Ringkasan operasional belum tersedia.</p>}
     </section>}
 
     <div className={'grid gap-5 ' + (detail ? 'lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)]' : '')}>
-      {detail && <section className={panel + ' min-w-0 p-5 sm:p-6'} aria-label="Tren omzet">
-        <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-lg font-semibold text-navy">Tren omzet outlet</h2><p className="mt-1 text-xs text-subtle">Tahun {month.slice(0, 4)} · hanya rekap tervalidasi</p></div><Link to="/accounting/pendapatan/analisis" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Laporan tahunan <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link></div>
+      {detail && <Card variant="default" padding="md" aria-label="Tren omzet">
+        <CardHeader
+          title="Tren omzet outlet"
+          subtitle={`Tahun ${month.slice(0, 4)} · hanya rekap tervalidasi`}
+          action={<Link to="/accounting/pendapatan/analisis" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Laporan tahunan <ArrowUpRight aria-hidden="true" className="h-4 w-4" /></Link>}
+        />
         {annual.isLoading || periods.isLoading ? <LoadingState label="Memuat tren omzet..." /> : annual.error ? <ErrorState description={annual.error.message} onRetry={() => { void annual.refetch(); }} /> : annual.data?.months ? <>
-          <div className="mt-6 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs text-subtle">{monthLabel(month)}</p><p className="mt-1 text-2xl font-semibold text-navy tabular-nums">{monthTrend?.amount != null ? formatRupiah(monthTrend.amount) : 'Belum ada omzet tervalidasi'}</p></div><p className="max-w-64 text-xs text-subtle">{difference !== null ? (difference >= 0n ? 'Naik ' : 'Turun ') + centsLabel(difference < 0n ? -difference : difference) + ' dibanding bulan sebelumnya' : 'Perbandingan muncul setelah kedua bulan memiliki data.'}</p></div>
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs text-subtle">{monthLabel(month)}</p>
+              <p className="mt-1 text-2xl font-semibold text-navy tabular-nums">{monthTrend?.amount != null ? formatRupiah(monthTrend.amount) : 'Belum ada omzet tervalidasi'}</p>
+            </div>
+            <p className="max-w-64 text-xs text-subtle">{difference !== null ? (difference >= 0n ? 'Naik ' : 'Turun ') + centsLabel(difference < 0n ? -difference : difference) + ' dibanding bulan sebelumnya' : 'Perbandingan muncul setelah kedua bulan memiliki data.'}</p>
+          </div>
           <div className={'mt-6 grid grid-cols-12 items-end gap-1 border-b border-line pb-2 ' + (annual.data.validated_count ? 'h-40' : 'h-14')} aria-label="Omzet per bulan">
             {annual.data.months.map(m => { const cents = moneyCents(m.amount); const height = max > 0n ? Number(cents * 100n / max) : 0; return <button key={m.month} type="button" onClick={() => setSelectedMonth(m.month)} aria-label={monthLabel(m.month) + ': ' + (m.amount === null ? 'belum ada data' : formatRupiah(m.amount))} aria-pressed={m.month === month} className="group flex h-full min-w-0 flex-col justify-end rounded-t focus-visible:outline-2 focus-visible:outline-primary" title={m.amount === null ? 'Belum ada data tervalidasi' : formatRupiah(m.amount)}><span className={'mx-auto w-3/4 rounded-t transition-colors ' + (m.month === month ? 'bg-primary-600' : 'bg-primary-200 dark:bg-primary-900 group-hover:bg-primary-400')} style={{ height: cents === 0n ? 0 : Math.max(height, 2) + '%'}} /><span className={'mt-2 text-[10px] sm:text-xs ' + (m.month === month ? 'font-bold text-primary-700 dark:text-primary-300' : 'text-subtle')}>{new Intl.DateTimeFormat('id-ID', { month: 'short', timeZone: 'UTC' }).format(new Date(m.month + '-01T00:00:00Z'))}</span></button>; })}
-          </div><p className="mt-3 text-xs text-subtle">Klik bulan untuk melihat ringkasannya. Bulan tanpa data tidak ditampilkan sebagai omzet nol.{month === currentMonth() && ' Bulan berjalan belum lengkap; perbandingan memakai total tervalidasi hingga saat ini.'}</p>
+          </div>
+          <p className="mt-3 text-xs text-subtle">Klik bulan untuk melihat ringkasannya. Bulan tanpa data tidak ditampilkan sebagai omzet nol.{month === currentMonth() && ' Bulan berjalan belum lengkap; perbandingan memakai total tervalidasi hingga saat ini.'}</p>
         </> : <p className="py-8 text-sm text-subtle">Belum ada laporan omzet tervalidasi.</p>}
-      </section>}
+      </Card>}
       <section className={panel + ' p-5 sm:p-6'} aria-label="Kontrol voucher"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-navy">Kontrol voucher</h2><ClipboardCheck aria-hidden="true" className="h-5 w-5 text-subtle" /></div><p className="mt-1 text-xs text-subtle">{monthLabel(month)} · sesuai akses akun</p>{queues.length > 0 && <p className="mt-4 text-sm font-medium text-muted"><span className="mr-2 inline-flex min-w-8 justify-center rounded-md bg-primary/10 px-2 py-1 font-bold tabular-nums text-primary-700 dark:text-primary-300">{pending}</span>voucher perlu ditindaklanjuti</p>}
         {queues.length ? <div className="mt-3 space-y-2">{queues.slice().sort((a, b) => Number(b.status === 'correction' && b.count > 0) - Number(a.status === 'correction' && a.count > 0)).map(q => <Link key={q.name} to={linkTo(q.status)} className={'group flex items-start justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-primary ' + (q.status === 'correction' && q.count > 0 ? 'border-warning/30 bg-warning/5' : 'border-line')}><div><h3 className="text-sm font-semibold text-navy">{q.name}</h3><p className="mt-1 text-xs leading-relaxed text-subtle">{q.note}</p></div><span className="flex shrink-0 items-center gap-2"><span className={'inline-flex min-h-8 min-w-8 items-center justify-center rounded-md px-2 text-base font-bold tabular-nums ' + (q.status === 'correction' && q.count > 0 ? 'bg-warning/10 text-warning dark:text-amber-300' : 'bg-primary/10 text-primary-700 dark:text-primary-300')}>{q.count}</span><ArrowRight aria-hidden="true" className="h-4 w-4 text-subtle" /></span></Link>)}</div> : <p className="mt-6 text-sm leading-relaxed text-subtle">{detail && operations.isLoading ? 'Memuat antrean pekerjaan…' : 'Ringkasan mengikuti kewenangan akun. Pemeriksaan dan perubahan transaksi tersedia pada role yang berizin.'}</p>}
         {can('write:omzet') && <Link to={'/accounting/pendapatan/rekap?month=' + month} className="mt-4 flex items-start justify-between gap-3 rounded-input border border-line bg-surface p-3"><div><p className="text-sm font-semibold text-navy">Rekap omzet H+1</p><p className="mt-1 text-xs text-subtle">Pengajuan paling lambat 23.59 WIB pada H+1.</p></div><ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0 text-subtle" /></Link>}

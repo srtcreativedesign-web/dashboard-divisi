@@ -106,3 +106,6 @@ Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATU
 
 - [x] ACC-DASH-003 — Meja kerja dashboard berisi transaksi omzet/voucher per role, prioritas antrean berisi, konteks sumber, deep-link dan pagination nyata; mobile vertikal. Dokumen 69; 200 tes/typecheck/lint scoped/build/QA Staff native lulus. REQ tanpa PR.
 - [ ] ACC-DASH-003-UAT — Walkthrough pengguna pertama dan seluruh role native, penilaian pengguna. Jadwal/staging/pemeriksaan sumber berdampingan tetap terbuka.
+
+- [x] UI-SYSTEM-001a — Tetapkan UI Project sebagai dasar bahasa visual lintas divisi; header bersama dan konteks kerja Accounting berbasis periode/role/cakupan diterapkan. Peran: keempat peran. [Keputusan dan batas](70_STANDAR_UI_LINTAS_DIVISI.md). Penyelarasan seluruh halaman detail dan UAT semua role tetap terbuka.
+- [ ] UI-SYSTEM-001b — Terapkan standar bersama pada daftar/detail/form Accounting, lalu Cellular, dengan konteks dan tindakan khusus role; lakukan QA terang/gelap/mobile dan UAT pengguna.

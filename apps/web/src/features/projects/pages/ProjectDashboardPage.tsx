@@ -28,6 +28,7 @@ import {
 import { ErrorState, LoadingState } from '../../../components/states';
 import { formatRupiah, formatDate } from '../../../utils/format';
 import { Button } from '../../../components/ui/Button';
+import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 
 const axisTick = { fontSize: 11, fill: 'var(--color-subtle)' };
 
@@ -88,32 +89,20 @@ export default function ProjectDashboardPage() {
 
   return (
     <div className="space-y-6 pb-10 animate-fade-in">
-      {/* ENTERPRISE HERO BANNER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-input text-[10px] font-bold tracking-wider uppercase bg-primary-50 text-primary-700 dark:text-primary-300 border border-primary-200">
-              Divisi Proyek
-            </span>
-            <span className="text-xs text-slate-300">&bull;</span>
-            <span className="text-xs text-subtle font-medium">Manajemen Portofolio & Kontrol Lapangan</span>
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy mt-1">
-            Dashboard Portofolio Proyek
-          </h1>
-          <p className="text-xs sm:text-sm text-subtle mt-0.5">
-            Ringkasan hingga 100 proyek yang dimuat. Buka daftar proyek untuk menelusuri seluruh halaman.
-          </p>
-        </div>
-        <div className="flex items-center gap-2.5">
+      <DivisionPageHeader
+        division="Divisi Proyek"
+        descriptor="Manajemen Portofolio & Kontrol Lapangan"
+        title="Dashboard Portofolio Proyek"
+        description="Ringkasan hingga 100 proyek yang dimuat. Buka daftar proyek untuk menelusuri seluruh halaman."
+        actions={
           <Link to="/projects/list">
             <Button variant="secondary" size="md" className="text-xs">
               Lihat Semua Proyek
               <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
             </Button>
           </Link>
-        </div>
-      </div>
+        }
+      />
 
       {/* Primary KPI Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
