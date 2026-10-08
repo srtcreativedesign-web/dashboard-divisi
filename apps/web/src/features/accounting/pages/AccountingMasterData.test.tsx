@@ -31,7 +31,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('ACC user sees Master Data heading', async () => {
     render(<App />);
-    expect(await screen.findByRole('heading', { name: /Master Data Accounting/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Master akun & kategori/i })).toBeInTheDocument();
   });
 
   it('shows empty state when no categories', async () => {
@@ -42,7 +42,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('ACC user can add a category', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /Tambah kategori/i }));
     const catForm = screen.getByRole('form', { name: /Form tambah kategori/i });
     const cat = within(catForm);
@@ -56,7 +56,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('ACC user can add a rekening', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
     fireEvent.click(screen.getByRole('button', { name: /Tambah rekening/i }));
     const accForm = screen.getByRole('form', { name: /Form tambah rekening/i });
@@ -71,7 +71,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('validates required fields on category form', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /Tambah kategori/i }));
     const catForm = screen.getByRole('form', { name: /Form tambah kategori/i });
     const cat = within(catForm);
@@ -84,7 +84,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('validates required fields on account form', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
     fireEvent.click(screen.getByRole('button', { name: /Tambah rekening/i }));
     const accForm = screen.getByRole('form', { name: /Form tambah rekening/i });

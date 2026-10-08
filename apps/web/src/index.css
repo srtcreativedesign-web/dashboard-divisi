@@ -131,51 +131,104 @@ table td {
 .workspace-content td, .workspace-content th { vertical-align: middle; }
 .workspace-content input:not([type=checkbox]):not([type=radio]):not([type=file]), .workspace-content select { min-height: 2.75rem; }
 
-/* Accounting follows the same surface rhythm used by the Project workspace. */
-.accounting-workspace > :is(div, section) {
+/* Shared surface rhythm for Accounting, Project, and Cellular workspaces. */
+.division-workspace > :is(div, section) {
   animation: fade-in 0.3s ease-out;
 }
-.accounting-workspace :is(section, article, details).rounded-xl,
-.accounting-workspace div.rounded-xl.border {
+.division-workspace :is(section, article, details, form).rounded-xl,
+.division-workspace :is(div, form).rounded-xl.border {
   border-radius: var(--radius-card-lg);
   box-shadow: var(--shadow-card);
 }
-.accounting-workspace :is(section, article, details).rounded-lg.border,
-.accounting-workspace div.rounded-lg.border {
+.division-workspace :is(section, article, details, form).rounded-lg.border,
+.division-workspace :is(div, form).rounded-lg.border {
   border-radius: var(--radius-card);
 }
-.accounting-workspace table thead {
+.division-workspace :is(section, article, details, form).border {
+  background-color: var(--color-panel);
+  border-color: var(--color-line);
+}
+.division-workspace table thead {
   background: var(--color-surface);
   color: var(--color-subtle);
 }
-.accounting-workspace table thead th {
+.division-workspace table thead th {
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.accounting-workspace table tbody tr {
+.division-workspace table tbody tr {
   transition: background-color 150ms ease;
 }
-.accounting-workspace table tbody tr:hover {
+.division-workspace table tbody tr:hover {
   background: color-mix(in srgb, var(--color-surface) 72%, transparent);
 }
-.accounting-workspace label {
+.division-workspace label {
   font-weight: 550;
   color: var(--color-muted);
 }
-.accounting-workspace input:not([type=checkbox]):not([type=radio]),
-.accounting-workspace select,
-.accounting-workspace textarea {
+.division-workspace input:not([type=checkbox]):not([type=radio]),
+.division-workspace select,
+.division-workspace textarea,
+dialog input:not([type=checkbox]):not([type=radio]),
+dialog select,
+dialog textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.75rem;
   border-radius: var(--radius-input);
+  border-width: 1px;
+  border-style: solid;
   border-color: var(--color-line);
+  background-color: var(--color-panel);
+  color: var(--color-navy);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }
-.accounting-workspace input:not([type=checkbox]):not([type=radio]):focus,
-.accounting-workspace select:focus,
-.accounting-workspace textarea:focus {
+.division-workspace textarea,
+dialog textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+.division-workspace input[type=file],
+dialog input[type=file] {
+  padding: 0.4rem;
+}
+.division-workspace input[type=file]::file-selector-button,
+dialog input[type=file]::file-selector-button {
+  margin-right: 0.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--color-primary-50);
+  padding: 0.45rem 0.75rem;
+  color: var(--color-primary-700);
+  font-weight: 650;
+}
+.division-workspace input:not([type=checkbox]):not([type=radio]):focus,
+.division-workspace select:focus,
+.division-workspace textarea:focus,
+dialog input:not([type=checkbox]):not([type=radio]):focus,
+dialog select:focus,
+dialog textarea:focus {
   border-color: var(--color-primary-500);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-500) 14%, transparent);
   outline: none;
+}
+.division-workspace :is(input, select, textarea):disabled,
+dialog :is(input, select, textarea):disabled {
+  cursor: not-allowed;
+  background: var(--color-surface);
+  color: var(--color-subtle);
+  opacity: 0.72;
+}
+.division-workspace :is(input[type=checkbox], input[type=radio]),
+dialog :is(input[type=checkbox], input[type=radio]) {
+  accent-color: var(--color-primary-600);
+}
+.division-workspace form > :is(h2, h3):first-child {
+  color: var(--color-navy);
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }

@@ -23,7 +23,7 @@ describe('Operasional Cellular', () => {
     expect(await screen.findByText('Kartu uji')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Penjualan' })).not.toBeInTheDocument();
     expect(screen.queryByRole('form', { name: 'Tambah produk' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Stok' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Stok & mutasi' }));
     expect(screen.queryByRole('form', { name: 'Catat mutasi stok' })).not.toBeInTheDocument();
     expect(cellularApi.sales).not.toHaveBeenCalled();
   });
@@ -49,7 +49,7 @@ describe('Operasional Cellular', () => {
   it('memberikan Gudang form stok tanpa penjualan atau katalog tulis', async () => {
     renderPage('ADMIN_GUDANG');
     await screen.findByText('Kartu uji');
-    fireEvent.click(screen.getByRole('button', { name: 'Stok' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Stok & mutasi' }));
     expect(screen.getByRole('form', { name: 'Catat mutasi stok' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Penjualan' })).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('Belum ada mutasi stok.')).toBeInTheDocument());
@@ -64,7 +64,7 @@ it('mengunci konteks dan menolak submit berulang saat produk sedang disimpan', a
  vi.mocked(cellularApi.createProduct).mockImplementation(()=>new Promise(()=>{})); renderPage('ADMIN'); await screen.findByText('Kartu uji');
  fireEvent.change(screen.getByLabelText('SKU'),{target:{value:'UJI-2'}}); fireEvent.change(screen.getByLabelText('Nama produk'),{target:{value:'Produk anonim'}});
  const form=screen.getByRole('form',{name:'Tambah produk'}); fireEvent.submit(form); await waitFor(()=>expect(cellularApi.createProduct).toHaveBeenCalledOnce());
- expect(screen.getByRole('button',{name:'Stok'})).toBeDisabled(); expect(screen.getByLabelText('SKU')).toBeDisabled();
+ expect(screen.getByRole('button',{name:'Stok & mutasi'})).toBeDisabled(); expect(screen.getByLabelText('SKU')).toBeDisabled();
  fireEvent.submit(form); expect(cellularApi.createProduct).toHaveBeenCalledOnce();
 });
 it('perubahan bulan atau tab menutup pembatalan penjualan sebelumnya', async()=>{
@@ -72,6 +72,6 @@ it('perubahan bulan atau tab menutup pembatalan penjualan sebelumnya', async()=>
  renderPage('MANAGER',[sale]); await screen.findByText('Kartu uji'); fireEvent.click(screen.getByRole('button',{name:'Penjualan'}));
  fireEvent.click(await screen.findByRole('button',{name:'Batalkan penjualan JUAL-1'})); expect(screen.getByRole('form',{name:'Batalkan penjualan'})).toBeInTheDocument();
  fireEvent.change(screen.getByLabelText('Bulan laporan'),{target:{value:'2026-09'}}); expect(screen.queryByRole('form',{name:'Batalkan penjualan'})).not.toBeInTheDocument();
- fireEvent.click(await screen.findByRole('button',{name:'Batalkan penjualan JUAL-1'})); fireEvent.click(screen.getByRole('button',{name:'Stok'})); fireEvent.click(screen.getByRole('button',{name:'Penjualan'}));
+ fireEvent.click(await screen.findByRole('button',{name:'Batalkan penjualan JUAL-1'})); fireEvent.click(screen.getByRole('button',{name:'Stok & mutasi'})); fireEvent.click(screen.getByRole('button',{name:'Penjualan'}));
  expect(screen.queryByRole('form',{name:'Batalkan penjualan'})).not.toBeInTheDocument(); expect(cellularApi.voidSale).not.toHaveBeenCalled();
 });

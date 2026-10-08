@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cellularApi, type Sale } from '../api';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
+import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const fieldClass = 'mt-1 w-full rounded-lg border border-line bg-white dark:bg-slate-900 dark:text-slate-100 p-2 text-sm';
@@ -46,9 +47,9 @@ export default function CellularOperationsPage() {
   const button = (label: string) => <button className="rounded-lg bg-primary-600 px-4 py-2 text-sm text-white disabled:opacity-50" disabled={busy}>{busy ? 'Menyimpan...' : label}</button>;
   const queries = [products, outlets, stock, movements, ...(can('view:cellular_sales') ? [sales] : [])];
   if (!can('view:cellular')) return <p role="alert" className="p-6">Akses operasional Cellular tidak tersedia untuk akun ini.</p>;
-  return <div className="min-w-0 space-y-5 p-4 sm:p-6">
-    <header><h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Operasional Cellular</h1><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Kartu perdana dan aksesori. Pencatatan manual dengan stok berdasarkan jumlah barang.</p></header>
-    <nav className="flex flex-wrap gap-2" aria-label="Bagian operasional Cellular">{(['catalog', 'stock', ...(can('view:cellular_sales') ? ['sales'] : [])] as const).map(t => <button key={t} type="button" disabled={busy} aria-pressed={tab === t} className={`rounded-lg border px-4 py-2 text-sm ${tab === t ? 'border-primary-600 text-primary-700 dark:text-primary-300' : 'border-line text-slate-600 dark:text-slate-300'}`} onClick={() => { setTab(t as typeof tab); setVoiding(null); setVoidReason(''); mutation.reset(); setNotice(''); }}>{t === 'catalog' ? 'Katalog' : t === 'stock' ? 'Stok' : 'Penjualan'}</button>)}</nav>
+  return <div className="min-w-0 space-y-6 pb-10">
+    <DivisionPageHeader division="Divisi Cellular" descriptor="Operasional · Produk & Transaksi" title="Operasional Cellular" description="Kelola kartu perdana dan aksesori, pencatatan stok berbasis jumlah barang, serta laporan penjualan manual sesuai kewenangan akun." />
+    <nav className="flex flex-wrap gap-1 border-b border-line" aria-label="Bagian operasional Cellular">{(['catalog', 'stock', ...(can('view:cellular_sales') ? ['sales'] : [])] as const).map(t => <button key={t} type="button" disabled={busy} aria-pressed={tab === t} className={`min-h-11 border-b-2 px-4 text-sm font-semibold transition-colors ${tab === t ? 'border-primary-600 text-primary-700 dark:text-primary-300' : 'border-transparent text-subtle hover:text-navy'}`} onClick={() => { setTab(t as typeof tab); setVoiding(null); setVoidReason(''); mutation.reset(); setNotice(''); }}>{t === 'catalog' ? 'Katalog produk' : t === 'stock' ? 'Stok & mutasi' : 'Penjualan'}</button>)}</nav>
     {queries.some(q => q.isLoading) && <p role="status">Memuat data...</p>}
     {queries.filter(q => q.error).map((q, i) => <div key={i} role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{q.error?.message}<button type="button" className="ml-3 underline" onClick={() => void q.refetch()}>Coba lagi</button></div>)}
     {mutation.error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{mutation.error.message}</p>}

@@ -8,28 +8,33 @@ Semua divisi memakai AppLayout, sidebar, top bar, token warna, tipografi Inter, 
 
 Urutan layar yang menjadi acuan adalah: identitas dan tujuan halaman, tindakan utama, konteks/KPI, filter atau tab kerja, panel data utama, status dan penanggung jawab, lalu pagination atau tindakan lanjutan. Tabel memakai angka tabular, header konsisten, hover row, dan empty/error/loading state.
 
+## Implementasi tahap kedua
+
+`AppLayout` sekarang memberi kontrak `division-workspace` yang sama kepada Accounting, Project, dan Cellular. Kontrak ini berlaku pada isi halaman, bukan hanya dashboard: surface panel, tabel, hover baris, label, input, select, textarea, unggah berkas, fokus keyboard, field nonaktif, radius, shadow, dan animasi. Dialog serta side sheet memakai aturan input yang sama agar formulir yang muncul di portal tidak kembali ke gaya lama.
+
 ## Status Divisi Accounting
 
-Seluruh 17 halaman route Accounting sudah memakai `AccountingPageHeader`, yang membungkus `DivisionPageHeader` lintas divisi. Workspace Accounting juga menerapkan surface contract bersama untuk panel, tabel, field, fokus, radius, shadow, dan animasi. Isi tetap mengikuti pekerjaan Accounting: dokumen, periode, sumber, status, penanggung jawab, nominal, dan tindakan.
+Seluruh 17 halaman route Accounting memakai `AccountingPageHeader`, yang membungkus `DivisionPageHeader` lintas divisi. Seluruh menu menerima surface dan form contract bersama melalui layout. Form voucher telah diperiksa langsung di browser: identitas, rencana pembayaran, referensi dokumen, nominal, dan tindakan draf tampil sebagai satu alur yang dapat dipindai. Isi tetap mengikuti pekerjaan Accounting: dokumen, periode, sumber, status, penanggung jawab, nominal, dan tindakan.
 
 Perbedaan role dipertahankan melalui capability. Admin mengerjakan draf/koreksi; Staff Accounting memeriksa; Manager memutuskan; Finance merealisasikan. Kesamaan visual tidak menambah kewenangan.
 
 ## Status Divisi Project
 
-Dashboard Project sudah memakai komponen header dan KPI bersama serta menjadi acuan visual utama. Beberapa halaman Project lama masih memiliki implementasi header/panel lokal. Secara visual cukup dekat, tetapi perlu migrasi bertahap ke komponen bersama agar perubahan desain berikutnya tidak menghasilkan variasi baru.
+Dashboard Project tetap menjadi acuan visual utama. Layout halaman Project, daftar proyek, vendor, serta detail proyek sekarang memakai `DivisionPageHeader`; halaman modul yang memakai `ProjectPageLayout` otomatis menerima header yang sama. Tabel, panel, dan formulir menerima kontrak workspace yang sama dengan Accounting.
 
 ## Status Divisi Cellular
 
-Cellular masih memiliki dashboard dan halaman operasional yang lebih sederhana. Struktur aplikasi dan token sudah sama, tetapi hierarki halaman, KPI, toolbar, tabel, dan konteks role belum sepenuhnya memakai kontrak visual bersama.
+Dashboard Cellular sekarang memakai `DivisionPageHeader`, KPI bersama, dan panel direktori outlet. Halaman operasional memakai header bersama, navigasi tab bergaris, surface panel, tabel, dan form contract yang sama. Isi khusus Cellular tetap berupa katalog kartu/aksesori, stok berbasis jumlah, mutasi, dan penjualan manual sesuai role.
 
 ## Kesimpulan audit
 
 - Shell aplikasi lintas divisi: selaras.
-- Accounting seluruh menu: selaras pada kontrak visual baru.
+- Accounting seluruh menu dan input: memakai kontrak visual baru.
 - Role Accounting: selaras secara visual dan tetap berbeda secara kewenangan.
-- Project: menjadi baseline; migrasi komponen lokal masih diperlukan.
-- Cellular: perlu tahap penyelarasan tersendiri setelah alur dan metrik operasional dikunci.
+- Project: baseline visual dipertahankan dan header halaman utama telah dimigrasikan ke komponen bersama.
+- Cellular: dashboard, halaman operasional, tab, tabel, dan input memakai kontrak visual bersama.
+- Keselarasan berarti bahasa visual dan pola interaksi yang sama; menu, data, tindakan, serta hak akses tetap mengikuti pekerjaan tiap divisi dan role.
 
 ## Verifikasi
 
-Typecheck web lulus. Tiga puluh empat tes terpilih untuk navigasi, routing, dashboard, register, dan pembatasan multi-role lulus. QA browser pada register Admin memastikan header, konteks, filter, status, tabel, data database, dan tindakan tampil sesuai kontrak visual.
+Typecheck web dan build produksi lulus. Seluruh 47 berkas pengujian frontend dengan 210 tes lulus. QA browser pada formulir voucher Admin memastikan side sheet, hierarki informasi, field, fokus, dan tindakan draf memakai kontrak visual baru.

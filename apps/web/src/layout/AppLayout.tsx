@@ -163,7 +163,7 @@ export function AppLayout() {
             <button type="button" onClick={() => setIsDarkMode(value => !value)} aria-label={isDarkMode ? 'Gunakan tema terang' : 'Gunakan tema gelap'} className="rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">{isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}</button>
           </div>
         </header>
-        <main id="main-content" tabIndex={-1} className={`workspace-content mx-auto min-w-0 max-w-[1600px] p-4 sm:p-6 lg:p-8 ${isAccounting ? 'accounting-workspace' : ''}`}>{error && <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}<Outlet /></main>
+        <main id="main-content" tabIndex={-1} className={`workspace-content mx-auto min-w-0 max-w-[1600px] p-4 sm:p-6 lg:p-8 ${isAccounting || isProject || isCellular ? 'division-workspace' : ''} ${isAccounting ? 'accounting-workspace' : isProject ? 'project-workspace' : isCellular ? 'cellular-workspace' : ''}`}>{error && <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}<Outlet /></main>
       </div>
     </div>
   );

@@ -23,6 +23,7 @@ import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
 import { Button } from '../../../components/ui/Button';
 import { BarChart } from '../../../components/charts';
+import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 
 export default function ProjectListPage({ forcedClassification }: { forcedClassification?: string }) {
   const { user } = useAuth();
@@ -155,24 +156,7 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
   if (!canView) return <p role="alert">Akses proyek tidak tersedia untuk akun ini.</p>;
   return (
     <div className="space-y-6">
-      {/* HEADER HERO */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-input text-[10px] font-bold tracking-wider uppercase bg-primary-50 text-primary-700 border border-primary-200">
-              Divisi Proyek
-            </span>
-            <span className="text-xs text-slate-300">&bull;</span>
-            <span className="text-xs text-subtle font-medium">Manajemen Portofolio & Kontrol Lapangan</span>
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy mt-1">
-            Daftar Proyek & Monitoring
-          </h1>
-          <p className="text-xs sm:text-sm text-subtle mt-0.5">
-            Pantau progres fisik, tahapan milestone, kontrol anggaran RAB, galeri visual, dan BAST.
-          </p>
-        </div>
-        <Button
+      <DivisionPageHeader division="Divisi Proyek" descriptor="Manajemen Portofolio & Kontrol Lapangan" title="Daftar proyek & monitoring" description="Pantau progres fisik, tahapan milestone, kontrol anggaran RAB, galeri visual, dan BAST." actions={<Button
           disabled={!canManage}
           variant="primary"
           size="md"
@@ -180,8 +164,7 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
         >
           <Plus className="h-4 w-4" />
           Tambah Proyek Baru
-        </Button>
-      </div>
+        </Button>} />
 
       {/* KPI STATS ROW */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
