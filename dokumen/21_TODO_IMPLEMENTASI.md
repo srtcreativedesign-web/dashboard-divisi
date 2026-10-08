@@ -103,3 +103,6 @@ Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATU
 - [ ] ACC-RESET-002 — Walkthrough native semua role, penerimaan pengguna dan iterasi fungsi menu target (staging/Ecsys/ledger/PNL/bonus/CMO); tidak ditutup dengan reset UI.
 
 - [x] ACC-FIRST-USE-001 — Arahan mulai kerja per role di dashboard dan petunjuk urutan register; 19 tes/typecheck/build/lint scoped/QA Staff native lulus. Dokumen 68. UAT pengguna pertama dan staging/alur sumber tetap terbuka.
+
+- [x] ACC-DASH-003 — Meja kerja dashboard berisi transaksi omzet/voucher per role, prioritas antrean berisi, konteks sumber, deep-link dan pagination nyata; mobile vertikal. Dokumen 69; 200 tes/typecheck/lint scoped/build/QA Staff native lulus. REQ tanpa PR.
+- [ ] ACC-DASH-003-UAT — Walkthrough pengguna pertama dan seluruh role native, penilaian pengguna. Jadwal/staging/pemeriksaan sumber berdampingan tetap terbuka.

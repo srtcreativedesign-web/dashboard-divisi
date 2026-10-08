@@ -1,6 +1,6 @@
-import { AccountingStart } from '../ui/AccountingStart';
+import { AccountingActionDesk } from '../ui/AccountingActionDesk';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, ArrowUpRight, CalendarDays, ChartNoAxesCombined, ClipboardCheck, FileText, RefreshCw, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { accountingApi } from '../../../api/accounting';
@@ -24,6 +24,7 @@ const moneyCents = (value: string | null) => value && /^\d+\.\d{2}$/.test(value)
 
 export default function AccountingDashboardPage() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [selectedMonth, setSelectedMonth] = useState('');
   const can = (capability: string) => Boolean(user && hasCapability(user.role, capability, user.divisionCode));
   const detail = can('view:acc_detail');
@@ -50,36 +51,34 @@ export default function AccountingDashboardPage() {
   const pending = queues.reduce((total, q) => total + q.count, 0);
   const monthOptions = [...new Set([currentMonth(), ...sortedPeriods.map(p => p.periodMonth.slice(0, 7)), ...Array.from({ length: 12 }, (_, i) => month.slice(0, 4) + '-' + String(i + 1).padStart(2, '0'))])].sort().reverse();
   const max = annual.data?.months?.reduce((n, m) => moneyCents(m.amount) > n ? moneyCents(m.amount) : n, 0n) ?? 0n;
-  const refresh = () => { void periods.refetch(); if (activePeriod) void report.refetch(); if (detail) { void operations.refetch(); void annual.refetch(); } };
+  const refresh = () => { if (detail) void queryClient.invalidateQueries({ queryKey: ['accounting-desk'] }); void periods.refetch(); if (activePeriod) void report.refetch(); if (detail) { void operations.refetch(); void annual.refetch(); } };
   const linkTo = (status = '') => '/accounting/pengeluaran/voucher?month=' + month + (status ? '&status=' + status : '');
 
   return <div className="space-y-6 pb-6">
     <header className="flex flex-wrap items-end justify-between gap-5 border-b border-line pb-6">
-      <div>{detail && <Link className="mb-2 inline-block text-sm font-semibold text-primary-700 dark:text-primary-300" to="/accounting/dokumen/register">Buka register dokumen →</Link>}<p className="mb-2 inline-flex rounded-input border border-primary-200 bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700 dark:border-primary-900 dark:bg-primary-950 dark:text-primary-300">Divisi Accounting · Kontrol Keuangan</p><h1 className="text-2xl font-bold tracking-tight text-navy">Dashboard Accounting</h1><p className="mt-2 text-sm text-subtle">Kontrol pendapatan outlet, tagihan, kas dan proses persetujuan lintas divisi.</p></div>
+      <div>{detail && <Link className="mt-3 block w-fit text-xs font-semibold text-primary-700 dark:text-primary-300" to="/accounting/dokumen/register">Buka register dokumen →</Link>}<p className="mb-2 inline-flex rounded-input border border-primary-200 bg-primary-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-700 dark:border-primary-900 dark:bg-primary-950 dark:text-primary-300">Divisi Accounting · Kontrol Keuangan</p><h1 className="text-2xl font-bold tracking-tight text-navy">Dashboard Accounting</h1><p className="mt-2 text-sm text-subtle">Kerjakan laporan dan pengajuan, lalu pantau pendapatan serta realisasi keuangan.</p></div>
       <div className="flex flex-wrap items-center gap-2"><label className="flex items-center gap-2 rounded-input border border-line bg-panel px-3 py-2"><CalendarDays aria-hidden="true" className="h-4 w-4 text-subtle" /><span className="sr-only">Periode ringkasan</span><select aria-label="Periode ringkasan" className="min-h-8 bg-panel text-sm font-medium text-navy" value={month} onChange={e => setSelectedMonth(e.target.value)}>{monthOptions.map(m => <option key={m} value={m}>{monthLabel(m)}</option>)}</select></label><button type="button" onClick={refresh} className="flex min-h-12 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-medium text-navy hover:bg-surface"><RefreshCw aria-hidden="true" className={'h-4 w-4 ' + (operations.isFetching || report.isFetching ? 'animate-spin motion-reduce:animate-none' : '')} />Muat ulang</button></div>
     </header>
 
-    <AccountingStart month={month} />
+    <AccountingActionDesk key={month} month={month} />
 
     {detail && <section aria-label="Ringkasan operasional" className="space-y-3">
       {operations.isLoading || periods.isLoading ? <LoadingState label="Memuat ringkasan operasional..." /> : operations.error ? <ErrorState description={operations.error.message} onRetry={() => { void operations.refetch(); }} /> : data ? <>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-12">
+        <div className="grid gap-0 divide-y divide-line overflow-hidden rounded-xl border border-line bg-panel sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4">
           {[
             { label: 'Omzet tervalidasi', value: monthTrend?.amount != null ? formatRupiah(monthTrend.amount) : 'Belum tersedia', note: annual.error ? 'Laporan omzet belum dapat dimuat' : annual.isLoading ? 'Memuat laporan omzet…' : (monthTrend ? monthTrend.validated_count + ' rekap tervalidasi · ' + monthLabel(month) : 'Belum ada rekap tervalidasi pada bulan ini'), icon: ChartNoAxesCombined },
             { label: 'Pengeluaran disetujui', value: data.counts.approved ? formatRupiah(data.approved_amount) : 'Belum tersedia', note: data.counts.approved + ' voucher disetujui', icon: FileText },
             { label: 'Sisa realisasi voucher', value: data.counts.approved ? formatRupiah(data.remaining_amount) : 'Belum tersedia', note: data.unpaid_count + ' voucher belum lunas · ' + data.overdue_count + ' lewat jatuh tempo', icon: Wallet },
-            { label: queues.length ? 'Perlu tindakan Anda' : 'Menunggu proses', value: String(queues.length ? pending : data.counts.submitted + data.counts.pending_approval), note: queues.length ? 'Voucher untuk Anda tindak lanjuti' : 'Pemeriksaan & persetujuan', icon: ClipboardCheck },
-          ].map((kpi, index) => <article key={kpi.label} className={
-            'min-w-0 rounded-card-lg border p-5 sm:p-6 ' + (index === 0
-              ? 'border-primary-700 bg-primary-700 text-white shadow-card lg:col-span-4'
-              : panel + (index === 3 ? ' lg:col-span-2' : ' lg:col-span-3'))
+            { label: queues.length ? 'Voucher untuk Anda' : 'Menunggu proses', value: String(queues.length ? pending : data.counts.submitted + data.counts.pending_approval), note: queues.length ? 'Voucher untuk Anda tindak lanjuti' : 'Pemeriksaan & persetujuan', icon: ClipboardCheck },
+          ].map((kpi) => <article key={kpi.label} className={
+            'min-w-0 px-5 py-4 sm:border-r sm:border-line last:border-r-0'
           }>
             <div className="flex items-start justify-between gap-3">
-              <h2 className={'text-sm font-medium leading-relaxed ' + (index === 0 ? 'text-white/85' : 'text-muted')}>{kpi.label}</h2>
-              <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ' + (index === 0 ? 'bg-white/15 text-white' : 'bg-primary/10 text-primary-700 dark:text-primary-300')}><kpi.icon aria-hidden="true" className="h-4 w-4" /></span>
+              <h2 className={'text-sm font-medium leading-relaxed ' + 'text-muted'}>{kpi.label}</h2>
+              <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ' + 'bg-surface text-primary-700 dark:text-primary-300'}><kpi.icon aria-hidden="true" className="h-4 w-4" /></span>
             </div>
-            <p className={'mt-5 break-words font-bold tracking-tight tabular-nums ' + (index === 0 ? 'text-[clamp(1.35rem,2.3vw,2rem)] text-white' : index === 3 ? 'text-4xl text-navy' : 'text-[clamp(1.15rem,1.6vw,1.5rem)] text-navy')}>{kpi.value}</p>
-            <p className={'mt-3 text-xs leading-relaxed ' + (index === 0 ? 'text-white/80' : 'text-subtle')}>{kpi.note}</p>
+            <p className={'mt-3 break-words text-xl font-bold tracking-tight tabular-nums text-navy'}>{kpi.value}</p>
+            <p className={'mt-3 text-xs leading-relaxed ' + 'text-subtle'}>{kpi.note}</p>
           </article>)}
         </div>
         <details className="text-xs text-subtle"><summary className="w-fit cursor-pointer rounded py-1 font-medium focus-visible:outline-2 focus-visible:outline-primary">Dasar angka dan periode</summary><p className="mt-2 max-w-3xl leading-relaxed">Voucher mengikuti tanggal voucher. Pengeluaran disetujui belum merupakan beban jurnal; realisasi adalah catatan pembayaran aktif, bukan saldo bank atau hutang jurnal.</p></details>
@@ -96,7 +95,7 @@ export default function AccountingDashboardPage() {
           </div><p className="mt-3 text-xs text-subtle">Klik bulan untuk melihat ringkasannya. Bulan tanpa data tidak ditampilkan sebagai omzet nol.{month === currentMonth() && ' Bulan berjalan belum lengkap; perbandingan memakai total tervalidasi hingga saat ini.'}</p>
         </> : <p className="py-8 text-sm text-subtle">Belum ada laporan omzet tervalidasi.</p>}
       </section>}
-      <section className={panel + ' p-5 sm:p-6'} aria-label="Prioritas pekerjaan"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-navy">Prioritas pekerjaan</h2><ClipboardCheck aria-hidden="true" className="h-5 w-5 text-subtle" /></div><p className="mt-1 text-xs text-subtle">{monthLabel(month)} · sesuai akses akun</p>{queues.length > 0 && <p className="mt-4 text-sm font-medium text-muted"><span className="mr-2 inline-flex min-w-8 justify-center rounded-md bg-primary/10 px-2 py-1 font-bold tabular-nums text-primary-700 dark:text-primary-300">{pending}</span>voucher perlu ditindaklanjuti</p>}
+      <section className={panel + ' p-5 sm:p-6'} aria-label="Kontrol voucher"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-navy">Kontrol voucher</h2><ClipboardCheck aria-hidden="true" className="h-5 w-5 text-subtle" /></div><p className="mt-1 text-xs text-subtle">{monthLabel(month)} · sesuai akses akun</p>{queues.length > 0 && <p className="mt-4 text-sm font-medium text-muted"><span className="mr-2 inline-flex min-w-8 justify-center rounded-md bg-primary/10 px-2 py-1 font-bold tabular-nums text-primary-700 dark:text-primary-300">{pending}</span>voucher perlu ditindaklanjuti</p>}
         {queues.length ? <div className="mt-3 space-y-2">{queues.slice().sort((a, b) => Number(b.status === 'correction' && b.count > 0) - Number(a.status === 'correction' && a.count > 0)).map(q => <Link key={q.name} to={linkTo(q.status)} className={'group flex items-start justify-between gap-3 rounded-lg border p-3 transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-primary ' + (q.status === 'correction' && q.count > 0 ? 'border-warning/30 bg-warning/5' : 'border-line')}><div><h3 className="text-sm font-semibold text-navy">{q.name}</h3><p className="mt-1 text-xs leading-relaxed text-subtle">{q.note}</p></div><span className="flex shrink-0 items-center gap-2"><span className={'inline-flex min-h-8 min-w-8 items-center justify-center rounded-md px-2 text-base font-bold tabular-nums ' + (q.status === 'correction' && q.count > 0 ? 'bg-warning/10 text-warning dark:text-amber-300' : 'bg-primary/10 text-primary-700 dark:text-primary-300')}>{q.count}</span><ArrowRight aria-hidden="true" className="h-4 w-4 text-subtle" /></span></Link>)}</div> : <p className="mt-6 text-sm leading-relaxed text-subtle">{detail && operations.isLoading ? 'Memuat antrean pekerjaan…' : 'Ringkasan mengikuti kewenangan akun. Pemeriksaan dan perubahan transaksi tersedia pada role yang berizin.'}</p>}
         {can('write:omzet') && <Link to={'/accounting/pendapatan/rekap?month=' + month} className="mt-4 flex items-start justify-between gap-3 rounded-input border border-line bg-surface p-3"><div><p className="text-sm font-semibold text-navy">Rekap omzet H+1</p><p className="mt-1 text-xs text-subtle">Pengajuan paling lambat 23.59 WIB pada H+1.</p></div><ArrowUpRight aria-hidden="true" className="h-4 w-4 shrink-0 text-subtle" /></Link>}
       </section>

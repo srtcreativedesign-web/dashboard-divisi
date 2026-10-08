@@ -1,3 +1,4 @@
+import { voucherApi } from '../../../api/vouchers';
 import { dashboardApi } from '../api/dashboard';
 import { omzetApi } from '../../../api/omzet';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,6 +13,10 @@ vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: { role,
 
 const operations = { month: '2026-08', as_of: '2026-08-07T12:00:00+07:00', total: 8, counts: { draft: 1, correction: 1, submitted: 1, pending_approval: 1, approved: 4 }, approved_amount: '2020001.00', paid_amount: '1350000.75', remaining_amount: '670000.25', unpaid_count: 3, partial_count: 1, paid_count: 1, overdue_count: 0, due_vouchers: [] };
 const envelope = <T,>(data: T) => ({ data, meta: { trace_id: 'test' } });
+beforeEach(() => {
+  vi.spyOn(omzetApi, 'list').mockResolvedValue(envelope({items:[],total:0,current_page:1,last_page:1}) as never);
+  vi.spyOn(voucherApi, 'list').mockResolvedValue(envelope({items:[],total:0,current_page:1,last_page:1}) as never);
+});
 const mount = () => render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
 describe('Dashboard ringkasan Accounting', () => {
   beforeEach(() => {
