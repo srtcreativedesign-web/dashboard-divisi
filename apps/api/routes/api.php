@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\Cellular\CellularController;
 use App\Http\Controllers\Api\V1\Cellular\ManualWorkflowController;
+use App\Http\Controllers\Api\V1\Cellular\DailyClosingController;
 use App\Http\Controllers\Api\V1\DivisionConfigController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
@@ -288,6 +289,9 @@ Route::prefix('v1')->group(function () {
             Route::get('sales', [ManualWorkflowController::class, 'sales'])->middleware('capability:view:cellular_sales');
             Route::post('sales', [ManualWorkflowController::class, 'sell'])->middleware('capability:write:cellular_sale');
             Route::post('sales/{id}/void', [ManualWorkflowController::class, 'void'])->whereUuid('id')->middleware('capability:void:cellular_sale');
+            Route::get('daily-closings', [DailyClosingController::class, 'index'])->middleware('capability:view:cellular_daily');
+            Route::post('daily-closings', [DailyClosingController::class, 'store'])->middleware('capability:write:cellular_daily');
+            Route::post('daily-closings/{id}/{action}', [DailyClosingController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'validate', 'approve', 'correction']);
         });
     });
 });

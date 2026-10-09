@@ -80,7 +80,7 @@ export const PROJECT_MENU_ITEMS: MenuItem[] = [
 export const CELLULAR_MENU_ITEMS: MenuItem[] = [
   { path: '/cellular', label: 'Pusat Kendali', group: 'Pekerjaan Saya', roles: MVP_ROLES, capability: 'view:cellular' },
   { path: '/cellular/pekerjaan', label: 'Antrean Pekerjaan', group: 'Pekerjaan Saya', roles: MVP_ROLES, capability: 'view:cellular' },
-  { path: '/cellular/penerimaan', label: 'Rekap Harian', group: 'Penerimaan Harian', roles: MVP_ROLES, capability: 'view:cellular_sales' },
+  { path: '/cellular/penerimaan', label: 'Rekap Harian', group: 'Penerimaan Harian', roles: MVP_ROLES, capability: 'view:cellular' },
   { path: '/cellular/penjualan', label: 'Transaksi Penjualan', group: 'Penerimaan Harian', roles: MVP_ROLES, capability: 'view:cellular_sales' },
   { path: '/cellular/tagihan', label: 'Tagihan & Settlement', group: 'Tagihan & Pembayaran', roles: MVP_ROLES, capability: 'view:cellular' },
   { path: '/cellular/pembukuan', label: 'Buku Persediaan', group: 'Pembukuan', roles: MVP_ROLES, capability: 'view:cellular' },

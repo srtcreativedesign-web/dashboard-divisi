@@ -108,8 +108,10 @@
     },
     "CELL": {
       "MANAGER": [
+        "approve:cellular_daily",
         "manage:cellular_catalog",
         "view:cellular",
+        "view:cellular_daily",
         "view:cellular_sales",
         "view:division",
         "void:cellular_sale",
@@ -117,35 +119,44 @@
       ],
       "HEAD_OPS": [
         "view:cellular",
+        "view:cellular_daily",
         "view:division"
       ],
       "SPV": [
         "view:cellular",
+        "view:cellular_daily",
         "view:division"
       ],
       "LEADER": [
         "view:cellular",
+        "view:cellular_daily",
         "view:division"
       ],
       "ADMIN": [
         "manage:cellular_catalog",
         "view:cellular",
+        "view:cellular_daily",
         "view:cellular_sales",
         "view:division",
+        "write:cellular_daily",
         "write:cellular_sale"
       ],
       "ADMIN_GUDANG": [
         "view:cellular",
+        "view:cellular_daily",
         "view:division",
         "write:cellular_stock"
       ],
       "ACCOUNTING": [
+        "validate:cellular_daily",
         "view:cellular",
+        "view:cellular_daily",
         "view:cellular_sales",
         "view:division"
       ],
       "FINANCE": [
         "view:cellular",
+        "view:cellular_daily",
         "view:cellular_sales",
         "view:division"
       ]

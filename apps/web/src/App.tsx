@@ -50,6 +50,7 @@ const ProjectLpjPage = lazy(() => import('./features/projects/pages/ProjectLpjPa
 const CellularOperationsPage = lazy(() => import('./features/cellular/pages/CellularOperationsPage'));
 const CellularDashboardPage = lazy(() => import('./features/cellular/pages/CellularDashboardPage'));
 const CellularWorkspacePage = lazy(() => import('./features/cellular/pages/CellularWorkspacePage'));
+const CellularDailyClosingPage = lazy(() => import('./features/cellular/pages/CellularDailyClosingPage'));
 
 export { queryClient } from './api/queryClient';
 
@@ -154,7 +155,7 @@ export default function App() {
                   <Route path="/cellular/produk" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/persediaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/pekerjaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/cellular/penerimaan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/penerimaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularDailyClosingPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/tagihan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/pembukuan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/laporan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
