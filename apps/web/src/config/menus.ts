@@ -78,10 +78,16 @@ export const PROJECT_MENU_ITEMS: MenuItem[] = [
 ];
 
 export const CELLULAR_MENU_ITEMS: MenuItem[] = [
-  { path: '/cellular', label: 'Dashboard Cellular', group: 'Ringkasan', roles: MVP_ROLES, capability: 'view:cellular' },
-  { path: '/cellular/penjualan', label: 'Penjualan', group: 'Transaksi', roles: MVP_ROLES, capability: 'view:cellular_sales' },
-  { path: '/cellular/produk', label: 'Katalog Produk', group: 'Produk & Persediaan', roles: MVP_ROLES, capability: 'view:cellular' },
-  { path: '/cellular/persediaan', label: 'Stok & Mutasi', group: 'Produk & Persediaan', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular', label: 'Pusat Kendali', group: 'Pekerjaan Saya', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/pekerjaan', label: 'Antrean Pekerjaan', group: 'Pekerjaan Saya', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/penerimaan', label: 'Rekap Harian', group: 'Penerimaan Harian', roles: MVP_ROLES, capability: 'view:cellular_sales' },
+  { path: '/cellular/penjualan', label: 'Transaksi Penjualan', group: 'Penerimaan Harian', roles: MVP_ROLES, capability: 'view:cellular_sales' },
+  { path: '/cellular/tagihan', label: 'Tagihan & Settlement', group: 'Tagihan & Pembayaran', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/pembukuan', label: 'Buku Persediaan', group: 'Pembukuan', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/laporan', label: 'Kinerja Cellular', group: 'Laporan & Analitik', roles: MVP_ROLES, capability: 'view:cellular_sales' },
+  { path: '/cellular/produk', label: 'Produk & Paket', group: 'Operasional Pendukung', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/persediaan', label: 'Stok & Mutasi', group: 'Operasional Pendukung', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/integrasi', label: 'Sumber & Integrasi', group: 'Data & Integrasi', roles: MVP_ROLES, capability: 'view:cellular' },
 ];
 
 export function homePathForRole(_role: Role): string {

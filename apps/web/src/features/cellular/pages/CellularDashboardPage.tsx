@@ -37,8 +37,8 @@ const monthLabel = (value: string) => new Intl.DateTimeFormat('id-ID', { month: 
 function roleWorkspace(role: string) {
   if (role === 'ADMIN') return { title: 'Meja Admin Outlet', description: 'Catat penjualan manual dan pastikan referensi transaksi harian lengkap.', action: 'Catat penjualan', path: '/cellular/penjualan', icon: ReceiptText };
   if (role === 'ADMIN_GUDANG') return { title: 'Meja Admin Gudang', description: 'Periksa stok kritis lalu catat penerimaan atau koreksi barang.', action: 'Catat mutasi stok', path: '/cellular/persediaan', icon: PackagePlus };
-  if (role === 'MANAGER') return { title: 'Meja Manager', description: 'Tinjau omzet, stok kritis, dan transaksi yang memerlukan keputusan.', action: 'Buka kontrol penjualan', path: '/cellular/penjualan', icon: TrendingUp };
-  if (role === 'ACCOUNTING' || role === 'FINANCE') return { title: `Meja ${role === 'ACCOUNTING' ? 'Accounting' : 'Finance'}`, description: 'Gunakan ringkasan penjualan sebagai sumber pemeriksaan sebelum rekonsiliasi.', action: 'Tinjau transaksi', path: '/cellular/penjualan', icon: ReceiptText };
+  if (role === 'MANAGER') return { title: 'Meja Manager', description: 'Tinjau penerimaan, stok kritis, pengecualian, dan kesiapan tutup periode.', action: 'Buka antrean kerja', path: '/cellular/pekerjaan', icon: TrendingUp };
+  if (role === 'ACCOUNTING' || role === 'FINANCE') return { title: `Meja ${role === 'ACCOUNTING' ? 'Accounting' : 'Finance'}`, description: 'Periksa penerimaan harian, jejak persediaan, dan kesiapan rekonsiliasi.', action: 'Buka pembukuan', path: '/cellular/pembukuan', icon: ReceiptText };
   return { title: 'Ringkasan Operasional', description: 'Pantau kondisi outlet, katalog, serta persediaan Cellular.', action: 'Buka katalog', path: '/cellular/produk', icon: ShoppingBag };
 }
 
@@ -116,10 +116,10 @@ export default function CellularDashboardPage() {
   return <div className="space-y-6 pb-10 animate-fade-in">
     <DivisionPageHeader
       division="Divisi Cellular"
-      descriptor="Penjualan · Stok · Serah Terima Data"
+      descriptor="Penerimaan · Persediaan · Pembukuan · Analitik"
       title="Pusat Kendali Cellular"
-      description="Pantau hasil penjualan, kesehatan stok, performa outlet, dan pekerjaan yang harus ditindaklanjuti dari data transaksi aktual."
-      actions={<Link to="/cellular/produk" className="inline-flex min-h-10 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-semibold text-primary-700 shadow-card hover:bg-surface dark:text-primary-300">Buka katalog <ArrowRight className="h-4 w-4" /></Link>}
+      description="Kendalikan pekerjaan lintas penerimaan harian, persediaan, pembukuan, tagihan, integrasi, dan analitik dari satu ruang kerja."
+      actions={<Link to="/cellular/pekerjaan" className="inline-flex min-h-10 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-semibold text-primary-700 shadow-card hover:bg-surface dark:text-primary-300">Buka pekerjaan saya <ArrowRight className="h-4 w-4" /></Link>}
     />
 
     <section className="flex flex-col gap-4 rounded-card-lg border border-primary-200 bg-gradient-to-r from-primary-50 to-panel p-5 shadow-card dark:border-primary-900 dark:from-primary-950/50 dark:to-panel sm:flex-row sm:items-center sm:justify-between">

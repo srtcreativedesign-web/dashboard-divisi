@@ -64,9 +64,15 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/projects/lpj': ClipboardCheck,
   // Cellular routes
   '/cellular': LayoutDashboard,
+  '/cellular/pekerjaan': ClipboardCheck,
+  '/cellular/penerimaan': TrendingUp,
   '/cellular/penjualan': ReceiptText,
+  '/cellular/tagihan': CreditCard,
+  '/cellular/pembukuan': BookOpenText,
+  '/cellular/laporan': BarChart3,
   '/cellular/produk': Package,
   '/cellular/persediaan': Boxes,
+  '/cellular/integrasi': Database,
 };
 
 
