@@ -31,6 +31,9 @@ IF to_regclass('public.acc_deposit_events') IS NOT NULL THEN REVOKE UPDATE,DELET
 IF to_regclass('public.acc_hr_events') IS NOT NULL THEN REVOKE UPDATE,DELETE ON acc_hr_events FROM ${runtime}; END IF;
 IF to_regclass('public.cel_stock_movements') IS NOT NULL THEN REVOKE UPDATE,DELETE ON cel_stock_movements FROM ${runtime}; END IF;
 IF to_regclass('public.acc_voucher_attachments') IS NOT NULL THEN REVOKE UPDATE,DELETE ON acc_voucher_attachments FROM ${runtime}; END IF;
+IF to_regclass('public.acc_cellular_import_batches') IS NOT NULL THEN REVOKE DELETE ON acc_cellular_import_batches FROM ${runtime}; END IF;
+IF to_regclass('public.acc_cellular_import_rows') IS NOT NULL THEN REVOKE UPDATE,DELETE ON acc_cellular_import_rows FROM ${runtime}; END IF;
+IF to_regclass('public.acc_cellular_import_events') IS NOT NULL THEN REVOKE UPDATE,DELETE ON acc_cellular_import_events FROM ${runtime}; END IF;
 END $protection$;
 REVOKE SELECT ON users FROM ${monitor};
 GRANT SELECT(id,name,email,role,division_code,is_active,created_at,updated_at) ON users TO ${monitor};

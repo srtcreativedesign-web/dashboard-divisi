@@ -70,6 +70,9 @@ Route::prefix('v1')->group(function () {
         // Accounting domain
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
             Route::post('cellular-preview', [CellularPreviewController::class, 'preview'])->middleware(['capability:preview:cellular_report', 'throttle:10,1', 'file.scan']);
+            Route::get('cellular-imports', [CellularPreviewController::class, 'index'])->middleware('capability:preview:cellular_report');
+            Route::get('cellular-imports/{id}', [CellularPreviewController::class, 'show'])->whereUuid('id')->middleware('capability:preview:cellular_report');
+            Route::post('cellular-imports/commit', [CellularPreviewController::class, 'commit'])->middleware('capability:write:omzet');
             Route::get('dashboard/operations', [AccountingDashboardController::class, 'operations'])->middleware('capability:view:acc_detail');
             Route::prefix('deposits')->middleware('capability:view:acc_deposits')->group(function () {
                 Route::get('sources', [DepositController::class, 'sources']);

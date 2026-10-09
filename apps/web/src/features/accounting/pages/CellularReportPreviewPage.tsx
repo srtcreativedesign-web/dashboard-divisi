@@ -1,41 +1,58 @@
 import { Link } from 'react-router-dom';
 import { useState, type FormEvent } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiException } from '../../../api/client';
+import { omzetApi } from '../../../api/omzet';
 import { Button } from '../../../components/ui/Button';
 import { useCellularPreview } from '../hooks/useCellularPreview';
-import { comparePreviews, metricLabels, previewProfiles, type PreviewProfile, type ReportPreview } from '../api/cellularPreview';
+import { cellularPreviewApi, comparePreviews, metricLabels, previewProfiles, type PreviewProfile, type ReportPreview } from '../api/cellularPreview';
 import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
+import { useAuth } from '../../../session/AuthContext';
+import { hasCapability } from '../../../session/capability';
 
 const inputClass = 'mt-1 w-full rounded-lg border border-line bg-panel p-2 text-navy';
 const money = (value: number | null | undefined) => value == null ? 'Belum terbaca' : new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 2 }).format(value);
 
 export default function CellularReportPreviewPage() {
+  const { user } = useAuth();
+  const canCommit = hasCapability(user?.role ?? '', 'write:omzet', user?.divisionCode);
+  const queryClient = useQueryClient();
   const [month, setMonth] = useState(() => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit' }).format(new Date()).slice(0, 7));
+  const [outlet, setOutlet] = useState('');
   const [profile, setProfile] = useState<PreviewProfile>('daily');
   const [file, setFile] = useState<File | null>(null);
   const [previews, setPreviews] = useState<ReportPreview[]>([]);
   const [message, setMessage] = useState('');
   const [selected, setSelected] = useState('');
   const [onlyProblems, setOnlyProblems] = useState(false);
+  const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
+  const [acknowledgeWarnings, setAcknowledgeWarnings] = useState(false);
   const mutation = useCellularPreview();
+  const outlets = useQuery({ queryKey: ['omzet', 'outlets'], queryFn: async () => (await omzetApi.outlets()).data });
+  const batches = useQuery({ queryKey: ['cellular-imports', month, outlet], enabled: Boolean(outlet && month), queryFn: async () => (await cellularPreviewApi.batches(month, outlet)).data });
+  const commit = useMutation({ mutationFn: () => cellularPreviewApi.commit(selectedBatches, acknowledgeWarnings), onSuccess: response => { setMessage(`${response.data.created_count} paket H+1 dibuat sebagai draf.`); setSelectedBatches([]); setAcknowledgeWarnings(false); void queryClient.invalidateQueries({ queryKey: ['cellular-imports'] }); void queryClient.invalidateQueries({ queryKey: ['omzet'] }); void queryClient.invalidateQueries({ queryKey: ['accounting-work'] }); }, onError: error => setMessage(error instanceof ApiException ? `${error.message} (Trace: ${error.traceId})` : 'Commit staging gagal.') });
   const comparison = comparePreviews(previews);
   const issues = previews.flatMap(p => p.issues.map(issue => ({ ...issue, profile: p.profile })));
   const problematic = (date: string) => issues.some(i => i.date === date);
   const displayed = onlyProblems ? comparison.filter(r => r.mismatch || r.incomplete || problematic(r.date)) : comparison;
   const detail = comparison.find(r => r.date === selected);
+  const selectedProfiles = new Set((batches.data ?? []).filter(batch => selectedBatches.includes(batch.id)).map(batch => batch.profile));
+  const commitReady = selectedProfiles.has('daily') && selectedProfiles.has('shift');
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setMessage('');
-    if (!file) { setMessage('Pilih laporan terlebih dahulu.'); return; }
+    if (!file || !outlet) { setMessage('Pilih outlet dan laporan terlebih dahulu.'); return; }
     if (previews.some(p => p.profile === profile)) { setMessage('Jenis laporan ini sudah dibaca. Hapus hasil sebelumnya untuk mengganti berkas.'); return; }
-    const form = new FormData(); form.append('file', file); form.append('profile', profile); form.append('month', month);
+    const form = new FormData(); form.append('file', file); form.append('profile', profile); form.append('month', month); form.append('outlet_id', outlet);
     try {
       const { data } = await mutation.mutateAsync(form);
       if (data.month !== month || previews.some(p => p.outlet !== data.outlet)) { setMessage('Periode atau outlet sumber tidak cocok.'); return; }
       if (previews.some(p => p.sha256 === data.sha256)) { setMessage('Berkas identik sudah dibaca dalam sesi ini.'); return; }
       setPreviews(old => [...old, data]);
       setSelected(data.rows[0]?.date ?? '');
+      setSelectedBatches(old => [...old.filter(id => batches.data?.find(batch => batch.id === id)?.profile !== data.profile), data.batch_id]);
+      void queryClient.invalidateQueries({ queryKey: ['cellular-imports', month, outlet] });
     } catch (error) {
       setMessage(error instanceof ApiException ? `${error.message} (Trace: ${error.traceId})` : 'Preview gagal. Coba ulang setelah memeriksa koneksi.');
     }
@@ -44,14 +61,19 @@ export default function CellularReportPreviewPage() {
   return <div className="space-y-6 text-navy">
     <AccountingPageHeader area="Data & Integrasi · Sumber Cellular" title="Periksa sumber laporan Excel" description="Baca laporan DATA CELLULAR T3, bandingkan angka harian, lalu telusuri sel asal. Hasil belum menjadi transaksi atau persetujuan Accounting." actions={<Link className="inline-flex min-h-10 items-center rounded-input border border-line bg-panel px-3 text-sm font-semibold text-primary-700 shadow-card hover:bg-surface dark:text-primary-300" to="/accounting/dokumen/register">Kembali ke register</Link>} />
     <form onSubmit={submit} className="rounded-xl border border-line bg-panel p-5">
-      <div className="grid gap-4 md:grid-cols-3">
-        <label className="text-sm">Periode laporan<input type="month" required min="2000-01" max="2099-12" className={inputClass} value={month} disabled={mutation.isPending} onChange={e => { setMonth(e.target.value); setPreviews([]); setSelected(''); setMessage(''); }} /></label>
+      <div className="grid gap-4 md:grid-cols-4">
+        <label className="text-sm">Outlet Cellular<select required className={inputClass} value={outlet} disabled={mutation.isPending || commit.isPending} onChange={e => { setOutlet(e.target.value); setPreviews([]); setSelected(''); setSelectedBatches([]); setAcknowledgeWarnings(false); setMessage(''); }}><option value="">Pilih outlet</option>{outlets.data?.filter(item => item.divisionCode === 'CELL').map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label className="text-sm">Periode laporan<input type="month" required min="2000-01" max="2099-12" className={inputClass} value={month} disabled={mutation.isPending} onChange={e => { setMonth(e.target.value); setPreviews([]); setSelected(''); setSelectedBatches([]); setAcknowledgeWarnings(false); setMessage(''); }} /></label>
         <label className="text-sm">Jenis laporan<select className={inputClass} value={profile} disabled={mutation.isPending} onChange={e => setProfile(e.target.value as PreviewProfile)}>{Object.entries(previewProfiles).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
         <label className="text-sm">Berkas XLS atau XLSX<input type="file" accept=".xls,.xlsx" className={inputClass} disabled={mutation.isPending} onChange={e => { setFile(e.target.files?.[0] ?? null); setMessage(''); }} /></label>
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-3"><Button type="submit" disabled={!file || !month || mutation.isPending}>{mutation.isPending ? 'Memindai dan membaca…' : 'Periksa laporan'}</Button><p className="text-xs text-muted">Maksimal 10 MB. Formula memakai cache; hasil hanya tersimpan pada sesi layar ini.</p></div>
+      <div className="mt-4 flex flex-wrap items-center gap-3"><Button type="submit" disabled={!file || !outlet || !month || mutation.isPending}>{mutation.isPending ? 'Memindai dan membaca…' : 'Periksa & simpan staging'}</Button><p className="text-xs text-muted">Maksimal 10 MB. Nilai hasil parsing dan asal sel disimpan; file sumber tidak disalin ke tabel transaksi.</p></div>
       {message && <p role="alert" className="mt-3 text-sm text-danger dark:text-red-300">{message}</p>}
     </form>
+    {outlet && <section className="rounded-xl border border-line bg-panel p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">Staging tersimpan</h2><p className="mt-1 text-sm text-muted">Pilih satu laporan Harian dan satu laporan Shift dari outlet serta periode yang sama.</p></div><Button variant="secondary" disabled={batches.isFetching} onClick={() => void batches.refetch()}>Muat ulang</Button></div>
+      {batches.isLoading ? <p className="mt-4 text-sm text-muted">Memuat batch staging…</p> : batches.error ? <p role="alert" className="mt-4 text-sm text-danger">{batches.error.message}</p> : !batches.data?.length ? <p className="mt-4 text-sm text-muted">Belum ada batch staging.</p> : <div className="mt-4 space-y-2">{batches.data.map(batch => <label key={batch.id} className="flex items-start gap-3 rounded-lg border border-line p-3"><input type="checkbox" className="mt-1" disabled={batch.status !== 'staged' || !canCommit || commit.isPending} checked={selectedBatches.includes(batch.id)} onChange={e => setSelectedBatches(old => e.target.checked ? [...old.filter(id => batches.data?.find(item => item.id === id)?.profile !== batch.profile), batch.id] : old.filter(id => id !== batch.id))} /><span className="min-w-0 flex-1"><span className="font-medium">{previewProfiles[batch.profile]}</span><span className="ml-2 text-xs uppercase text-muted">{batch.status}</span><span className="block truncate text-sm text-muted">{batch.original_name} · {batch.summary.days} tanggal · {batch.issues.length} catatan</span></span></label>)}</div>}
+      {canCommit && <div className="mt-4 space-y-3 border-t border-line pt-4"><p className="text-xs font-medium text-muted">Kelengkapan paket: Harian {selectedProfiles.has('daily') ? '✓' : '—'} · Shift {selectedProfiles.has('shift') ? '✓' : '—'}</p><label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1" checked={acknowledgeWarnings} onChange={e => setAcknowledgeWarnings(e.target.checked)} />Saya sudah memeriksa warning formula cache dan kelengkapan tanggal pada batch terpilih.</label><Button disabled={!commitReady || !acknowledgeWarnings || commit.isPending} onClick={() => commit.mutate()}>{commit.isPending ? 'Membuat paket H+1…' : 'Commit menjadi draf H+1'}</Button><p className="text-xs text-muted">Commit bersifat atomik: seluruh tanggal berhasil atau tidak ada transaksi final yang dibuat.</p></div>}
+    </section>}
     {!previews.length && <p className="rounded-lg border border-line p-5 text-sm text-muted">Unggah satu sumber untuk melihat nilai harian. Tambahkan profil lain pada periode yang sama untuk membandingkan omzet dan shift.</p>}
     {!!previews.length && <>
       <section aria-label="Sumber yang sudah dibaca" className="space-y-3"><h2 className="text-lg font-semibold">Sumber yang dibaca ({previews.length}/5)</h2>

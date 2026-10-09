@@ -25,11 +25,16 @@ try {
   denied('DELETE FROM audit_events WHERE false', roles.runtime);
   denied('UPDATE acc_omzet_events SET id=id WHERE false', roles.runtime);
   denied('DELETE FROM acc_voucher_events WHERE false', roles.runtime);
-  for (const table of ['cel_stock_movements','acc_voucher_attachments','acc_hr_events','acc_deposit_events']) {
+  for (const table of ['cel_stock_movements','acc_voucher_attachments','acc_hr_events','acc_deposit_events','acc_cellular_import_rows','acc_cellular_import_events']) {
     if (d.sql("SELECT to_regclass('public."+table+"') IS NOT NULL", roles.runtime) === 't') {
       denied('UPDATE '+table+' SET id=id WHERE false', roles.runtime);
       denied('DELETE FROM '+table+' WHERE false', roles.runtime);
     }
+  }
+  if (d.sql("SELECT to_regclass('public.acc_cellular_import_batches') IS NOT NULL", roles.runtime) === 't') {
+    d.sql('BEGIN; UPDATE acc_cellular_import_batches SET version=version WHERE false; ROLLBACK;', roles.runtime);
+    checks++;
+    denied('DELETE FROM acc_cellular_import_batches WHERE false', roles.runtime);
   }
   denied('DELETE FROM migrations WHERE false', roles.runtime);
   denied('UPDATE accounting_master_history SET action=action WHERE false', roles.runtime);
