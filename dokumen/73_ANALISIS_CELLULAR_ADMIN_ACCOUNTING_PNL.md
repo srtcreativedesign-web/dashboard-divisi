@@ -22,16 +22,16 @@ Modul katalog, stok, dan transaksi penjualan yang ada hanya mewakili sebagian ke
 
 | Kelompok sumber | Pemilik utama | Fungsi di ERP |
 |---|---|---|
-| Laporan harian | Admin Cellular | Tutup kas/penjualan harian dan bukti sumber |
-| Pendapatan dan pengeluaran | Admin Cellular, Finance | Rekap bruto, kanal pembayaran, pengeluaran, rencana setoran, dan transfer aktual |
-| Omzet per shift | Admin Cellular, Leader/SPV | Kontrol shift 1–3 dan rekonsiliasi total harian |
-| Rekap seluruh tenant | Head Operasional, Manager | Pemantauan omzet lintas tenant tanpa menghitung total konsolidasi sebagai transaksi baru |
-| ECSYS | Staff Accounting | Rekonsiliasi laporan outlet terhadap sistem eksternal dan pencatatan selisih |
-| Mutasi bank, EDC, dan QRIS | Finance, Staff Accounting | Pencocokan settlement dan kas yang benar-benar diterima |
-| Inventory, pembelian, transfer, surat jalan | Admin Gudang, Admin Cellular, Staff Accounting | Pergerakan stok dan dasar HPP |
-| Voucher dan rincian biaya | Admin Accounting, Staff Accounting | Dokumen sumber beban dan klasifikasi akun |
-| PNL tenant | Staff Accounting | Perhitungan laporan laba rugi satu tenant untuk satu periode |
-| Komparasi PNL | Manager, Head Operasional, Staff Accounting | Konsolidasi, perbandingan tenant, alokasi biaya bersama, dan analisis target |
+| Laporan harian | Admin | Rekap kas/penjualan harian dan bukti sumber dari outlet |
+| Pendapatan dan pengeluaran | Admin, Finance | Rekap bruto, kanal pembayaran, pengeluaran, rencana setoran, dan transfer aktual |
+| Omzet per shift | Admin | Kontrol shift 1–3 dan rekonsiliasi total harian |
+| Rekap seluruh tenant | Manager | Pemantauan omzet lintas tenant tanpa menghitung total konsolidasi sebagai transaksi baru |
+| ECSYS | Accounting | Rekonsiliasi laporan outlet terhadap sistem eksternal dan pencatatan selisih |
+| Mutasi bank, EDC, dan QRIS | Finance, Accounting | Pencocokan settlement dan kas yang benar-benar diterima |
+| Inventory, pembelian, transfer, surat jalan | Admin Gudang, Accounting | Pergerakan stok dan dasar HPP |
+| Voucher dan rincian biaya | Admin, Accounting | Dokumen sumber beban dan klasifikasi akun |
+| PNL tenant | Accounting | Perhitungan laporan laba rugi satu tenant untuk satu periode |
+| Komparasi PNL | Manager, Accounting | Konsolidasi, perbandingan tenant, alokasi biaya bersama, dan analisis target |
 
 Satu workbook dapat memuat beberapa lapisan sekaligus. Karena itu hak akses harus diterapkan pada jenis data dan tindakan, bukan hanya nama file.
 
@@ -42,7 +42,7 @@ flowchart LR
     A[Penjualan per shift] --> B[Tutup harian Admin]
     C[Pengeluaran dan voucher] --> B
     D[EDC QRIS tunai] --> B
-    B --> E[Review Leader atau SPV]
+    B --> E[Pengajuan Admin]
     E --> F[Inbox H+1 Accounting]
     F --> G[Rekonsiliasi ECSYS]
     F --> H[Rekonsiliasi bank dan settlement]
@@ -60,11 +60,11 @@ flowchart LR
 
 ## 5. Alur operasional target
 
-### 5.1 Tutup harian oleh Admin Cellular
+### 5.1 Rekap dan pengajuan oleh Admin
 
 Admin memilih tenant, outlet, tanggal, dan shift. Sistem mengambil transaksi penjualan serta meminta rincian tunai, EDC, QRIS, pengeluaran, setoran yang direncanakan, dan lampiran. Sistem menghitung selisih kanal pembayaran terhadap omzet dan menolak pengiriman jika komponen wajib belum lengkap.
 
-Status: `Draft → Diajukan → Ditinjau Operasional → Diterima Accounting`, dengan jalur `Perlu Koreksi`.
+Status: `Draft Admin → Diajukan → Diperiksa Accounting → Diverifikasi`, dengan jalur `Perlu Koreksi`. Pemeriksaan settlement oleh Finance dan pemeriksaan stok oleh Admin Gudang menjadi substatus terpisah agar satu pemeriksaan tidak menutupi pemeriksaan lainnya.
 
 ### 5.2 Rekonsiliasi oleh Accounting
 
@@ -130,17 +130,13 @@ Setiap baris PNL harus bisa dibuka sampai ke jurnal, voucher, settlement, perger
 
 | Peran | Tanggung jawab utama |
 |---|---|
-| Admin Cellular | Entri shift, tutup harian, kanal pembayaran, pengeluaran, bukti, dan pengajuan koreksi |
-| Admin Gudang | Pembelian, penerimaan, transfer, stock opname, dan koreksi stok |
-| Leader | Memastikan kelengkapan shift dan tindak lanjut outlet |
-| SPV | Review tutup harian serta selisih operasional |
-| Head Operasional | Memantau tenant, eskalasi, dan performa operasional |
-| Admin Accounting | Menerima dokumen, melengkapi metadata, membuat voucher, dan menyiapkan paket pemeriksaan |
-| Staff Accounting | Rekonsiliasi, pemetaan akun, HPP, period close, PNL, dan konsolidasi |
-| Staff Finance | Validasi bank, settlement, transfer, dan realisasi pembayaran |
-| Manager | Persetujuan pengecualian, period close, dan hasil manajemen |
+| Manager | Memantau kinerja, menyetujui pengecualian material, menyetujui period close, dan melihat hasil konsolidasi |
+| Admin | Menerima sumber dari outlet, membuat rekap harian dan voucher, melengkapi bukti, serta mengajukan paket H+1 |
+| Accounting | Memeriksa paket Admin, merekonsiliasi ECSYS, memetakan akun, menghitung HPP, menyusun period close, PNL, dan konsolidasi |
+| Finance | Memvalidasi bank, EDC, QRIS, settlement, transfer, setoran, dan realisasi pembayaran |
+| Admin Gudang | Mengelola pembelian stok, penerimaan, transfer, surat jalan, stock opname, dan koreksi persediaan |
 
-Prinsip kontrol: pembuat tidak boleh menyetujui dokumennya sendiri; perubahan setelah persetujuan membuat revisi baru; semua ekspor membawa nomor versi dan waktu pembuatan.
+Kelima peran di atas adalah role resmi Divisi Accounting. Role operasional dari divisi sumber dapat mengirim data, tetapi tidak menjadi role internal Accounting. Prinsip kontrol: pembuat tidak boleh menyetujui dokumennya sendiri; perubahan setelah persetujuan membuat revisi baru; semua ekspor membawa nomor versi dan waktu pembuatan.
 
 ## 8. Model data minimum
 
@@ -206,4 +202,3 @@ Implementasi tahap berikutnya harus dimulai dari alur 1–3. PNL tidak layak dib
 - Periode terkunci tidak dapat diubah tanpa adjustment dan audit trail.
 - Hak akses dan pemisahan tugas diterapkan pada API serta UI.
 - File impor tidak dianggap benar sebelum lolos staging dan validasi.
-
