@@ -74,6 +74,8 @@ Sebuah halaman selesai apabila:
 - [x] Bedakan antrean Admin, Accounting, Manager, Finance, Admin Gudang, Head Operasional, SPV, dan Leader.
 - [x] Tambahkan ringkasan alur `draft → submitted → validated → approved/correction`.
 - [x] Tambahkan tes role untuk Pekerjaan Saya; tes state kosong/gagal tetap terbuka.
+- [x] Implementasikan kontrol shift Leader → SPV → Head Operasional → Manager dengan checklist, PIC, tenggat, koreksi, eskalasi, dan keputusan.
+- [x] Hubungkan pekerjaan supervisi ke Antrean Pekerjaan berdasarkan role dan status database.
 
 ### Penerimaan dan penjualan
 
@@ -123,13 +125,15 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Leader, SPV, Head Operasional Cellular: checklist, supervisi, eskalasi, PIC, dan SLA.
-2. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
-3. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
-4. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
-5. Regresi lintas role dan UAT visual terang/gelap.
+1. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
+2. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
+3. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
+4. Regresi lintas role dan UAT visual terang/gelap.
 
 ## Pencapaian role terbaru
 
 - Admin Gudang Accounting: **92/100**, workflow persediaan telah melewati quality gate.
 - Finance Cellular: **91/100**, settlement dan rekonsiliasi kanal telah melewati quality gate; unggahan bukti mutasi bank menjadi peningkatan berikutnya.
+- Leader Cellular: **91/100**, checklist, PIC, tenggat, temuan, koreksi, dan antrean kerja tersedia.
+- SPV Cellular: **90/100**, verifikasi independen dan permintaan koreksi tersedia.
+- Head Operasional Cellular: **90/100**, penyelesaian dan eskalasi risiko tersedia.

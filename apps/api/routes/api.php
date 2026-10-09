@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\Cellular\CellularController;
 use App\Http\Controllers\Api\V1\Cellular\ManualWorkflowController;
 use App\Http\Controllers\Api\V1\Cellular\DailyClosingController;
 use App\Http\Controllers\Api\V1\Cellular\SettlementController;
+use App\Http\Controllers\Api\V1\Cellular\ShiftControlController;
 use App\Http\Controllers\Api\V1\DivisionConfigController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
@@ -315,6 +316,11 @@ Route::prefix('v1')->group(function () {
                 Route::get('sources', [SettlementController::class, 'sources']);
                 Route::post('/', [SettlementController::class, 'store'])->middleware('capability:write:cellular_settlement');
                 Route::post('{id}/{action}', [SettlementController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'reconcile', 'correction']);
+            });
+            Route::prefix('shift-controls')->middleware('capability:view:cellular_shift')->group(function () {
+                Route::get('/', [ShiftControlController::class, 'index']);
+                Route::post('/', [ShiftControlController::class, 'store'])->middleware('capability:write:cellular_shift');
+                Route::post('{id}/{action}', [ShiftControlController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'review', 'correction', 'resolve', 'escalate', 'decide']);
             });
         });
     });

@@ -46,6 +46,7 @@ describe('Antrean Kerja Cellular', () => {
       closing('approved', 'APPROVED'),
       closing('correction', 'CORRECTION'),
     ]));
+    vi.spyOn(cellularApi, 'shiftControls').mockResolvedValue(response([]));
   });
 
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });

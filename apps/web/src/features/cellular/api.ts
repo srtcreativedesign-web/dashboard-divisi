@@ -8,6 +8,7 @@ export interface Sale { id: string; outlet_id: string; outlet_name: string; prod
 export interface DailyClosing { id: string; outlet_id: string; business_date: string; shift_code: string; system_sales: string; cash: string; qris: string; edc: string; transfer: string; difference: string; source_reference: string; status: 'draft' | 'submitted' | 'validated' | 'approved' | 'correction'; review_note: string | null; version: number }
 export interface SettlementSource { daily_closing_id: string; outlet_id: string; outlet_name: string; business_date: string; shift_code: string; channel: 'cash' | 'qris' | 'edc' | 'transfer'; expected: string; submitted: string; reconciled: string; remaining: string }
 export interface Settlement { id: string; daily_closing_id: string; outlet_id: string; outlet_name: string; business_date: string; shift_code: string; channel: SettlementSource['channel']; settlement_date: string; gross: string; fee: string; net: string; destination: string; reference: string; status: 'draft' | 'submitted' | 'reconciled' | 'correction'; review_note: string | null; created_by: string; version: number }
+export interface ShiftControl { id: string; outlet_id: string; outlet_name: string; business_date: string; shift_code: string; pic_name: string; due_at: string; priority: 'normal' | 'high' | 'critical'; checklist: Record<'handover_complete' | 'stock_count_complete' | 'payment_channels_ready' | 'closing_matched', boolean>; issue_summary: string | null; status: 'draft' | 'submitted' | 'reviewed' | 'correction' | 'escalated' | 'resolved'; review_note: string | null; completed_checks: number; total_checks: number; is_overdue: boolean; created_by: string; version: number }
 export const cellularApi = {
   products: () => api.get<Product[]>('/cellular/products'),
   outlets: () => api.get<Outlet[]>('/cellular/outlets'),
@@ -25,4 +26,7 @@ export const cellularApi = {
   settlements: (month: string) => api.get<Settlement[]>('/cellular/settlements', { month }),
   saveSettlement: (data: { id?: string; version?: number; daily_closing_id: string; channel: SettlementSource['channel']; settlement_date: string; gross: string; fee: string; destination: string; reference: string }) => api.post<Settlement>('/cellular/settlements', data),
   transitionSettlement: (row: Settlement, action: 'submit' | 'reconcile' | 'correction', note?: string) => api.post<Settlement>(`/cellular/settlements/${row.id}/${action}`, { version: row.version, note }),
+  shiftControls: (month: string) => api.get<ShiftControl[]>('/cellular/shift-controls', { month }),
+  saveShiftControl: (data: { id?: string; version?: number; outlet_id: string; business_date: string; shift_code: string; pic_name: string; due_at: string; priority: ShiftControl['priority']; checklist: ShiftControl['checklist']; issue_summary: string }) => api.post<ShiftControl>('/cellular/shift-controls', data),
+  transitionShiftControl: (row: ShiftControl, action: 'submit' | 'review' | 'correction' | 'resolve' | 'escalate' | 'decide', note?: string) => api.post<ShiftControl>(`/cellular/shift-controls/${row.id}/${action}`, { version: row.version, note }),
 };

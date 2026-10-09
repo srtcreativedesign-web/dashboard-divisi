@@ -7,7 +7,7 @@ import { ErrorState, LoadingState } from '../../../components/states';
 import { KPICard, KPICardGrid } from '../../../components/ui/primitives';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
-import { cellularApi, type DailyClosing, type Stock } from '../api';
+import { cellularApi, type DailyClosing, type ShiftControl, type Stock } from '../api';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const money = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
@@ -48,7 +48,7 @@ function closingItem(row: DailyClosing, action: string, tone: WorkTone, descript
   };
 }
 
-function buildWorkItems(role: string, closings: DailyClosing[], lowStock: Stock[], postedDates: string[]): WorkItem[] {
+function buildWorkItems(role: string, closings: DailyClosing[], shifts: ShiftControl[], lowStock: Stock[], postedDates: string[]): WorkItem[] {
   const items: WorkItem[] = [];
   if (role === 'ADMIN') {
     closings.filter(row => row.status === 'correction').forEach(row => items.push(closingItem(row, 'Perbaiki', 'danger', row.review_note || 'Accounting meminta koreksi data penerimaan.')));
@@ -59,9 +59,14 @@ function buildWorkItems(role: string, closings: DailyClosing[], lowStock: Stock[
     closings.filter(row => row.status === 'submitted').forEach(row => items.push(closingItem(row, 'Periksa', Number(row.difference) === 0 ? 'info' : 'warning', 'Pengajuan Admin menunggu validasi atau permintaan koreksi.')));
   } else if (role === 'MANAGER') {
     closings.filter(row => row.status === 'validated').forEach(row => items.push(closingItem(row, 'Putuskan', Number(row.difference) === 0 ? 'info' : 'warning', 'Penerimaan telah divalidasi Accounting dan menunggu persetujuan.')));
+    shifts.filter(row => row.status === 'escalated').forEach(row => items.push({ id: `shift-${row.id}`, title: `${row.outlet_name} · ${row.shift_code}`, description: row.review_note || 'Head Operasional mengeskalasi risiko shift.', meta: `${row.pic_name} · tenggat ${new Date(row.due_at).toLocaleString('id-ID')}`, path: '/cellular/kontrol-shift', action: 'Putuskan risiko', tone: 'danger' }));
   } else if (role === 'FINANCE') {
     closings.filter(row => row.status === 'approved' && Number(row.difference) !== 0).forEach(row => items.push(closingItem(row, 'Tinjau selisih', 'warning', 'Penerimaan disetujui memiliki selisih kanal yang perlu dipantau sebelum settlement.')));
   }
+
+  if (role === 'LEADER') shifts.filter(row => ['draft','correction'].includes(row.status)).forEach(row => items.push({ id: `shift-${row.id}`, title: `${row.outlet_name} · ${row.shift_code}`, description: row.status === 'correction' ? row.review_note || 'Checklist perlu diperbaiki.' : 'Checklist belum diajukan ke SPV.', meta: `${row.completed_checks}/${row.total_checks} poin · PIC ${row.pic_name}`, path: '/cellular/kontrol-shift', action: row.status === 'correction' ? 'Perbaiki' : 'Ajukan', tone: row.status === 'correction' ? 'danger' : 'warning' }));
+  if (role === 'SPV') shifts.filter(row => row.status === 'submitted').forEach(row => items.push({ id: `shift-${row.id}`, title: `${row.outlet_name} · ${row.shift_code}`, description: row.issue_summary || 'Checklist Leader menunggu verifikasi.', meta: `${row.completed_checks}/${row.total_checks} poin · PIC ${row.pic_name}`, path: '/cellular/kontrol-shift', action: 'Verifikasi', tone: row.is_overdue ? 'danger' : 'info' }));
+  if (role === 'HEAD_OPS') shifts.filter(row => row.status === 'reviewed').forEach(row => items.push({ id: `shift-${row.id}`, title: `${row.outlet_name} · ${row.shift_code}`, description: row.issue_summary || 'Kontrol telah diverifikasi SPV.', meta: `${row.priority} · PIC ${row.pic_name}`, path: '/cellular/kontrol-shift', action: 'Tindak lanjut', tone: row.priority === 'critical' ? 'danger' : 'warning' }));
 
   if (role === 'ADMIN_GUDANG' || ['MANAGER', 'HEAD_OPS', 'SPV', 'LEADER'].includes(role)) {
     lowStock.slice(0, 8).forEach(row => items.push({ id: `stock-${row.id}`, title: `${row.sku} · ${row.name}`, description: row.quantity === 0 ? 'Stok habis dan memerlukan penerimaan atau transfer.' : 'Saldo berada pada batas minimum lima unit.', meta: `Saldo ${number(row.quantity)} unit`, path: '/cellular/persediaan', action: role === 'ADMIN_GUDANG' ? 'Catat mutasi' : 'Periksa stok', tone: row.quantity === 0 ? 'danger' : 'warning' }));
@@ -76,13 +81,15 @@ export default function CellularWorkspacePage() {
   const [month, setMonth] = useState(today().slice(0, 7));
   const canSeeSales = !!user && hasCapability(user.role, 'view:cellular_sales', user.divisionCode);
   const canSeeClosings = !!user && hasCapability(user.role, 'view:cellular_daily', user.divisionCode);
+  const canSeeShifts = !!user && hasCapability(user.role, 'view:cellular_shift', user.divisionCode);
   const products = useQuery({ queryKey: ['cellular', 'products'], queryFn: cellularApi.products });
   const outlets = useQuery({ queryKey: ['cellular', 'outlets'], queryFn: cellularApi.outlets });
   const stock = useQuery({ queryKey: ['cellular', 'stock'], queryFn: cellularApi.stock });
   const movements = useQuery({ queryKey: ['cellular', 'movements'], queryFn: cellularApi.movements });
   const sales = useQuery({ queryKey: ['cellular', 'sales', month], queryFn: () => cellularApi.sales(month), enabled: canSeeSales });
   const closings = useQuery({ queryKey: ['cellular', 'daily-closings', month], queryFn: () => cellularApi.dailyClosings(month), enabled: canSeeClosings });
-  const queries = [products, outlets, stock, movements, ...(canSeeSales ? [sales] : []), ...(canSeeClosings ? [closings] : [])];
+  const shifts = useQuery({ queryKey: ['cellular', 'shift-controls', month], queryFn: () => cellularApi.shiftControls(month), enabled: canSeeShifts });
+  const queries = [products, outlets, stock, movements, ...(canSeeSales ? [sales] : []), ...(canSeeClosings ? [closings] : []), ...(canSeeShifts ? [shifts] : [])];
   const failed = queries.find(query => query.error);
 
   const data = useMemo(() => {
@@ -107,7 +114,7 @@ export default function CellularWorkspacePage() {
   if (failed) return <ErrorState title="Workspace Cellular gagal dimuat" description={failed.error?.message ?? 'Data tidak tersedia.'} onRetry={() => queries.forEach(query => void query.refetch())} />;
 
   const role = user?.role ?? '';
-  const workItems = buildWorkItems(role, data.closingRows, data.lowStock, data.posted.map(row => row.business_date));
+  const workItems = buildWorkItems(role, data.closingRows, shifts.data?.data ?? [], data.lowStock, data.posted.map(row => row.business_date));
   const statusCounts = {
     draft: data.closingRows.filter(row => row.status === 'draft').length,
     submitted: data.closingRows.filter(row => row.status === 'submitted').length,
