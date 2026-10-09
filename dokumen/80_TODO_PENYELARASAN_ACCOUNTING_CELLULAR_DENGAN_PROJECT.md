@@ -106,7 +106,8 @@ Sebuah halaman selesai apabila:
 - [ ] Pisahkan pekerjaan input, pemeriksaan, persetujuan, realisasi, dan pemantauan berdasarkan role.
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
 - [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.
-- [ ] Lengkapi UI multi-item, lampiran/berita acara, serta hubungan persediaan ke voucher dan HPP.
+- [x] Lengkapi UI multi-item dan berita acara cetak/simpan PDF.
+- [ ] Tambahkan unggahan bukti serta hubungan persediaan ke voucher dan HPP.
 - [ ] Implementasikan PNL, bonus, dan CMO hanya setelah kebijakan bisnis ditetapkan.
 
 ## Tahap 4 — Validasi lintas divisi
@@ -120,9 +121,9 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Tutup tiga gap Admin Gudang Accounting menuju 90: multi-item, lampiran, dan keterlacakan voucher/HPP.
-2. Finance Cellular: settlement dan rekonsiliasi kanal pembayaran.
-3. Leader, SPV, Head Operasional Cellular: checklist, supervisi, eskalasi, PIC, dan SLA.
-4. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
-5. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
+1. Finance Cellular: settlement dan rekonsiliasi kanal pembayaran.
+2. Leader, SPV, Head Operasional Cellular: checklist, supervisi, eskalasi, PIC, dan SLA.
+3. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
+4. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
+5. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
 6. Regresi lintas role dan UAT visual terang/gelap.

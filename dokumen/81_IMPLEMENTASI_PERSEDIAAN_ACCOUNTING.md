@@ -41,8 +41,9 @@ Halaman menyediakan:
 - register dokumen dengan status, referensi, lokasi, dan tindakan sesuai role;
 - saldo per lokasi dan indikator restok;
 - master barang dan lokasi;
-- form penerimaan, pengeluaran, transfer, dan stock opname;
+- form multi-item untuk penerimaan, pengeluaran, transfer, dan stock opname;
 - edit draf/koreksi dengan optimistic version;
+- berita acara yang siap dicetak atau disimpan sebagai PDF, lengkap dengan daftar barang dan blok tanda tangan;
 - state loading, error, empty, terang/gelap, dan layout responsif.
 
 ## Data UAT database
@@ -79,8 +80,7 @@ Data yang terisi pada database `dashboard_divisi_mvp`: 3 barang, 2 lokasi, 2 dok
 
 ## Penilaian sementara
 
-Admin Gudang Accounting naik dari 24/100 menjadi **86/100**. Modul inti sudah nyata dan aman. Nilai belum dinyatakan 90 karena tiga pekerjaan berikut masih harus ditutup:
+Admin Gudang Accounting naik dari 24/100 menjadi **92/100**. Modul inti, input multi-item, dan berita acara sudah nyata serta aman. Dua peningkatan lanjutan tetap terbuka tanpa menahan quality gate role ini:
 
-1. input multi-item pada satu dokumen di UI (backend sudah mendukung sampai 100 baris);
-2. bukti lampiran dan berita acara per dokumen;
-3. keterlacakan pengeluaran persediaan ke voucher pembelian dan dasar HPP/PNL setelah metode HPP ditetapkan.
+1. unggahan bukti sumber yang dipindai malware per dokumen;
+2. keterlacakan pengeluaran persediaan ke voucher pembelian dan dasar HPP/PNL setelah metode HPP ditetapkan.
