@@ -10,6 +10,8 @@ export interface OmzetInput {
   edc_amount: string;
   transfer_amount: string;
   other_amount: string;
+  expense_amount: string;
+  shift_breakdown: Array<{ shift_no: 1 | 2 | 3; gross_amount: string }>;
   requires_ap: boolean;
   source_reference: string;
   notes: string;
@@ -24,6 +26,9 @@ export interface OmzetRecord extends OmzetInput {
   ap_amount: string | null;
   received_amount: string;
   payment_difference: string;
+  expected_deposit_amount: string;
+  shift_total: string | null;
+  shift_difference: string | null;
   ap_difference: string | null;
   review_notes: string | null;
   decision_notes: string | null;

@@ -14,13 +14,20 @@ import { EmptyState, ErrorState, LoadingState } from '../../../components/states
 import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const statusLabels = { draft: 'Draf', submitted: 'Menunggu pemeriksaan', correction: 'Perlu koreksi', pending_approval: 'Menunggu Manager', validated: 'Tervalidasi' };
-const amountFields = [['outlet_amount', 'Omzet laporan outlet'], ['cash_amount', 'Tunai'], ['qris_amount', 'QRIS'], ['edc_amount', 'EDC'], ['transfer_amount', 'Transfer'], ['other_amount', 'Pembayaran lainnya']] as const;
+const paymentFields = [['cash_amount', 'Tunai'], ['qris_amount', 'QRIS'], ['edc_amount', 'EDC'], ['transfer_amount', 'Transfer'], ['other_amount', 'Pembayaran lainnya']] as const;
 const localDate = () => {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
   return ['year', 'month', 'day'].map(type => parts.find(part => part.type === type)!.value).join('-');
 };
-const emptyInput = (): OmzetInput => ({ outlet_id: '', business_date: '', shift: '', outlet_amount: '0', cash_amount: '0', qris_amount: '0', edc_amount: '0', transfer_amount: '0', other_amount: '0', requires_ap: false, source_reference: '', notes: '' });
+const emptyInput = (): OmzetInput => ({ outlet_id: '', business_date: '', shift: 'HARIAN', outlet_amount: '0.00', cash_amount: '0', qris_amount: '0', edc_amount: '0', transfer_amount: '0', other_amount: '0', expense_amount: '0', shift_breakdown: [1, 2, 3].map(shift_no => ({ shift_no: shift_no as 1 | 2 | 3, gross_amount: '0' })), requires_ap: false, source_reference: '', notes: '' });
 const inputClass = 'mt-1 w-full rounded-input border border-line bg-panel px-3 py-2 text-sm';
+const amount = (value: string) => Number.isFinite(Number(value)) ? Number(value) : 0;
+const inputFromRecord = (record: OmzetRecord): OmzetInput => ({
+  ...emptyInput(), ...Object.fromEntries(Object.keys(emptyInput()).filter(key => key !== 'shift_breakdown').map(key => [key, record[key as keyof OmzetInput] ?? ''])),
+  shift_breakdown: record.shift_breakdown.length ? record.shift_breakdown : [
+    { shift_no: 1, gross_amount: record.outlet_amount }, { shift_no: 2, gross_amount: '0' }, { shift_no: 3, gross_amount: '0' },
+  ],
+});
 
 export default function AccountingOmzetPage() {
   const { user } = useAuth();
@@ -66,7 +73,7 @@ export default function AccountingOmzetPage() {
   const open = (id: string) => { setSelected(id); setReason(''); setApAmount(''); setFeedback(null); setFailure(null); };
   const openForm = (record?: OmzetRecord) => {
     setEditing(record ? { id: record.id, version: record.version } : undefined);
-    setInput(record ? Object.fromEntries(Object.keys(emptyInput()).map(key => [key, record[key as keyof OmzetInput] ?? ''])) as unknown as OmzetInput : emptyInput());
+    setInput(record ? inputFromRecord(record) : emptyInput());
     setSelected(null); setFormOpen(true); setFailure(null); setFeedback(null);
   };
   const perform = (record: OmzetRecord, kind: string, data?: Parameters<typeof omzetApi.action>[2]) => { setFailure(null); action.mutate({ record, kind, data }); };
@@ -99,8 +106,10 @@ export default function AccountingOmzetPage() {
         {failure && <p role="alert" className="text-sm text-red-700">{failure}</p>}
         <fieldset disabled={busy || !writer || !directory.data?.length} className="space-y-4">
           <label className="block text-sm">Outlet<select className={inputClass} required value={input.outlet_id} onChange={event => setInput({ ...input, outlet_id: event.target.value })}><option value="">Pilih outlet</option>{directory.data?.map(item => <option key={item.id} value={item.id}>{item.name} ({item.divisionCode})</option>)}</select></label>
-          <div className="grid grid-cols-2 gap-4"><label className="text-sm">Tanggal omzet<input className={inputClass} required type="date" max={localDate()} value={input.business_date} onChange={event => setInput({ ...input, business_date: event.target.value })} /></label><label className="text-sm">Shift<input className={inputClass} required maxLength={30} value={input.shift} onChange={event => setInput({ ...input, shift: event.target.value })} placeholder="Contoh: 1 atau Pagi" /></label></div>
-          {amountFields.map(([key, label]) => <label key={key} className="block text-sm">{label} (Rp)<input className={inputClass} required type="number" min="0" max="999999999999.99" step="0.01" value={input[key]} onChange={event => setInput({ ...input, [key]: event.target.value })} /></label>)}
+          <label className="block text-sm">Tanggal omzet<input className={inputClass} required type="date" max={localDate()} value={input.business_date} onChange={event => setInput({ ...input, business_date: event.target.value })} /></label>
+          <section className="rounded-card border border-line bg-surface p-4"><h3 className="font-semibold">Omzet per shift</h3><p className="mt-1 text-xs text-subtle">Isi sesuai laporan shift. Total omzet harian dihitung otomatis.</p><div className="mt-3 grid gap-3 sm:grid-cols-3">{input.shift_breakdown.map((line, index) => <label key={line.shift_no} className="text-sm">Shift {line.shift_no} (Rp)<input className={inputClass} required type="number" min="0" max="999999999999.99" step="0.01" value={line.gross_amount} onChange={event => { const lines = input.shift_breakdown.map((item, lineIndex) => lineIndex === index ? { ...item, gross_amount: event.target.value } : item); setInput({ ...input, shift_breakdown: lines, outlet_amount: lines.reduce((sum, item) => sum + amount(item.gross_amount), 0).toFixed(2) }); }} /></label>)}</div><div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-sm"><span>Total omzet harian</span><strong className="text-lg tabular-nums">{rupiah(input.outlet_amount)}</strong></div></section>
+          <section className="rounded-card border border-line p-4"><h3 className="font-semibold">Rincian penerimaan</h3><p className="mt-1 text-xs text-subtle">Tunai + kanal non-tunai harus sama dengan total omzet.</p><div className="mt-3 grid gap-3 sm:grid-cols-2">{paymentFields.map(([key, label]) => <label key={key} className="block text-sm">{label} (Rp)<input className={inputClass} required type="number" min="0" max="999999999999.99" step="0.01" value={input[key]} onChange={event => setInput({ ...input, [key]: event.target.value })} /></label>)}</div></section>
+          <section className="rounded-card border border-line p-4"><h3 className="font-semibold">Pengeluaran dan rencana setoran</h3><label className="mt-3 block text-sm">Pengeluaran harian (Rp)<input className={inputClass} required type="number" min="0" max="999999999999.99" step="0.01" value={input.expense_amount} onChange={event => setInput({ ...input, expense_amount: event.target.value })} /></label><div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-sm"><span>Rencana setoran tunai</span><strong className="text-lg tabular-nums">{rupiah(Math.max(0, amount(input.cash_amount) - amount(input.expense_amount)).toFixed(2))}</strong></div></section>
           <label className="block text-sm">Referensi laporan sumber<input className={inputClass} required maxLength={255} value={input.source_reference} onChange={event => setInput({ ...input, source_reference: event.target.value })} placeholder="Nomor / nama laporan outlet" /></label>
           <label className="flex gap-2 text-sm"><input type="checkbox" checked={input.requires_ap} onChange={event => setInput({ ...input, requires_ap: event.target.checked })} />Perlu pencocokan laporan Angkasa Pura</label>
           <label className="block text-sm">Catatan Admin<textarea className={inputClass} maxLength={2000} value={input.notes} onChange={event => setInput({ ...input, notes: event.target.value })} /></label>
@@ -114,7 +123,8 @@ export default function AccountingOmzetPage() {
         {failure && <p role="alert" className="text-sm text-red-700">{failure}<Button variant="secondary" onClick={() => void detail.refetch()}>Muat ulang detail</Button></p>}
         <div><h2 className="font-semibold">{record.outlet_name}</h2><p className="mt-1 text-sm">{formatDate(record.business_date)} · Shift {record.shift} · <StatusBadge status={record.status} label={statusLabels[record.status]} /></p><p className="mt-1 text-xs text-subtle">Referensi: {record.source_reference}</p></div>
         <DocumentWorkflow status={record.status} kind="omzet" version={record.version} />
-        <dl className="space-y-2 text-sm">{[...amountFields.map(([key,label]) => [label, rupiah(record[key])]), ['Total pembayaran', rupiah(record.received_amount)], ['Selisih pembayaran', rupiah(record.payment_difference)], ['Laporan AP', record.ap_amount === null ? 'Belum dicocokkan / tidak berlaku' : rupiah(record.ap_amount)], ['Selisih AP', record.ap_difference === null ? '—' : rupiah(record.ap_difference)]].map(([label,value]) => <div key={label} className="flex justify-between gap-4 border-b border-line pb-2"><dt>{label}</dt><dd className="text-right font-medium">{value}</dd></div>)}</dl>
+        {record.shift_breakdown.length > 0 && <section className="rounded-card border border-line p-4"><h3 className="font-semibold">Omzet per shift</h3><div className="mt-3 grid gap-3 sm:grid-cols-3">{record.shift_breakdown.map(line => <div key={line.shift_no}><p className="text-xs text-subtle">Shift {line.shift_no}</p><p className="font-semibold tabular-nums">{rupiah(line.gross_amount)}</p></div>)}</div></section>}
+        <dl className="space-y-2 text-sm">{[[ 'Total omzet harian', rupiah(record.outlet_amount)], ...paymentFields.map(([key,label]) => [label, rupiah(record[key])]), ['Total pembayaran', rupiah(record.received_amount)], ['Selisih pembayaran', rupiah(record.payment_difference)], ['Total shift', record.shift_total === null ? 'Belum dirinci' : rupiah(record.shift_total)], ['Selisih shift', record.shift_difference === null ? '—' : rupiah(record.shift_difference)], ['Pengeluaran harian', rupiah(record.expense_amount)], ['Rencana setoran tunai', rupiah(record.expected_deposit_amount)], ['Laporan AP', record.ap_amount === null ? 'Belum dicocokkan / tidak berlaku' : rupiah(record.ap_amount)], ['Selisih AP', record.ap_difference === null ? '—' : rupiah(record.ap_difference)]].map(([label,value]) => <div key={label} className="flex justify-between gap-4 border-b border-line pb-2"><dt>{label}</dt><dd className="text-right font-medium">{value}</dd></div>)}</dl>
         {record.notes && <p className="text-sm">Catatan Admin: {record.notes}</p>}
         {record.review_notes && <p className="text-sm">Catatan pemeriksaan: {record.review_notes}</p>}
         {record.decision_notes && <p className="text-sm">Keputusan Manager: {record.decision_notes}</p>}

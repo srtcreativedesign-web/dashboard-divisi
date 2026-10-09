@@ -13,6 +13,8 @@ const fixture: OmzetRecord = {
   id: 'rec-1', outlet_id: 'outlet-1', outlet_name: 'Outlet anonim', source_division_code: 'CELL',
   business_date: '2026-10-04', shift: '1', outlet_amount: '1000.00', cash_amount: '1000.00',
   qris_amount: '0', edc_amount: '0', transfer_amount: '0', other_amount: '0',
+  expense_amount: '0', expected_deposit_amount: '1000.00', shift_total: '1000.00', shift_difference: '0.00',
+  shift_breakdown: [{ shift_no: 1, gross_amount: '1000.00' }],
   source_reference: 'Laporan anonim', notes: '', requires_ap: true, status: 'submitted', version: 2,
   received_amount: '1000.00', payment_difference: '0.00', ap_amount: null, ap_difference: null,
   review_notes: null, decision_notes: null, events: [], unlock_requests: [],
@@ -41,12 +43,11 @@ describe('Alur rekap omzet sesuai role', () => {
     const form = within(screen.getByRole('form', { name: 'Form rekap omzet' }));
     fireEvent.change(form.getByLabelText('Outlet'), { target: { value: 'outlet-1' } });
     fireEvent.change(form.getByLabelText('Tanggal omzet'), { target: { value: '2026-10-04' } });
-    fireEvent.change(form.getByLabelText('Shift'), { target: { value: '1' } });
-    fireEvent.change(form.getByLabelText('Omzet laporan outlet (Rp)'), { target: { value: '1000' } });
+    fireEvent.change(form.getByLabelText('Shift 1 (Rp)'), { target: { value: '1000' } });
     fireEvent.change(form.getByLabelText('Tunai (Rp)'), { target: { value: '1000' } });
     fireEvent.change(form.getByLabelText('Referensi laporan sumber'), { target: { value: 'Laporan anonim' } });
     fireEvent.click(form.getByRole('button', { name: 'Simpan draf' }));
-    await waitFor(() => expect(omzetApi.save).toHaveBeenCalledWith(expect.objectContaining({ outlet_id: 'outlet-1', cash_amount: '1000', outlet_amount: '1000', source_reference: 'Laporan anonim' }), undefined));
+    await waitFor(() => expect(omzetApi.save).toHaveBeenCalledWith(expect.objectContaining({ outlet_id: 'outlet-1', cash_amount: '1000', outlet_amount: '1000.00', expense_amount: '0', source_reference: 'Laporan anonim', shift_breakdown: expect.arrayContaining([expect.objectContaining({ shift_no: 1, gross_amount: '1000' })]) }), undefined));
     expect(await screen.findByRole('button', { name: 'Ajukan pemeriksaan' })).toBeInTheDocument();
     expect(omzetApi.action).not.toHaveBeenCalled();
   });
