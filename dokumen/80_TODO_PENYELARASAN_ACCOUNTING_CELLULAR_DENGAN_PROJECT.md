@@ -4,6 +4,40 @@ Tanggal mulai: 9 Oktober 2026
 Branch kerja: `REQ`
 Pemilik implementasi: Senior Product Manager, Senior Product Designer, Senior Fullstack Programmer, Application Security Engineer.
 
+## Quality gate 90/100 per role
+
+Target penerimaan ditetapkan pada 10 Oktober 2026: setiap role Accounting dan Cellular wajib mencapai minimal 90/100. Nilai rata-rata divisi tidak dapat menutup role yang belum layak digunakan.
+
+Komposisi penilaian:
+
+- 35 poin cakupan pekerjaan utama role;
+- 25 poin workflow end-to-end, status, PIC, SLA, bukti, dan drill-down;
+- 25 poin UX: orientasi pertama, kejelasan tindakan, konsistensi Project, responsif, tema, aksesibilitas, dan state;
+- 15 poin keamanan: capability backend, scope objek/divisi, maker-checker, audit, versioning, validasi, dan pembatasan data.
+
+Syarat minimum tambahan:
+
+- tidak ada role dengan skor di bawah 90;
+- tidak ada fungsi palsu, angka hardcode, atau tombol tanpa hasil;
+- alur kritis harus lulus pengujian role, integrasi, regresi, dan UAT pengguna;
+- fitur yang bergantung pada kebijakan bisnis belum dapat memperoleh nilai penuh sebelum kebijakan disahkan;
+- Project tetap menjadi acuan visual dan tidak diubah oleh jalur Accounting/Cellular.
+
+Baseline audit 10 Oktober 2026:
+
+- Accounting: Manager 64, Admin 74, Accounting 61, Finance 56, Admin Gudang 24.
+- Cellular: Manager 67, Head Operasional 42, SPV 40, Leader 38, Admin 72, Admin Gudang 57, Accounting 56, Finance 39.
+
+Urutan penutupan gap menuju 90:
+
+1. Admin Gudang Accounting: inventory lifecycle dan keterhubungan dengan voucher/HPP.
+2. Finance Cellular: settlement tunai, bank, EDC, QRIS, transfer aktual, dan rekonsiliasi.
+3. Leader, SPV, dan Head Operasional Cellular: checklist shift, supervisi, eskalasi, PIC, dan SLA.
+4. Accounting Cellular: paket H+1, ECSYS, settlement, persediaan/HPP, period close, dan PNL.
+5. Finance Accounting: payment run, settlement, aging, dan rekonsiliasi lengkap.
+6. Manager Accounting/Cellular: decision inbox, materialitas, delegasi, dan pemisahan tugas.
+7. Admin Accounting/Cellular: penyatuan pekerjaan harian, bukti, tenggat, dan histori status.
+
 ## Batas pekerjaan
 
 - Divisi Project adalah acuan bahasa visual dan dikerjakan oleh Elian.
