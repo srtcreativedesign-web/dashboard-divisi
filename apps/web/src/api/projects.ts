@@ -1,4 +1,4 @@
-import { Project, PaginatedResponse, ProjectVendor, ProjectRab, ProjectExpense, ProjectInvoice, FinancialSummary, ProjectDocument, ProjectPettyCash, ProjectPettyCashResponse } from '../types/project';
+import { Project, ProjectMilestone, PaginatedResponse, ProjectVendor, ProjectRab, ProjectExpense, ProjectInvoice, FinancialSummary, ProjectDocument, ProjectPettyCash, ProjectPettyCashResponse } from '../types/project';
 import { api, downloadFile } from './client';
 
 export const projectApi = {
@@ -19,6 +19,16 @@ export const projectApi = {
 
   updateProject: async (id: number, data: Partial<Project>) => {
     const response = await api.put<Project>(`/projects/${id}`, data);
+    return response.data;
+  },
+
+  deleteProject: async (id: number) => {
+    const response = await api.delete<{ message: string }>(`/projects/${id}`);
+    return response.data;
+  },
+
+  syncStandardMilestones: async (projectId: number) => {
+    const response = await api.post<ProjectMilestone[]>(`/projects/${projectId}/milestones/ensure-standard`, {});
     return response.data;
   },
 
@@ -48,6 +58,14 @@ export const projectApi = {
 
   updateRab: async (projectId: number, rabId: number, data: Partial<ProjectRab>) => {
     const response = await api.put<ProjectRab>(`/projects/${projectId}/rab/${rabId}`, data);
+    return response.data;
+  },
+
+  batchSyncRab: async (projectId: number, items: Partial<ProjectRab>[]) => {
+    const response = await api.put<{ message: string; data: ProjectRab[]; total_rab: number }>(
+      `/projects/${projectId}/rab/batch`,
+      { items }
+    );
     return response.data;
   },
 

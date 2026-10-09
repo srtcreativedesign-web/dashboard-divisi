@@ -1,200 +1,268 @@
-import React, { useState } from 'react';
-import { ProjectMilestone } from '../../types/project';
-import { X, Percent, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Project, ProjectMilestone } from '../../types/project';
+import { projectApi } from '../../api/projects';
+import { X, CheckCircle2, Clock, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 interface MilestoneUpdateModalProps {
-  milestone: ProjectMilestone;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (milestoneId: number, data: Partial<ProjectMilestone>) => Promise<void>;
+  project: Project;
+  milestone: ProjectMilestone;
+  onSuccess: (updatedMilestone: ProjectMilestone) => void;
 }
 
-export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
-  milestone,
+export function MilestoneUpdateModal({
   isOpen,
   onClose,
-  onSave,
-}) => {
-  const [title, setTitle] = useState(milestone.title);
-  const [weightPercentage, setWeightPercentage] = useState(milestone.weight_percentage);
-  const [actualPercentage, setActualPercentage] = useState(milestone.actual_percentage ?? 0);
-  const [status, setStatus] = useState(milestone.status || 'pending');
-  const [dueDate, setDueDate] = useState(milestone.due_date ? milestone.due_date.substring(0, 10) : '');
-  const [completionDate, setCompletionDate] = useState(milestone.completion_date ? milestone.completion_date.substring(0, 10) : '');
-  const [notes, setNotes] = useState(milestone.notes || '');
-  const [loading, setLoading] = useState(false);
+  project,
+  milestone,
+  onSuccess,
+}: MilestoneUpdateModalProps) {
+  const [status, setStatus] = useState<string>(milestone.status || 'pending');
+  const [notes, setNotes] = useState<string>(milestone.notes || '');
+  const [completionDate, setCompletionDate] = useState<string>(
+    milestone.completion_date || ''
+  );
+  const [actualPercentage, setActualPercentage] = useState<number>(
+    milestone.actual_percentage ?? (milestone.status === 'completed' ? 100 : 0)
+  );
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setStatus(milestone.status || 'pending');
+      setNotes(milestone.notes || '');
+      setCompletionDate(milestone.completion_date || '');
+      setActualPercentage(
+        milestone.actual_percentage ?? (milestone.status === 'completed' ? 100 : 0)
+      );
+      setError(null);
+    }
+  }, [isOpen, milestone]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      setError(null);
-      await onSave(milestone.id, {
-        title,
-        weight_percentage: Number(weightPercentage),
-        actual_percentage: Number(actualPercentage),
-        status,
-        due_date: dueDate || undefined,
-        completion_date: completionDate || undefined,
-        notes: notes || undefined,
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err.message || 'Gagal memperbarui milestone');
-    } finally {
-      setLoading(false);
+  const handleStatusChange = (newStatus: string) => {
+    setStatus(newStatus);
+    if (newStatus === 'completed') {
+      if (!completionDate) {
+        setCompletionDate(new Date().toISOString().split('T')[0] || '');
+      }
+      if (actualPercentage < 100) {
+        setActualPercentage(100);
+      }
+    } else if (newStatus === 'pending') {
+      setCompletionDate('');
+      if (actualPercentage > 0) {
+        setActualPercentage(0);
+      }
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const updated = await projectApi.updateMilestone(project.id, milestone.id, {
+        status,
+        notes: notes.trim(),
+        completion_date: status === 'completed' ? (completionDate || new Date().toISOString().split('T')[0]) : undefined,
+        actual_percentage: actualPercentage,
+      });
+      onSuccess(updated);
+      onClose();
+    } catch (err: any) {
+      setError(err?.message || 'Gagal memperbarui status tahapan milestone.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const getQuickNotes = () => {
+    const title = milestone.title.toUpperCase();
+    if (title.includes('SURVEI')) {
+      return ['Survei lokasi', 'Menunggu izin akses', 'Survei teknis selesai'];
+    }
+    if (title.includes('IZIN')) {
+      return ['Disetujui', 'Proses pengajuan K3', 'Menunggu permit'];
+    }
+    if (title.includes('RAB')) {
+      return ['Penyusunan RAB', 'Disetujui Klien', 'Revisi Harga'];
+    }
+    if (title.includes('PAYMENT')) {
+      return ['Dibayar DP / Termin 1', 'Menunggu invoice', 'Lunas'];
+    }
+    if (title.includes('EXECUTION')) {
+      return ['Pelaksanaan fisik', 'Progres 50%', 'Selesai & BAST'];
+    }
+    return ['Selesai sesuai target', 'Dalam proses pengerjaan', 'Tertunda'];
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 backdrop-blur-sm p-4 overflow-y-auto animate-fade-in">
-      <div className="relative w-full max-w-lg rounded-card-lg bg-panel dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div
+        className="w-full max-w-lg rounded-card-lg bg-white border border-line shadow-card-hover overflow-hidden animate-in zoom-in-95 duration-150"
+        role="dialog"
+        aria-modal="true"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-line dark:border-line/20">
+        <div className="flex items-center justify-between border-b border-line px-6 py-4 bg-surface">
           <div>
-            <h3 className="text-base font-bold text-navy dark:text-white">
-              Pembaruan Progres Milestone
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[11px] font-bold text-slate-500 bg-white border border-line px-1.5 py-0.5 rounded">
+                {project.project_code || `PRJ-${project.id}`}
+              </span>
+              <span className="text-xs font-semibold text-slate-600">
+                Pembaruan Tahapan
+              </span>
+            </div>
+            <h3 className="text-base font-bold text-navy mt-1">
+              {milestone.title}
             </h3>
-            <p className="text-xs text-subtle">Sesuaikan persentase realisasi, jadwal, dan catatan kendala lapangan</p>
+            <p className="text-xs text-slate-500 truncate max-w-sm mt-0.5">
+              {project.name}
+            </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-input p-1.5 text-slate-400 hover:bg-surface hover:text-navy dark:hover:bg-navy/40 dark:hover:text-white transition-colors"
+            className="rounded-input p-1.5 text-slate-400 hover:text-navy hover:bg-slate-100 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-card bg-danger-light p-3 text-xs text-danger dark:text-red-300 border border-danger/30 font-medium">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {error && (
+            <div className="rounded-card bg-danger-light p-3.5 border border-danger/30 flex items-start gap-2.5">
+              <AlertCircle className="h-4 w-4 text-danger shrink-0 mt-0.5" />
+              <p className="text-xs text-danger font-medium">{error}</p>
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          {/* Status Selection */}
           <div>
-            <label className="block text-xs font-semibold text-navy dark:text-slate-200 uppercase tracking-wider mb-1">
-              Nama Tahapan / Milestone
+            <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-2">
+              Status Tahapan
             </label>
+            <div className="grid grid-cols-3 gap-2.5">
+              <button
+                type="button"
+                onClick={() => handleStatusChange('pending')}
+                className={`flex flex-col items-center justify-center p-3 rounded-card border text-center transition-all ${
+                  status === 'pending'
+                    ? 'border-slate-400 bg-slate-100 text-slate-900 shadow-xs'
+                    : 'border-line bg-white text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                <Clock className="h-5 w-5 text-slate-500 mb-1" />
+                <span className="text-xs font-bold">Belum Dimulai</span>
+                <span className="text-[10px] text-slate-400 mt-0.5">Pending</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleStatusChange('in_progress')}
+                className={`flex flex-col items-center justify-center p-3 rounded-card border text-center transition-all ${
+                  status === 'in_progress'
+                    ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-xs ring-1 ring-blue-400'
+                    : 'border-line bg-white text-slate-600 hover:bg-blue-50/50'
+                }`}
+              >
+                <Loader2 className="h-5 w-5 text-blue-600 animate-spin mb-1" />
+                <span className="text-xs font-bold">Sedang Berjalan</span>
+                <span className="text-[10px] text-blue-600 mt-0.5">In Progress</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleStatusChange('completed')}
+                className={`flex flex-col items-center justify-center p-3 rounded-card border text-center transition-all ${
+                  status === 'completed'
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-xs ring-1 ring-emerald-400'
+                    : 'border-line bg-white text-slate-600 hover:bg-emerald-50/50'
+                }`}
+              >
+                <CheckCircle2 className="h-5 w-5 text-emerald-600 mb-1" />
+                <span className="text-xs font-bold">Selesai</span>
+                <span className="text-[10px] text-emerald-600 mt-0.5">Completed</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Subtext / Notes */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-navy uppercase tracking-wider">
+                Keterangan / Teks Tahapan
+              </label>
+              <span className="text-[11px] text-slate-400">
+                Tampil langsung di kotak tahapan
+              </span>
+            </div>
             <input
               type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-navy dark:text-slate-200 uppercase tracking-wider mb-1">
-                Bobot Rencana (%)
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="100"
-                  required
-                  value={weightPercentage}
-                  onChange={(e) => setWeightPercentage(Number(e.target.value))}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary pr-8 transition-all"
-                />
-                <Percent className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-navy dark:text-slate-200 uppercase tracking-wider mb-1">
-                Realisasi Fisik (%)
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="100"
-                  required
-                  value={actualPercentage}
-                  onChange={(e) => setActualPercentage(Number(e.target.value))}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs font-bold text-primary dark:text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary pr-8 transition-all"
-                />
-                <Percent className="absolute right-2.5 top-2.5 h-3.5 w-3.5 text-primary dark:text-primary-300" />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-navy dark:text-slate-200 uppercase tracking-wider mb-1">
-              Status Pengerjaan
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-            >
-              <option value="pending">Menunggu (Pending)</option>
-              <option value="in_progress">Sedang Berjalan (In Progress)</option>
-              <option value="review">Peninjauan / Inspeksi (Review)</option>
-              <option value="completed">Selesai 100% (Completed)</option>
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-navy dark:text-slate-200 uppercase tracking-wider mb-1">
-                Target Selesai (Due Date)
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-navy dark:text-slate-200 uppercase tracking-wider mb-1">
-                Realisasi Selesai (Aktual)
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={completionDate}
-                  onChange={(e) => setCompletionDate(e.target.value)}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-navy dark:text-slate-200 uppercase tracking-wider mb-1">
-              Catatan Kendala & Lapangan
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Catatan inspeksi fisik, kendala cuaca, ketersediaan material, atau approval klien..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              placeholder="Contoh: Survei lokasi, Disetujui, Total RAB..."
+              className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs text-navy placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
+            {/* Quick Suggestions */}
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {getQuickNotes().map((quick) => (
+                <button
+                  key={quick}
+                  type="button"
+                  onClick={() => setNotes(quick)}
+                  className="px-2 py-0.5 rounded-full bg-slate-100 hover:bg-slate-200 text-[10px] font-medium text-slate-600 border border-slate-200 transition-colors"
+                >
+                  + {quick}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-line dark:border-line/20">
+          {/* Date and Percentage Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
+                Tanggal Selesai
+              </label>
+              <input
+                type="date"
+                value={completionDate}
+                onChange={(e) => setCompletionDate(e.target.value)}
+                className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
+                Progres Tahap (%)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={actualPercentage}
+                onChange={(e) => setActualPercentage(Number(e.target.value))}
+                className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-line">
             <Button
               type="button"
               variant="secondary"
               size="sm"
               onClick={onClose}
+              disabled={submitting}
             >
               Batal
             </Button>
@@ -202,23 +270,14 @@ export const MilestoneUpdateModal: React.FC<MilestoneUpdateModalProps> = ({
               type="submit"
               variant="primary"
               size="sm"
-              disabled={loading}
+              disabled={submitting}
             >
-              {loading ? (
-                <>
-                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  <span>Menyimpan...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-3.5 w-3.5" />
-                  <span>Simpan Perubahan</span>
-                </>
-              )}
+              {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
+              Simpan Perubahan
             </Button>
           </div>
         </form>
       </div>
     </div>
   );
-};
+}
