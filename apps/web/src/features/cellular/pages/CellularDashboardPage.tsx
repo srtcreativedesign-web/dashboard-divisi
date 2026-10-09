@@ -5,6 +5,8 @@ import {
   AlertTriangle,
   ArrowRight,
   Boxes,
+  CheckCircle2,
+  Clock3,
   Package,
   PackagePlus,
   ReceiptText,
@@ -26,7 +28,7 @@ import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 import { KPICard, KPICardGrid } from '../../../components/ui/primitives';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
-import { cellularApi, type Movement, type Stock } from '../api';
+import { cellularApi, type DailyClosing, type Movement, type Stock } from '../api';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const rupiah = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
@@ -48,23 +50,44 @@ function movementLabel(movement: Movement) {
   return movement.quantity_delta > 0 ? 'Barang masuk' : 'Koreksi stok';
 }
 
+const closingStatus: Record<DailyClosing['status'], string> = { draft: 'Draf', submitted: 'Menunggu Accounting', validated: 'Menunggu Manager', approved: 'Disetujui', correction: 'Perlu Koreksi' };
+
+function actionableClosings(role: string, rows: DailyClosing[]) {
+  if (role === 'ADMIN') return rows.filter(row => row.status === 'draft' || row.status === 'correction');
+  if (role === 'ACCOUNTING') return rows.filter(row => row.status === 'submitted');
+  if (role === 'MANAGER') return rows.filter(row => row.status === 'validated');
+  if (role === 'FINANCE') return rows.filter(row => row.status === 'approved' && Number(row.difference) !== 0);
+  return [];
+}
+
+function roleAction(role: string) {
+  if (role === 'ADMIN') return 'Lengkapi atau ajukan';
+  if (role === 'ACCOUNTING') return 'Validasi penerimaan';
+  if (role === 'MANAGER') return 'Berikan keputusan';
+  if (role === 'FINANCE') return 'Tinjau selisih settlement';
+  return 'Pantau penerimaan';
+}
+
 export default function CellularDashboardPage() {
   const { user } = useAuth();
   const [month, setMonth] = useState(today().slice(0, 7));
   const can = (capability: string) => !!user && hasCapability(user.role, capability, user.divisionCode);
   const canSeeSales = can('view:cellular_sales');
+  const canSeeClosings = can('view:cellular_daily');
   const products = useQuery({ queryKey: ['cellular', 'products'], queryFn: cellularApi.products });
   const outlets = useQuery({ queryKey: ['cellular', 'outlets'], queryFn: cellularApi.outlets });
   const stock = useQuery({ queryKey: ['cellular', 'stock'], queryFn: cellularApi.stock });
   const movements = useQuery({ queryKey: ['cellular', 'movements'], queryFn: cellularApi.movements });
   const sales = useQuery({ queryKey: ['cellular', 'sales', month], queryFn: () => cellularApi.sales(month), enabled: canSeeSales && /^\d{4}-\d{2}$/.test(month) });
-  const required = [products, outlets, stock, movements, ...(canSeeSales ? [sales] : [])];
+  const closings = useQuery({ queryKey: ['cellular', 'daily-closings', month], queryFn: () => cellularApi.dailyClosings(month), enabled: canSeeClosings && /^\d{4}-\d{2}$/.test(month) });
+  const required = [products, outlets, stock, movements, ...(canSeeSales ? [sales] : []), ...(canSeeClosings ? [closings] : [])];
   const failed = required.find(query => query.error);
 
   const metrics = useMemo(() => {
     const productRows = products.data?.data ?? [];
     const stockRows = stock.data?.data ?? [];
     const saleRows = sales.data?.data ?? [];
+    const closingRows = closings.data?.data ?? [];
     const posted = saleRows.filter(sale => sale.status === 'posted');
     const lowStock = stockRows.filter(item => item.quantity <= 5);
     return {
@@ -72,6 +95,7 @@ export default function CellularDashboardPage() {
       stockRows,
       saleRows,
       posted,
+      closingRows,
       lowStock,
       totalStock: stockRows.reduce((total, item) => total + item.quantity, 0),
       revenue: posted.reduce((total, sale) => total + Number(sale.total_amount), 0),
@@ -80,7 +104,7 @@ export default function CellularDashboardPage() {
       accessories: productRows.filter(product => product.kind === 'ACCESSORY').length,
       voided: saleRows.filter(sale => sale.status === 'voided').length,
     };
-  }, [products.data, sales.data, stock.data]);
+  }, [closings.data, products.data, sales.data, stock.data]);
 
   const dailySales = useMemo(() => {
     const grouped = new Map<string, { date: string; omzet: number; unit: number }>();
@@ -109,8 +133,10 @@ export default function CellularDashboardPage() {
   if (failed) return <ErrorState title="Dashboard Cellular gagal dimuat" description={failed.error?.message ?? 'Data operasional tidak tersedia.'} onRetry={() => required.forEach(query => void query.refetch())} />;
 
   const workspace = roleWorkspace(user?.role ?? '');
+  const role = user?.role ?? '';
   const WorkspaceIcon = workspace.icon;
   const recentMovements = (movements.data?.data ?? []).slice(0, 6);
+  const myClosings = actionableClosings(role, metrics.closingRows);
   const maxMix = Math.max(metrics.productRows.length, 1);
 
   return <div className="space-y-6 pb-10 animate-fade-in">
@@ -141,6 +167,21 @@ export default function CellularDashboardPage() {
       <KPICard label="Saldo stok tercatat" value={integer(metrics.totalStock)} note={`${integer(metrics.stockRows.length)} kombinasi produk dan outlet`} icon={<Boxes />} />
       <KPICard variant={metrics.lowStock.length ? 'outlined' : 'default'} label="Stok perlu perhatian" value={integer(metrics.lowStock.length)} note="Saldo 5 unit atau kurang" icon={<AlertTriangle />} />
     </KPICardGrid>
+
+    {canSeeClosings && <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,.65fr)]">
+      <section className="overflow-hidden rounded-card-lg border border-line bg-panel shadow-card">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line p-5"><div><h2 className="font-bold text-navy">Tindakan penerimaan saya</h2><p className="mt-1 text-xs text-subtle">{roleAction(role)} pada {monthLabel(month)}</p></div><Link to="/cellular/pekerjaan" className="text-xs font-semibold text-primary-700 dark:text-primary-300">Buka semua →</Link></div>
+        <div className="divide-y divide-line">{myClosings.slice(0, 4).map(row => <Link key={row.id} to="/cellular/penerimaan" className="grid gap-3 p-4 transition-colors hover:bg-surface sm:grid-cols-[auto_1fr_auto] sm:items-center"><span className={`flex h-9 w-9 items-center justify-center rounded-pill ${row.status === 'correction' || Number(row.difference) !== 0 ? 'bg-warning-light text-warning-dark' : 'bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-200'}`}>{row.status === 'approved' ? <CheckCircle2 className="h-4 w-4" /> : <Clock3 className="h-4 w-4" />}</span><div className="min-w-0"><p className="font-semibold text-navy">{shortDate(row.business_date)} · {row.shift_code}</p><p className="mt-1 truncate text-xs text-subtle">{row.source_reference} · selisih {rupiah(Number(row.difference))}</p></div><span className="w-fit rounded-pill bg-surface px-2.5 py-1 text-[11px] font-bold text-subtle">{closingStatus[row.status]}</span></Link>)}</div>
+        {!myClosings.length && <div className="p-8 text-center"><CheckCircle2 className="mx-auto h-8 w-8 text-success"/><p className="mt-3 text-sm font-semibold text-navy">Tidak ada tindakan untuk role Anda</p><p className="mt-1 text-xs text-subtle">Tidak ada dokumen pada status yang memerlukan tindakan di periode ini.</p></div>}
+      </section>
+      <section className="rounded-card-lg border border-line bg-panel p-5 shadow-card"><div className="flex items-center justify-between"><div><h2 className="font-bold text-navy">Status penerimaan</h2><p className="mt-1 text-xs text-subtle">Posisi workflow periode berjalan</p></div><ReceiptText className="h-5 w-5 text-primary-600"/></div><div className="mt-5 space-y-4">{[
+        ['Draf', metrics.closingRows.filter(row => row.status === 'draft').length, 'bg-slate-400'],
+        ['Menunggu Accounting', metrics.closingRows.filter(row => row.status === 'submitted').length, 'bg-warning'],
+        ['Menunggu Manager', metrics.closingRows.filter(row => row.status === 'validated').length, 'bg-primary-600'],
+        ['Disetujui', metrics.closingRows.filter(row => row.status === 'approved').length, 'bg-success'],
+        ['Perlu Koreksi', metrics.closingRows.filter(row => row.status === 'correction').length, 'bg-danger'],
+      ].map(([label, count, color]) => <div key={String(label)}><div className="mb-1.5 flex justify-between gap-3 text-xs"><span className="font-medium text-subtle">{label}</span><span className="font-bold tabular-nums text-navy">{count}</span></div><div className="h-1.5 overflow-hidden rounded-pill bg-surface"><div className={`h-full rounded-pill ${color}`} style={{ width: `${metrics.closingRows.length ? Math.max((Number(count) / metrics.closingRows.length) * 100, Number(count) ? 6 : 0) : 0}%` }}/></div></div>)}</div></section>
+    </div>}
 
     <div className="grid gap-6 xl:grid-cols-3">
       <section className="rounded-card-lg border border-line bg-panel p-5 shadow-card xl:col-span-2">

@@ -1,7 +1,7 @@
 # Todo Penyelarasan Accounting dan Cellular dengan Kerangka Project
 
-Tanggal mulai: 9 Oktober 2026  
-Branch kerja: `REQ`  
+Tanggal mulai: 9 Oktober 2026
+Branch kerja: `REQ`
 Pemilik implementasi: Senior Product Manager, Senior Product Designer, Senior Fullstack Programmer, Application Security Engineer.
 
 ## Batas pekerjaan
@@ -35,7 +35,7 @@ Sebuah halaman selesai apabila:
 ### Pusat kendali dan pekerjaan
 
 - [x] Dashboard memakai header, KPI, panel, grafik, dan hierarchy visual Project.
-- [ ] Hubungkan dashboard dengan status penerimaan harian dan antrean role.
+- [x] Hubungkan dashboard dengan status penerimaan harian dan antrean role.
 - [x] Ubah Pekerjaan Saya menjadi antrean nyata dari workflow database.
 - [x] Bedakan antrean Admin, Accounting, Manager, Finance, Admin Gudang, Head Operasional, SPV, dan Leader.
 - [x] Tambahkan ringkasan alur `draft → submitted → validated → approved/correction`.

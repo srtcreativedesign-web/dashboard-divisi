@@ -33,6 +33,9 @@ describe('Pusat Kendali Cellular', () => {
     vi.spyOn(cellularApi, 'sales').mockResolvedValue(response([
       { id: 'sale-1', outlet_id: 'outlet-1', outlet_name: 'Outlet Cellular Uji', product_name: 'Perdana 10 GB', business_date: '2026-10-03', quantity: 2, unit_price: '750000.00', total_amount: '1500000.00', source_reference: 'REF-1', status: 'posted', version: 1, void_reason: null },
     ]));
+    vi.spyOn(cellularApi, 'dailyClosings').mockResolvedValue(response([
+      { id: 'close-1', outlet_id: 'outlet-1', business_date: '2026-10-03', shift_code: 'SHIFT-1', system_sales: '1500000.00', cash: '1500000.00', qris: '0.00', edc: '0.00', transfer: '0.00', difference: '0.00', source_reference: 'CLOSE-1', status: 'validated', review_note: null, version: 1 },
+    ]));
   });
 
   afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
@@ -45,6 +48,8 @@ describe('Pusat Kendali Cellular', () => {
     expect(screen.getByText('SIM-10 · Perdana 10 GB')).toBeInTheDocument();
     expect(screen.getAllByText('Outlet Cellular Uji').length).toBeGreaterThan(0);
     expect(screen.getByText('Penjualan · SIM-10')).toBeInTheDocument();
+    expect(screen.getByText('Tindakan penerimaan saya')).toBeInTheDocument();
+    expect(screen.getAllByText('Menunggu Manager')).toHaveLength(2);
   });
 
   it('menyesuaikan isi untuk role tanpa akses penjualan dan tidak meminta endpoint sales', async () => {
