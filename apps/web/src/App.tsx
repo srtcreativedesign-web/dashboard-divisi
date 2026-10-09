@@ -52,6 +52,7 @@ const CellularOperationsPage = lazy(() => import('./features/cellular/pages/Cell
 const CellularDashboardPage = lazy(() => import('./features/cellular/pages/CellularDashboardPage'));
 const CellularWorkspacePage = lazy(() => import('./features/cellular/pages/CellularWorkspacePage'));
 const CellularDailyClosingPage = lazy(() => import('./features/cellular/pages/CellularDailyClosingPage'));
+const CellularSettlementPage = lazy(() => import('./features/cellular/pages/CellularSettlementPage'));
 
 export { queryClient } from './api/queryClient';
 
@@ -158,7 +159,7 @@ export default function App() {
                   <Route path="/cellular/persediaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/pekerjaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/penerimaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularDailyClosingPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/cellular/tagihan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/tagihan" element={<RouteGuard capability="view:cellular_settlement" divisionCode="CELL"><RouteSuspense><CellularSettlementPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/pembukuan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/laporan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/integrasi" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />

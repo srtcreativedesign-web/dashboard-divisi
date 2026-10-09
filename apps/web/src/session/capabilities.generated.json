@@ -117,6 +117,7 @@
         "view:cellular",
         "view:cellular_daily",
         "view:cellular_sales",
+        "view:cellular_settlement",
         "view:division",
         "void:cellular_sale",
         "write:cellular_stock"
@@ -152,17 +153,21 @@
         "write:cellular_stock"
       ],
       "ACCOUNTING": [
+        "reconcile:cellular_settlement",
         "validate:cellular_daily",
         "view:cellular",
         "view:cellular_daily",
         "view:cellular_sales",
+        "view:cellular_settlement",
         "view:division"
       ],
       "FINANCE": [
         "view:cellular",
         "view:cellular_daily",
         "view:cellular_sales",
-        "view:division"
+        "view:cellular_settlement",
+        "view:division",
+        "write:cellular_settlement"
       ]
     },
     "PROJECT": {

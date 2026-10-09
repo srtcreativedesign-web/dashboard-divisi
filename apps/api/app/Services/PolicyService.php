@@ -30,14 +30,14 @@ class PolicyService
             'FINANCE' => ['view:division', 'view:projects'],
         ],
         'CELL' => [
-            'MANAGER' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'write:cellular_stock', 'view:cellular_sales', 'void:cellular_sale', 'view:cellular_daily', 'approve:cellular_daily'],
+            'MANAGER' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'write:cellular_stock', 'view:cellular_sales', 'void:cellular_sale', 'view:cellular_daily', 'approve:cellular_daily', 'view:cellular_settlement'],
             'HEAD_OPS' => ['view:division', 'view:cellular', 'view:cellular_daily'],
             'SPV' => ['view:division', 'view:cellular', 'view:cellular_daily'],
             'LEADER' => ['view:division', 'view:cellular', 'view:cellular_daily'],
             'ADMIN' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'view:cellular_sales', 'write:cellular_sale', 'view:cellular_daily', 'write:cellular_daily'],
             'ADMIN_GUDANG' => ['view:division', 'view:cellular', 'write:cellular_stock', 'view:cellular_daily'],
-            'ACCOUNTING' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'validate:cellular_daily'],
-            'FINANCE' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily'],
+            'ACCOUNTING' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'validate:cellular_daily', 'view:cellular_settlement', 'reconcile:cellular_settlement'],
+            'FINANCE' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'view:cellular_settlement', 'write:cellular_settlement'],
         ],
     ];
 
@@ -52,6 +52,7 @@ class PolicyService
             || str_starts_with($capability, 'approve:')
             || str_starts_with($capability, 'review:')
             || str_starts_with($capability, 'validate:')
+            || str_starts_with($capability, 'reconcile:')
             || str_starts_with($capability, 'execute:');
     }
 

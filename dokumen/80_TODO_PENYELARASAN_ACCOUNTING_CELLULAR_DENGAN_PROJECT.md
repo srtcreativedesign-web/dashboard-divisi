@@ -91,7 +91,9 @@ Sebuah halaman selesai apabila:
 
 ### Pembukuan, pembayaran, laporan, integrasi
 
-- [ ] Ganti panel kesiapan Tagihan & Settlement dengan fitur setelah kontrak backend tersedia.
+- [x] Ganti panel kesiapan Tagihan & Settlement dengan workflow Finance → Accounting berbasis closing disetujui.
+- [x] Implementasikan settlement parsial tunai, QRIS, EDC, transfer, biaya kanal, tujuan dana, referensi, dan sisa rekonsiliasi.
+- [x] Terapkan maker-checker, scope outlet, optimistic version, idempotency referensi, audit, dan larangan settlement terverifikasi melebihi closing.
 - [ ] Kembangkan Buku Persediaan menjadi register yang dapat ditelusuri ke transaksi sumber.
 - [ ] Kembangkan laporan berdasarkan struktur Excel Cellular: harian, pendapatan, omzet per shift, ECSYS, dan komparasi outlet.
 - [ ] Bangun staging impor spreadsheet dengan validasi, pratinjau, rekonsiliasi, idempotency, dan audit.
@@ -121,9 +123,13 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Finance Cellular: settlement dan rekonsiliasi kanal pembayaran.
-2. Leader, SPV, Head Operasional Cellular: checklist, supervisi, eskalasi, PIC, dan SLA.
-3. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
-4. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
-5. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
-6. Regresi lintas role dan UAT visual terang/gelap.
+1. Leader, SPV, Head Operasional Cellular: checklist, supervisi, eskalasi, PIC, dan SLA.
+2. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
+3. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
+4. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
+5. Regresi lintas role dan UAT visual terang/gelap.
+
+## Pencapaian role terbaru
+
+- Admin Gudang Accounting: **92/100**, workflow persediaan telah melewati quality gate.
+- Finance Cellular: **91/100**, settlement dan rekonsiliasi kanal telah melewati quality gate; unggahan bukti mutasi bank menjadi peningkatan berikutnya.

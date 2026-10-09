@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\Cellular\CellularController;
 use App\Http\Controllers\Api\V1\Cellular\ManualWorkflowController;
 use App\Http\Controllers\Api\V1\Cellular\DailyClosingController;
+use App\Http\Controllers\Api\V1\Cellular\SettlementController;
 use App\Http\Controllers\Api\V1\DivisionConfigController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
@@ -309,6 +310,12 @@ Route::prefix('v1')->group(function () {
             Route::get('daily-closings', [DailyClosingController::class, 'index'])->middleware('capability:view:cellular_daily');
             Route::post('daily-closings', [DailyClosingController::class, 'store'])->middleware('capability:write:cellular_daily');
             Route::post('daily-closings/{id}/{action}', [DailyClosingController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'validate', 'approve', 'correction']);
+            Route::prefix('settlements')->middleware('capability:view:cellular_settlement')->group(function () {
+                Route::get('/', [SettlementController::class, 'index']);
+                Route::get('sources', [SettlementController::class, 'sources']);
+                Route::post('/', [SettlementController::class, 'store'])->middleware('capability:write:cellular_settlement');
+                Route::post('{id}/{action}', [SettlementController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'reconcile', 'correction']);
+            });
         });
     });
 });
