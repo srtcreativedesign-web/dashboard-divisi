@@ -78,8 +78,10 @@ export const PROJECT_MENU_ITEMS: MenuItem[] = [
 ];
 
 export const CELLULAR_MENU_ITEMS: MenuItem[] = [
-  { path: '/cellular', label: 'Dashboard Cellular', roles: MVP_ROLES, capability: 'view:cellular' },
-  { path: '/cellular/operasional', label: 'Katalog, Stok & Penjualan', roles: MVP_ROLES, capability: 'view:cellular' }
+  { path: '/cellular', label: 'Dashboard Cellular', group: 'Ringkasan', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/penjualan', label: 'Penjualan', group: 'Transaksi', roles: MVP_ROLES, capability: 'view:cellular_sales' },
+  { path: '/cellular/produk', label: 'Katalog Produk', group: 'Produk & Persediaan', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/persediaan', label: 'Stok & Mutasi', group: 'Produk & Persediaan', roles: MVP_ROLES, capability: 'view:cellular' },
 ];
 
 export function homePathForRole(_role: Role): string {

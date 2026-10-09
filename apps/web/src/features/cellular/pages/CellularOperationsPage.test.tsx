@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import CellularOperationsPage from './CellularOperationsPage';
 import { cellularApi, type Sale } from '../api';
 
@@ -8,16 +9,21 @@ const auth = vi.hoisted(() => ({ role: 'ADMIN' }));
 vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: { role: auth.role, divisionCode: 'CELL' } }) }));
 vi.mock('../api', () => ({ cellularApi: { products: vi.fn(), outlets: vi.fn(), stock: vi.fn(), movements: vi.fn(), sales: vi.fn(), createProduct: vi.fn(), adjust: vi.fn(), sell: vi.fn(), voidSale: vi.fn() } }));
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
-function renderPage(role: string, rows: Sale[] = []) {
+function renderPage(role: string, rows: Sale[] = [], path = '/cellular/produk') {
   auth.role = role;
   vi.mocked(cellularApi.products).mockResolvedValue({ data: [{ id: 'p', sku: 'SIM-1', name: 'Kartu uji', kind: 'SIM_CARD', provider: 'Provider uji', variant: '10GB' }], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.outlets).mockResolvedValue({ data: [{ id: 'o', code: 'CELL-1', name: 'Outlet uji' }], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.stock).mockResolvedValue({ data: [], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.movements).mockResolvedValue({ data: [], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.sales).mockResolvedValue({ data: rows, meta: { trace_id: 't' } });
-  return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })}><CellularOperationsPage /></QueryClientProvider>);
+  return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })}><MemoryRouter initialEntries={[path]}><CellularOperationsPage /></MemoryRouter></QueryClientProvider>);
 }
 describe('Operasional Cellular', () => {
+  it('membuka halaman kerja sesuai route menu Cellular', async () => {
+    renderPage('ADMIN', [], '/cellular/penjualan');
+    expect(await screen.findByRole('heading', { name: 'Penjualan Cellular' })).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: 'Catat penjualan' })).toBeInTheDocument();
+  });
   it('menyembunyikan laporan finansial dan form mutasi dari reader operasional', async () => {
     renderPage('LEADER');
     expect(await screen.findByText('Kartu uji')).toBeInTheDocument();

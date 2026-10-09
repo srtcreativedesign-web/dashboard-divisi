@@ -149,7 +149,10 @@ export default function App() {
                   <Route path="/projects/lpj" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectLpjPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/:id" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDetailPage /></RouteSuspense></RouteGuard>} />
 
-                  <Route path="/cellular/operasional" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/penjualan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/produk" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/persediaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/operasional" element={<Navigate to="/cellular/produk" replace />} />
                   <Route path="/cellular" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularDashboardPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/dashboard" element={<Navigate to="/cellular" replace />} />
                 </Route>

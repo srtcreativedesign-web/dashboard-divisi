@@ -35,11 +35,11 @@ const shortDate = (value: string) => new Intl.DateTimeFormat('id-ID', { day: '2-
 const monthLabel = (value: string) => new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(new Date(`${value}-01T00:00:00+07:00`));
 
 function roleWorkspace(role: string) {
-  if (role === 'ADMIN') return { title: 'Meja Admin Outlet', description: 'Catat penjualan manual dan pastikan referensi transaksi harian lengkap.', action: 'Catat penjualan', icon: ReceiptText };
-  if (role === 'ADMIN_GUDANG') return { title: 'Meja Admin Gudang', description: 'Periksa stok kritis lalu catat penerimaan atau koreksi barang.', action: 'Catat mutasi stok', icon: PackagePlus };
-  if (role === 'MANAGER') return { title: 'Meja Manager', description: 'Tinjau omzet, stok kritis, dan transaksi yang memerlukan keputusan.', action: 'Buka kontrol operasional', icon: TrendingUp };
-  if (role === 'ACCOUNTING' || role === 'FINANCE') return { title: `Meja ${role === 'ACCOUNTING' ? 'Accounting' : 'Finance'}`, description: 'Gunakan ringkasan penjualan sebagai sumber pemeriksaan sebelum rekonsiliasi.', action: 'Tinjau transaksi', icon: ReceiptText };
-  return { title: 'Ringkasan Operasional', description: 'Pantau kondisi outlet, katalog, serta persediaan Cellular.', action: 'Buka operasional', icon: ShoppingBag };
+  if (role === 'ADMIN') return { title: 'Meja Admin Outlet', description: 'Catat penjualan manual dan pastikan referensi transaksi harian lengkap.', action: 'Catat penjualan', path: '/cellular/penjualan', icon: ReceiptText };
+  if (role === 'ADMIN_GUDANG') return { title: 'Meja Admin Gudang', description: 'Periksa stok kritis lalu catat penerimaan atau koreksi barang.', action: 'Catat mutasi stok', path: '/cellular/persediaan', icon: PackagePlus };
+  if (role === 'MANAGER') return { title: 'Meja Manager', description: 'Tinjau omzet, stok kritis, dan transaksi yang memerlukan keputusan.', action: 'Buka kontrol penjualan', path: '/cellular/penjualan', icon: TrendingUp };
+  if (role === 'ACCOUNTING' || role === 'FINANCE') return { title: `Meja ${role === 'ACCOUNTING' ? 'Accounting' : 'Finance'}`, description: 'Gunakan ringkasan penjualan sebagai sumber pemeriksaan sebelum rekonsiliasi.', action: 'Tinjau transaksi', path: '/cellular/penjualan', icon: ReceiptText };
+  return { title: 'Ringkasan Operasional', description: 'Pantau kondisi outlet, katalog, serta persediaan Cellular.', action: 'Buka katalog', path: '/cellular/produk', icon: ShoppingBag };
 }
 
 function movementLabel(movement: Movement) {
@@ -119,7 +119,7 @@ export default function CellularDashboardPage() {
       descriptor="Penjualan · Stok · Serah Terima Data"
       title="Pusat Kendali Cellular"
       description="Pantau hasil penjualan, kesehatan stok, performa outlet, dan pekerjaan yang harus ditindaklanjuti dari data transaksi aktual."
-      actions={<Link to="/cellular/operasional" className="inline-flex min-h-10 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-semibold text-primary-700 shadow-card hover:bg-surface dark:text-primary-300">Buka operasional <ArrowRight className="h-4 w-4" /></Link>}
+      actions={<Link to="/cellular/produk" className="inline-flex min-h-10 items-center gap-2 rounded-input border border-line bg-panel px-3 text-sm font-semibold text-primary-700 shadow-card hover:bg-surface dark:text-primary-300">Buka katalog <ArrowRight className="h-4 w-4" /></Link>}
     />
 
     <section className="flex flex-col gap-4 rounded-card-lg border border-primary-200 bg-gradient-to-r from-primary-50 to-panel p-5 shadow-card dark:border-primary-900 dark:from-primary-950/50 dark:to-panel sm:flex-row sm:items-center sm:justify-between">
@@ -127,7 +127,7 @@ export default function CellularDashboardPage() {
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-primary-600 text-white"><WorkspaceIcon className="h-5 w-5" aria-hidden="true" /></div>
         <div><p className="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300">Ruang kerja sesuai role</p><h2 className="mt-1 text-lg font-bold text-navy">{workspace.title}</h2><p className="mt-1 text-sm text-subtle">{workspace.description}</p></div>
       </div>
-      <Link to="/cellular/operasional" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-input bg-primary-600 px-4 text-sm font-semibold text-white hover:bg-primary-700">{workspace.action}</Link>
+      <Link to={workspace.path} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-input bg-primary-600 px-4 text-sm font-semibold text-white hover:bg-primary-700">{workspace.action}</Link>
     </section>
 
     <div className="flex flex-wrap items-end justify-between gap-3">
@@ -144,7 +144,7 @@ export default function CellularDashboardPage() {
 
     <div className="grid gap-6 xl:grid-cols-3">
       <section className="rounded-card-lg border border-line bg-panel p-5 shadow-card xl:col-span-2">
-        <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold text-navy">{canSeeSales ? 'Tren omzet harian' : 'Komposisi katalog'}</h2><p className="mt-1 text-xs text-subtle">{canSeeSales ? 'Transaksi posted pada periode terpilih' : 'Sebaran kartu perdana dan aksesori aktif'}</p></div><Link to="/cellular/operasional" className="text-xs font-semibold text-primary-700 dark:text-primary-300">Lihat detail →</Link></div>
+        <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-bold text-navy">{canSeeSales ? 'Tren omzet harian' : 'Komposisi katalog'}</h2><p className="mt-1 text-xs text-subtle">{canSeeSales ? 'Transaksi posted pada periode terpilih' : 'Sebaran kartu perdana dan aksesori aktif'}</p></div><Link to={canSeeSales ? '/cellular/penjualan' : '/cellular/produk'} className="text-xs font-semibold text-primary-700 dark:text-primary-300">Lihat detail →</Link></div>
         {canSeeSales ? dailySales.length ? <div className="mt-5 h-64" aria-label="Grafik tren omzet harian"><ResponsiveContainer width="100%" height="100%"><AreaChart data={dailySales} margin={{ top: 8, right: 8, left: 6, bottom: 0 }}><defs><linearGradient id="cellularRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0284c7" stopOpacity={0.35}/><stop offset="95%" stopColor="#0284c7" stopOpacity={0.02}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" stroke="var(--color-line)" vertical={false}/><XAxis dataKey="date" tickFormatter={shortDate} tick={{ fontSize: 11, fill: 'var(--color-subtle)' }} axisLine={false} tickLine={false}/><YAxis tickFormatter={value => new Intl.NumberFormat('id-ID', { notation: 'compact' }).format(Number(value))} tick={{ fontSize: 11, fill: 'var(--color-subtle)' }} axisLine={false} tickLine={false}/><Tooltip labelFormatter={value => shortDate(String(value))} formatter={(value, name) => name === 'omzet' ? [rupiah(Number(value)), 'Omzet'] : [integer(Number(value)), 'Unit']} contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid var(--color-line)', backgroundColor: 'var(--color-panel)', color: 'var(--color-navy)' }}/><Area type="monotone" dataKey="omzet" stroke="#0284c7" strokeWidth={2.5} fill="url(#cellularRevenue)"/></AreaChart></ResponsiveContainer></div> : <div className="mt-5 rounded-card border border-dashed border-line p-10 text-center"><ReceiptText className="mx-auto h-8 w-8 text-muted"/><p className="mt-3 text-sm font-semibold text-navy">Belum ada penjualan posted</p><p className="mt-1 text-xs text-subtle">Catat transaksi manual agar tren omzet periode ini terbentuk.</p></div> : <div className="mt-6 space-y-5">{[{ label: 'Kartu perdana', value: metrics.simCards, color: 'bg-primary-600' }, { label: 'Aksesori', value: metrics.accessories, color: 'bg-success' }].map(item => <div key={item.label}><div className="mb-2 flex justify-between text-sm"><span className="font-medium text-navy">{item.label}</span><span className="font-bold tabular-nums text-navy">{item.value} produk</span></div><div className="h-2.5 overflow-hidden rounded-pill border border-line bg-surface"><div className={`h-full rounded-pill ${item.color}`} style={{ width: `${(item.value / maxMix) * 100}%` }}/></div></div>)}</div>}
       </section>
 

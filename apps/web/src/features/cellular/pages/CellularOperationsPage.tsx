@@ -4,6 +4,7 @@ import { cellularApi, type Sale } from '../api';
 import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
 import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const fieldClass = 'mt-1 w-full rounded-lg border border-line bg-white dark:bg-slate-900 dark:text-slate-100 p-2 text-sm';
@@ -13,7 +14,9 @@ export default function CellularOperationsPage() {
   const { user } = useAuth();
   const can = (cap: string) => !!user && hasCapability(user.role, cap, user.divisionCode);
   const client = useQueryClient();
-  const [tab, setTab] = useState<'catalog' | 'stock' | 'sales'>('catalog');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const tab: 'catalog' | 'stock' | 'sales' = location.pathname.endsWith('/penjualan') ? 'sales' : location.pathname.endsWith('/persediaan') ? 'stock' : 'catalog';
   const [month, setMonth] = useState(today().slice(0, 7));
   const [notice, setNotice] = useState('');
   const [product, setProduct] = useState({ sku: '', name: '', kind: 'SIM_CARD', provider: '', variant: '' });
@@ -46,10 +49,19 @@ export default function CellularOperationsPage() {
   const choices = (value: string, set: (value: string) => void, kind: 'product' | 'outlet') => <select required className={fieldClass} value={value} onChange={e => set(e.target.value)}><option value="">Pilih {kind === 'product' ? 'produk' : 'outlet'}</option>{kind === 'product' ? products.data?.data.map(p => <option key={p.id} value={p.id}>{p.sku} — {p.name}</option>) : outlets.data?.data.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select>;
   const button = (label: string) => <button className="rounded-lg bg-primary-600 px-4 py-2 text-sm text-white disabled:opacity-50" disabled={busy}>{busy ? 'Menyimpan...' : label}</button>;
   const queries = [products, outlets, stock, movements, ...(can('view:cellular_sales') ? [sales] : [])];
+  const pageCopy = tab === 'catalog'
+    ? { descriptor: 'Produk · Master Katalog', title: 'Katalog Produk Cellular', description: 'Kelola kartu perdana, provider, kuota, dan aksesori sebagai master transaksi dan persediaan.' }
+    : tab === 'stock'
+      ? { descriptor: 'Persediaan · Stok & Mutasi', title: 'Stok dan Mutasi Cellular', description: 'Pantau saldo barang per outlet serta catat penerimaan, transfer, dan koreksi jumlah barang.' }
+      : { descriptor: 'Transaksi · Penjualan Outlet', title: 'Penjualan Cellular', description: 'Catat dan telusuri penjualan manual kartu perdana serta aksesori per outlet dan periode.' };
+  const openTab = (next: 'catalog' | 'stock' | 'sales') => {
+    setVoiding(null); setVoidReason(''); mutation.reset(); setNotice('');
+    navigate(next === 'catalog' ? '/cellular/produk' : next === 'stock' ? '/cellular/persediaan' : '/cellular/penjualan');
+  };
   if (!can('view:cellular')) return <p role="alert" className="p-6">Akses operasional Cellular tidak tersedia untuk akun ini.</p>;
   return <div className="min-w-0 space-y-6 pb-10">
-    <DivisionPageHeader division="Divisi Cellular" descriptor="Operasional · Produk & Transaksi" title="Operasional Cellular" description="Kelola kartu perdana dan aksesori, pencatatan stok berbasis jumlah barang, serta laporan penjualan manual sesuai kewenangan akun." />
-    <nav className="flex flex-wrap gap-1 border-b border-line" aria-label="Bagian operasional Cellular">{(['catalog', 'stock', ...(can('view:cellular_sales') ? ['sales'] : [])] as const).map(t => <button key={t} type="button" disabled={busy} aria-pressed={tab === t} className={`min-h-11 border-b-2 px-4 text-sm font-semibold transition-colors ${tab === t ? 'border-primary-600 text-primary-700 dark:text-primary-300' : 'border-transparent text-subtle hover:text-navy'}`} onClick={() => { setTab(t as typeof tab); setVoiding(null); setVoidReason(''); mutation.reset(); setNotice(''); }}>{t === 'catalog' ? 'Katalog produk' : t === 'stock' ? 'Stok & mutasi' : 'Penjualan'}</button>)}</nav>
+    <DivisionPageHeader division="Divisi Cellular" descriptor={pageCopy.descriptor} title={pageCopy.title} description={pageCopy.description} />
+    <nav className="flex flex-wrap gap-1 border-b border-line" aria-label="Bagian operasional Cellular">{(['catalog', 'stock', ...(can('view:cellular_sales') ? ['sales'] : [])] as const).map(t => <button key={t} type="button" disabled={busy} aria-pressed={tab === t} className={`min-h-11 border-b-2 px-4 text-sm font-semibold transition-colors ${tab === t ? 'border-primary-600 text-primary-700 dark:text-primary-300' : 'border-transparent text-subtle hover:text-navy'}`} onClick={() => openTab(t as typeof tab)}>{t === 'catalog' ? 'Katalog produk' : t === 'stock' ? 'Stok & mutasi' : 'Penjualan'}</button>)}</nav>
     {queries.some(q => q.isLoading) && <p role="status">Memuat data...</p>}
     {queries.filter(q => q.error).map((q, i) => <div key={i} role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{q.error?.message}<button type="button" className="ml-3 underline" onClick={() => void q.refetch()}>Coba lagi</button></div>)}
     {mutation.error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-700">{mutation.error.message}</p>}

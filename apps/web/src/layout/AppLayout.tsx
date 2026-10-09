@@ -1,7 +1,7 @@
 import { AccountingNavigation } from '../components/accounting/AccountingNavigation';
 import { Fragment, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, ShieldCheck, ShieldAlert, CreditCard, PanelLeftClose, PanelLeftOpen, Moon, Sun, FileText, CheckSquare, Package, Coins, FolderKanban, ClipboardCheck, Wallet, FolderPlus, Wrench } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, ShieldCheck, ShieldAlert, CreditCard, PanelLeftClose, PanelLeftOpen, Moon, Sun, FileText, CheckSquare, Package, Coins, FolderKanban, ClipboardCheck, Wallet, FolderPlus, Wrench, ReceiptText, Boxes } from 'lucide-react';
 import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS, CELLULAR_MENU_ITEMS } from '../config/menus';
 import { roleDisplay } from '../config/session';
 import { useAuth } from '../session/AuthContext';
@@ -62,6 +62,11 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/projects/rab': Calculator,
   '/projects/timeline': Calendar,
   '/projects/lpj': ClipboardCheck,
+  // Cellular routes
+  '/cellular': LayoutDashboard,
+  '/cellular/penjualan': ReceiptText,
+  '/cellular/produk': Package,
+  '/cellular/persediaan': Boxes,
 };
 
 
