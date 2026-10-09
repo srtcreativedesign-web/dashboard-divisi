@@ -4,6 +4,7 @@
     "ACC": {
       "MANAGER": [
         "approve:acc_period",
+        "approve:inventory",
         "approve:omzet",
         "approve:pnl",
         "approve:voucher",
@@ -19,6 +20,7 @@
         "view:acc_master",
         "view:acc_report",
         "view:division",
+        "view:inventory",
         "void:acc_deposits"
       ],
       "HEAD_OPS": [
@@ -47,6 +49,7 @@
         "view:acc_report",
         "view:bonus",
         "view:division",
+        "view:inventory",
         "write:acc_bank",
         "write:acc_deposits",
         "write:acc_hr",
@@ -80,6 +83,7 @@
         "view:acc_report",
         "view:debt",
         "view:division",
+        "view:inventory",
         "view:omzet",
         "view:pnl",
         "write:acc_bank",

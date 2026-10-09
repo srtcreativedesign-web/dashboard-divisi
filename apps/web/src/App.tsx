@@ -33,6 +33,7 @@ const CellularReportPreviewPage = lazy(() => import('./features/accounting/pages
 const AccountingOutstandingPage = lazy(() => import('./features/accounting/pages/AccountingOutstandingPage'));
 const AccountingCashflowReportPage = lazy(() => import('./features/accounting/pages/AccountingCashflowReportPage'));
 const AccountingReconciliationPage = lazy(() => import('./features/accounting/pages/AccountingReconciliationPage'));
+const AccountingInventoryPage = lazy(() => import('./features/accounting/pages/AccountingInventoryPage'));
 
 // Projects
 const ProjectDashboardPage = lazy(() => import('./features/projects/pages/ProjectDashboardPage'));
@@ -103,6 +104,7 @@ export default function App() {
                   <Route path="/accounting/setoran" element={<AccountingLegacyRedirect to="/accounting/kas-bank/setoran" />} />
                   <Route path="/accounting/kas-bank/pencocokan" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositReconciliationPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/pencocokan-setoran" element={<AccountingLegacyRedirect to="/accounting/kas-bank/pencocokan" />} />
+                  <Route path="/accounting/operasional/persediaan" element={<RouteGuard capability="view:inventory" divisionCode="ACC"><RouteSuspense><AccountingInventoryPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/administrasi/pegawai" element={<RouteGuard capability="view:acc_hr" divisionCode="ACC"><RouteSuspense><AccountingHrPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/kepegawaian" element={<AccountingLegacyRedirect to="/accounting/administrasi/pegawai" />} />
                   <Route path="/accounting/pengeluaran/voucher" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingVoucherPage /></RouteSuspense></RouteGuard>} />

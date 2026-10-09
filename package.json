@@ -26,6 +26,7 @@
     "db:migrate": "node scripts/database/erp-db-migrate.mjs",
     "db:roles": "node scripts/database/erp-db-roles.mjs",
     "db:test": "node --test scripts/database/erp-db-common.test.mjs",
+    "db:seed:inventory": "node scripts/database/erp-inventory-seed.mjs",
     "scan:test": "node --test scripts/security/erp-upload-ops.test.mjs",
     "scan:maintain": "node scripts/security/erp-upload-ops.mjs maintain",
     "scan:status": "node scripts/security/erp-upload-ops.mjs status"

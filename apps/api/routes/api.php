@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\Accounting\AccountingTransactionController;
 use App\Http\Controllers\Api\V1\Accounting\CellularPreviewController;
 use App\Http\Controllers\Api\V1\Accounting\DepositController;
 use App\Http\Controllers\Api\V1\Accounting\HrRecapController;
+use App\Http\Controllers\Api\V1\Accounting\InventoryController;
 use App\Http\Controllers\Api\V1\Accounting\OmzetController;
 use App\Http\Controllers\Api\V1\Accounting\VoucherController;
 use App\Http\Controllers\Api\V1\Accounting\VoucherPaymentController;
@@ -75,6 +76,15 @@ Route::prefix('v1')->group(function () {
             Route::get('cellular-imports/{id}', [CellularPreviewController::class, 'show'])->whereUuid('id')->middleware('capability:preview:cellular_report');
             Route::post('cellular-imports/commit', [CellularPreviewController::class, 'commit'])->middleware('capability:write:omzet');
             Route::get('dashboard/operations', [AccountingDashboardController::class, 'operations'])->middleware('capability:view:acc_detail');
+            Route::prefix('inventory')->middleware('capability:view:inventory')->group(function () {
+                Route::get('catalog', [InventoryController::class, 'catalog']);
+                Route::post('items', [InventoryController::class, 'item'])->middleware('capability:write:inventory');
+                Route::post('locations', [InventoryController::class, 'location'])->middleware('capability:write:inventory');
+                Route::get('documents', [InventoryController::class, 'documents']);
+                Route::post('documents', [InventoryController::class, 'store'])->middleware('capability:write:inventory');
+                Route::put('documents/{id}', [InventoryController::class, 'update'])->whereUuid('id')->middleware('capability:write:inventory');
+                Route::post('documents/{id}/{action}', [InventoryController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'approve', 'correction']);
+            });
             Route::prefix('deposits')->middleware('capability:view:acc_deposits')->group(function () {
                 Route::get('sources', [DepositController::class, 'sources']);
                 Route::get('reconciliation', [DepositController::class, 'reconciliation']);

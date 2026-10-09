@@ -24,9 +24,15 @@ describe('Submenu Accounting menurut role dan scope', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Data & Integrasi' }));
     expect(screen.queryByRole('link', { name: 'Sumber Laporan Cellular' })).not.toBeInTheDocument();
   });
-  it.each(['HEAD_OPS', 'SPV', 'LEADER', 'ADMIN_GUDANG'])('%s hanya mendapat dashboard sesuai policy', role => {
+  it.each(['HEAD_OPS', 'SPV', 'LEADER'])('%s hanya mendapat dashboard sesuai policy', role => {
     mount(role); expect(screen.getAllByRole('link')).toHaveLength(1);
     expect(screen.getByRole('link', { name: 'Dashboard Accounting' })).toBeInTheDocument();
+  });
+  it('Admin Gudang mendapat workspace Persediaan dan tidak mendapat menu keuangan', () => {
+    mount('ADMIN_GUDANG');
+    fireEvent.click(screen.getByRole('button', { name: 'Operasional Pendukung' }));
+    expect(screen.getByRole('link', { name: 'Persediaan & Gudang' })).toHaveAttribute('href', '/accounting/operasional/persediaan');
+    expect(screen.queryByRole('button', { name: 'Pembukuan' })).not.toBeInTheDocument();
   });
   it('grup aktif terbuka dan bisa ditutup serta sidebar kecil tetap dapat dinavigasi', () => {
     mount('ACCOUNTING', '/accounting/kas-bank/setoran');

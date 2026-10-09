@@ -45,6 +45,7 @@ export const ACCOUNTING_NAV_GROUPS: AccountingNavGroup[] = [
   ] },
   { id: 'support', label: 'Operasional Pendukung', children: [
     { path: '/accounting/administrasi/pegawai', label: 'Cuti & Absensi', roles: MVP_ROLES, capability: 'view:acc_hr' },
+    { path: '/accounting/operasional/persediaan', label: 'Persediaan & Gudang', roles: MVP_ROLES, capability: 'view:inventory' },
   ] },
   { id: 'data', label: 'Data & Integrasi', children: [
     { path: '/accounting/pendapatan/sumber', label: 'Sumber Laporan Cellular', roles: MVP_ROLES, capability: 'preview:cellular_report' },

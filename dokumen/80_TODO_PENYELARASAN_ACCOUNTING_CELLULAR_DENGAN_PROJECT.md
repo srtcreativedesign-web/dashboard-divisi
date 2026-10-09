@@ -99,12 +99,14 @@ Sebuah halaman selesai apabila:
 
 ## Tahap 3 — Accounting
 
-- [ ] Audit setiap halaman terhadap kerangka Project dan kebutuhan lima role: Manager, Admin, Accounting, Finance, Admin Gudang.
+- [x] Audit setiap halaman terhadap kerangka Project dan kebutuhan lima role: Manager, Admin, Accounting, Finance, Admin Gudang.
 - [ ] Selaraskan dashboard dan Pekerjaan Saya berdasarkan antrean dokumen aktual.
 - [ ] Selaraskan omzet, voucher, setoran, pencocokan, dan jurnal.
 - [ ] Selaraskan hutang-piutang, cashflow, periode, master data, dan impor.
 - [ ] Pisahkan pekerjaan input, pemeriksaan, persetujuan, realisasi, dan pemantauan berdasarkan role.
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
+- [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.
+- [ ] Lengkapi UI multi-item, lampiran/berita acara, serta hubungan persediaan ke voucher dan HPP.
 - [ ] Implementasikan PNL, bonus, dan CMO hanya setelah kebijakan bisnis ditetapkan.
 
 ## Tahap 4 — Validasi lintas divisi
@@ -118,9 +120,9 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Pekerjaan Saya Cellular berbasis workflow nyata.
-2. Dashboard Cellular berbasis antrean role.
-3. Penerimaan Harian dan transaksi penjualan.
-4. Persediaan, mutasi, produk, dan paket.
-5. Laporan serta staging data Cellular.
-6. Audit dan penyelarasan seluruh Accounting.
+1. Tutup tiga gap Admin Gudang Accounting menuju 90: multi-item, lampiran, dan keterlacakan voucher/HPP.
+2. Finance Cellular: settlement dan rekonsiliasi kanal pembayaran.
+3. Leader, SPV, Head Operasional Cellular: checklist, supervisi, eskalasi, PIC, dan SLA.
+4. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
+5. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
+6. Regresi lintas role dan UAT visual terang/gelap.
