@@ -29,6 +29,7 @@ const AccountingMasterPage = lazy(() => import('./features/accounting/pages/Acco
 const AccountingImportPage = lazy(() => import('./features/accounting/pages/AccountingImportPage'));
 const AccountingEntryPage = lazy(() => import('./features/accounting/pages/AccountingEntryPage'));
 const AccountingWorkPage = lazy(() => import('./features/accounting/pages/AccountingWorkPage'));
+const AccountingPaymentRunPage = lazy(() => import('./features/accounting/pages/AccountingPaymentRunPage'));
 const CellularReportPreviewPage = lazy(() => import('./features/accounting/pages/CellularReportPreviewPage'));
 const AccountingOutstandingPage = lazy(() => import('./features/accounting/pages/AccountingOutstandingPage'));
 const AccountingCashflowReportPage = lazy(() => import('./features/accounting/pages/AccountingCashflowReportPage'));
@@ -120,7 +121,7 @@ export default function App() {
                   <Route path="/accounting/dokumen/pengajuan" element={<RouteGuard capability="write:omzet" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="admin" mode="admin" /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/dokumen/pemeriksaan" element={<RouteGuard capability="validate:omzet" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="accounting" mode="accounting" /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/dokumen/persetujuan" element={<RouteGuard capability="approve:voucher" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="manager" mode="manager" /></RouteSuspense></RouteGuard>} />
-                  <Route path="/accounting/dokumen/realisasi" element={<RouteGuard capability="execute:payment" divisionCode="ACC"><RouteSuspense><AccountingWorkPage key="finance" mode="finance" /></RouteSuspense></RouteGuard>} />
+                  <Route path="/accounting/dokumen/realisasi" element={<RouteGuard capability="execute:payment" divisionCode="ACC"><RouteSuspense><AccountingPaymentRunPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/dokumen/register" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><AccountingWorkPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/pekerjaan" element={<AccountingLegacyRedirect to="/accounting/dokumen/register" />} />
                   <Route path="/accounting/dashboard" element={<AccountingLegacyRedirect to="/accounting" />} />
