@@ -22,7 +22,7 @@ export const ACCOUNTING_NAV_GROUPS: AccountingNavGroup[] = [
     { path: '/accounting/dokumen/register', label: 'Semua Dokumen', roles: MVP_ROLES, capability: 'view:acc_detail' },
     { path: '/accounting/dokumen/pengajuan', label: 'Draf & Koreksi Saya', roles: ['ADMIN'], capability: 'write:omzet' },
     { path: '/accounting/dokumen/pemeriksaan', label: 'Antrean Pemeriksaan', roles: ['ACCOUNTING'], capability: 'validate:omzet' },
-    { path: '/accounting/dokumen/persetujuan', label: 'Keputusan Menunggu', roles: ['MANAGER'], capability: 'approve:voucher' },
+    { path: '/accounting/dokumen/persetujuan', label: 'Decision Inbox', roles: ['MANAGER'], capability: 'approve:voucher' },
     { path: '/accounting/dokumen/realisasi', label: 'Payment Run', roles: ['FINANCE'], capability: 'execute:payment' },
   ] },
   { id: 'daily', label: 'Penerimaan Harian', children: [

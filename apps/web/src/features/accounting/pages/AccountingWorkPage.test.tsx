@@ -16,6 +16,7 @@ const fixture: OmzetRecord = {
 };
 let client: QueryClient;
 const mount = (route = '/accounting/dokumen/register') => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[route]}><AccountingWorkPage /></MemoryRouter></QueryClientProvider>);
+const mountManagerInbox = () => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={['/accounting/dokumen/persetujuan']}><AccountingWorkPage mode="manager" /></MemoryRouter></QueryClientProvider>);
 beforeEach(() => {
   vi.clearAllMocks(); identity.role = 'ADMIN'; identity.divisionCode = 'ACC';
   client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -45,6 +46,15 @@ describe('Ruang kerja Accounting dari transaksi persisten', () => {
     identity.role = 'MANAGER'; mount();
     expect(await screen.findByRole('link', { name: /Tinjau keputusan/ })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Buat rekap' })).not.toBeInTheDocument();
+  });
+  it('Decision Inbox Manager fokus pada pending approval dan menampilkan konteks risiko tanpa ambang materialitas palsu', async () => {
+    identity.role = 'MANAGER'; mountManagerInbox();
+    expect(await screen.findByRole('heading', { name: 'Decision Inbox Manager' })).toBeInTheDocument();
+    expect(screen.getByText('Ambang materialitas perusahaan belum ditetapkan.')).toBeInTheDocument();
+    expect(await screen.findByText('Tanpa sumber AP')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Menunggu Manager/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByRole('button', { name: /Perlu koreksi/ })).not.toBeInTheDocument();
+    expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: 'pending_approval' }));
   });
   it('filter mengubah API dan mengembalikan pagination ke halaman pertama', async () => {
     mount(); fireEvent.click(await screen.findByRole('button', { name: 'Berikutnya' }));

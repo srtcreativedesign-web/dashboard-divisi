@@ -112,6 +112,7 @@ Sebuah halaman selesai apabila:
 - [ ] Pisahkan pekerjaan input, pemeriksaan, persetujuan, realisasi, dan pemantauan berdasarkan role.
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
 - [x] Implementasikan Payment Run Finance berbasis voucher approved: prioritas, jatuh tempo, status realisasi, sisa, bukti, dan drill-down dokumen.
+- [x] Ubah antrean Manager menjadi Decision Inbox terfokus dengan nominal, indikator risiko, konteks sumber, maker-checker, dan keputusan beralasan.
 - [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.
 - [x] Lengkapi UI multi-item dan berita acara cetak/simpan PDF.
 - [ ] Tambahkan unggahan bukti serta hubungan persediaan ke voucher dan HPP.
@@ -128,9 +129,9 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Manager Accounting: decision inbox, materialitas, dan pengganti keputusan yang diaudit.
-2. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
-3. Cellular: buku persediaan, laporan ECSYS/komparasi, dan penyempurnaan form H+1.
+1. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
+2. Cellular: buku persediaan, laporan ECSYS/komparasi, dan penyempurnaan form H+1.
+3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 4. Regresi lintas role dan UAT visual terang/gelap.
 
 ## Pencapaian role terbaru
@@ -142,3 +143,4 @@ Sebuah halaman selesai apabila:
 - Head Operasional Cellular: **90/100**, penyelesaian dan eskalasi risiko tersedia.
 - Accounting Cellular: **90/100**, kontrol periode menyatukan sumber transaksi, closing H+1, settlement, shift, stok, serta jalur staging spreadsheet; PNL/HPP menunggu kebijakan perusahaan.
 - Finance Accounting: **91/100**, Payment Run memprioritaskan voucher approved berdasarkan risiko, jatuh tempo, status realisasi, dan sisa; pencatatan pembayaran tetap memakai bukti serta pemisahan tugas.
+- Manager Accounting: **90/100**, Decision Inbox memusatkan dokumen pending, nominal, risiko, alasan, dan maker-checker; ambang materialitas dan aturan delegasi tetap menunggu kebijakan perusahaan.
