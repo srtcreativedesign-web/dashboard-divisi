@@ -34,6 +34,12 @@ class CellularManualWorkflowTest extends TestCase
         $this->postJson('/api/v1/cellular/sales/'.$id.'/void', ['version' => 2, 'reason' => 'Pembatalan ulang uji'])->assertStatus(409);
         $this->assertDatabaseCount('cel_manual_sales', 1);
         $this->assertDatabaseCount('cel_stock_movements', 3);
+        $this->getJson('/api/v1/cellular/movements?kind=SALE&direction=OUT&q=JUAL-1')
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.reference', 'JUAL-1')
+            ->assertJsonPath('data.0.reason', 'Penjualan manual')->assertJsonPath('data.0.source_document_type', 'Penjualan')
+            ->assertJsonPath('data.0.source_document_id', $id);
+        $this->getJson('/api/v1/cellular/movements?kind=VOID&direction=IN')
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.source_document_type', 'Pembatalan penjualan');
     }
 
     public function test_catalog_and_sales_privacy_and_mutations_are_role_scoped(): void
@@ -69,6 +75,9 @@ class CellularManualWorkflowTest extends TestCase
         $this->assertDatabaseCount('cel_manual_sales', 0);
         $this->assertDatabaseHas('cel_stock_balances', ['quantity' => 10]);
         $this->getJson('/api/v1/cellular/sales?month=2026-13')->assertStatus(400);
+        $this->getJson('/api/v1/cellular/movements?kind=UNKNOWN')->assertStatus(400);
+        $this->getJson('/api/v1/cellular/movements?direction=SIDEWAYS')->assertStatus(400);
+        $this->getJson('/api/v1/cellular/movements?outlet_id='.$foreign->id)->assertForbidden();
     }
 
     public function test_required_audit_failure_rolls_back_sale_and_stock(): void

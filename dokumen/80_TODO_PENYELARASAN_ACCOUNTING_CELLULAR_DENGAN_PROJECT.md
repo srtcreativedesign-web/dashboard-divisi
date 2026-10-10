@@ -98,7 +98,7 @@ Sebuah halaman selesai apabila:
 - [x] Terapkan maker-checker, scope outlet, optimistic version, idempotency referensi, audit, dan larangan settlement terverifikasi melebihi closing.
 - [x] Satukan penjualan posted, closing H+1, settlement, kontrol shift, dan stok ke Kontrol Accounting berbasis data database.
 - [x] Tampilkan readiness paket H+1, rekonsiliasi kanal, kontrol operasional, pengecualian, dan stok kritis per periode.
-- [ ] Kembangkan Buku Persediaan menjadi register yang dapat ditelusuri ke transaksi sumber.
+- [x] Kembangkan Buku Persediaan menjadi register terfilter yang dapat ditelusuri ke transaksi, bukti sumber, alasan, dan pelaku.
 - [ ] Kembangkan laporan berdasarkan struktur Excel Cellular: harian, pendapatan, omzet per shift, ECSYS, dan komparasi outlet.
 - [x] Bangun staging impor spreadsheet dengan validasi, pratinjau, rekonsiliasi, idempotency, dan audit untuk profil harian, pendapatan, shift, ECSYS, dan update.
 - [ ] Implementasikan PNL setelah metode HPP dan kebijakan pengakuan pendapatan ditetapkan.
@@ -130,7 +130,7 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Cellular: buku persediaan, laporan ECSYS/komparasi, dan penyempurnaan form H+1.
+1. Cellular: laporan ECSYS/komparasi dan penyempurnaan form H+1.
 2. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 4. Regresi lintas role dan UAT visual terang/gelap.
@@ -143,5 +143,6 @@ Sebuah halaman selesai apabila:
 - SPV Cellular: **90/100**, verifikasi independen dan permintaan koreksi tersedia.
 - Head Operasional Cellular: **90/100**, penyelesaian dan eskalasi risiko tersedia.
 - Accounting Cellular: **90/100**, kontrol periode menyatukan sumber transaksi, closing H+1, settlement, shift, stok, serta jalur staging spreadsheet; PNL/HPP menunggu kebijakan perusahaan.
+- Admin Gudang Cellular: **78/100**, Buku Persediaan telah memiliki KPI, filter, posisi stok, bukti sumber, alasan, pelaku, dan detail transaksi. Nilai belum 90 karena penerimaan/transfer/opname masih berupa mutasi langsung tanpa workflow dokumen dan maker-checker.
 - Finance Accounting: **91/100**, Payment Run memprioritaskan voucher approved berdasarkan risiko, jatuh tempo, status realisasi, dan sisa; pencatatan pembayaran tetap memakai bukti serta pemisahan tugas.
 - Manager Accounting: **90/100**, Decision Inbox memusatkan dokumen pending, nominal, risiko, alasan, dan maker-checker; ambang materialitas dan aturan delegasi tetap menunggu kebijakan perusahaan.

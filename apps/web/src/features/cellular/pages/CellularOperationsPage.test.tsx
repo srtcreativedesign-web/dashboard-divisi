@@ -1,20 +1,21 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import CellularOperationsPage from './CellularOperationsPage';
-import { cellularApi, type Sale } from '../api';
+import { cellularApi, type Movement, type Sale } from '../api';
 
 const auth = vi.hoisted(() => ({ role: 'ADMIN' }));
 vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: { role: auth.role, divisionCode: 'CELL' } }) }));
-vi.mock('../api', () => ({ cellularApi: { products: vi.fn(), outlets: vi.fn(), stock: vi.fn(), movements: vi.fn(), sales: vi.fn(), createProduct: vi.fn(), adjust: vi.fn(), sell: vi.fn(), voidSale: vi.fn() } }));
+vi.mock('../api', () => ({ cellularApi: { products: vi.fn(), outlets: vi.fn(), stock: vi.fn(), movements: vi.fn(), movementRegister: vi.fn(), sales: vi.fn(), createProduct: vi.fn(), adjust: vi.fn(), sell: vi.fn(), voidSale: vi.fn() } }));
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
-function renderPage(role: string, rows: Sale[] = [], path = '/cellular/produk') {
+function renderPage(role: string, rows: Sale[] = [], path = '/cellular/produk', movementRows: Movement[] = []) {
   auth.role = role;
   vi.mocked(cellularApi.products).mockResolvedValue({ data: [{ id: 'p', sku: 'SIM-1', name: 'Kartu uji', kind: 'SIM_CARD', provider: 'Provider uji', variant: '10GB' }], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.outlets).mockResolvedValue({ data: [{ id: 'o', code: 'CELL-1', name: 'Outlet uji' }], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.stock).mockResolvedValue({ data: [], meta: { trace_id: 't' } });
-  vi.mocked(cellularApi.movements).mockResolvedValue({ data: [], meta: { trace_id: 't' } });
+  vi.mocked(cellularApi.movements).mockResolvedValue({ data: movementRows, meta: { trace_id: 't' } });
+  vi.mocked(cellularApi.movementRegister).mockResolvedValue({ data: movementRows, meta: { trace_id: 't' } });
   vi.mocked(cellularApi.sales).mockResolvedValue({ data: rows, meta: { trace_id: 't' } });
   return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })}><MemoryRouter initialEntries={[path]}><CellularOperationsPage /></MemoryRouter></QueryClientProvider>);
 }
@@ -56,9 +57,19 @@ describe('Operasional Cellular', () => {
     renderPage('ADMIN_GUDANG');
     await screen.findByText('Kartu uji');
     fireEvent.click(screen.getByRole('button', { name: 'Stok & mutasi' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Catat mutasi' }));
     expect(screen.getByRole('form', { name: 'Catat mutasi stok' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Penjualan' })).not.toBeInTheDocument();
-    await waitFor(() => expect(screen.getByText('Belum ada mutasi stok.')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Mutasi tidak ditemukan')).toBeInTheDocument());
+  });
+  it('menampilkan buku persediaan yang dapat ditelusuri ke bukti sumber', async () => {
+    const movement: Movement = { id: 'm1', product_id: 'p', outlet_id: 'o', sku: 'SIM-1', name: 'Kartu uji', provider: 'Provider uji', variant: '10GB', quantity_delta: 10, quantity_after: 10, kind: 'ADJUSTMENT', reference: 'SJ-001', reason: 'Penerimaan dari pemasok utama', source_key: 'hash', source_document_type: 'Bukti eksternal', source_document_id: null, actor_id: 'user-1', created_at: '2026-10-10T03:00:00Z' };
+    renderPage('ADMIN_GUDANG', [], '/cellular/persediaan', [movement]);
+    await waitFor(() => expect(screen.getByText('SJ-001')).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Lihat mutasi SJ-001' }));
+    const dialog = screen.getByRole('dialog', { name: 'Detail mutasi persediaan' });
+    expect(dialog).toHaveTextContent('Penerimaan dari pemasok utama');
+    expect(within(dialog).getAllByText('Bukti eksternal').length).toBeGreaterThan(0);
   });
 });
 

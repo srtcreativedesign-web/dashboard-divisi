@@ -33,7 +33,16 @@ class ManualWorkflowController extends Controller
 
     public function movements(Request $r)
     {
-        return response()->json($this->service->movements($r->attributes->get('user')));
+        $data = $r->validate([
+            'month' => 'nullable|date_format:Y-m',
+            'outlet_id' => 'nullable|uuid',
+            'product_id' => 'nullable|uuid',
+            'kind' => 'nullable|in:ADJUSTMENT,SALE,VOID',
+            'direction' => 'nullable|in:IN,OUT',
+            'q' => 'nullable|string|max:100',
+        ]);
+
+        return response()->json($this->service->movements($data, $r->attributes->get('user')));
     }
 
     public function createProduct(Request $r)
