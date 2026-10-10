@@ -50,6 +50,7 @@ const ProjectTimelinePage = lazy(() => import('./features/projects/pages/Project
 const ProjectLpjPage = lazy(() => import('./features/projects/pages/ProjectLpjPage'));
 
 const CellularOperationsPage = lazy(() => import('./features/cellular/pages/CellularOperationsPage'));
+const CellularInventoryPage = lazy(() => import('./features/cellular/pages/CellularInventoryPage'));
 const CellularDashboardPage = lazy(() => import('./features/cellular/pages/CellularDashboardPage'));
 const CellularWorkspacePage = lazy(() => import('./features/cellular/pages/CellularWorkspacePage'));
 const CellularDailyClosingPage = lazy(() => import('./features/cellular/pages/CellularDailyClosingPage'));
@@ -159,7 +160,7 @@ export default function App() {
 
                   <Route path="/cellular/penjualan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/produk" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/cellular/persediaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularOperationsPage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/persediaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularInventoryPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/pekerjaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/penerimaan" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularDailyClosingPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/kontrol-shift" element={<RouteGuard capability="view:cellular_shift" divisionCode="CELL"><RouteSuspense><CellularShiftControlPage /></RouteSuspense></RouteGuard>} />

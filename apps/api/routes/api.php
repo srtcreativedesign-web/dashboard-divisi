@@ -18,8 +18,9 @@ use App\Http\Controllers\Api\V1\Accounting\VoucherPaymentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
 use App\Http\Controllers\Api\V1\Cellular\CellularController;
-use App\Http\Controllers\Api\V1\Cellular\ManualWorkflowController;
 use App\Http\Controllers\Api\V1\Cellular\DailyClosingController;
+use App\Http\Controllers\Api\V1\Cellular\InventoryDocumentController;
+use App\Http\Controllers\Api\V1\Cellular\ManualWorkflowController;
 use App\Http\Controllers\Api\V1\Cellular\SettlementController;
 use App\Http\Controllers\Api\V1\Cellular\ShiftControlController;
 use App\Http\Controllers\Api\V1\DivisionConfigController;
@@ -305,7 +306,13 @@ Route::prefix('v1')->group(function () {
             Route::post('products', [ManualWorkflowController::class, 'createProduct'])->middleware('capability:manage:cellular_catalog');
             Route::get('stock', [ManualWorkflowController::class, 'stock']);
             Route::get('movements', [ManualWorkflowController::class, 'movements']);
-            Route::post('stock', [ManualWorkflowController::class, 'adjust'])->middleware('capability:write:cellular_stock');
+            Route::prefix('inventory-documents')->group(function () {
+                Route::get('catalog', [InventoryDocumentController::class, 'catalog']);
+                Route::get('/', [InventoryDocumentController::class, 'index']);
+                Route::post('/', [InventoryDocumentController::class, 'store'])->middleware('capability:write:cellular_stock');
+                Route::put('{id}', [InventoryDocumentController::class, 'update'])->whereUuid('id')->middleware('capability:write:cellular_stock');
+                Route::post('{id}/{action}', [InventoryDocumentController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'approve', 'correction']);
+            });
             Route::get('sales', [ManualWorkflowController::class, 'sales'])->middleware('capability:view:cellular_sales');
             Route::post('sales', [ManualWorkflowController::class, 'sell'])->middleware('capability:write:cellular_sale');
             Route::post('sales/{id}/void', [ManualWorkflowController::class, 'void'])->whereUuid('id')->middleware('capability:void:cellular_sale');

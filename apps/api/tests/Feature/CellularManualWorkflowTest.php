@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Outlet;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CellularManualWorkflowTest extends TestCase
@@ -12,9 +14,13 @@ class CellularManualWorkflowTest extends TestCase
     private function setupStock(): array
     {
         $this->authenticated('manager.cell@dashboard.test');
+        $manager = User::where('email', 'manager.cell@dashboard.test')->firstOrFail();
+        User::firstOrCreate(['email' => 'admin-gudang.cell@dashboard.test'], ['id' => (string) Str::uuid(), 'name' => 'Admin Gudang Cellular', 'password_hash' => $manager->password_hash, 'role' => 'ADMIN_GUDANG', 'division_code' => 'CELL', 'is_active' => true]);
         $product = $this->postJson('/api/v1/cellular/products', ['sku' => 'sim-001', 'name' => 'Kartu uji', 'kind' => 'SIM_CARD', 'provider' => 'Provider uji', 'variant' => '10GB'])->assertCreated()->json('data.id');
         $outlet = Outlet::whereHas('division', fn ($q) => $q->where('code', 'CELL'))->where('is_active', true)->firstOrFail()->id;
-        $this->postJson('/api/v1/cellular/stock', ['product_id' => $product, 'outlet_id' => $outlet, 'quantity_delta' => 10, 'reference' => 'MASUK-1', 'reason' => 'Penerimaan barang uji'])->assertCreated();
+        $warehouseUser = User::where('email', 'admin-gudang.cell@dashboard.test')->firstOrFail();
+        DB::table('cel_stock_balances')->insert(['id' => (string) Str::uuid(), 'product_id' => $product, 'outlet_id' => $outlet, 'quantity' => 10, 'version' => 1, 'updated_at' => now()]);
+        DB::table('cel_stock_movements')->insert(['id' => (string) Str::uuid(), 'product_id' => $product, 'outlet_id' => $outlet, 'quantity_delta' => 10, 'quantity_after' => 10, 'kind' => 'ADJUSTMENT', 'reference' => 'MASUK-1', 'source_key' => hash('sha256', 'fixture|'.$product.'|'.$outlet), 'reason' => 'Persediaan awal pengujian', 'actor_id' => $warehouseUser->id, 'created_at' => now()]);
 
         return ['product_id' => $product, 'outlet_id' => $outlet, 'business_date' => now('Asia/Jakarta')->toDateString(), 'quantity' => 3, 'unit_price' => '0.10', 'reference' => 'JUAL-1'];
     }
@@ -58,14 +64,13 @@ class CellularManualWorkflowTest extends TestCase
         $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/cellular/products')->assertForbidden();
     }
 
-    public function test_invalid_input_cross_division_and_duplicate_stock_are_rejected(): void
+    public function test_invalid_input_cross_division_and_legacy_direct_stock_are_rejected(): void
     {
         $sale = $this->setupStock();
+        $this->authenticated('manager.cell@dashboard.test');
         $this->postJson('/api/v1/cellular/products', ['sku' => 'SIM-001', 'name' => 'Duplikat', 'kind' => 'SIM_CARD'])->assertStatus(409);
-        $stock = ['product_id' => $sale['product_id'], 'outlet_id' => $sale['outlet_id'], 'quantity_delta' => 10, 'reference' => 'masuk-1', 'reason' => 'Penerimaan ulang uji'];
-        $this->postJson('/api/v1/cellular/stock', $stock)->assertStatus(409);
-        $this->postJson('/api/v1/cellular/stock', array_replace($stock, ['quantity_delta' => 0]))->assertStatus(400);
-        $this->postJson('/api/v1/cellular/stock', array_replace($stock, ['quantity_delta' => -11, 'reference' => 'KOREKSI-1']))->assertStatus(409);
+        $this->authenticated('admin-gudang.cell@dashboard.test');
+        $this->postJson('/api/v1/cellular/stock', ['product_id' => $sale['product_id'], 'outlet_id' => $sale['outlet_id'], 'quantity_delta' => 1, 'reference' => 'BYPASS', 'reason' => 'Mutasi langsung harus ditolak'])->assertStatus(405);
         $this->authenticated('admin.cell@dashboard.test');
         foreach ([['unit_price' => '0.123'], ['unit_price' => '-1'], ['quantity' => 0], ['quantity' => 1.5], ['business_date' => now('Asia/Jakarta')->addDay()->toDateString()]] as $bad) {
             $this->postJson('/api/v1/cellular/sales', array_replace($sale, $bad))->assertStatus(400);
@@ -90,13 +95,13 @@ class CellularManualWorkflowTest extends TestCase
         $this->assertDatabaseCount('cel_manual_sales', 0);
     }
 
-    public function test_gudang_can_adjust_stock_and_legacy_cellular_alias_can_read(): void
+    public function test_gudang_can_read_stock_but_direct_adjustment_is_closed(): void
     {
         $sale = $this->setupStock();
         User::where('email', 'manager.cell@dashboard.test')->update(['role' => 'ADMIN_GUDANG', 'division_code' => 'CELLULAR']);
         $this->authenticated('manager.cell@dashboard.test')->getJson('/api/v1/cellular/products')->assertOk()->assertJsonCount(1, 'data');
-        $this->postJson('/api/v1/cellular/stock', ['product_id' => $sale['product_id'], 'outlet_id' => $sale['outlet_id'], 'quantity_delta' => -1, 'reference' => 'KOREKSI-2', 'reason' => 'Koreksi jumlah barang'])->assertCreated();
-        $this->assertDatabaseHas('cel_stock_balances', ['quantity' => 9]);
+        $this->postJson('/api/v1/cellular/stock', ['product_id' => $sale['product_id'], 'outlet_id' => $sale['outlet_id'], 'quantity_delta' => -1, 'reference' => 'KOREKSI-2', 'reason' => 'Koreksi jumlah barang'])->assertStatus(405);
+        $this->assertDatabaseHas('cel_stock_balances', ['quantity' => 10]);
         $this->postJson('/api/v1/cellular/products', ['sku' => 'BARU', 'name' => 'Tidak boleh', 'kind' => 'ACCESSORY'])->assertForbidden();
     }
 }

@@ -87,9 +87,9 @@ Sebuah halaman selesai apabila:
 ### Persediaan dan master
 
 - [ ] Selaraskan Produk & Paket dengan pola daftar/detail/form Project.
-- [ ] Selaraskan Stok & Mutasi dengan pola register dan detail transaksi.
-- [ ] Bedakan pengalaman Admin Gudang dari role pembaca.
-- [ ] Tambahkan indikator stok kritis yang dapat ditindaklanjuti per outlet.
+- [x] Selaraskan Stok & Mutasi dengan pola register, detail transaksi, dan alur dokumen.
+- [x] Bedakan pengalaman Admin Gudang dari role pembaca dan Manager pemeriksa.
+- [x] Tambahkan indikator stok kritis yang dapat ditindaklanjuti per outlet.
 
 ### Pembukuan, pembayaran, laporan, integrasi
 
@@ -143,6 +143,6 @@ Sebuah halaman selesai apabila:
 - SPV Cellular: **90/100**, verifikasi independen dan permintaan koreksi tersedia.
 - Head Operasional Cellular: **90/100**, penyelesaian dan eskalasi risiko tersedia.
 - Accounting Cellular: **90/100**, kontrol periode menyatukan sumber transaksi, closing H+1, settlement, shift, stok, serta jalur staging spreadsheet; PNL/HPP menunggu kebijakan perusahaan.
-- Admin Gudang Cellular: **78/100**, Buku Persediaan telah memiliki KPI, filter, posisi stok, bukti sumber, alasan, pelaku, dan detail transaksi. Nilai belum 90 karena penerimaan/transfer/opname masih berupa mutasi langsung tanpa workflow dokumen dan maker-checker.
+- Admin Gudang Cellular: **91/100**, dokumen penerimaan, pengeluaran, transfer, dan stock opname memakai draf, pengajuan, koreksi, persetujuan Manager, multi-produk, optimistic version, audit, serta posting saldo atomik. Unggahan lampiran fisik menjadi peningkatan berikutnya; referensi bukti dan berita acara cetak sudah tersedia.
 - Finance Accounting: **91/100**, Payment Run memprioritaskan voucher approved berdasarkan risiko, jatuh tempo, status realisasi, dan sisa; pencatatan pembayaran tetap memakai bukti serta pemisahan tugas.
 - Manager Accounting: **90/100**, Decision Inbox memusatkan dokumen pending, nominal, risiko, alasan, dan maker-checker; ambang materialitas dan aturan delegasi tetap menunggu kebijakan perusahaan.
