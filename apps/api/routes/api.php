@@ -83,6 +83,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('items', [InventoryController::class, 'item'])->middleware('capability:write:inventory');
                 Route::post('locations', [InventoryController::class, 'location'])->middleware('capability:write:inventory');
                 Route::get('documents', [InventoryController::class, 'documents']);
+                Route::get('purchase-vouchers', [InventoryController::class, 'purchaseVouchers']);
                 Route::post('documents', [InventoryController::class, 'store'])->middleware('capability:write:inventory');
                 Route::put('documents/{id}', [InventoryController::class, 'update'])->whereUuid('id')->middleware('capability:write:inventory');
                 Route::post('documents/{id}/{action}', [InventoryController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'approve', 'correction']);

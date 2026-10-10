@@ -115,7 +115,8 @@ Sebuah halaman selesai apabila:
 - [x] Ubah antrean Manager menjadi Decision Inbox terfokus dengan nominal, indikator risiko, konteks sumber, maker-checker, dan keputusan beralasan.
 - [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.
 - [x] Lengkapi UI multi-item dan berita acara cetak/simpan PDF.
-- [ ] Tambahkan unggahan bukti serta hubungan persediaan ke voucher dan HPP.
+- [x] Hubungkan voucher pembelian approved ke penerimaan dan mutasi persediaan, termasuk penerimaan parsial dan berita acara.
+- [ ] Hubungkan nilai persediaan ke HPP setelah metode penilaian persediaan ditetapkan perusahaan.
 - [ ] Implementasikan PNL, bonus, dan CMO hanya setelah kebijakan bisnis ditetapkan.
 
 ## Tahap 4 — Validasi lintas divisi
@@ -129,14 +130,14 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
-2. Cellular: buku persediaan, laporan ECSYS/komparasi, dan penyempurnaan form H+1.
+1. Cellular: buku persediaan, laporan ECSYS/komparasi, dan penyempurnaan form H+1.
+2. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 4. Regresi lintas role dan UAT visual terang/gelap.
 
 ## Pencapaian role terbaru
 
-- Admin Gudang Accounting: **92/100**, workflow persediaan telah melewati quality gate.
+- Admin Gudang Accounting: **93/100**, voucher pembelian approved kini dapat ditelusuri ke penerimaan, berita acara, posting, dan mutasi persediaan; perhitungan HPP tetap menunggu kebijakan perusahaan.
 - Finance Cellular: **91/100**, settlement dan rekonsiliasi kanal telah melewati quality gate; unggahan bukti mutasi bank menjadi peningkatan berikutnya.
 - Leader Cellular: **91/100**, checklist, PIC, tenggat, temuan, koreksi, dan antrean kerja tersedia.
 - SPV Cellular: **90/100**, verifikasi independen dan permintaan koreksi tersedia.
