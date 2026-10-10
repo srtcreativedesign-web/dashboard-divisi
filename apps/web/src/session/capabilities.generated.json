@@ -116,6 +116,7 @@
         "approve:cellular_shift",
         "manage:cellular_catalog",
         "view:cellular",
+        "view:cellular_accounting",
         "view:cellular_daily",
         "view:cellular_sales",
         "view:cellular_settlement",
@@ -164,9 +165,11 @@
         "reconcile:cellular_settlement",
         "validate:cellular_daily",
         "view:cellular",
+        "view:cellular_accounting",
         "view:cellular_daily",
         "view:cellular_sales",
         "view:cellular_settlement",
+        "view:cellular_shift",
         "view:division"
       ],
       "FINANCE": [

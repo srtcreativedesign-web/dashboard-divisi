@@ -30,13 +30,13 @@ class PolicyService
             'FINANCE' => ['view:division', 'view:projects'],
         ],
         'CELL' => [
-            'MANAGER' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'write:cellular_stock', 'view:cellular_sales', 'void:cellular_sale', 'view:cellular_daily', 'approve:cellular_daily', 'view:cellular_settlement', 'view:cellular_shift', 'approve:cellular_shift'],
+            'MANAGER' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'write:cellular_stock', 'view:cellular_sales', 'void:cellular_sale', 'view:cellular_daily', 'approve:cellular_daily', 'view:cellular_settlement', 'view:cellular_shift', 'approve:cellular_shift', 'view:cellular_accounting'],
             'HEAD_OPS' => ['view:division', 'view:cellular', 'view:cellular_daily', 'view:cellular_shift', 'manage:cellular_shift'],
             'SPV' => ['view:division', 'view:cellular', 'view:cellular_daily', 'view:cellular_shift', 'review:cellular_shift'],
             'LEADER' => ['view:division', 'view:cellular', 'view:cellular_daily', 'view:cellular_shift', 'write:cellular_shift'],
             'ADMIN' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'view:cellular_sales', 'write:cellular_sale', 'view:cellular_daily', 'write:cellular_daily'],
             'ADMIN_GUDANG' => ['view:division', 'view:cellular', 'write:cellular_stock', 'view:cellular_daily'],
-            'ACCOUNTING' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'validate:cellular_daily', 'view:cellular_settlement', 'reconcile:cellular_settlement'],
+            'ACCOUNTING' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'validate:cellular_daily', 'view:cellular_settlement', 'reconcile:cellular_settlement', 'view:cellular_shift', 'view:cellular_accounting'],
             'FINANCE' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'view:cellular_settlement', 'write:cellular_settlement'],
         ],
     ];

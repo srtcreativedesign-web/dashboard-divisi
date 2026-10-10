@@ -85,7 +85,7 @@ export const CELLULAR_MENU_ITEMS: MenuItem[] = [
   { path: '/cellular/kontrol-shift', label: 'Kontrol Shift', group: 'Penerimaan Harian', roles: MVP_ROLES, capability: 'view:cellular_shift' },
   { path: '/cellular/penjualan', label: 'Transaksi Penjualan', group: 'Penerimaan Harian', roles: MVP_ROLES, capability: 'view:cellular_sales' },
   { path: '/cellular/tagihan', label: 'Settlement Kanal', group: 'Tagihan & Pembayaran', roles: MVP_ROLES, capability: 'view:cellular_settlement' },
-  { path: '/cellular/pembukuan', label: 'Buku Persediaan', group: 'Pembukuan', roles: MVP_ROLES, capability: 'view:cellular' },
+  { path: '/cellular/pembukuan', label: 'Kontrol Accounting', group: 'Pembukuan', roles: MVP_ROLES, capability: 'view:cellular_accounting' },
   { path: '/cellular/laporan', label: 'Kinerja Cellular', group: 'Laporan & Analitik', roles: MVP_ROLES, capability: 'view:cellular_sales' },
   { path: '/cellular/produk', label: 'Produk & Paket', group: 'Operasional Pendukung', roles: MVP_ROLES, capability: 'view:cellular' },
   { path: '/cellular/persediaan', label: 'Stok & Mutasi', group: 'Operasional Pendukung', roles: MVP_ROLES, capability: 'view:cellular' },

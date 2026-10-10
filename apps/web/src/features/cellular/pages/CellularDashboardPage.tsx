@@ -40,7 +40,8 @@ function roleWorkspace(role: string) {
   if (role === 'ADMIN') return { title: 'Meja Admin Outlet', description: 'Catat penjualan manual dan pastikan referensi transaksi harian lengkap.', action: 'Catat penjualan', path: '/cellular/penjualan', icon: ReceiptText };
   if (role === 'ADMIN_GUDANG') return { title: 'Meja Admin Gudang', description: 'Periksa stok kritis lalu catat penerimaan atau koreksi barang.', action: 'Catat mutasi stok', path: '/cellular/persediaan', icon: PackagePlus };
   if (role === 'MANAGER') return { title: 'Meja Manager', description: 'Tinjau penerimaan, stok kritis, pengecualian, dan kesiapan tutup periode.', action: 'Buka antrean kerja', path: '/cellular/pekerjaan', icon: TrendingUp };
-  if (role === 'ACCOUNTING' || role === 'FINANCE') return { title: `Meja ${role === 'ACCOUNTING' ? 'Accounting' : 'Finance'}`, description: 'Periksa penerimaan harian, jejak persediaan, dan kesiapan rekonsiliasi.', action: 'Buka pembukuan', path: '/cellular/pembukuan', icon: ReceiptText };
+  if (role === 'ACCOUNTING') return { title: 'Meja Accounting', description: 'Periksa penerimaan, settlement, pengecualian, dan kesiapan sumber periode.', action: 'Buka kontrol Accounting', path: '/cellular/pembukuan', icon: ReceiptText };
+  if (role === 'FINANCE') return { title: 'Meja Finance', description: 'Catat dana masuk dan pantau sisa settlement tiap kanal pembayaran.', action: 'Buka settlement kanal', path: '/cellular/tagihan', icon: ReceiptText };
   return { title: 'Ringkasan Operasional', description: 'Pantau kondisi outlet, katalog, serta persediaan Cellular.', action: 'Buka katalog', path: '/cellular/produk', icon: ShoppingBag };
 }
 

@@ -96,9 +96,11 @@ Sebuah halaman selesai apabila:
 - [x] Ganti panel kesiapan Tagihan & Settlement dengan workflow Finance → Accounting berbasis closing disetujui.
 - [x] Implementasikan settlement parsial tunai, QRIS, EDC, transfer, biaya kanal, tujuan dana, referensi, dan sisa rekonsiliasi.
 - [x] Terapkan maker-checker, scope outlet, optimistic version, idempotency referensi, audit, dan larangan settlement terverifikasi melebihi closing.
+- [x] Satukan penjualan posted, closing H+1, settlement, kontrol shift, dan stok ke Kontrol Accounting berbasis data database.
+- [x] Tampilkan readiness paket H+1, rekonsiliasi kanal, kontrol operasional, pengecualian, dan stok kritis per periode.
 - [ ] Kembangkan Buku Persediaan menjadi register yang dapat ditelusuri ke transaksi sumber.
 - [ ] Kembangkan laporan berdasarkan struktur Excel Cellular: harian, pendapatan, omzet per shift, ECSYS, dan komparasi outlet.
-- [ ] Bangun staging impor spreadsheet dengan validasi, pratinjau, rekonsiliasi, idempotency, dan audit.
+- [x] Bangun staging impor spreadsheet dengan validasi, pratinjau, rekonsiliasi, idempotency, dan audit untuk profil harian, pendapatan, shift, ECSYS, dan update.
 - [ ] Implementasikan PNL setelah metode HPP dan kebijakan pengakuan pendapatan ditetapkan.
 
 ## Tahap 3 — Accounting
@@ -125,9 +127,9 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Accounting Cellular: paket H+1, ECSYS, persediaan/HPP, period close, dan PNL.
-2. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
-3. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
+1. Finance dan Manager Accounting: payment run, decision inbox, materialitas, dan delegasi.
+2. Lampiran dan integrasi voucher/HPP Persediaan Accounting.
+3. Cellular: buku persediaan, laporan ECSYS/komparasi, dan penyempurnaan form H+1.
 4. Regresi lintas role dan UAT visual terang/gelap.
 
 ## Pencapaian role terbaru
@@ -137,3 +139,4 @@ Sebuah halaman selesai apabila:
 - Leader Cellular: **91/100**, checklist, PIC, tenggat, temuan, koreksi, dan antrean kerja tersedia.
 - SPV Cellular: **90/100**, verifikasi independen dan permintaan koreksi tersedia.
 - Head Operasional Cellular: **90/100**, penyelesaian dan eskalasi risiko tersedia.
+- Accounting Cellular: **90/100**, kontrol periode menyatukan sumber transaksi, closing H+1, settlement, shift, stok, serta jalur staging spreadsheet; PNL/HPP menunggu kebijakan perusahaan.
