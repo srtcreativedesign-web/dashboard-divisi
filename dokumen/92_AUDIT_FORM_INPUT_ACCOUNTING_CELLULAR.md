@@ -39,7 +39,7 @@ Standar form yang dipakai mulai tahap ini:
 | Realisasi pembayaran voucher | 84 | Perjelas saldo, tujuan pembayaran, bukti, dan pemisahan tugas Finance. |
 | Dokumen persediaan | 82 | Selaraskan struktur dengan dokumen persediaan Cellular. |
 | Omzet H+1 | 79 | Prioritas P1; pecah konteks shift, kanal pembayaran, selisih, dan pengajuan. |
-| Rekap setoran | 72 | Prioritas P0; ubah menjadi pencocokan sumber, nilai, selisih, bukti, dan hasil rekonsiliasi. |
+| Rekap setoran | 92 | Selesai; register, form bertahap, batas alokasi kanal, bukti, penerimaan Finance, sisa rekonsiliasi, status, dan audit trail sudah tersedia. |
 | Cuti dan absensi | 65 | Prioritas P0; pisahkan jenis dokumen, pegawai/periode, perhitungan, dan approval. |
 | Master data | 70 | Prioritas P1; gunakan register-detail-form dan proteksi perubahan data referensi. |
 | Preview laporan Cellular | 74 | Prioritas P1; ubah dari pratinjau teknis menjadi pekerjaan rekonsiliasi yang dapat ditindaklanjuti. |
@@ -47,11 +47,10 @@ Standar form yang dipakai mulai tahap ini:
 ## Urutan implementasi
 
 1. Penjualan dan pembatalan Cellular sebagai pola form transaksi baru.
-2. Rekap setoran Accounting karena berpengaruh langsung pada rekonsiliasi dana.
-3. Cuti dan absensi Accounting agar pekerjaan Admin mempunyai dokumen dan approval yang jelas.
-4. Produk dan paket Cellular.
-5. Kontrol shift, settlement, omzet H+1, master data, dan staging impor.
-6. Penyempurnaan voucher serta dokumen persediaan yang sudah mendekati standar.
+2. Cuti dan absensi Accounting agar pekerjaan Admin mempunyai dokumen dan approval yang jelas.
+3. Produk dan paket Cellular.
+4. Kontrol shift, settlement, omzet H+1, master data, dan staging impor.
+5. Penyempurnaan voucher serta dokumen persediaan yang sudah mendekati standar.
 
 ## Batas kebijakan
 
