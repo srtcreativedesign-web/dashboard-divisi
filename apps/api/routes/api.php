@@ -320,7 +320,7 @@ Route::prefix('v1')->group(function () {
             Route::post('sales/{id}/void', [ManualWorkflowController::class, 'void'])->whereUuid('id')->middleware('capability:void:cellular_sale');
             Route::get('daily-closings', [DailyClosingController::class, 'index'])->middleware('capability:view:cellular_daily');
             Route::post('daily-closings', [DailyClosingController::class, 'store'])->middleware('capability:write:cellular_daily');
-            Route::post('daily-closings/{id}/{action}', [DailyClosingController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'validate', 'approve', 'correction']);
+            Route::post('daily-closings/{id}/{action}', [DailyClosingController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'request-late', 'approve-late', 'validate', 'approve', 'correction']);
             Route::prefix('settlements')->middleware('capability:view:cellular_settlement')->group(function () {
                 Route::get('/', [SettlementController::class, 'index']);
                 Route::get('sources', [SettlementController::class, 'sources']);

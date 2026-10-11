@@ -80,8 +80,8 @@ Sebuah halaman selesai apabila:
 ### Penerimaan dan penjualan
 
 - [x] Rekap penerimaan harian memakai data database dan workflow approval.
-- [ ] Selaraskan komposisi form, filter, register, status, dan tindakan dengan pola Project.
-- [ ] Perjelas H+1 pukul 23.59 WIB, selisih, alasan koreksi, PIC, dan jejak pemeriksaan.
+- [x] Selaraskan komposisi form, filter, register, status, dan tindakan dengan pola Project.
+- [x] Perjelas H+1 pukul 23.59 WIB, selisih, alasan koreksi, PIC, dan jejak pemeriksaan.
 - [ ] Selaraskan transaksi penjualan dan pembatalan.
 
 ### Persediaan dan master
@@ -131,7 +131,7 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Cellular: penyempurnaan form H+1, alasan koreksi, PIC, serta jejak pemeriksaan.
+1. Cellular: selaraskan transaksi penjualan dan pembatalan dengan pola register/detail/form Project.
 2. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 4. Regresi lintas role dan UAT visual terang/gelap.

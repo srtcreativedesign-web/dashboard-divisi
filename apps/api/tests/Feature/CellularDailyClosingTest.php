@@ -41,4 +41,27 @@ class CellularDailyClosingTest extends TestCase
         $this->authenticated('manager.cell@dashboard.test')->getJson('/api/v1/cellular/daily-closings?month='.now('Asia/Jakarta')->format('Y-m'))->assertOk();
         $this->postJson('/api/v1/cellular/daily-closings', $payload)->assertForbidden();
     }
+
+    public function test_late_submission_requires_traced_manager_permission_before_admin_can_submit(): void
+    {
+        $outlet = Outlet::whereHas('division', fn ($query) => $query->where('code', 'CELL'))->where('is_active', true)->firstOrFail();
+        $payload = ['outlet_id' => $outlet->id, 'business_date' => now('Asia/Jakarta')->subDays(3)->toDateString(), 'shift_code' => 'SHIFT-LATE', 'cash' => '0', 'qris' => '0', 'edc' => '0', 'transfer' => '0', 'source_reference' => 'TUTUP-TERLAMBAT-1'];
+
+        $this->authenticated('admin.cell@dashboard.test');
+        $draft = $this->postJson('/api/v1/cellular/daily-closings', $payload)->assertCreated()
+            ->assertJsonPath('data.is_overdue', true)->assertJsonPath('data.late_submission.state', 'required');
+        $id = $draft->json('data.id');
+        $this->postJson("/api/v1/cellular/daily-closings/{$id}/submit", ['version' => 1])->assertStatus(409);
+        $requested = $this->postJson("/api/v1/cellular/daily-closings/{$id}/request-late", ['version' => 1, 'note' => 'Rekap kanal baru diterima dari outlet'])->assertOk()
+            ->assertJsonPath('data.late_submission.state', 'requested')->assertJsonPath('data.current_pic.role', 'ADMIN');
+
+        $this->authenticated('manager.cell@dashboard.test');
+        $approved = $this->postJson("/api/v1/cellular/daily-closings/{$id}/approve-late", ['version' => $requested->json('data.version')])->assertOk()
+            ->assertJsonPath('data.late_submission.state', 'approved')->assertJsonPath('data.late_submission.approved_by_name', 'Manager Cellular');
+
+        $this->authenticated('admin.cell@dashboard.test');
+        $this->postJson("/api/v1/cellular/daily-closings/{$id}/submit", ['version' => $approved->json('data.version')])->assertOk()
+            ->assertJsonPath('data.status', 'submitted')->assertJsonPath('data.current_pic.role', 'ACCOUNTING')
+            ->assertJsonCount(4, 'data.timeline');
+    }
 }
