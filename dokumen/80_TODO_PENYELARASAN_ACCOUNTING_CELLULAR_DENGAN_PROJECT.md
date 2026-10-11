@@ -99,7 +99,8 @@ Sebuah halaman selesai apabila:
 - [x] Satukan penjualan posted, closing H+1, settlement, kontrol shift, dan stok ke Kontrol Accounting berbasis data database.
 - [x] Tampilkan readiness paket H+1, rekonsiliasi kanal, kontrol operasional, pengecualian, dan stok kritis per periode.
 - [x] Kembangkan Buku Persediaan menjadi register terfilter yang dapat ditelusuri ke transaksi, bukti sumber, alasan, dan pelaku.
-- [ ] Kembangkan laporan berdasarkan struktur Excel Cellular: harian, pendapatan, omzet per shift, ECSYS, dan komparasi outlet.
+- [x] Bangun analitik operasional lintas sumber untuk penjualan posted, closing H+1, settlement, ECSYS, komparasi outlet/provider, dan drill-down harian.
+- [ ] Lengkapi perbandingan langsung profil spreadsheet harian, pendapatan, dan omzet per shift setelah mapping kolom final disetujui pengguna.
 - [x] Bangun staging impor spreadsheet dengan validasi, pratinjau, rekonsiliasi, idempotency, dan audit untuk profil harian, pendapatan, shift, ECSYS, dan update.
 - [ ] Implementasikan PNL setelah metode HPP dan kebijakan pengakuan pendapatan ditetapkan.
 
@@ -130,7 +131,7 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Cellular: laporan ECSYS/komparasi dan penyempurnaan form H+1.
+1. Cellular: penyempurnaan form H+1, alasan koreksi, PIC, serta jejak pemeriksaan.
 2. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 4. Regresi lintas role dan UAT visual terang/gelap.
@@ -142,7 +143,7 @@ Sebuah halaman selesai apabila:
 - Leader Cellular: **91/100**, checklist, PIC, tenggat, temuan, koreksi, dan antrean kerja tersedia.
 - SPV Cellular: **90/100**, verifikasi independen dan permintaan koreksi tersedia.
 - Head Operasional Cellular: **90/100**, penyelesaian dan eskalasi risiko tersedia.
-- Accounting Cellular: **90/100**, kontrol periode menyatukan sumber transaksi, closing H+1, settlement, shift, stok, serta jalur staging spreadsheet; PNL/HPP menunggu kebijakan perusahaan.
+- Accounting Cellular: **93/100**, kontrol periode dan analitik rekonsiliasi menyatukan penjualan posted, closing H+1, settlement, shift, stok, ECSYS, komparasi outlet/provider, serta drill-down pengecualian; PNL/HPP menunggu kebijakan perusahaan.
 - Admin Gudang Cellular: **91/100**, dokumen penerimaan, pengeluaran, transfer, dan stock opname memakai draf, pengajuan, koreksi, persetujuan Manager, multi-produk, optimistic version, audit, serta posting saldo atomik. Unggahan lampiran fisik menjadi peningkatan berikutnya; referensi bukti dan berita acara cetak sudah tersedia.
 - Finance Accounting: **91/100**, Payment Run memprioritaskan voucher approved berdasarkan risiko, jatuh tempo, status realisasi, dan sisa; pencatatan pembayaran tetap memakai bukti serta pemisahan tugas.
 - Manager Accounting: **90/100**, Decision Inbox memusatkan dokumen pending, nominal, risiko, alasan, dan maker-checker; ambang materialitas dan aturan delegasi tetap menunggu kebijakan perusahaan.

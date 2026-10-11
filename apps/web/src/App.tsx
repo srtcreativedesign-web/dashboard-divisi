@@ -51,6 +51,7 @@ const ProjectLpjPage = lazy(() => import('./features/projects/pages/ProjectLpjPa
 
 const CellularOperationsPage = lazy(() => import('./features/cellular/pages/CellularOperationsPage'));
 const CellularInventoryPage = lazy(() => import('./features/cellular/pages/CellularInventoryPage'));
+const CellularAnalyticsPage = lazy(() => import('./features/cellular/pages/CellularAnalyticsPage'));
 const CellularDashboardPage = lazy(() => import('./features/cellular/pages/CellularDashboardPage'));
 const CellularWorkspacePage = lazy(() => import('./features/cellular/pages/CellularWorkspacePage'));
 const CellularDailyClosingPage = lazy(() => import('./features/cellular/pages/CellularDailyClosingPage'));
@@ -166,7 +167,7 @@ export default function App() {
                   <Route path="/cellular/kontrol-shift" element={<RouteGuard capability="view:cellular_shift" divisionCode="CELL"><RouteSuspense><CellularShiftControlPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/tagihan" element={<RouteGuard capability="view:cellular_settlement" divisionCode="CELL"><RouteSuspense><CellularSettlementPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/pembukuan" element={<RouteGuard capability="view:cellular_accounting" divisionCode="CELL"><RouteSuspense><CellularAccountingControlPage /></RouteSuspense></RouteGuard>} />
-                  <Route path="/cellular/laporan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/laporan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularAnalyticsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/integrasi" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/operasional" element={<Navigate to="/cellular/produk" replace />} />
                   <Route path="/cellular" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularDashboardPage /></RouteSuspense></RouteGuard>} />

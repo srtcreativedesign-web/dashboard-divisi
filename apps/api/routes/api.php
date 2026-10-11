@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\Accounting\VoucherController;
 use App\Http\Controllers\Api\V1\Accounting\VoucherPaymentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
+use App\Http\Controllers\Api\V1\Cellular\AnalyticsController;
 use App\Http\Controllers\Api\V1\Cellular\CellularController;
 use App\Http\Controllers\Api\V1\Cellular\DailyClosingController;
 use App\Http\Controllers\Api\V1\Cellular\InventoryDocumentController;
@@ -302,6 +303,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('cellular')->middleware(['scope', 'capability:view:cellular'])->group(function () {
             Route::get('outlets', [CellularController::class, 'outlets']);
+            Route::get('analytics', [AnalyticsController::class, 'index'])->middleware('capability:view:cellular_sales');
             Route::get('products', [ManualWorkflowController::class, 'products']);
             Route::post('products', [ManualWorkflowController::class, 'createProduct'])->middleware('capability:manage:cellular_catalog');
             Route::get('stock', [ManualWorkflowController::class, 'stock']);

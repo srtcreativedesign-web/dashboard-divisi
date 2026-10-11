@@ -16,6 +16,9 @@ export interface InventoryLine { id?: string; product_id: string; sku?: string; 
 export interface InventoryDocument { id: string; document_number: string; kind: InventoryKind; source_outlet_id: string | null; source_outlet_name: string | null; destination_outlet_id: string | null; destination_outlet_name: string | null; business_date: string; reference: string; notes: string | null; status: InventoryStatus; maker_id: string; reviewer_id: string | null; review_note: string | null; version: number; created_at: string; updated_at: string; lines: InventoryLine[] }
 export interface InventoryCatalog { products: Product[]; outlets: Outlet[]; balances: Stock[] }
 export interface InventoryPayload { kind: InventoryKind; source_outlet_id: string | null; destination_outlet_id: string | null; business_date: string; reference: string; notes: string; lines: Array<{ product_id: string; quantity: number | null; counted_quantity?: number | null }>; version?: number }
+export interface CellularAnalyticsDaily { outlet_id: string; outlet_name: string; business_date: string; sales: string; units: number; closing: string | null; closing_status: string | null; settled_net: string; fee: string; ecsys_gross: string | null; ecsys_net: string | null; ecsys_entered: string | null; ecsys_realization: string | null; ecsys_validation: string | null; variance: string | null; reconciliation_status: 'matched' | 'variance' | 'incomplete' }
+export interface CellularAnalyticsOutlet { outlet_id: string; outlet_name: string; sales: string; units: number; closing: string; settled_net: string; ecsys_entered: string | null; ecsys_net: string | null; ecsys_days: number; variance: string | null }
+export interface CellularAnalytics { period: string; kpis: { sales: string; units: number; ecsys_entered: string | null; variance: string | null; exception_days: number }; coverage: { outlets: number; sales_days: number; closing_days: number; ecsys_days: number; ecsys_batches: number }; outlets: CellularAnalyticsOutlet[]; providers: Array<{ provider: string; sales: string; units: number }>; daily: CellularAnalyticsDaily[]; sources: Record<'sales' | 'closing' | 'settlement' | 'ecsys', boolean> }
 export const cellularApi = {
   products: () => api.get<Product[]>('/cellular/products'),
   outlets: () => api.get<Outlet[]>('/cellular/outlets'),
@@ -42,4 +45,5 @@ export const cellularApi = {
   createInventoryDocument: (data: InventoryPayload) => api.post<InventoryDocument>('/cellular/inventory-documents', data),
   updateInventoryDocument: (row: InventoryDocument, data: InventoryPayload) => api.put<InventoryDocument>(`/cellular/inventory-documents/${row.id}`, { ...data, version: row.version }),
   transitionInventoryDocument: (row: InventoryDocument, action: 'submit' | 'approve' | 'correction', note?: string) => api.post<InventoryDocument>(`/cellular/inventory-documents/${row.id}/${action}`, { version: row.version, note }),
+  analytics: (month: string, outletId?: string) => api.get<CellularAnalytics>('/cellular/analytics', { month, outlet_id: outletId || undefined }),
 };
