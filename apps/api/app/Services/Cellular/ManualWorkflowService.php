@@ -178,9 +178,13 @@ class ManualWorkflowService
         $this->policy->assertCapability($user, 'view:cellular_sales');
         $start = CarbonImmutable::createFromFormat('!Y-m', $month);
 
-        return DB::table('cel_manual_sales')->whereIn('outlet_id', array_column($this->outlets($user), 'id'))
-            ->whereBetween('business_date', [$start->toDateString(), $start->endOfMonth()->toDateString()])
-            ->orderByDesc('business_date')->orderByDesc('created_at')->limit(100)->get()->map(function ($row) {
+        return DB::table('cel_manual_sales as sales')
+            ->leftJoin('users as creator', 'creator.id', '=', DB::raw('CAST(sales.created_by AS VARCHAR)'))
+            ->leftJoin('users as voider', 'voider.id', '=', DB::raw('CAST(sales.voided_by AS VARCHAR)'))
+            ->whereIn('sales.outlet_id', array_column($this->outlets($user), 'id'))
+            ->whereBetween('sales.business_date', [$start->toDateString(), $start->endOfMonth()->toDateString()])
+            ->orderByDesc('sales.business_date')->orderByDesc('sales.created_at')->limit(100)
+            ->select('sales.*', 'creator.name as created_by_name', 'voider.name as voided_by_name')->get()->map(function ($row) {
                 $row->unit_price = $this->money($row->unit_price_cents);
                 $row->total_amount = $this->money($row->total_cents);
                 unset($row->unit_price_cents, $row->total_cents);

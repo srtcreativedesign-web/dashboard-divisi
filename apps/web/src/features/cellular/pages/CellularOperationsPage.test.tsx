@@ -3,17 +3,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import CellularOperationsPage from './CellularOperationsPage';
-import { cellularApi, type Movement, type Sale } from '../api';
+import { cellularApi, type Movement, type Sale, type Stock } from '../api';
 
 const auth = vi.hoisted(() => ({ role: 'ADMIN' }));
 vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: { role: auth.role, divisionCode: 'CELL' } }) }));
 vi.mock('../api', () => ({ cellularApi: { products: vi.fn(), outlets: vi.fn(), stock: vi.fn(), movements: vi.fn(), movementRegister: vi.fn(), sales: vi.fn(), createProduct: vi.fn(), adjust: vi.fn(), sell: vi.fn(), voidSale: vi.fn() } }));
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
-function renderPage(role: string, rows: Sale[] = [], path = '/cellular/produk', movementRows: Movement[] = []) {
+function renderPage(role: string, rows: Sale[] = [], path = '/cellular/produk', movementRows: Movement[] = [], stockRows: Stock[] = []) {
   auth.role = role;
   vi.mocked(cellularApi.products).mockResolvedValue({ data: [{ id: 'p', sku: 'SIM-1', name: 'Kartu uji', kind: 'SIM_CARD', provider: 'Provider uji', variant: '10GB' }], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.outlets).mockResolvedValue({ data: [{ id: 'o', code: 'CELL-1', name: 'Outlet uji' }], meta: { trace_id: 't' } });
-  vi.mocked(cellularApi.stock).mockResolvedValue({ data: [], meta: { trace_id: 't' } });
+  vi.mocked(cellularApi.stock).mockResolvedValue({ data: stockRows, meta: { trace_id: 't' } });
   vi.mocked(cellularApi.movements).mockResolvedValue({ data: movementRows, meta: { trace_id: 't' } });
   vi.mocked(cellularApi.movementRegister).mockResolvedValue({ data: movementRows, meta: { trace_id: 't' } });
   vi.mocked(cellularApi.sales).mockResolvedValue({ data: rows, meta: { trace_id: 't' } });
@@ -23,6 +23,8 @@ describe('Operasional Cellular', () => {
   it('membuka halaman kerja sesuai route menu Cellular', async () => {
     renderPage('ADMIN', [], '/cellular/penjualan');
     expect(await screen.findByRole('heading', { name: 'Penjualan Cellular' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Register penjualan' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Catat penjualan' }));
     expect(screen.getByRole('form', { name: 'Catat penjualan' })).toBeInTheDocument();
   });
   it('menyembunyikan laporan finansial dan form mutasi dari reader operasional', async () => {
@@ -39,6 +41,7 @@ describe('Operasional Cellular', () => {
     renderPage('ADMIN');
     await screen.findByText('Kartu uji');
     fireEvent.click(screen.getByRole('button', { name: 'Penjualan' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Catat penjualan' }));
     fireEvent.change(screen.getByLabelText('Produk'), { target: { value: 'p' } });
     fireEvent.change(screen.getByLabelText('Outlet'), { target: { value: 'o' } });
     fireEvent.change(screen.getByLabelText('Jumlah terjual'), { target: { value: '3' } });
@@ -51,7 +54,19 @@ describe('Operasional Cellular', () => {
     expect(cellularApi.sell).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3, unit_price: '0.10', reference: 'JUAL-1' }));
     fireEvent.submit(screen.getByRole('form', { name: 'Catat penjualan' }));
     expect(await screen.findByText('Data berhasil disimpan.')).toBeInTheDocument();
-    expect(screen.getByLabelText('Referensi laporan manual')).toHaveValue('');
+    expect(screen.queryByRole('form', { name: 'Catat penjualan' })).not.toBeInTheDocument();
+  });
+  it('mencegah posting jika jumlah melampaui stok outlet', async () => {
+    const balance: Stock = { id: 'b', outlet_id: 'o', product_id: 'p', sku: 'SIM-1', name: 'Kartu uji', quantity: 2, version: 1 };
+    renderPage('ADMIN', [], '/cellular/penjualan', [], [balance]);
+    await screen.findByRole('button', { name: 'Catat penjualan' });
+    fireEvent.click(screen.getByRole('button', { name: 'Catat penjualan' }));
+    fireEvent.change(screen.getByLabelText('Produk'), { target: { value: 'p' } });
+    fireEvent.change(screen.getByLabelText('Outlet'), { target: { value: 'o' } });
+    fireEvent.change(screen.getByLabelText('Jumlah terjual'), { target: { value: '3' } });
+    expect(screen.getByRole('alert')).toHaveTextContent('melebihi stok tersedia');
+    expect(screen.getByRole('button', { name: 'Posting penjualan' })).toBeDisabled();
+    expect(cellularApi.sell).not.toHaveBeenCalled();
   });
   it('memberikan Gudang form stok tanpa penjualan atau katalog tulis', async () => {
     renderPage('ADMIN_GUDANG');
@@ -87,8 +102,8 @@ it('mengunci konteks dan menolak submit berulang saat produk sedang disimpan', a
 it('perubahan bulan atau tab menutup pembatalan penjualan sebelumnya', async()=>{
  const sale:Sale={id:'s',outlet_id:'o',outlet_name:'Outlet uji',product_name:'Kartu uji',business_date:'2026-10-07',quantity:1,unit_price:'0.10',total_amount:'0.10',source_reference:'JUAL-1',status:'posted',version:1,void_reason:null};
  renderPage('MANAGER',[sale]); await screen.findByText('Kartu uji'); fireEvent.click(screen.getByRole('button',{name:'Penjualan'}));
- fireEvent.click(await screen.findByRole('button',{name:'Batalkan penjualan JUAL-1'})); expect(screen.getByRole('form',{name:'Batalkan penjualan'})).toBeInTheDocument();
+ fireEvent.click(await screen.findByRole('button',{name:'Buka'})); fireEvent.click(screen.getByRole('button',{name:'Batalkan transaksi'})); expect(screen.getByRole('form',{name:'Batalkan penjualan'})).toBeInTheDocument();
  fireEvent.change(screen.getByLabelText('Bulan laporan'),{target:{value:'2026-09'}}); expect(screen.queryByRole('form',{name:'Batalkan penjualan'})).not.toBeInTheDocument();
- fireEvent.click(await screen.findByRole('button',{name:'Batalkan penjualan JUAL-1'})); fireEvent.click(screen.getByRole('button',{name:'Stok & mutasi'})); fireEvent.click(screen.getByRole('button',{name:'Penjualan'}));
+ fireEvent.click(await screen.findByRole('button',{name:'Buka'})); fireEvent.click(screen.getByRole('button',{name:'Batalkan transaksi'})); fireEvent.click(screen.getByRole('button',{name:'Stok & mutasi'})); fireEvent.click(screen.getByRole('button',{name:'Penjualan'}));
  expect(screen.queryByRole('form',{name:'Batalkan penjualan'})).not.toBeInTheDocument(); expect(cellularApi.voidSale).not.toHaveBeenCalled();
 });

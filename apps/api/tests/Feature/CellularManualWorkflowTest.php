@@ -29,13 +29,17 @@ class CellularManualWorkflowTest extends TestCase
     {
         $sale = $this->setupStock();
         $this->authenticated('admin.cell@dashboard.test');
-        $result = $this->postJson('/api/v1/cellular/sales', $sale)->assertCreated()->assertJsonPath('data.0.total_amount', '0.30');
+        $result = $this->postJson('/api/v1/cellular/sales', $sale)->assertCreated()
+            ->assertJsonPath('data.0.total_amount', '0.30')
+            ->assertJsonPath('data.0.created_by_name', 'Admin Cellular');
         $id = $result->json('data.0.id');
         $this->assertDatabaseHas('cel_stock_balances', ['quantity' => 7]);
         $this->postJson('/api/v1/cellular/sales', $sale)->assertStatus(409);
         $this->postJson('/api/v1/cellular/sales', array_replace($sale, ['quantity' => 8, 'reference' => 'JUAL-2']))->assertStatus(409);
         $this->postJson('/api/v1/cellular/sales/'.$id.'/void', ['version' => 1, 'reason' => 'Salah pencatatan uji'])->assertForbidden();
-        $this->authenticated('manager.cell@dashboard.test')->postJson('/api/v1/cellular/sales/'.$id.'/void', ['version' => 1, 'reason' => 'Salah pencatatan uji'])->assertOk()->assertJsonPath('data.0.status', 'voided');
+        $this->authenticated('manager.cell@dashboard.test')->postJson('/api/v1/cellular/sales/'.$id.'/void', ['version' => 1, 'reason' => 'Salah pencatatan uji'])->assertOk()
+            ->assertJsonPath('data.0.status', 'voided')
+            ->assertJsonPath('data.0.voided_by_name', 'Manager Cellular');
         $this->assertDatabaseHas('cel_stock_balances', ['quantity' => 10]);
         $this->postJson('/api/v1/cellular/sales/'.$id.'/void', ['version' => 2, 'reason' => 'Pembatalan ulang uji'])->assertStatus(409);
         $this->assertDatabaseCount('cel_manual_sales', 1);
