@@ -3,7 +3,6 @@ import { projectApi } from '../../../api/projects';
 import { Project } from '../../../types/project';
 import {
   Briefcase,
-  TrendingUp,
   AlertTriangle,
   CheckCircle2,
   Activity,
@@ -29,6 +28,7 @@ import { ErrorState, LoadingState } from '../../../components/states';
 import { formatRupiah, formatDate } from '../../../utils/format';
 import { Button } from '../../../components/ui/Button';
 import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
+import { KPICard, KPICardGrid } from '../../../components/ui/primitives';
 
 const axisTick = { fontSize: 11, fill: 'var(--color-subtle)' };
 
@@ -105,75 +105,35 @@ export default function ProjectDashboardPage() {
       />
 
       {/* Primary KPI Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {/* KPI 1 */}
-        <div className="group relative overflow-hidden rounded-card-lg bg-gradient-to-br from-primary-600 to-primary-800 p-6 shadow-card hover:shadow-card-hover transition-all text-white">
-          <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-panel/10 blur-2xl transition-transform group-hover:scale-110" />
-          <div className="relative flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-primary-100">Proyek Aktif</p>
-              <p className="mt-2 text-3xl font-bold text-white">{activeProjects.length}</p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-card bg-panel/20 backdrop-blur-sm">
-              <Briefcase className="h-6 w-6 text-white" />
-            </div>
-          </div>
-          <div className="relative mt-4 flex items-center text-xs font-medium text-primary-200">
-            <span>Sedang dalam tahap konstruksi</span>
-          </div>
-        </div>
-
-        {/* KPI 2 */}
-        <div className="group rounded-card-lg bg-panel p-6 shadow-card hover:shadow-card-hover border border-line transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-subtle">Total Nilai Kontrak (Aktif)</p>
-              <p className="mt-2 text-2xl font-bold text-navy">
-                {formatRupiah(totalValue)}
-              </p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-card bg-success-light text-success dark:text-emerald-300 border border-success/30">
-              <Wallet className="h-6 w-6" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-success dark:text-emerald-300">
-            <TrendingUp className="h-4 w-4" />
-            <span>Nilai kontrak proyek yang dimuat</span>
-          </div>
-        </div>
-
-        {/* KPI 3 */}
-        <div className="group rounded-card-lg bg-panel p-6 shadow-card hover:shadow-card-hover border border-line transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-subtle">Rata-rata Progres Fisik</p>
-              <p className="mt-2 text-sm font-semibold text-muted">Belum tersedia</p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-card bg-surface-2 text-primary-600 dark:text-primary-300 border border-primary/20">
-              <Activity className="h-6 w-6" />
-            </div>
-          </div>
-          <p className="mt-4 text-xs text-subtle">Lihat milestone pada detail masing-masing proyek.</p>
-        </div>
-
-        {/* KPI 4 */}
-        <div className="group rounded-card-lg bg-panel p-6 shadow-card hover:shadow-card-hover border border-line transition-all">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-subtle">Risiko & Keterlambatan</p>
-              <p className="mt-2 text-3xl font-bold text-danger dark:text-red-300">
-                {delayedProjects.length}
-              </p>
-            </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-card bg-danger-light text-danger dark:text-red-300 border border-danger/30">
-              <AlertTriangle className="h-6 w-6" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center text-xs font-semibold text-danger dark:text-red-300">
-            <span>Membutuhkan eskalasi manajer</span>
-          </div>
-        </div>
-      </div>
+      <KPICardGrid columns={4}>
+        <KPICard
+          variant="gradient"
+          label="Proyek Aktif"
+          value={activeProjects.length}
+          note="Sedang dalam tahap konstruksi"
+          icon={<Briefcase aria-hidden="true" className="h-5 w-5" />}
+        />
+        <KPICard
+          label="Total Nilai Kontrak (Aktif)"
+          value={formatRupiah(totalValue)}
+          note="Nilai kontrak proyek yang dimuat"
+          icon={<Wallet aria-hidden="true" className="h-5 w-5" />}
+          trend={{ value: '0%', label: 'dari proyek dimuat', positive: true }}
+        />
+        <KPICard
+          label="Rata-rata Progres Fisik"
+          value="Belum tersedia"
+          note="Lihat milestone pada detail masing-masing proyek"
+          icon={<Activity aria-hidden="true" className="h-5 w-5" />}
+        />
+        <KPICard
+          label="Risiko & Keterlambatan"
+          value={delayedProjects.length}
+          note="Membutuhkan eskalasi manajer"
+          icon={<AlertTriangle aria-hidden="true" className="h-5 w-5" />}
+          variant="outlined"
+        />
+      </KPICardGrid>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Kolom Kiri: Chart & Progress */}
