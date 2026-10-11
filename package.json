@@ -13,6 +13,9 @@
     "check:env": "node scripts/check-env.mjs",
     "release:check": "node scripts/release/quality-gate.mjs",
     "release:test": "node --test scripts/release/quality-gate.test.mjs",
+    "policy:check": "node scripts/security/erp-policy-sync.mjs --check",
+    "policy:sync": "node scripts/security/erp-policy-sync.mjs --write",
+    "policy:test": "node --test scripts/security/erp-policy-sync.test.mjs",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
@@ -23,6 +26,7 @@
     "db:migrate": "node scripts/database/erp-db-migrate.mjs",
     "db:roles": "node scripts/database/erp-db-roles.mjs",
     "db:test": "node --test scripts/database/erp-db-common.test.mjs",
+    "db:seed:inventory": "node scripts/database/erp-inventory-seed.mjs",
     "scan:test": "node --test scripts/security/erp-upload-ops.test.mjs",
     "scan:maintain": "node scripts/security/erp-upload-ops.mjs maintain",
     "scan:status": "node scripts/security/erp-upload-ops.mjs status"

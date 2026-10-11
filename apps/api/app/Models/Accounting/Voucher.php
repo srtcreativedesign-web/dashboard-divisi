@@ -3,6 +3,7 @@
 namespace App\Models\Accounting;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Voucher extends Model
 {
@@ -12,7 +13,23 @@ class Voucher extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = ['type', 'outlet_id', 'outlet_name', 'source_division_code', 'voucher_date', 'due_date', 'entity_name', 'source_reference', 'amount', 'description'];
+    protected $fillable = ['type', 'outlet_id', 'outlet_name', 'source_division_code', 'voucher_date', 'due_date', 'entity_name', 'source_reference', 'amount', 'description', 'company_name', 'priority', 'payment_method', 'bank_name', 'bank_account_holder', 'bank_account', 'invoice_number', 'invoice_date', 'tax_invoice_number', 'billing_period', 'delivery_reference'];
 
-    protected $casts = ['amount' => 'decimal:2', 'version' => 'integer'];
+    protected $attributes = ['priority' => 'NORMAL', 'payment_method' => 'UNDECIDED'];
+
+    protected $hidden = ['bank_account'];
+
+    protected $appends = ['bank_account_masked'];
+
+    public function getBankAccountMaskedAttribute(): ?string
+    {
+        return $this->bank_account ? '••••'.substr($this->bank_account, -4) : null;
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(VoucherPayment::class, 'voucher_id');
+    }
+
+    protected $casts = ['amount' => 'decimal:2', 'version' => 'integer', 'bank_account' => 'encrypted', 'approved_at' => 'immutable_datetime', 'reviewed_at' => 'immutable_datetime', 'submitted_at' => 'immutable_datetime'];
 }

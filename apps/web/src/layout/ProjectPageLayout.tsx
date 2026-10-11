@@ -19,6 +19,7 @@ import {
   ArrowRight,
   ExternalLink,
   Wallet,
+  ClipboardCheck,
 } from 'lucide-react';
 
 interface ProjectPageLayoutProps {
@@ -33,7 +34,7 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
   const navigate = useNavigate();
   const location = useLocation();
   const projectId = paramId || searchParams.get('project_id');
-  
+
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +103,7 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
       case 'planning':
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-surface text-slate-600 border border-line">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-pill text-[11px] font-semibold bg-surface text-muted border border-line">
             <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
             Planning
           </span>
@@ -130,20 +131,21 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
   if (project?.milestones && project.milestones.length > 0) {
     project.milestones.forEach((m) => {
       const weight = m.weight_percentage || 0;
-      const actual = m.actual_percentage || 0;
+      const actual = m.actual_percentage ?? (m.status === 'completed' ? 100 : 0);
       cumulativeProgress += (actual / 100) * weight;
     });
   }
   cumulativeProgress = Math.min(100, Math.round(cumulativeProgress * 10) / 10);
 
   const subNavLinks = project ? [
-    { label: 'Detail & Tabular', path: `/projects/${project.id}`, icon: FolderKanban },
+    { label: 'Detail Proyek', path: `/projects/${project.id}`, icon: FolderKanban },
     { label: 'Tahapan & Progres', path: `/projects/progress?project_id=${project.id}`, icon: CheckSquare },
     { label: 'Anggaran & RAB', path: `/projects/rab?project_id=${project.id}`, icon: Calculator },
     { label: 'Termin & Pembayaran', path: `/projects/payments?project_id=${project.id}`, icon: Receipt },
     { label: 'Kas Kecil (Petty Cash)', path: `/projects/petty-cash?project_id=${project.id}`, icon: Wallet },
     { label: 'Time Plan', path: `/projects/timeline?project_id=${project.id}`, icon: Clock },
     { label: 'Berkas Dokumen', path: `/projects/documents?project_id=${project.id}`, icon: FileText },
+    { label: 'LPJ & Laporan', path: `/projects/lpj?project_id=${project.id}`, icon: ClipboardCheck },
   ] : [];
 
   return (
@@ -156,12 +158,12 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
               Divisi Proyek
             </span>
             <span className="text-xs text-slate-300">&bull;</span>
-            <span className="text-xs text-slate-500 font-medium">Manajemen Portofolio & Kontrol Lapangan</span>
+            <span className="text-xs text-muted font-medium">Manajemen Portofolio & Kontrol Lapangan</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-navy mt-1">
             {title}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-muted mt-0.5">
             {description}
           </p>
         </div>
@@ -172,11 +174,11 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
 
       {/* ACTIVE PROJECT CONTEXT CARD */}
       {project && (
-        <div className="rounded-card-lg border border-line bg-white shadow-card overflow-hidden">
-          <div className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5 bg-gradient-to-r from-surface to-white">
+        <div className="rounded-card-lg border border-line bg-panel shadow-card overflow-hidden">
+          <div className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5 bg-gradient-to-r from-surface to-panel">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs font-bold text-slate-700 bg-white border border-line px-2 py-0.5 rounded-input shadow-xs">
+                <span className="font-mono text-xs font-bold text-muted bg-panel border border-line px-2 py-0.5 rounded-input shadow-xs">
                   {project.project_code || `PRJ-${project.id}`}
                 </span>
                 {getClassificationBadge(project.classification)}
@@ -185,7 +187,7 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
                 </h2>
                 {getStatusBadge(project.status)}
               </div>
-              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-muted">
                 <div className="flex items-center gap-1.5">
                   <Building2 className="h-3.5 w-3.5 text-slate-400" />
                   <span className="font-semibold text-navy">{project.client_name || 'Klien Internal'}</span>
@@ -208,8 +210,8 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
             <div className="flex items-center gap-4 shrink-0">
               <div className="w-40 sm:w-48 space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500 font-medium">Progres Fisik</span>
-                  <span className="font-bold text-primary-600">{cumulativeProgress}%</span>
+                  <span className="text-muted font-medium">Progres Fisik</span>
+                  <span className="font-bold text-primary-600 dark:text-primary-300">{cumulativeProgress}%</span>
                 </div>
                 <div className="w-full h-2 bg-line rounded-full overflow-hidden">
                   <div
@@ -246,11 +248,11 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
                     to={tab.path}
                     className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 ${
                       isActive
-                        ? 'border-primary-600 text-primary-700 bg-white font-bold'
-                        : 'border-transparent text-slate-600 hover:text-navy hover:bg-white/60'
+                        ? 'border-primary-600 text-primary-700 bg-panel font-bold'
+                        : 'border-transparent text-muted hover:text-navy hover:bg-panel/60'
                     }`}
                   >
-                    <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-primary-600' : 'text-slate-400'}`} />
+                    <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-primary-600 dark:text-primary-300' : 'text-slate-400'}`} />
                     {tab.label}
                   </Link>
                 );
@@ -261,13 +263,13 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
       )}
 
       {loading && <LoadingState label="Memuat data proyek..." />}
-      
+
       {!loading && error && <EmptyState title="Terjadi Kesalahan" description={error} />}
-      
+
       {!loading && !error && !project && (
-        <EmptyState 
-          title="Pilih Proyek Terlebih Dahulu" 
-          description="Gunakan pemilih proyek di pojok kanan atas untuk memuat data operasional proyek yang ingin Anda pantau." 
+        <EmptyState
+          title="Pilih Proyek Terlebih Dahulu"
+          description="Gunakan pemilih proyek di pojok kanan atas untuk memuat data operasional proyek yang ingin Anda pantau."
           action={
             <Button
               variant="secondary"
@@ -281,7 +283,7 @@ export function ProjectPageLayout({ title, description, children }: ProjectPageL
           }
         />
       )}
-      
+
       {!loading && !error && project && children(project, () => fetchProject(projectId!))}
     </div>
   );

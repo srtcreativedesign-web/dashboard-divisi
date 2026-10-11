@@ -5,6 +5,7 @@ namespace App\Services\Accounting;
 use App\Exceptions\ApiException;
 use App\Models\Accounting\Voucher;
 use App\Models\Accounting\VoucherAttachment;
+use App\Models\Accounting\VoucherPayment;
 use App\Services\AuditService;
 use App\Services\MutationFileRollback;
 use App\Services\OrgReadModelService;
@@ -18,7 +19,7 @@ use RuntimeException;
 
 class VoucherService
 {
-    public const FIELDS = ['type', 'outlet_id', 'voucher_date', 'due_date', 'entity_name', 'source_reference', 'amount', 'description'];
+    public const FIELDS = ['type', 'outlet_id', 'voucher_date', 'due_date', 'entity_name', 'source_reference', 'amount', 'description', 'company_name', 'priority', 'payment_method', 'bank_name', 'bank_account_holder', 'bank_account', 'invoice_number', 'invoice_date', 'tax_invoice_number', 'billing_period', 'delivery_reference'];
 
     public function __construct(private OrgReadModelService $org, private PolicyService $policy, private AuditService $audit) {}
 
@@ -41,12 +42,17 @@ class VoucherService
                 $query->where($field, $filters[$field]);
             }
         }
-        $page = $query->orderByDesc('voucher_date')->orderByDesc('created_at')->orderBy('id')->paginate(25);
+        $page = $query->withSum(['payments' => fn ($q) => $q->where('status', 'recorded')], 'amount_cents')->orderByDesc('voucher_date')->orderByDesc('created_at')->orderBy('id')->paginate(25);
 
-        return ['items' => $page->items(), 'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage()];
+        return ['items' => collect($page->items())->map(function ($record) {
+            $data = $record->toArray();
+            unset($data['payments_sum_amount_cents']);
+
+            return $data + ['payment_summary' => VoucherPaymentService::summary($record)];
+        })->all(), 'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage()];
     }
 
-    public function detail(string $id): array
+    public function detail(string $id, ?array $user = null): array
     {
         $record = $this->query()->findOrFail($id);
         $events = DB::table('acc_voucher_events')->where('voucher_id', $id)->orderBy('id')->get()->map(function ($event) {
@@ -55,7 +61,12 @@ class VoucherService
             return $event;
         });
 
-        return $record->toArray() + ['events' => $events, 'attachments' => VoucherAttachment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray()];
+        $data = $record->toArray();
+        if ($user && (($this->policy->hasCapability($user, 'write:voucher') && $record->created_by === $user['sub']) || $this->policy->hasCapability($user, 'execute:payment'))) {
+            $data['bank_account'] = $record->bank_account;
+        }
+
+        return $data + ['payment_summary' => VoucherPaymentService::summary($record), 'payments' => VoucherPayment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray(), 'events' => $events, 'attachments' => VoucherAttachment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray()];
     }
 
     public function attach(string $id, int $version, UploadedFile $file, array $user): array
@@ -91,7 +102,7 @@ class VoucherService
             $this->event($record, 'attachment_uploaded', $user);
         });
 
-        return $this->detail($id);
+        return $this->detail($id, $user);
     }
 
     public function attachment(string $id, string $attachmentId): VoucherAttachment
@@ -162,6 +173,11 @@ class VoucherService
             $record->fill(array_intersect_key($data, array_flip(self::FIELDS)) + [
                 'outlet_name' => $outlet['name'], 'source_division_code' => $outlet['divisionCode'],
             ]);
+            if ($record->payment_method !== 'BANK') {
+                $record->bank_name = null;
+                $record->bank_account_holder = null;
+                $record->bank_account = null;
+            }
             $normalize = fn (string $value) => mb_strtolower(preg_replace('/\s+/u', ' ', trim($value)));
             $record->source_key = hash('sha256', json_encode([$record->type, $record->outlet_id,
                 $normalize($record->entity_name), $normalize($record->source_reference)]));
@@ -186,7 +202,7 @@ class VoucherService
             return $record;
         });
 
-        return $this->detail($record->id);
+        return $this->detail($record->id, $user);
     }
 
     public function act(string $id, string $action, array $data, array $user): array
@@ -241,6 +257,6 @@ class VoucherService
             $this->event($record, $action, $user, $reason ?: null);
         });
 
-        return $this->detail($id);
+        return $this->detail($id, $user);
     }
 }

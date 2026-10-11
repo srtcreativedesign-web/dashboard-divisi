@@ -211,4 +211,3 @@ export interface ProjectPettyCashResponse {
   data: ProjectPettyCash[];
   summary: ProjectPettyCashSummary;
 }
-

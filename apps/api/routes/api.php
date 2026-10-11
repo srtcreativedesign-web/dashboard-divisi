@@ -2,19 +2,28 @@
 
 use App\Http\Controllers\Api\V1\Accounting\AccountingCashflowController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingController;
+use App\Http\Controllers\Api\V1\Accounting\AccountingDashboardController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingImportController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingMasterController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingOutstandingController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingReconciliationController;
 use App\Http\Controllers\Api\V1\Accounting\AccountingTransactionController;
+use App\Http\Controllers\Api\V1\Accounting\CellularPreviewController;
 use App\Http\Controllers\Api\V1\Accounting\DepositController;
 use App\Http\Controllers\Api\V1\Accounting\HrRecapController;
+use App\Http\Controllers\Api\V1\Accounting\InventoryController;
 use App\Http\Controllers\Api\V1\Accounting\OmzetController;
 use App\Http\Controllers\Api\V1\Accounting\VoucherController;
+use App\Http\Controllers\Api\V1\Accounting\VoucherPaymentController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BodController;
+use App\Http\Controllers\Api\V1\Cellular\AnalyticsController;
 use App\Http\Controllers\Api\V1\Cellular\CellularController;
+use App\Http\Controllers\Api\V1\Cellular\DailyClosingController;
+use App\Http\Controllers\Api\V1\Cellular\InventoryDocumentController;
 use App\Http\Controllers\Api\V1\Cellular\ManualWorkflowController;
+use App\Http\Controllers\Api\V1\Cellular\SettlementController;
+use App\Http\Controllers\Api\V1\Cellular\ShiftControlController;
 use App\Http\Controllers\Api\V1\DivisionConfigController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\OrgController;
@@ -66,8 +75,24 @@ Route::prefix('v1')->group(function () {
 
         // Accounting domain
         Route::prefix('accounting')->middleware(['scope'])->group(function () {
+            Route::post('cellular-preview', [CellularPreviewController::class, 'preview'])->middleware(['capability:preview:cellular_report', 'throttle:10,1', 'file.scan']);
+            Route::get('cellular-imports', [CellularPreviewController::class, 'index'])->middleware('capability:preview:cellular_report');
+            Route::get('cellular-imports/{id}', [CellularPreviewController::class, 'show'])->whereUuid('id')->middleware('capability:preview:cellular_report');
+            Route::post('cellular-imports/commit', [CellularPreviewController::class, 'commit'])->middleware('capability:write:omzet');
+            Route::get('dashboard/operations', [AccountingDashboardController::class, 'operations'])->middleware('capability:view:acc_detail');
+            Route::prefix('inventory')->middleware('capability:view:inventory')->group(function () {
+                Route::get('catalog', [InventoryController::class, 'catalog']);
+                Route::post('items', [InventoryController::class, 'item'])->middleware('capability:write:inventory');
+                Route::post('locations', [InventoryController::class, 'location'])->middleware('capability:write:inventory');
+                Route::get('documents', [InventoryController::class, 'documents']);
+                Route::get('purchase-vouchers', [InventoryController::class, 'purchaseVouchers']);
+                Route::post('documents', [InventoryController::class, 'store'])->middleware('capability:write:inventory');
+                Route::put('documents/{id}', [InventoryController::class, 'update'])->whereUuid('id')->middleware('capability:write:inventory');
+                Route::post('documents/{id}/{action}', [InventoryController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'approve', 'correction']);
+            });
             Route::prefix('deposits')->middleware('capability:view:acc_deposits')->group(function () {
                 Route::get('sources', [DepositController::class, 'sources']);
+                Route::get('reconciliation', [DepositController::class, 'reconciliation']);
                 Route::get('/', [DepositController::class, 'index']);
                 Route::get('{id}', [DepositController::class, 'show'])->whereUuid('id');
                 Route::post('/', [DepositController::class, 'store'])->middleware('capability:write:acc_deposits');
@@ -85,6 +110,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('recaps/{id}/void', [HrRecapController::class, 'void'])->whereUuid('id')->middleware('capability:write:acc_hr');
             });
             Route::prefix('vouchers')->middleware('capability:view:acc_detail')->group(function () {
+                Route::post('{id}/payments', [VoucherPaymentController::class, 'store'])->whereUuid('id')->middleware(['capability:execute:payment', 'file.scan']);
+                Route::post('{id}/payments/{paymentId}/void', [VoucherPaymentController::class, 'void'])->whereUuid(['id', 'paymentId'])->middleware('capability:approve:voucher');
+                Route::get('{id}/payments/{paymentId}/download', [VoucherPaymentController::class, 'download'])->whereUuid(['id', 'paymentId']);
                 Route::get('outlets', [VoucherController::class, 'outlets']);
                 Route::get('/', [VoucherController::class, 'index']);
                 Route::get('{id}', [VoucherController::class, 'show'])->whereUuid('id');
@@ -229,13 +257,20 @@ Route::prefix('v1')->group(function () {
             Route::get('/{projectId}/petty-cash/{id}/download', [ProjectPettyCashController::class, 'downloadReceipt']);
             Route::get('/{projectId}/invoices', [ProjectInvoiceController::class, 'index']);
             Route::get('/{projectId}/expenses', [ProjectExpenseController::class, 'index']);
+            Route::get('/{projectId}/rab', [ProjectRabController::class, 'index']);
 
             Route::middleware(['capability:manage:projects'])->group(function () {
                 Route::post('/', [ProjectController::class, 'store']);
                 Route::put('/{id}', [ProjectController::class, 'update']);
+                Route::delete('/{id}', [ProjectController::class, 'destroy']);
                 Route::patch('/{id}/payment-toggle', [ProjectController::class, 'paymentToggle']);
                 Route::post('/{id}/milestones', [ProjectController::class, 'storeMilestone']);
+                Route::put('/{projectId}/milestones/{milestoneId}', [ProjectController::class, 'updateMilestone']);
+                Route::post('/{id}/milestones/ensure-standard', [ProjectController::class, 'syncStandardMilestones']);
                 Route::post('/{id}/rab', [ProjectRabController::class, 'store']);
+                Route::put('/{projectId}/rab/batch', [ProjectRabController::class, 'batchSync']);
+                Route::put('/{projectId}/rab/{rabId}', [ProjectRabController::class, 'update']);
+                Route::delete('/{projectId}/rab/{rabId}', [ProjectRabController::class, 'destroy']);
 
                 Route::post('/{id}/documents', [ProjectDocumentController::class, 'store'])->middleware('file.scan');
                 Route::delete('/{projectId}/documents/{documentId}', [ProjectDocumentController::class, 'destroy']);
@@ -268,14 +303,35 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('cellular')->middleware(['scope', 'capability:view:cellular'])->group(function () {
             Route::get('outlets', [CellularController::class, 'outlets']);
+            Route::get('analytics', [AnalyticsController::class, 'index'])->middleware('capability:view:cellular_sales');
             Route::get('products', [ManualWorkflowController::class, 'products']);
             Route::post('products', [ManualWorkflowController::class, 'createProduct'])->middleware('capability:manage:cellular_catalog');
             Route::get('stock', [ManualWorkflowController::class, 'stock']);
             Route::get('movements', [ManualWorkflowController::class, 'movements']);
-            Route::post('stock', [ManualWorkflowController::class, 'adjust'])->middleware('capability:write:cellular_stock');
+            Route::prefix('inventory-documents')->group(function () {
+                Route::get('catalog', [InventoryDocumentController::class, 'catalog']);
+                Route::get('/', [InventoryDocumentController::class, 'index']);
+                Route::post('/', [InventoryDocumentController::class, 'store'])->middleware('capability:write:cellular_stock');
+                Route::put('{id}', [InventoryDocumentController::class, 'update'])->whereUuid('id')->middleware('capability:write:cellular_stock');
+                Route::post('{id}/{action}', [InventoryDocumentController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'approve', 'correction']);
+            });
             Route::get('sales', [ManualWorkflowController::class, 'sales'])->middleware('capability:view:cellular_sales');
             Route::post('sales', [ManualWorkflowController::class, 'sell'])->middleware('capability:write:cellular_sale');
             Route::post('sales/{id}/void', [ManualWorkflowController::class, 'void'])->whereUuid('id')->middleware('capability:void:cellular_sale');
+            Route::get('daily-closings', [DailyClosingController::class, 'index'])->middleware('capability:view:cellular_daily');
+            Route::post('daily-closings', [DailyClosingController::class, 'store'])->middleware('capability:write:cellular_daily');
+            Route::post('daily-closings/{id}/{action}', [DailyClosingController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'request-late', 'approve-late', 'validate', 'approve', 'correction']);
+            Route::prefix('settlements')->middleware('capability:view:cellular_settlement')->group(function () {
+                Route::get('/', [SettlementController::class, 'index']);
+                Route::get('sources', [SettlementController::class, 'sources']);
+                Route::post('/', [SettlementController::class, 'store'])->middleware('capability:write:cellular_settlement');
+                Route::post('{id}/{action}', [SettlementController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'reconcile', 'correction']);
+            });
+            Route::prefix('shift-controls')->middleware('capability:view:cellular_shift')->group(function () {
+                Route::get('/', [ShiftControlController::class, 'index']);
+                Route::post('/', [ShiftControlController::class, 'store'])->middleware('capability:write:cellular_shift');
+                Route::post('{id}/{action}', [ShiftControlController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'review', 'correction', 'resolve', 'escalate', 'decide']);
+            });
         });
     });
 });

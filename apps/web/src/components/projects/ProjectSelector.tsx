@@ -32,7 +32,7 @@ export function ProjectSelector({ selectedProjectId, onSelectProject }: ProjectS
 
   return (
     <div className="relative group min-w-[280px]">
-      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+      <label className="block text-[10px] font-bold text-subtle uppercase tracking-wider mb-1">
         Konteks Proyek
       </label>
       <div className="relative">
@@ -40,7 +40,7 @@ export function ProjectSelector({ selectedProjectId, onSelectProject }: ProjectS
           value={selectedProjectId || ''}
           onChange={(e) => onSelectProject(e.target.value)}
           disabled={loading}
-          className="w-full appearance-none rounded-input border border-line bg-white py-2 pl-9 pr-9 text-xs sm:text-sm font-semibold text-navy shadow-card transition-all focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 cursor-pointer"
+          className="w-full appearance-none rounded-input border border-line bg-panel py-2 pl-9 pr-9 text-xs sm:text-sm font-semibold text-navy shadow-card transition-all focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 cursor-pointer"
         >
           <option value="" disabled>-- Pilih Proyek Aktif --</option>
           {projects.map((p) => (

@@ -45,7 +45,7 @@ export function ConfirmModal({
     <dialog
       ref={dialogRef}
       onCancel={onCancel}
-      className="backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm m-auto rounded-2xl shadow-xl border border-slate-200/60 bg-white p-0 overflow-hidden open:animate-in open:fade-in-90 open:zoom-in-95"
+      className="backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm m-auto rounded-2xl shadow-xl border border-slate-200/60 bg-panel p-0 overflow-hidden open:animate-in open:fade-in-90 open:zoom-in-95"
     >
       <div className="w-[400px] max-w-full p-6">
         <div className="flex items-start gap-4">
@@ -59,8 +59,8 @@ export function ConfirmModal({
             </div>
           )}
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-            <p className="mt-1 text-sm text-slate-600 whitespace-pre-wrap">{description}</p>
+            <h2 className="text-lg font-semibold text-navy">{title}</h2>
+            <p className="mt-1 text-sm text-muted whitespace-pre-wrap">{description}</p>
           </div>
         </div>
 
@@ -68,7 +68,7 @@ export function ConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 outline-none focus-visible:ring-2 focus-visible:ring-slate-900 transition-colors"
+            className="px-4 py-2 text-sm font-medium border border-slate-200 rounded-lg text-muted hover:bg-surface outline-none focus-visible:ring-2 focus-visible:ring-slate-900 transition-colors"
           >
             {cancelText}
           </button>

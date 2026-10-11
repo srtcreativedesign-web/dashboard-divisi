@@ -287,7 +287,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
             className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
               activeSubTab === 'overview'
                 ? 'bg-primary text-white shadow-card'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
+                : 'text-muted dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
             }`}
           >
             <PieChart className="h-4 w-4" />
@@ -299,7 +299,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
             className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
               activeSubTab === 'rab'
                 ? 'bg-primary text-white shadow-card'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
+                : 'text-muted dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
             }`}
           >
             <FileText className="h-4 w-4" />
@@ -311,7 +311,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
             className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
               activeSubTab === 'expenses'
                 ? 'bg-primary text-white shadow-card'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
+                : 'text-muted dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
             }`}
           >
             <Receipt className="h-4 w-4" />
@@ -323,7 +323,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
             className={`flex items-center gap-2 px-3.5 py-2 rounded-input text-xs font-semibold transition-all ${
               activeSubTab === 'invoices'
                 ? 'bg-primary text-white shadow-card'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
+                : 'text-muted dark:text-slate-400 hover:bg-surface dark:hover:bg-navy/40'
             }`}
           >
             <DollarSign className="h-4 w-4" />
@@ -372,23 +372,23 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* OVER BUDGET WARNING BANNER */}
       {overBudgetItems.length > 0 && (
         <div className="p-4 rounded-card-lg bg-warning-light/50 border border-warning/30 flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+          <AlertTriangle className="h-5 w-5 text-warning dark:text-amber-300 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="text-sm font-semibold text-warning">
+            <h4 className="text-sm font-semibold text-warning dark:text-amber-300">
               Peringatan Dini: Terdapat {overBudgetItems.length} Item Melebihi Anggaran (Over-Budget)
             </h4>
-            <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5">
+            <p className="text-xs text-muted dark:text-slate-300 mt-0.5">
               Realisasi biaya lapangan telah melebihi alokasi plafon RAB yang direncanakan. Harap lakukan tinjauan efisiensi atau addendum anggaran.
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               {overBudgetItems.map(item => (
                 <span
                   key={item.id}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-xs font-semibold bg-danger-light text-danger border border-danger/30"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-xs font-semibold bg-danger-light text-danger dark:text-red-300 border border-danger/30"
                 >
                   <AlertCircle className="h-3.5 w-3.5" />
                   <span>{item.item_name}:</span>
-                  <span className="font-bold text-danger">+{formatCurrency(item.overrun)}</span>
+                  <span className="font-bold text-danger dark:text-red-300">+{formatCurrency(item.overrun)}</span>
                 </span>
               ))}
             </div>
@@ -402,43 +402,43 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
           {/* KPI CARDS GRID */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Nilai Kontrak */}
-            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-white dark:bg-navy-light shadow-card flex flex-col justify-between">
+            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-panel dark:bg-navy-light shadow-card flex flex-col justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Nilai Kontrak</p>
+                <p className="text-xs font-medium text-subtle uppercase tracking-wider">Nilai Kontrak</p>
                 <h3 className="text-xl font-bold text-navy dark:text-white mt-1">
                   {formatCurrency(contractVal)}
                 </h3>
               </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+              <div className="mt-3 flex items-center justify-between text-xs text-subtle">
                 <span>Klien: {project.client_name || '-'}</span>
               </div>
             </div>
 
             {/* Total Anggaran RAB */}
-            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-white dark:bg-navy-light shadow-card flex flex-col justify-between">
+            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-panel dark:bg-navy-light shadow-card flex flex-col justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Pagu Anggaran RAB</p>
-                <h3 className="text-xl font-bold text-primary mt-1">
+                <p className="text-xs font-medium text-subtle uppercase tracking-wider">Pagu Anggaran RAB</p>
+                <h3 className="text-xl font-bold text-primary dark:text-primary-300 mt-1">
                   {formatCurrency(rabBudget)}
                 </h3>
               </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+              <div className="mt-3 flex items-center justify-between text-xs text-subtle">
                 <span>{rabs.length} item pekerjaan</span>
                 <span>{contractVal > 0 ? `${((rabBudget / contractVal) * 100).toFixed(1)}% Kontrak` : ''}</span>
               </div>
             </div>
 
             {/* Realisasi Biaya Lapangan */}
-            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-white dark:bg-navy-light shadow-card flex flex-col justify-between">
+            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-panel dark:bg-navy-light shadow-card flex flex-col justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Realisasi Lapangan</p>
-                <h3 className="text-xl font-bold text-success mt-1">
+                <p className="text-xs font-medium text-subtle uppercase tracking-wider">Realisasi Lapangan</p>
+                <h3 className="text-xl font-bold text-success dark:text-emerald-300 mt-1">
                   {formatCurrency(actualExpense)}
                 </h3>
               </div>
               <div className="mt-3">
                 <div className="flex items-center justify-between text-[11px] mb-1">
-                  <span className="text-slate-500">Penyerapan Anggaran</span>
+                  <span className="text-subtle">Penyerapan Anggaran</span>
                   <span className="font-semibold text-navy dark:text-slate-300">{absorption.toFixed(1)}%</span>
                 </div>
                 <div className="w-full h-1.5 bg-surface-2 dark:bg-navy/80 rounded-pill overflow-hidden">
@@ -453,16 +453,16 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
             </div>
 
             {/* Laba Kotor & Margin */}
-            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-white dark:bg-navy-light shadow-card flex flex-col justify-between">
+            <div className="p-5 rounded-card-lg border border-line dark:border-line/20 bg-panel dark:bg-navy-light shadow-card flex flex-col justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Proyeksi Laba Riil</p>
-                <h3 className={`text-xl font-bold mt-1 ${grossProfit >= 0 ? 'text-navy dark:text-white' : 'text-danger'}`}>
+                <p className="text-xs font-medium text-subtle uppercase tracking-wider">Proyeksi Laba Riil</p>
+                <h3 className={`text-xl font-bold mt-1 ${grossProfit >= 0 ? 'text-navy dark:text-white' : 'text-danger dark:text-red-300'}`}>
                   {formatCurrency(grossProfit)}
                 </h3>
               </div>
               <div className="mt-3 flex items-center justify-between text-xs">
-                <span className="text-slate-500">Margin Keuntungan:</span>
-                <span className={`font-semibold ${marginPct >= 15 ? 'text-success' : 'text-warning'}`}>
+                <span className="text-subtle">Margin Keuntungan:</span>
+                <span className={`font-semibold ${marginPct >= 15 ? 'text-success dark:text-emerald-300' : 'text-warning dark:text-amber-300'}`}>
                   {marginPct.toFixed(1)}%
                 </span>
               </div>
@@ -472,34 +472,34 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
           {/* CASHFLOW & TERMIN SUMMARY CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-card border border-line dark:border-line/20 bg-surface dark:bg-navy/40">
-              <p className="text-xs text-slate-500 font-medium">Total Termin Difakturkan</p>
+              <p className="text-xs text-subtle font-medium">Total Termin Difakturkan</p>
               <p className="text-lg font-bold text-navy dark:text-white mt-1">{formatCurrency(invoicedVal)}</p>
               <p className="text-[11px] text-slate-400 mt-0.5">
                 {contractVal > 0 ? `${((invoicedVal / contractVal) * 100).toFixed(1)}% dari nilai kontrak` : '-'}
               </p>
             </div>
             <div className="p-4 rounded-card border border-success/30 bg-success-light/40">
-              <p className="text-xs text-success font-medium">Pembayaran Diterima (Lunas)</p>
-              <p className="text-lg font-bold text-success mt-1">{formatCurrency(paidVal)}</p>
-              <p className="text-[11px] text-success/80 mt-0.5">
+              <p className="text-xs text-success dark:text-emerald-300 font-medium">Pembayaran Diterima (Lunas)</p>
+              <p className="text-lg font-bold text-success dark:text-emerald-300 mt-1">{formatCurrency(paidVal)}</p>
+              <p className="text-[11px] text-success dark:text-emerald-300/80 mt-0.5">
                 {invoicedVal > 0 ? `${((paidVal / invoicedVal) * 100).toFixed(1)}% tertagih` : '-'}
               </p>
             </div>
             <div className="p-4 rounded-card border border-warning/30 bg-warning-light/40">
-              <p className="text-xs text-warning font-medium">Piutang Berjalan (Outstanding)</p>
-              <p className="text-lg font-bold text-warning mt-1">{formatCurrency(outstandingVal)}</p>
-              <p className="text-[11px] text-warning/80 mt-0.5">Sisa tagihan menunggu pelunasan klien</p>
+              <p className="text-xs text-warning dark:text-amber-300 font-medium">Piutang Berjalan (Outstanding)</p>
+              <p className="text-lg font-bold text-warning dark:text-amber-300 mt-1">{formatCurrency(outstandingVal)}</p>
+              <p className="text-[11px] text-warning dark:text-amber-300/80 mt-0.5">Sisa tagihan menunggu pelunasan klien</p>
             </div>
           </div>
 
           {/* CATEGORY BREAKDOWN TABLE */}
-          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-white dark:bg-navy-light shadow-card">
+          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-panel dark:bg-navy-light shadow-card">
             <div className="px-5 py-4 border-b border-line dark:border-line/20 flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-navy dark:text-white">
                   Analisis Penyerapan Anggaran per Kategori Biaya
                 </h4>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-subtle mt-0.5">
                   Komparasi alokasi RAB terhadap pengeluaran aktual di lapangan
                 </p>
               </div>
@@ -507,7 +507,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface dark:bg-navy/60 text-slate-600 dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
+                <thead className="bg-surface dark:bg-navy/60 text-muted dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
                   <tr>
                     <th className="px-5 py-3.5">Kategori Pekerjaan</th>
                     <th className="px-5 py-3.5 text-right">Alokasi RAB</th>
@@ -530,13 +530,13 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                         <td className="px-5 py-3.5 font-medium text-navy dark:text-white capitalize">
                           {row.category}
                         </td>
-                        <td className="px-5 py-3.5 text-right font-semibold text-slate-700 dark:text-slate-300">
+                        <td className="px-5 py-3.5 text-right font-semibold text-muted dark:text-slate-300">
                           {formatCurrency(row.budget)}
                         </td>
                         <td className="px-5 py-3.5 text-right font-semibold text-navy dark:text-white">
                           {formatCurrency(row.actual)}
                         </td>
-                        <td className={`px-5 py-3.5 text-right font-semibold ${row.variance < 0 ? 'text-danger' : 'text-success'}`}>
+                        <td className={`px-5 py-3.5 text-right font-semibold ${row.variance < 0 ? 'text-danger dark:text-red-300' : 'text-success dark:text-emerald-300'}`}>
                           {formatCurrency(row.variance)}
                         </td>
                         <td className="px-5 py-3.5 text-center">
@@ -546,11 +546,11 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                         </td>
                         <td className="px-5 py-3.5 text-center">
                           {row.is_over_budget ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-danger-light text-danger border border-danger/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-danger-light text-danger dark:text-red-300 border border-danger/30">
                               Over Budget
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-success-light text-success border border-success/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-success-light text-success dark:text-emerald-300 border border-success/30">
                               Sesuai Anggaran
                             </span>
                           )}
@@ -568,13 +568,13 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* 2. TAB RAB (RENCANA ANGGARAN BIAYA) */}
       {activeSubTab === 'rab' && (
         <div className="space-y-4">
-          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-white dark:bg-navy-light shadow-card">
+          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-panel dark:bg-navy-light shadow-card">
             <div className="px-5 py-4 border-b border-line dark:border-line/20 flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-navy dark:text-white">
                   Rencana Anggaran Biaya (RAB) Proyek
                 </h4>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-subtle mt-0.5">
                   Daftar pos anggaran acuan biaya operasional & material proyek
                 </p>
               </div>
@@ -591,7 +591,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface dark:bg-navy/60 text-slate-600 dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
+                <thead className="bg-surface dark:bg-navy/60 text-muted dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
                   <tr>
                     <th className="px-5 py-3.5">Item Pekerjaan</th>
                     <th className="px-5 py-3.5">Kategori</th>
@@ -622,24 +622,24 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                           <td className="px-5 py-3.5 font-medium text-navy dark:text-white">
                             {item.item_name}
                           </td>
-                          <td className="px-5 py-3.5 capitalize text-slate-600 dark:text-slate-400">
+                          <td className="px-5 py-3.5 capitalize text-muted dark:text-slate-400">
                             <span className="inline-block px-2 py-0.5 rounded-input text-[10px] bg-surface dark:bg-navy/40 border border-line dark:border-line/20">
                               {item.category}
                             </span>
                           </td>
-                          <td className="px-5 py-3.5 text-center text-slate-600 dark:text-slate-400">
+                          <td className="px-5 py-3.5 text-center text-muted dark:text-slate-400">
                             {item.volume} {item.unit || ''}
                           </td>
-                          <td className="px-5 py-3.5 text-right text-slate-600 dark:text-slate-400">
+                          <td className="px-5 py-3.5 text-right text-muted dark:text-slate-400">
                             {formatCurrency(Number(item.unit_price))}
                           </td>
                           <td className="px-5 py-3.5 text-right font-bold text-navy dark:text-white">
                             {formatCurrency(budget)}
                           </td>
-                          <td className="px-5 py-3.5 text-right font-semibold text-slate-800 dark:text-slate-300">
+                          <td className="px-5 py-3.5 text-right font-semibold text-navy dark:text-slate-300">
                             {formatCurrency(actual)}
                           </td>
-                          <td className={`px-5 py-3.5 text-right font-bold ${isOver ? 'text-danger' : 'text-success'}`}>
+                          <td className={`px-5 py-3.5 text-right font-bold ${isOver ? 'text-danger dark:text-red-300' : 'text-success dark:text-emerald-300'}`}>
                             {formatCurrency(rem)}
                           </td>
                           <td className="px-5 py-3.5 text-center">
@@ -666,13 +666,13 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* 3. TAB REALISASI PENGELUARAN (ACTUAL EXPENSES) */}
       {activeSubTab === 'expenses' && (
         <div className="space-y-4">
-          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-white dark:bg-navy-light shadow-card">
+          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-panel dark:bg-navy-light shadow-card">
             <div className="px-5 py-4 border-b border-line dark:border-line/20 flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-navy dark:text-white">
                   Buku Pengeluaran Riil Lapangan
                 </h4>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-subtle mt-0.5">
                   Catatan pembelanjaan material, upah tukang, dan operasional dengan bukti struk/kuitansi
                 </p>
               </div>
@@ -689,7 +689,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface dark:bg-navy/60 text-slate-600 dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
+                <thead className="bg-surface dark:bg-navy/60 text-muted dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
                   <tr>
                     <th className="px-5 py-3.5">Tanggal</th>
                     <th className="px-5 py-3.5">Deskripsi Biaya</th>
@@ -711,22 +711,22 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   ) : (
                     expenses.map((exp) => (
                       <tr key={exp.id} className="hover:bg-surface/50 dark:hover:bg-navy/30 transition-colors">
-                        <td className="px-5 py-3.5 font-medium text-slate-700 dark:text-slate-300">
+                        <td className="px-5 py-3.5 font-medium text-muted dark:text-slate-300">
                           {exp.expense_date}
                         </td>
                         <td className="px-5 py-3.5">
                           <p className="font-semibold text-navy dark:text-white">{exp.item_name}</p>
                           {exp.notes && <p className="text-[11px] text-slate-400 mt-0.5">{exp.notes}</p>}
                         </td>
-                        <td className="px-5 py-3.5 capitalize text-slate-600 dark:text-slate-400">
+                        <td className="px-5 py-3.5 capitalize text-muted dark:text-slate-400">
                           <span className="inline-block px-2 py-0.5 rounded-input text-[10px] bg-surface dark:bg-navy/40 border border-line dark:border-line/20">
                             {exp.category}
                           </span>
                         </td>
-                        <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400">
+                        <td className="px-5 py-3.5 text-muted dark:text-slate-400">
                           {exp.rab ? exp.rab.item_name : <span className="text-slate-400 italic">Non-RAB</span>}
                         </td>
-                        <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400">
+                        <td className="px-5 py-3.5 text-muted dark:text-slate-400">
                           {exp.vendor ? exp.vendor.name : '-'}
                         </td>
                         <td className="px-5 py-3.5 text-right font-bold text-navy dark:text-white">
@@ -738,7 +738,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                               href={`/storage/${exp.receipt_path}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-semibold"
+                              className="inline-flex items-center gap-1 text-[11px] text-primary dark:text-primary-300 hover:underline font-semibold"
                             >
                               <Receipt className="h-3.5 w-3.5" />
                               Lihat
@@ -770,13 +770,13 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* 4. TAB TERMIN INVOICING */}
       {activeSubTab === 'invoices' && (
         <div className="space-y-4">
-          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-white dark:bg-navy-light shadow-card">
+          <div className="border border-line dark:border-line/20 rounded-card-lg overflow-hidden bg-panel dark:bg-navy-light shadow-card">
             <div className="px-5 py-4 border-b border-line dark:border-line/20 flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-navy dark:text-white">
                   Jadwal & Penagihan Termin Proyek (Invoicing)
                 </h4>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs text-subtle mt-0.5">
                   Pelacakan tagihan termin kepada klien beserta status settlement pembayaran
                 </p>
               </div>
@@ -793,7 +793,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface dark:bg-navy/60 text-slate-600 dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
+                <thead className="bg-surface dark:bg-navy/60 text-muted dark:text-slate-400 font-semibold border-b border-line dark:border-line/20">
                   <tr>
                     <th className="px-5 py-3.5">No Invoice</th>
                     <th className="px-5 py-3.5">Tahap Termin</th>
@@ -823,7 +823,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                             <p className="text-[10px] text-slate-400 mt-0.5">Ref: {inv.payment_reference}</p>
                           )}
                         </td>
-                        <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400">
+                        <td className="px-5 py-3.5 text-muted dark:text-slate-400">
                           {inv.milestone ? (
                             <span className="flex items-center gap-1 font-medium text-navy dark:text-slate-300">
                               {inv.milestone.title} ({inv.milestone.weight_percentage}%)
@@ -835,24 +835,24 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                         <td className="px-5 py-3.5 text-right font-bold text-navy dark:text-white">
                           {formatCurrency(Number(inv.amount))}
                         </td>
-                        <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400">
+                        <td className="px-5 py-3.5 text-muted dark:text-slate-400">
                           {inv.due_date || '-'}
                         </td>
                         <td className="px-5 py-3.5 text-center">
                           {inv.status === 'paid' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-success-light text-success border border-success/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-success-light text-success dark:text-emerald-300 border border-success/30">
                               <CheckCircle2 className="h-3 w-3" /> Lunas
                             </span>
                           ) : inv.status === 'overdue' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-danger-light text-danger border border-danger/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-danger-light text-danger dark:text-red-300 border border-danger/30">
                               <AlertCircle className="h-3 w-3" /> Jatuh Tempo
                             </span>
                           ) : inv.status === 'invoiced' ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-surface-2 text-primary border border-primary/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-surface-2 text-primary dark:text-primary-300 border border-primary/30">
                               <Clock className="h-3 w-3" /> Difakturkan
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-surface text-slate-700 border border-line">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-pill text-[10px] font-semibold bg-surface text-muted border border-line">
                               Draft
                             </span>
                           )}
@@ -872,7 +872,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                                     notes: '',
                                   });
                                 }}
-                                className="!py-1 !px-2.5 text-[11px] text-success border-success/30 hover:bg-success-light"
+                                className="!py-1 !px-2.5 text-[11px] text-success dark:text-emerald-300 border-success/30 hover:bg-success-light"
                               >
                                 <Check className="h-3 w-3" />
                                 Catat Bayar
@@ -901,7 +901,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* MODAL TAMBAH ITEM RAB */}
       {showAddRabModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md rounded-card-lg bg-white dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
+          <div className="w-full max-w-md rounded-card-lg bg-panel dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
             <h3 className="text-base font-bold text-navy dark:text-white">Tambah Pos Anggaran (RAB)</h3>
             <form onSubmit={handleCreateRab} className="mt-4 space-y-4">
               <div>
@@ -914,7 +914,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   value={rabForm.item_name}
                   onChange={e => setRabForm({ ...rabForm, item_name: e.target.value })}
                   placeholder="Misal: Pengecoran Plat Lantai 2"
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -926,7 +926,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   <select
                     value={rabForm.category}
                     onChange={e => setRabForm({ ...rabForm, category: e.target.value })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="material">Material & Bahan</option>
                     <option value="labor">Upah Tenaga Kerja</option>
@@ -944,7 +944,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     value={rabForm.unit}
                     onChange={e => setRabForm({ ...rabForm, unit: e.target.value })}
                     placeholder="m2, m3, sak, ls"
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   />
                 </div>
               </div>
@@ -961,7 +961,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     required
                     value={rabForm.volume}
                     onChange={e => setRabForm({ ...rabForm, volume: Number(e.target.value) })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   />
                 </div>
                 <div>
@@ -974,12 +974,12 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     required
                     value={rabForm.unit_price}
                     onChange={e => setRabForm({ ...rabForm, unit_price: Number(e.target.value) })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   />
                 </div>
               </div>
 
-              <div className="p-3 rounded-card bg-surface-2 text-xs flex justify-between items-center text-primary border border-primary/20 font-medium">
+              <div className="p-3 rounded-card bg-surface-2 text-xs flex justify-between items-center text-primary dark:text-primary-300 border border-primary/20 font-medium">
                 <span>Total Estimasi Pagu RAB:</span>
                 <span className="font-bold text-sm">
                   {formatCurrency(rabForm.volume * rabForm.unit_price)}
@@ -1012,7 +1012,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* MODAL CATAT PENGELUARAN */}
       {showAddExpenseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg rounded-card-lg bg-white dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
+          <div className="w-full max-w-lg rounded-card-lg bg-panel dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
             <h3 className="text-base font-bold text-navy dark:text-white">Catat Pengeluaran Riil Lapangan</h3>
             <form onSubmit={handleCreateExpense} className="mt-4 space-y-3.5">
               <div>
@@ -1025,7 +1025,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   value={expenseForm.item_name}
                   onChange={e => setExpenseForm({ ...expenseForm, item_name: e.target.value })}
                   placeholder="Misal: Pembelian Besi 10mm & Kawat Bendrat"
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -1041,7 +1041,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     value={expenseForm.amount}
                     onChange={e => setExpenseForm({ ...expenseForm, amount: e.target.value })}
                     placeholder="0"
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium"
                   />
                 </div>
                 <div>
@@ -1053,7 +1053,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     required
                     value={expenseForm.expense_date}
                     onChange={e => setExpenseForm({ ...expenseForm, expense_date: e.target.value })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   />
                 </div>
               </div>
@@ -1066,7 +1066,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   <select
                     value={expenseForm.category}
                     onChange={e => setExpenseForm({ ...expenseForm, category: e.target.value })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="material">Material & Bahan</option>
                     <option value="labor">Upah Tenaga Kerja</option>
@@ -1082,7 +1082,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   <select
                     value={expenseForm.project_rab_id}
                     onChange={e => setExpenseForm({ ...expenseForm, project_rab_id: e.target.value })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="">-- Non Pos RAB (Biaya Tambahan) --</option>
                     {rabs.map(r => (
@@ -1102,7 +1102,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   <select
                     value={expenseForm.project_vendor_id}
                     onChange={e => setExpenseForm({ ...expenseForm, project_vendor_id: e.target.value })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   >
                     <option value="">-- Pilih Vendor (Opsional) --</option>
                     {vendors.map(v => (
@@ -1120,7 +1120,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     type="file"
                     accept="image/*,application/pdf"
                     onChange={e => setExpenseReceiptFile(e.target.files?.[0] || null)}
-                    className="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-input file:border-0 file:text-xs file:font-semibold file:bg-surface-2 file:text-primary hover:file:bg-primary-100"
+                    className="w-full text-xs text-subtle file:mr-2 file:py-1.5 file:px-3 file:rounded-input file:border-0 file:text-xs file:font-semibold file:bg-surface-2 file:text-primary hover:file:bg-primary-100"
                   />
                 </div>
               </div>
@@ -1134,7 +1134,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   value={expenseForm.notes}
                   onChange={e => setExpenseForm({ ...expenseForm, notes: e.target.value })}
                   placeholder="No kwitansi, penerima uang, atau rincian spesifik..."
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -1164,7 +1164,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* MODAL TERBITKAN TERMIN INVOICE */}
       {showAddInvoiceModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md rounded-card-lg bg-white dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
+          <div className="w-full max-w-md rounded-card-lg bg-panel dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
             <h3 className="text-base font-bold text-navy dark:text-white">Terbitkan Tagihan Termin Proyek</h3>
             <form onSubmit={handleCreateInvoice} className="mt-4 space-y-4">
               <div>
@@ -1177,7 +1177,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   value={invoiceForm.term_name}
                   onChange={e => setInvoiceForm({ ...invoiceForm, term_name: e.target.value })}
                   placeholder="Misal: Termin 1 (Uang Muka 20%)"
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -1193,7 +1193,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     value={invoiceForm.amount}
                     onChange={e => setInvoiceForm({ ...invoiceForm, amount: e.target.value })}
                     placeholder="0"
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium"
                   />
                 </div>
                 <div>
@@ -1204,7 +1204,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                     type="date"
                     value={invoiceForm.due_date}
                     onChange={e => setInvoiceForm({ ...invoiceForm, due_date: e.target.value })}
-                    className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                    className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   />
                 </div>
               </div>
@@ -1216,7 +1216,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                 <select
                   value={invoiceForm.project_milestone_id}
                   onChange={e => setInvoiceForm({ ...invoiceForm, project_milestone_id: e.target.value })}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 >
                   <option value="">-- Tanpa Milestone Terikat --</option>
                   {project.milestones?.map(m => (
@@ -1239,7 +1239,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   value={invoiceForm.notes}
                   onChange={e => setInvoiceForm({ ...invoiceForm, notes: e.target.value })}
                   placeholder="Keterangan nomor rekening transfer dan ketentuan pembayaran..."
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -1269,9 +1269,9 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
       {/* MODAL CATAT PELUNASAN (SETTLEMENT) */}
       {payingInvoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md rounded-card-lg bg-white dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
+          <div className="w-full max-w-md rounded-card-lg bg-panel dark:bg-navy-light p-6 shadow-card-hover border border-line dark:border-line/20">
             <h3 className="text-base font-bold text-navy dark:text-white">Konfirmasi Pelunasan Termin</h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-subtle mt-1">
               {payingInvoice.term_name} - <span className="font-bold text-navy dark:text-white">{formatCurrency(Number(payingInvoice.amount))}</span>
             </p>
 
@@ -1285,7 +1285,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   required
                   value={payForm.paid_date}
                   onChange={e => setPayForm({ ...payForm, paid_date: e.target.value })}
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -1298,7 +1298,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   value={payForm.payment_reference}
                   onChange={e => setPayForm({ ...payForm, payment_reference: e.target.value })}
                   placeholder="Misal: TRF-BCA-928374928"
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 
@@ -1311,7 +1311,7 @@ export function ProjectCostControl({ project, onRefresh }: ProjectCostControlPro
                   value={payForm.notes}
                   onChange={e => setPayForm({ ...payForm, notes: e.target.value })}
                   placeholder="Keterangan rekonsiliasi atau mutasi..."
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
 

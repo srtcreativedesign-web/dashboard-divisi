@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Contracts\MalwareScanner;
 use App\Models\AccountingAccount;
 use App\Models\AccountingCategory;
 use App\Models\AccountingPeriod;
@@ -9,6 +10,7 @@ use App\Models\AccountingTransaction;
 use App\Models\Division;
 use Database\Seeders\AccMasterSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -215,5 +217,35 @@ class AccountingImportTest extends TestCase
         $this->assertDatabaseMissing('accounting_transactions', [
             'reference_no' => 'ROLLBACK-01',
         ]);
+    }
+
+    public function test_preview_file_json_dipindai_dan_tidak_menulis_jurnal(): void
+    {
+        $scanner = \Mockery::mock(MalwareScanner::class);
+        $scanner->shouldReceive('assertClean')->once();
+        $this->app->instance(MalwareScanner::class, $scanner);
+        $file = UploadedFile::fake()->createWithContent('uat.json', json_encode([[
+            'transaction_date' => '2026-08-01', 'category_code' => $this->categoryB2a->code,
+            'account_number' => $this->account->code, 'reference_no' => 'UAT-JSON-01',
+            'description' => 'UAT / SIMULASI penerimaan', 'debit' => 125000, 'credit' => 0,
+        ]], JSON_THROW_ON_ERROR));
+        $count = AccountingTransaction::count();
+        $this->authenticated('admin.acc@dashboard.test')->post('/api/v1/accounting/import/preview', [
+            'period_id' => $this->period->id, 'file' => $file,
+        ])->assertOk()->assertJsonPath('data.summary.valid_rows', 1)->assertJsonPath('data.rows.0.account_id', $this->account->id);
+        $this->assertSame($count, AccountingTransaction::count());
+    }
+
+    public function test_preview_json_rusak_atau_bersarang_ditolak_tanpa_bocor_isi(): void
+    {
+        foreach (['{rahasia', '{"rows":[]}', '[{"debit":[]}]', '[1]', '['.implode(',', array_fill(0, 1001, '{"debit":1}')).']'] as $content) {
+            $scanner = \Mockery::mock(MalwareScanner::class);
+            $scanner->shouldReceive('assertClean')->once();
+            $this->app->instance(MalwareScanner::class, $scanner);
+            $file = UploadedFile::fake()->createWithContent('uat.json', $content);
+            $this->authenticated('admin.acc@dashboard.test')->post('/api/v1/accounting/import/preview', [
+                'period_id' => $this->period->id, 'file' => $file,
+            ])->assertStatus(422)->assertJsonPath('error.code', 'PARSE_ERROR')->assertDontSee('rahasia');
+        }
     }
 }

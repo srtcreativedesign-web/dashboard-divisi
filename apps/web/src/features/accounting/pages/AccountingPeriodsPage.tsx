@@ -9,6 +9,7 @@ import { useAuth } from "../../../session/AuthContext";
 import { StatusPill } from "../../../components/StatusPill";
 import { Button } from "../../../components/ui/Button";
 import { Card } from "../../../components/ui/Card";
+import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 
 export default function AccountingPeriodsPage() {
   const query = useAccountingPeriods();
@@ -56,24 +57,12 @@ export default function AccountingPeriodsPage() {
 
   return (
     <section className="space-y-8 pb-12 animate-fade-in">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-navy">
-            Periode Accounting
-          </h1>
-          <p className="mt-1 text-sm text-slate-500 max-w-xl">
-            {isAdmin
-              ? "Kelola siklus akuntansi tiap bulan. Ajukan periode yang sudah direkonsiliasi kepada manager."
-              : "Review dan setujui periode akuntansi yang telah diajukan oleh admin."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-slate-100 rounded-md text-slate-600">
-            <ShieldCheck className="w-4 h-4 text-primary" />
+      <AccountingPageHeader area="Pembukuan · Kontrol Periode" title="Periode & penutupan" description={isAdmin ? "Kelola siklus Accounting tiap bulan dan ajukan periode yang sudah direkonsiliasi kepada Manager." : "Tinjau dan putuskan periode Accounting yang telah diajukan sesuai kewenangan Anda."} actions={<div className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-surface rounded-md text-muted">
+            <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-300" />
             {isAdmin ? "Akses Admin" : isManager ? "Akses Manager" : "Hanya baca"}
           </span>
-        </div>
-      </header>
+        </div>} />
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
@@ -82,7 +71,7 @@ export default function AccountingPeriodsPage() {
             <CalendarDays className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+            <p className="text-xs font-semibold uppercase text-subtle tracking-wider">
               Total Periode
             </p>
             <p className="text-2xl font-black text-navy mt-1">{totalPeriods}</p>
@@ -93,7 +82,7 @@ export default function AccountingPeriodsPage() {
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+            <p className="text-xs font-semibold uppercase text-subtle tracking-wider">
               Menunggu Persetujuan
             </p>
             <p className="text-2xl font-black text-navy mt-1">
@@ -106,7 +95,7 @@ export default function AccountingPeriodsPage() {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase text-slate-500 tracking-wider">
+            <p className="text-xs font-semibold uppercase text-subtle tracking-wider">
               Disetujui / Selesai
             </p>
             <p className="text-2xl font-black text-navy mt-1">
@@ -116,8 +105,8 @@ export default function AccountingPeriodsPage() {
         </Card>
       </div>
 
-      <div className="rounded-card border border-line bg-white flex flex-col overflow-hidden">
-        <div className="border-b border-line bg-slate-50/50 p-4">
+      <div className="rounded-card border border-line bg-panel flex flex-col overflow-hidden">
+        <div className="border-b border-line bg-surface/50 p-4">
           <h2 className="font-bold text-navy flex items-center gap-2">
             <History className="w-4 h-4 text-slate-400" /> Histori & Status Siklus
           </h2>
@@ -142,7 +131,7 @@ export default function AccountingPeriodsPage() {
                   >
                     <div className="p-5">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-primary bg-primary/5 px-2 py-1 rounded-md">
+                        <div className="flex items-center gap-2 text-primary dark:text-primary-300 bg-primary/5 px-2 py-1 rounded-md">
                           <CalendarClock className="w-4 h-4" />
                           <h2 className="font-bold text-sm tracking-wide uppercase">
                             {p.periodMonth}
@@ -151,8 +140,8 @@ export default function AccountingPeriodsPage() {
                         <StatusPill status={getStatusLabel(p.status)} />
                       </div>
                       
-                      <div className="space-y-2 mt-4 text-sm text-slate-600">
-                        <div className="flex justify-between border-b border-dashed border-slate-200 pb-2">
+                      <div className="space-y-2 mt-4 text-sm text-muted">
+                        <div className="flex justify-between border-b border-dashed border-line pb-2">
                           <span className="text-slate-400">Total Transaksi</span>
                           <span className="font-medium text-navy">{p.transactionCount ?? 0} tx</span>
                         </div>
@@ -165,7 +154,7 @@ export default function AccountingPeriodsPage() {
                       </div>
                     </div>
 
-                    <div className="px-5 py-4 bg-slate-50/50 border-t border-line mt-auto">
+                    <div className="px-5 py-4 bg-surface/50 border-t border-line mt-auto">
                       {isAdmin && isDraft && (
                         <Button
                           disabled={busy === p.id}
@@ -188,7 +177,7 @@ export default function AccountingPeriodsPage() {
                             variant="secondary"
                             disabled={busy === p.id}
                             onClick={() => void transition(p.id, "needs_correction")}
-                            className="flex-1 shadow-sm bg-white"
+                            className="flex-1 shadow-sm bg-panel"
                             size="sm"
                           >
                             Koreksi

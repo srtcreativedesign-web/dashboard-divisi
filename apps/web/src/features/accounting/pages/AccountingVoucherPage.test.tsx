@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -23,7 +24,7 @@ beforeEach(() => {
   vi.mocked(voucherApi.detail).mockResolvedValue(envelope(fixture));
 });
 afterEach(() => { cleanup(); client.clear(); });
-const mount = () => render(<QueryClientProvider client={client}><AccountingVoucherPage /></QueryClientProvider>);
+const mount = (route = '/accounting') => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[route]}><AccountingVoucherPage /></MemoryRouter></QueryClientProvider>);
 const open = async () => { fireEvent.click(await screen.findByRole('button', { name: 'Lihat' })); await screen.findByRole('heading', { name: 'Riwayat voucher' }); };
 
 describe('Alur voucher sesuai peran', () => {
@@ -39,6 +40,18 @@ describe('Alur voucher sesuai peran', () => {
     await waitFor(() => expect(voucherApi.downloadAttachment).toHaveBeenCalledWith(expect.objectContaining({ version: 2 }), attachment));
     expect(voucherApi.attach).toHaveBeenCalledWith(expect.objectContaining({ version: 1 }), file);
   });
+  it('Admin menyimpan voucher operasional beserta rencana transfer dan referensi dokumen', async () => {
+    vi.mocked(voucherApi.save).mockResolvedValue(envelope({...fixture,type:'OPERATIONAL'}));
+    mount(); await screen.findByText('Outlet anonim');
+    fireEvent.click(screen.getByRole('button',{name:'Buat voucher'}));
+    const form=within(screen.getByRole('form',{name:'Form voucher'}));
+    fireEvent.change(form.getByLabelText('Jenis voucher'),{target:{value:'OPERATIONAL'}});
+    fireEvent.change(form.getByLabelText('Metode pembayaran'),{target:{value:'BANK'}});
+    for(const [label,value] of [['Nama perusahaan','Perusahaan uji'],['Prioritas','URGENT'],['Nama bank','Bank anonim'],['Nama pemilik rekening','Penerima anonim'],['Nomor rekening','123456789012'],['Nomor invoice','INV-UJI']] as const) fireEvent.change(form.getByLabelText(label),{target:{value}});
+    fireEvent.submit(screen.getByRole('form',{name:'Form voucher'}));
+    await waitFor(()=>expect(voucherApi.save).toHaveBeenCalledWith(expect.objectContaining({type:'OPERATIONAL',priority:'URGENT',payment_method:'BANK',bank_account:'123456789012',invoice_number:'INV-UJI'}),undefined));
+  });
+
   it('Manager hanya dapat mengunduh lampiran, tanpa unggah pada voucher pending', async () => {
     identity.role = 'MANAGER'; identity.id = 'manager';
     vi.mocked(voucherApi.detail).mockResolvedValue(envelope({ ...fixture, status: 'pending_approval' }));
@@ -106,4 +119,13 @@ describe('Alur voucher sesuai peran', () => {
     expect(screen.getByRole('button', { name: 'Muat ulang voucher' })).toBeEnabled();
     expect(screen.queryByText('Voucher disetujui dan terkunci. Status ini belum menyatakan pembayaran selesai.')).not.toBeInTheDocument();
   });
+});
+
+it('drill-down dashboard mempertahankan bulan/status valid dan mengabaikan filter palsu', async () => {
+  mount('/accounting?month=2026-07&status=submitted');
+  await waitFor(() => expect(voucherApi.list).toHaveBeenCalledWith(expect.objectContaining({ month: '2026-07', status: 'submitted' })));
+  cleanup(); client.clear(); vi.mocked(voucherApi.list).mockClear();
+  mount('/accounting?month=2026-13&status=paid');
+  await waitFor(() => expect(voucherApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: '' })));
+  expect(vi.mocked(voucherApi.list).mock.calls[0]![0].month).not.toBe('2026-13');
 });

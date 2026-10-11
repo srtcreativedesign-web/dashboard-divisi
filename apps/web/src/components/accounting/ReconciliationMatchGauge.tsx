@@ -56,27 +56,27 @@ export function ReconciliationMatchGauge({
 
   return (
     <section
-      className="rounded-card-lg border border-line/60 bg-white/95 backdrop-blur-md p-5 shadow-xs"
+      className="rounded-card-lg border border-line/60 bg-panel/95 backdrop-blur-md p-5 shadow-xs"
       data-testid="reconciliation-match-gauge-section"
     >
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-3">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-navy flex items-center gap-2">
-              <Scale className="h-5 w-5 text-primary-600" />
+              <Scale className="h-5 w-5 text-primary-600 dark:text-primary-300" />
               Match Reconciliation Gauge (Meteran Pencocokan Kas)
             </h3>
             <span className={`rounded-pill px-2 py-0.5 text-[10px] font-bold border ${badgeBg}`}>
               {statusText}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-slate-600 font-medium">
+          <p className="mt-0.5 text-xs text-muted font-medium">
             Tingkat akurasi pencocokan saldo 31 rekening koran bank terhadap buku kas arus kas
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs font-bold text-navy self-start sm:self-auto bg-slate-100 px-3 py-1.5 rounded-lg">
-          <Building className="h-4 w-4 text-slate-500" />
+        <div className="flex items-center gap-1.5 text-xs font-bold text-navy self-start sm:self-auto bg-surface px-3 py-1.5 rounded-lg">
+          <Building className="h-4 w-4 text-subtle" />
           <span>{totalAccounts} Rekening Bank Operasional</span>
         </div>
       </div>
@@ -103,7 +103,7 @@ export function ReconciliationMatchGauge({
               <path
                 d="M 30 95 A 70 70 0 0 1 170 95"
                 fill="none"
-                stroke="#e2e8f0"
+                stroke="var(--color-line)"
                 strokeWidth="16"
                 strokeLinecap="round"
               />
@@ -156,7 +156,7 @@ export function ReconciliationMatchGauge({
             >
               {matchRate.toFixed(2)}%
             </span>
-            <p className="text-xs font-bold text-slate-600 mt-0.5">
+            <p className="text-xs font-bold text-muted mt-0.5">
               Tingkat Kecocokan (Klop)
             </p>
           </div>
@@ -164,20 +164,20 @@ export function ReconciliationMatchGauge({
 
         {/* Accompanying Stats Cards */}
         <div className="lg:col-span-7 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-line/60 bg-slate-50/50 p-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          <div className="rounded-xl border border-line/60 bg-surface/50 p-4">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-subtle">
               Total Saldo Bank (31 Rekening)
             </span>
             <p className="mt-1.5 text-lg font-black text-navy">{rupiah(totalBank)}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Rangkuman Rekening Koran</p>
+            <p className="text-[11px] text-subtle mt-0.5">Rangkuman Rekening Koran</p>
           </div>
 
-          <div className="rounded-xl border border-line/60 bg-slate-50/50 p-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          <div className="rounded-xl border border-line/60 bg-surface/50 p-4">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-subtle">
               Total Saldo Buku Kas
             </span>
             <p className="mt-1.5 text-lg font-black text-navy">{rupiah(totalCashflow)}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Buku Besar Kas &amp; Bank</p>
+            <p className="text-[11px] text-subtle mt-0.5">Buku Besar Kas &amp; Bank</p>
           </div>
 
           <div
@@ -185,7 +185,7 @@ export function ReconciliationMatchGauge({
               isMatched ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'
             }`}
           >
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-subtle">
               Selisih / Variance
             </span>
             <p
@@ -195,7 +195,7 @@ export function ReconciliationMatchGauge({
             >
               {rupiah(variance)}
             </p>
-            <p className="text-[11px] font-bold mt-0.5 text-slate-600">
+            <p className="text-[11px] font-bold mt-0.5 text-muted">
               {isMatched ? '✓ Toleransi Aman (< Rp 1)' : 'Perlu Investigasi Entri'}
             </p>
           </div>

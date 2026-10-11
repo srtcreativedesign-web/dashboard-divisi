@@ -114,9 +114,20 @@ class UploadScanningTest extends TestCase
         config(['uploads.scanner_binary' => PHP_BINARY]);
         Storage::disk('quarantine')->put('contoh dengan spasi', 'anonim');
         $path = Storage::disk('quarantine')->path('contoh dengan spasi');
-        Process::fake(fn () => Process::result(output: $path.': OK'.PHP_EOL));
+        Process::fake(function ($process) use ($path) {
+            $args = array_values(array_filter($process->command, fn ($arg) => str_starts_with($arg, '--tempdir=')));
+            $this->assertCount(1, $args);
+            $temp = substr($args[0], strlen('--tempdir='));
+            $this->assertDirectoryExists($temp);
+            $this->assertStringStartsWith(Storage::disk('quarantine')->path('scan-tmp-'), $temp);
+            file_put_contents($temp.'/extracted.tmp', 'isi anonim');
+
+            return Process::result(output: $path.': OK'.PHP_EOL);
+        });
         (new ClamavScanner)->assertClean($path);
         Process::assertRan(fn ($process) => is_array($process->command) && end($process->command) === $path);
+        $this->assertSame(['contoh dengan spasi'], Storage::disk('quarantine')->allFiles());
+        $this->assertSame([], Storage::disk('quarantine')->allDirectories());
     }
 
     public function test_scanner_rejects_error_detection_and_missing_verdict(): void
@@ -132,6 +143,7 @@ class UploadScanningTest extends TestCase
                 $this->fail('Hasil scanner tidak valid harus ditolak');
             } catch (ApiException $exception) {
                 $this->assertSame($status, $exception->getHttpStatus());
+                $this->assertSame([], Storage::disk('quarantine')->allDirectories());
             }
         }
     }

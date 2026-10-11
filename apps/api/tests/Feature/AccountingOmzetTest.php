@@ -149,4 +149,43 @@ class AccountingOmzetTest extends TestCase
         $this->action($record, 'submit', 'admin.acc@dashboard.test')->assertStatus(409);
         $this->assertSame($submitted['version'], DB::table('acc_omzet_records')->where('id', $record['id'])->value('version'));
     }
+
+    public function test_cellular_daily_close_derives_gross_and_expected_deposit_from_source_lines(): void
+    {
+        $record = $this->createRecord([
+            'outlet_amount' => '999999.00',
+            'cash_amount' => '600.00', 'qris_amount' => '200.00', 'edc_amount' => '200.00',
+            'expense_amount' => '100.00',
+            'shift_breakdown' => [
+                ['shift_no' => 1, 'gross_amount' => '100.00'],
+                ['shift_no' => 2, 'gross_amount' => '200.00'],
+                ['shift_no' => 3, 'gross_amount' => '700.00'],
+            ],
+        ]);
+
+        $this->assertSame('HARIAN', $record['shift']);
+        $this->assertSame('1000.00', $record['outlet_amount']);
+        $this->assertSame('1000.00', $record['shift_total']);
+        $this->assertSame('0.00', $record['shift_difference']);
+        $this->assertSame('500.00', $record['expected_deposit_amount']);
+        $this->assertCount(3, $record['shift_breakdown']);
+        $this->assertDatabaseCount('acc_omzet_shift_lines', 3);
+    }
+
+    public function test_cellular_daily_close_rejects_invalid_shift_and_negative_deposit_plan(): void
+    {
+        $this->authenticated('admin.acc@dashboard.test')->postJson('/api/v1/accounting/omzet', $this->payload([
+            'expense_amount' => '600.00',
+            'shift_breakdown' => [
+                ['shift_no' => 1, 'gross_amount' => '500.25'],
+                ['shift_no' => 1, 'gross_amount' => '500.25'],
+            ],
+        ]))->assertStatus(400);
+
+        $this->authenticated('admin.acc@dashboard.test')->postJson('/api/v1/accounting/omzet', $this->payload([
+            'expense_amount' => '500.26',
+            'shift_breakdown' => [['shift_no' => 1, 'gross_amount' => '1000.50']],
+        ]))->assertStatus(400);
+        $this->assertDatabaseCount('acc_omzet_records', 0);
+    }
 }

@@ -39,17 +39,23 @@ class OmzetService
         return ($cents < 0 ? '-' : '').intdiv(abs($cents), 100).'.'.str_pad((string) (abs($cents) % 100), 2, '0', STR_PAD_LEFT);
     }
 
-    private function differences(OmzetRecord $record): array
+    private function differences(OmzetRecord $record, ?array $shiftLines = null): array
     {
         $received = 0;
         foreach (array_slice(self::AMOUNTS, 1) as $field) {
             $received += $this->cents($record->$field);
         }
 
+        $shiftLines ??= DB::table('acc_omzet_shift_lines')->where('record_id', $record->id)->orderBy('shift_no')->get()->map(fn ($line) => (array) $line)->all();
+        $shiftTotal = $shiftLines ? array_sum(array_map(fn ($line) => $this->cents($line['gross_amount']), $shiftLines)) : null;
+
         return [
             'received_amount' => $this->money($received),
             'payment_difference' => $this->money($this->cents($record->outlet_amount) - $received),
             'ap_difference' => $record->ap_amount === null ? null : $this->money($this->cents($record->outlet_amount) - $this->cents($record->ap_amount)),
+            'shift_total' => $shiftTotal === null ? null : $this->money($shiftTotal),
+            'shift_difference' => $shiftTotal === null ? null : $this->money($this->cents($record->outlet_amount) - $shiftTotal),
+            'shift_breakdown' => array_map(fn ($line) => ['shift_no' => (int) $line['shift_no'], 'gross_amount' => $this->money($this->cents($line['gross_amount']))], $shiftLines),
         ];
     }
 
@@ -66,9 +72,9 @@ class OmzetService
             'can_submit' => $normal || $permit, 'can_request_unlock' => $now->greaterThan($deadline), 'has_permit' => $permit];
     }
 
-    private function present(OmzetRecord $record): array
+    private function present(OmzetRecord $record, ?array $shiftLines = null): array
     {
-        return array_merge($record->toArray(), $this->differences($record), ['submission_window' => $this->window($record)]);
+        return array_merge($record->toArray(), $this->differences($record, $shiftLines), ['submission_window' => $this->window($record)]);
     }
 
     public function list(array $filters): array
@@ -94,7 +100,11 @@ class OmzetService
         }
         $page = $query->orderByDesc('business_date')->orderBy('outlet_name')->orderBy('shift')->paginate(25);
 
-        return ['items' => $page->getCollection()->map(fn ($record) => $this->present($record))->all(),
+        $recordIds = $page->getCollection()->pluck('id')->all();
+        $shiftLines = DB::table('acc_omzet_shift_lines')->whereIn('record_id', $recordIds)->orderBy('shift_no')->get()
+            ->groupBy('record_id')->map(fn ($lines) => $lines->map(fn ($line) => (array) $line)->all());
+
+        return ['items' => $page->getCollection()->map(fn ($record) => $this->present($record, $shiftLines->get($record->id, [])))->all(),
             'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'summary' => $summary];
     }
 
@@ -155,11 +165,22 @@ class OmzetService
                 $this->assertVersion($record, $data['version']);
                 $this->editable($record);
             }
-            $payload = array_intersect_key($data, array_flip(array_merge(self::AMOUNTS, ['outlet_id', 'business_date', 'shift', 'requires_ap', 'source_reference', 'notes'])));
+            $payload = array_intersect_key($data, array_flip(array_merge(self::AMOUNTS, ['outlet_id', 'business_date', 'shift', 'requires_ap', 'source_reference', 'notes', 'expense_amount'])));
+            $shiftBreakdown = $data['shift_breakdown'] ?? [];
+            if ($shiftBreakdown) {
+                $payload['shift'] = 'HARIAN';
+                $payload['outlet_amount'] = $this->money(array_sum(array_map(fn ($line) => $this->cents($line['gross_amount']), $shiftBreakdown)));
+            }
+            $payload['expense_amount'] ??= '0';
             $payload['shift'] = mb_strtoupper(trim($payload['shift']));
-            foreach (self::AMOUNTS as $field) {
+            foreach (array_merge(self::AMOUNTS, ['expense_amount']) as $field) {
                 $payload[$field] = $this->money($this->cents($payload[$field]));
             }
+            $expectedDeposit = $this->cents($payload['cash_amount']) - $this->cents($payload['expense_amount']);
+            if ($expectedDeposit < 0) {
+                throw new ApiException('VALIDATION_ERROR', 'Pengeluaran harian tidak boleh melebihi penerimaan tunai.');
+            }
+            $payload['expected_deposit_amount'] = $this->money($expectedDeposit);
             $record->fill($payload + ['outlet_name' => $outlet['name'], 'source_division_code' => $outlet['divisionCode']]);
             if (! $id) {
                 $record->id = (string) Str::uuid();
@@ -179,6 +200,13 @@ class OmzetService
                 $record->approved_by = null;
             }
             $record->save();
+            if ($shiftBreakdown) {
+                DB::table('acc_omzet_shift_lines')->where('record_id', $record->id)->delete();
+                DB::table('acc_omzet_shift_lines')->insert(array_map(fn ($line) => [
+                    'id' => (string) Str::uuid(), 'record_id' => $record->id, 'shift_no' => $line['shift_no'],
+                    'gross_amount' => $this->money($this->cents($line['gross_amount'])), 'created_at' => now(), 'updated_at' => now(),
+                ], $shiftBreakdown));
+            }
             $this->event($record, $id ? 'updated' : 'created', $user, ['input' => $payload]);
 
             return $record->id;
@@ -267,7 +295,9 @@ class OmzetService
                     }
                     $record->ap_amount = $record->requires_ap ? $this->money($this->cents($data['ap_amount'])) : null;
                     $differences = $this->differences($record);
-                    $mismatch = $this->centsSigned($differences['payment_difference']) !== 0 || $this->centsSigned($differences['ap_difference'] ?? '0') !== 0;
+                    $mismatch = $this->centsSigned($differences['payment_difference']) !== 0
+                        || $this->centsSigned($differences['ap_difference'] ?? '0') !== 0
+                        || ($differences['shift_difference'] !== null && $this->centsSigned($differences['shift_difference']) !== 0);
                     $record->review_notes = $mismatch ? $this->reason($data) : ($data['reason'] ?? null);
                     $record->status = $mismatch ? 'pending_approval' : 'validated';
                     $record->validated_at = $mismatch ? null : now();

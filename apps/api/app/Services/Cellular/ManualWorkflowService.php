@@ -103,12 +103,55 @@ class ManualWorkflowService
             'reference' => $reference, 'source_key' => $key, 'reason' => $reason, 'actor_id' => $user['sub'], 'created_at' => now()]);
     }
 
-    public function movements(array $user): array
+    public function movements(array $filters, array $user): array
     {
-        return DB::table('cel_stock_movements as m')->join('cel_products as p', 'p.id', '=', 'm.product_id')
-            ->whereIn('m.outlet_id', array_column($this->outlets($user), 'id'))
-            ->select('m.id', 'm.outlet_id', 'p.sku', 'p.name', 'm.quantity_delta', 'm.quantity_after', 'm.kind', 'm.created_at')
-            ->orderByDesc('m.created_at')->orderByDesc('m.id')->limit(100)->get()->all();
+        $query = DB::table('cel_stock_movements as m')->join('cel_products as p', 'p.id', '=', 'm.product_id')
+            ->whereIn('m.outlet_id', array_column($this->outlets($user), 'id'));
+        if (! empty($filters['month'])) {
+            $start = CarbonImmutable::createFromFormat('!Y-m', $filters['month'], 'Asia/Jakarta');
+            $query->whereBetween('m.created_at', [$start->startOfMonth()->utc(), $start->endOfMonth()->utc()]);
+        }
+        if (! empty($filters['outlet_id'])) {
+            $this->outlet($user, $filters['outlet_id']);
+            $query->where('m.outlet_id', $filters['outlet_id']);
+        }
+        if (! empty($filters['product_id'])) {
+            $this->product($filters['product_id']);
+            $query->where('m.product_id', $filters['product_id']);
+        }
+        if (! empty($filters['kind'])) {
+            $query->where('m.kind', $filters['kind']);
+        }
+        if (($filters['direction'] ?? null) === 'IN') {
+            $query->where('m.quantity_delta', '>', 0);
+        }
+        if (($filters['direction'] ?? null) === 'OUT') {
+            $query->where('m.quantity_delta', '<', 0);
+        }
+        if (! empty($filters['q'])) {
+            $needle = '%'.str_replace(['%', '_'], ['\\%', '\\_'], trim($filters['q'])).'%';
+            $query->where(function ($nested) use ($needle) {
+                $nested->where('p.sku', 'like', $needle)->orWhere('p.name', 'like', $needle)
+                    ->orWhere('m.reference', 'like', $needle)->orWhere('m.reason', 'like', $needle);
+            });
+        }
+
+        return $query->select('m.id', 'm.product_id', 'm.outlet_id', 'p.sku', 'p.name', 'p.provider', 'p.variant', 'm.quantity_delta', 'm.quantity_after', 'm.kind', 'm.reference', 'm.reason', 'm.source_key', 'm.actor_id', 'm.created_at')
+            ->orderByDesc('m.created_at')->orderByDesc('m.id')->limit(250)->get()->map(function ($row) {
+                $prefix = match ($row->kind) {
+                    'SALE' => 'sale:',
+                    'VOID' => 'void:',
+                    default => null,
+                };
+                $row->source_document_type = match ($row->kind) {
+                    'SALE' => 'Penjualan',
+                    'VOID' => 'Pembatalan penjualan',
+                    default => 'Bukti eksternal',
+                };
+                $row->source_document_id = $prefix && str_starts_with($row->source_key, $prefix) ? substr($row->source_key, strlen($prefix)) : null;
+
+                return $row;
+            })->all();
     }
 
     public function adjust(array $data, array $user): array
@@ -135,9 +178,13 @@ class ManualWorkflowService
         $this->policy->assertCapability($user, 'view:cellular_sales');
         $start = CarbonImmutable::createFromFormat('!Y-m', $month);
 
-        return DB::table('cel_manual_sales')->whereIn('outlet_id', array_column($this->outlets($user), 'id'))
-            ->whereBetween('business_date', [$start->toDateString(), $start->endOfMonth()->toDateString()])
-            ->orderByDesc('business_date')->orderByDesc('created_at')->limit(100)->get()->map(function ($row) {
+        return DB::table('cel_manual_sales as sales')
+            ->leftJoin('users as creator', 'creator.id', '=', DB::raw('CAST(sales.created_by AS VARCHAR)'))
+            ->leftJoin('users as voider', 'voider.id', '=', DB::raw('CAST(sales.voided_by AS VARCHAR)'))
+            ->whereIn('sales.outlet_id', array_column($this->outlets($user), 'id'))
+            ->whereBetween('sales.business_date', [$start->toDateString(), $start->endOfMonth()->toDateString()])
+            ->orderByDesc('sales.business_date')->orderByDesc('sales.created_at')->limit(100)
+            ->select('sales.*', 'creator.name as created_by_name', 'voider.name as voided_by_name')->get()->map(function ($row) {
                 $row->unit_price = $this->money($row->unit_price_cents);
                 $row->total_amount = $this->money($row->total_cents);
                 unset($row->unit_price_cents, $row->total_cents);

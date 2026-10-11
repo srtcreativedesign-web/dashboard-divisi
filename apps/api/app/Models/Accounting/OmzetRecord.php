@@ -23,6 +23,8 @@ class OmzetRecord extends Model
         'edc_amount' => 'decimal:2',
         'transfer_amount' => 'decimal:2',
         'other_amount' => 'decimal:2',
+        'expense_amount' => 'decimal:2',
+        'expected_deposit_amount' => 'decimal:2',
         'ap_amount' => 'decimal:2',
         'version' => 'integer',
     ];

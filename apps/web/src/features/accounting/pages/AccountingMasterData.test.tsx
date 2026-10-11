@@ -15,7 +15,7 @@ describe('Accounting Master Data CRUD', () => {
     localStorage.clear();
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
       if (url.includes('/auth/me')) return ok({ id: 'test', name: 'Pengguna Uji', role: localStorage.getItem('dashboard-divisi.role-demo'), divisionCode: localStorage.getItem('dashboard-divisi.division-demo') });
@@ -31,7 +31,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('ACC user sees Master Data heading', async () => {
     render(<App />);
-    expect(await screen.findByRole('heading', { name: /Master Data Accounting/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Master akun & kategori/i })).toBeInTheDocument();
   });
 
   it('shows empty state when no categories', async () => {
@@ -42,7 +42,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('ACC user can add a category', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /Tambah kategori/i }));
     const catForm = screen.getByRole('form', { name: /Form tambah kategori/i });
     const cat = within(catForm);
@@ -56,7 +56,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('ACC user can add a rekening', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
     fireEvent.click(screen.getByRole('button', { name: /Tambah rekening/i }));
     const accForm = screen.getByRole('form', { name: /Form tambah rekening/i });
@@ -71,7 +71,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('validates required fields on category form', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /Tambah kategori/i }));
     const catForm = screen.getByRole('form', { name: /Form tambah kategori/i });
     const cat = within(catForm);
@@ -84,7 +84,7 @@ describe('Accounting Master Data CRUD', () => {
 
   it('validates required fields on account form', async () => {
     render(<App />);
-    await screen.findByRole('heading', { name: /Master Data Accounting/i });
+    await screen.findByRole('heading', { name: /Master akun & kategori/i });
     fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
     fireEvent.click(screen.getByRole('button', { name: /Tambah rekening/i }));
     const accForm = screen.getByRole('form', { name: /Form tambah rekening/i });
@@ -99,10 +99,11 @@ describe('Accounting Master Data CRUD', () => {
   it('ACC user sees MASTER route via navigation', async () => {
     history.pushState({}, '', '/accounting');
     render(<App />);
-    const masterLinks = await screen.findAllByRole('link', { name: /Master Data/i });
+    fireEvent.click(await screen.findByRole('button', { name: 'Data & Integrasi' }));
+    const masterLinks = await screen.findAllByRole('link', { name: 'Master Akun & Kategori' });
     expect(masterLinks.length).toBeGreaterThan(0);
     masterLinks.forEach(link => {
-      expect(link).toHaveAttribute('href', '/accounting/master');
+      expect(link).toHaveAttribute('href', '/accounting/pembukuan/master');
     });
   });
 });

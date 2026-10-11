@@ -33,7 +33,14 @@ class ProjectController extends Controller
             $query->whereLike('name', '%'.$filters['search'].'%');
         }
 
-        $projects = $query->orderBy('created_at', 'desc')->paginate($filters['per_page'] ?? 15);
+        $projects = $query->with(['milestones', 'rabs'])->orderBy('created_at', 'desc')->paginate($filters['per_page'] ?? 15);
+
+        foreach ($projects->items() as $project) {
+            if ($project->milestones->isEmpty()) {
+                $this->ensureStandardMilestones($project);
+                $project->load('milestones');
+            }
+        }
 
         return response()->json($projects);
     }
@@ -66,8 +73,18 @@ class ProjectController extends Controller
         }
         $this->validateDates($validated);
         $project = Project::create($validated);
+        $this->ensureStandardMilestones($project);
+        $project->load(['milestones', 'rabs']);
 
         return response()->json($project, 201);
+    }
+
+    public function destroy($id)
+    {
+        $project = Project::findOrFail($id);
+        $project->delete();
+
+        return response()->json(['message' => 'Proyek berhasil dihapus']);
     }
 
     public function update(Request $request, $id)
@@ -119,6 +136,7 @@ class ProjectController extends Controller
             'title' => 'required|string|max:255',
             'weight_percentage' => 'required|numeric|min:0|max:100',
             'due_date' => 'nullable|date',
+            'notes' => 'nullable|string|max:500',
         ]);
 
         $milestone = $project->milestones()->create([
@@ -127,9 +145,64 @@ class ProjectController extends Controller
             'status' => 'pending',
             'payment_status' => false,
             'due_date' => $validated['due_date'] ?? null,
+            'notes' => $validated['notes'] ?? null,
         ]);
 
         return response()->json($milestone, 201);
+    }
+
+    public function updateMilestone(Request $request, $projectId, $milestoneId)
+    {
+        $project = Project::findOrFail($projectId);
+        $milestone = ProjectMilestone::where('project_id', $projectId)->findOrFail($milestoneId);
+
+        $validated = $request->validate([
+            'status' => 'nullable|in:pending,in_progress,completed',
+            'notes' => 'nullable|string|max:500',
+            'completion_date' => 'nullable|date',
+            'actual_percentage' => 'nullable|numeric|min:0|max:100',
+            'payment_status' => 'nullable|boolean',
+        ]);
+
+        if (isset($validated['status']) && $validated['status'] === 'completed' && empty($validated['completion_date'])) {
+            $validated['completion_date'] = now()->toDateString();
+        }
+
+        $milestone->update($validated);
+
+        // Sync project overall status if appropriate
+        $allCompleted = $project->milestones()->where('status', '!=', 'completed')->count() === 0;
+        if ($allCompleted && $project->status !== 'completed') {
+            $project->update(['status' => 'completed']);
+        } elseif (! $allCompleted && $milestone->status === 'in_progress' && $project->status === 'planning') {
+            $project->update(['status' => 'in_progress']);
+        }
+
+        return response()->json($milestone->fresh());
+    }
+
+    public function syncStandardMilestones($id)
+    {
+        $project = Project::findOrFail($id);
+        $this->ensureStandardMilestones($project);
+
+        return response()->json($project->milestones()->get());
+    }
+
+    private function ensureStandardMilestones(Project $project): void
+    {
+        if ($project->milestones()->count() === 0) {
+            $defaultStages = [
+                ['title' => '1. SURVEI', 'weight_percentage' => 20, 'status' => 'pending', 'notes' => 'Survei lokasi'],
+                ['title' => '2. IZIN KERJA', 'weight_percentage' => 20, 'status' => 'pending', 'notes' => 'Izin kerja & K3'],
+                ['title' => '3. RAB', 'weight_percentage' => 20, 'status' => 'pending', 'notes' => 'Penyusunan RAB'],
+                ['title' => '4. PAYMENT', 'weight_percentage' => 20, 'status' => 'pending', 'notes' => '-'],
+                ['title' => '5. EXECUTION', 'weight_percentage' => 20, 'status' => 'pending', 'notes' => '-'],
+            ];
+            foreach ($defaultStages as $stage) {
+                $project->milestones()->create($stage);
+            }
+        }
     }
 
     public function financialSummary($id)

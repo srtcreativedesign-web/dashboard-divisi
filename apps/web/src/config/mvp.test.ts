@@ -40,15 +40,15 @@ describe('Akses modul MVP', () => {
 describe('Menu jurnal dan impor sesuai izin API', () => {
   it('menyembunyikan jurnal dan impor dari role yang hanya membaca laporan', () => {
     for (const role of ['HEAD_OPS', 'SPV', 'LEADER', 'ADMIN_GUDANG']) {
-      for (const path of ['/accounting/jurnal', '/accounting/impor', '/accounting/vouchers', '/accounting/omzet', '/accounting/cashflow', '/accounting/outstanding', '/accounting/rekonsiliasi', '/accounting/periode']) {
+      for (const path of ['/accounting/pembukuan/transaksi', '/accounting/pembukuan/impor', '/accounting/pengeluaran/voucher', '/accounting/pendapatan/rekap', '/accounting/kas-bank/cashflow', '/accounting/pembukuan/hutang-piutang', '/accounting/kas-bank/rekonsiliasi', '/accounting/pembukuan/periode']) {
         const menu = ACCOUNTING_MENU_ITEMS.find(item => item.path === path)!;
         expect(hasCapability(role, menu.capability!, 'ACC')).toBe(false);
       }
     }
   });
   it('Manager membaca jurnal, sementara impor mengikuti aktor pengajuan periode', () => {
-    const journal = ACCOUNTING_MENU_ITEMS.find(item => item.path === '/accounting/jurnal')!;
-    const importMenu = ACCOUNTING_MENU_ITEMS.find(item => item.path === '/accounting/impor')!;
+    const journal = ACCOUNTING_MENU_ITEMS.find(item => item.path === '/accounting/pembukuan/transaksi')!;
+    const importMenu = ACCOUNTING_MENU_ITEMS.find(item => item.path === '/accounting/pembukuan/impor')!;
     expect(hasCapability('MANAGER', journal.capability!, 'ACC')).toBe(true);
     expect(hasCapability('MANAGER', importMenu.capability!, 'ACC')).toBe(false);
     for (const role of ['ADMIN', 'ACCOUNTING', 'FINANCE']) {

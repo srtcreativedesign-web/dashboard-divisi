@@ -1,0 +1,20 @@
+[
+  {
+    "transaction_date": "2026-10-06",
+    "category_code": "B990",
+    "account_number": "UAT-MANDIRI-26",
+    "reference_no": "MENU-UAT-20261007-2026-10-IMP0",
+    "description": "UAT / SIMULASI penerimaan kas melalui impor JSON",
+    "debit": 50000,
+    "credit": 0
+  },
+  {
+    "transaction_date": "2026-10-06",
+    "category_code": "B990",
+    "account_number": "UAT-BCA-26",
+    "reference_no": "MENU-UAT-20261007-2026-10-IMP1",
+    "description": "UAT / SIMULASI penerimaan kas melalui impor JSON",
+    "debit": 100000,
+    "credit": 0
+  }
+]

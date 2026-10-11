@@ -44,7 +44,7 @@ export function LineChart({
     <div className={`w-full ${className}`}>
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-[70px]" preserveAspectRatio="xMidYMid meet">
         {showGrid && (
-          <g stroke="#e2e8f0" strokeWidth="0.2" fill="none">
+          <g stroke="var(--color-line)" strokeWidth="0.2" fill="none">
             {[0, 1, 2].map((i) => {
               const y = (i * chartHeight) / 2 + (height - chartHeight);
               return <line key={i} x1="0" y1={y} x2={width} y2={y} />;

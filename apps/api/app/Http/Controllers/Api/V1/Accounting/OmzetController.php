@@ -61,8 +61,12 @@ class OmzetController extends Controller
             'requires_ap' => 'required|boolean',
             'source_reference' => 'required|string|max:255',
             'notes' => 'nullable|string|max:2000',
+            'expense_amount' => ['sometimes', 'regex:/^\d{1,12}(\.\d{1,2})?$/'],
+            'shift_breakdown' => 'sometimes|array|min:1|max:3',
+            'shift_breakdown.*.shift_no' => 'required|integer|between:1,3|distinct',
+            'shift_breakdown.*.gross_amount' => ['required', 'regex:/^\d{1,12}(\.\d{1,2})?$/'],
             'division_code' => 'prohibited', 'divisionCode' => 'prohibited',
-            'status' => 'prohibited', 'created_by' => 'prohibited', 'ap_amount' => 'prohibited',
+            'status' => 'prohibited', 'created_by' => 'prohibited', 'ap_amount' => 'prohibited', 'expected_deposit_amount' => 'prohibited',
             'version' => $id ? 'required|integer|min:1' : 'prohibited',
         ];
         foreach (OmzetService::AMOUNTS as $field) {

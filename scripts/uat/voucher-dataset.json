@@ -1,0 +1,130 @@
+{
+  "batch": "VOUCHER-UAT-20261007",
+  "date": "2026-10-07",
+  "company": "Perusahaan UAT (SIMULASI)",
+  "payee": "Penerima UAT (bukan penerima nyata)",
+  "bank": {
+    "name": "Bank UAT (SIMULASI)",
+    "holder": "Pemilik UAT (SIMULASI)",
+    "account": "000000000001"
+  },
+  "actors": {
+    "admin": {
+      "email": "admin.acc@dashboard.test",
+      "role": "ADMIN",
+      "division": "ACC"
+    },
+    "accounting": {
+      "email": "accounting@dashboard.test",
+      "role": "ACCOUNTING",
+      "division": "ACC"
+    },
+    "manager": {
+      "email": "manager.acc@dashboard.test",
+      "role": "MANAGER",
+      "division": "ACC"
+    },
+    "finance": {
+      "email": "finance@dashboard.test",
+      "role": "FINANCE",
+      "division": "ACC"
+    },
+    "project": {
+      "email": "admin.project@dashboard.test",
+      "role": "ADMIN",
+      "division": "PROJECT"
+    },
+    "cell": {
+      "email": "admin.cell@dashboard.test",
+      "role": "ADMIN",
+      "division": "CELL"
+    },
+    "bod": {
+      "email": "bod1@dashboard.test",
+      "role": "BOD",
+      "division": null
+    },
+    "head": {
+      "email": "head-ops.acc@dashboard.test",
+      "role": "HEAD_OPS",
+      "division": "ACC"
+    }
+  },
+  "scenarios": [
+    {
+      "key": "01-DRAF",
+      "stage": "draft",
+      "type": "OPERATIONAL",
+      "division": "CELL",
+      "amount": "360000.25",
+      "method": "BANK",
+      "description": "UAT/SIMULASI kebutuhan operasional outlet; bukan transaksi nyata."
+    },
+    {
+      "key": "02-KOREKSI",
+      "stage": "correction",
+      "type": "PURCHASING",
+      "division": "CELL",
+      "amount": "450000.00",
+      "method": "CASH",
+      "description": "UAT/SIMULASI pengajuan pembelian yang dikembalikan untuk koreksi."
+    },
+    {
+      "key": "03-DIAJUKAN",
+      "stage": "submitted",
+      "type": "BILLING",
+      "division": "PROJECT",
+      "amount": "750000.00",
+      "method": "BANK",
+      "description": "UAT/SIMULASI tagihan untuk pemeriksaan Accounting; bukan tagihan nyata."
+    },
+    {
+      "key": "04-MANAGER",
+      "stage": "pending_approval",
+      "type": "OPERATIONAL",
+      "division": "PROJECT",
+      "amount": "925000.50",
+      "method": "CASH",
+      "description": "UAT/SIMULASI kebutuhan operasional yang menunggu persetujuan Manager."
+    },
+    {
+      "key": "05-DISETUJUI",
+      "stage": "approved",
+      "type": "OPERATIONAL",
+      "division": "CELL",
+      "amount": "360000.25",
+      "method": "BANK",
+      "description": "UAT/SIMULASI pengajuan disetujui yang belum memiliki catatan pembayaran."
+    },
+    {
+      "key": "06-SEBAGIAN",
+      "stage": "partial",
+      "type": "PURCHASING",
+      "division": "CELL",
+      "amount": "360000.25",
+      "method": "BANK",
+      "paid": "100000.25",
+      "description": "UAT/SIMULASI pembelian dengan realisasi sebagian, belum mengubah stok."
+    },
+    {
+      "key": "07-LUNAS",
+      "stage": "paid",
+      "type": "OPERATIONAL",
+      "division": "PROJECT",
+      "amount": "1250000.50",
+      "method": "CASH",
+      "paid": "1250000.50",
+      "description": "UAT/SIMULASI pengeluaran dengan realisasi penuh; bukan pembayaran bank nyata."
+    },
+    {
+      "key": "08-PEMBATALAN",
+      "stage": "voided",
+      "type": "OPERATIONAL",
+      "division": "PROJECT",
+      "amount": "50000.00",
+      "method": "CASH",
+      "paid": "50000.00",
+      "description": "UAT/SIMULASI catatan realisasi salah yang dibatalkan Manager, bukan refund."
+    }
+  ]
+}

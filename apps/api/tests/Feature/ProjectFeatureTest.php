@@ -207,4 +207,52 @@ class ProjectFeatureTest extends TestCase
         $this->assertEquals(76.0, $data['realized_margin_percentage']); // 380 / 500 = 76%
         $this->assertEquals(150000000, $data['paid_amount']);
     }
+
+    public function test_project_has_standard_5_stages_and_can_update_milestone()
+    {
+        $createRes = $this->authenticated('manager.project@dashboard.test')->postJson('/api/v1/projects', [
+            'name' => 'Proyek Penggantian Filter AHU',
+            'client_name' => 'PT Surya Makmur',
+            'contract_value' => 3970000,
+            'classification' => 'maintenance',
+            'status' => 'planning',
+        ]);
+        $createRes->assertStatus(201);
+        $projectId = $createRes->json('data.id');
+
+        $project = Project::with('milestones')->find($projectId);
+        $this->assertNotEmpty($project->milestones);
+        $this->assertCount(5, $project->milestones);
+
+        $milestone = $project->milestones->first();
+        $this->assertEquals('1. SURVEI', $milestone->title);
+
+        // Update milestone status & notes
+        $updateRes = $this->authenticated('manager.project@dashboard.test')
+            ->putJson("/api/v1/projects/{$project->id}/milestones/{$milestone->id}", [
+                'status' => 'completed',
+                'notes' => 'Survei lokasi telah selesai disetujui',
+                'actual_percentage' => 100,
+            ]);
+
+        $updateRes->assertStatus(200);
+        $this->assertEquals('completed', $updateRes->json('data.status'));
+        $this->assertEquals('Survei lokasi telah selesai disetujui', $updateRes->json('data.notes'));
+        $this->assertNotNull($updateRes->json('data.completion_date'));
+    }
+
+    public function test_can_delete_project()
+    {
+        $project = Project::create([
+            'division_code' => 'PROJECT',
+            'name' => 'Proyek Hapus Test',
+            'contract_value' => 10000000,
+        ]);
+
+        $res = $this->authenticated('manager.project@dashboard.test')
+            ->deleteJson("/api/v1/projects/{$project->id}");
+
+        $res->assertStatus(200);
+        $this->assertNull(Project::find($project->id));
+    }
 }

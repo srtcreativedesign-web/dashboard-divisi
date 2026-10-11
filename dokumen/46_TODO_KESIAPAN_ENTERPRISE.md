@@ -14,6 +14,17 @@
 8. [ ] ENT-08 — Pemulihan dan tata kelola: RPO/RTO, backup offsite terenkripsi, retensi, pemulihan kunci dan latihan recovery host baru. Bukti backup lokal/restore terisolasi tersedia; bukan bukti pemulihan produksi. Dependensi TODO-05-prod/04.
 9. [ ] ENT-09 — Audit UX lintas modul dan penerimaan: HR, Project, Cellular, data terisi/tabel panjang, keyboard/mobile, error dan istilah tindakan. Dependensi TODO-UI-02; kosmetik tidak menjadi ukuran kesiapan enterprise.
 
+## Kemajuan ENT-02 — matriks teknis
+
+- [x] ENT-02a — satu sumber capability backend, JSON frontend generated, pemeriksaan sinkronisasi di gate/CI serta tes penolakan identitas tidak dikenal. [Acuan sebelum kode dan hasil](47_MATRIKS_KEWENANGAN_TEKNIS.md). Gate lokal exit 0; 258 backend/111 web/dua contracts lulus. Konfigurasi CI tersedia, blocker billing remote tetap terpisah pada ENT-01b.
+- [ ] ENT-02b — matriks bisnis final, ekspor, delegasi/PIC/masa berlaku dan penerimaan pengguna. Kontrol konservatif yang ada tetap berlaku.
+
+## Kemajuan ENT-03 — pencocokan sumber
+
+- [x] ENT-03a — pencocokan pembayaran omzet tervalidasi, alokasi setoran dan penerimaan Finance per kanal/sumber. [Scope dan hasil](48_PENCOCOKAN_OMZET_DAN_SETORAN.md). Gate exit 0: 264 backend/115 web/dua contracts lulus; browser native kosong desktop/mobile diperiksa. Bukan jurnal otomatis atau UAT bisnis.
+- [ ] ENT-03b — pemetaan COA, pengakuan pendapatan/HPP/bonus, sumber voucher/jurnal dan penutupan periode lengkap. Tidak diputuskan melalui asumsi atau angka contoh.
+- [x] ENT-03a-2 — tautan pencocokan ke daftar setoran satu sumber di semua tanggal, konteks server, histori pembatalan, kembali ke daftar bulanan dan reset detail saat berganti sumber. [Scope dan hasil](49_PENELUSURAN_SETORAN_PER_SUMBER.md). Gate exit 0: 267 backend/118 web/dua contracts. Tidak menutup ENT-03b atau UAT.
+
 ## Pekerjaan pertama yang diimplementasikan
 
 ENT-01 dipilih karena dapat dikerjakan tanpa mengarang aturan bisnis. Pemeriksaan membaca kode serta memakai database tes SQLite in-memory untuk backend. Tidak mengubah database PostgreSQL native, membuat transaksi bisnis, atau menjalankan deployment. Gate lokal hanya menghasilkan hasil teknis; keputusan bisnis, UAT, kapasitas dan operasi produksi tetap terpisah.
@@ -34,4 +45,17 @@ Gate lokal selesai dengan exit code 0: 258 backend (2036 assertions), 108 web (2
 - [x] ENT-01a — implementasi gate dan pemeriksaan lokal selesai; bukti aktual pada artifacts/release/latest.json. Run ini dilakukan saat working tree berisi perubahan, dan JSON mencatat workingTreeDirty=true; bukan sertifikasi CI commit akhir.
 - [ ] ENT-01b — verifikasi CI remote setelah billing GitHub pulih. Jangan menutup ENT-01 sebelum hasil remote tersedia.
 
-UAT, matriks bisnis, integrasi, kapasitas dan operasi produksi tetap terbuka. ENT-02–09 belum diimplementasikan atau diterima pada pekerjaan ini.
+UAT, matriks bisnis, integrasi, kapasitas dan operasi produksi tetap terbuka. ENT-02a selesai teknis pada pekerjaan berikutnya (dokumen 47); ENT-02b serta ENT-03–09 belum selesai atau diterima.
+
+## Kemajuan ENT-09 — UI lintas modul
+
+- [x] ENT-09a — pagination dan request race Project; konteks mutasi Cellular/HR; akses keyboard detail, tabel mobile dan tema shell. [Scope/bukti](50_PENYELESAIAN_TEKNIS_UI_LINTAS_MODUL.md). Gate final: 267 backend/128 web/dua contracts, lint/typecheck/build/Pint dan guard lulus. Native tiga modul kosong terang/gelap diperiksa; data terisi melalui fixture tes.
+- [ ] ENT-09b — UAT semua role, sumber nyata, tabel panjang dan penerimaan UX perusahaan. ENT-09 induk tetap terbuka.
+
+Daftar dependensi seluruh item: [dokumen 51](51_STATUS_DAN_DEPENDENSI_PENYELESAIAN.md). Anotasi run REQ 37561895204 kembali mengonfirmasi akun GitHub terkunci karena billing; ENT-01b tetap terbuka.
+
+- [x] ENT-09a-2 / PRJ-UI-003 — direktori vendor Project: pencarian/pagination, respons lama dan simpan/reload terpisah; urutan nama/id serta batas kontak diuji. [Scope/bukti](52_DIREKTORI_VENDOR_PROJECT.md). Gate final exit 0: 268 backend/2219 assertions, 134 web, dua contracts dan seluruh guard gate/policy/database/scanner. Lint/typecheck/build/Pint lulus. Tidak menutup ENT-04/ENT-09b atau UAT.
+
+## Lanjutan 8 Oktober 2026 — preview Cellular
+
+Preview teknis lima profil selesai pada dokumen 65, dengan parsing terisolasi, scanner dan izin khusus. Data asli tidak diposting. Ini tidak menutup item enterprise: QA semua role/visual, staging persisten, sumber final/approval, integrasi operasi serta patch advisory Laravel/CommonMark tetap terbuka. Browser in-app terhenti saat QA sumber kedua; hasil CLI/API native tetap lulus.

@@ -19,7 +19,7 @@ class ProjectVendorController extends Controller
         if (! $this->canReadContact($request)) {
             $query->select(['id', 'name', 'category', 'created_at', 'updated_at']);
         }
-        $vendors = $query->orderBy('name', 'asc')->paginate($filters['per_page'] ?? 50);
+        $vendors = $query->orderBy('name', 'asc')->orderBy('id', 'asc')->paginate($filters['per_page'] ?? 50);
 
         return response()->json($vendors);
     }

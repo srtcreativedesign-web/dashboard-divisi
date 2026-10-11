@@ -24,7 +24,7 @@ function ToastItem({ t, onDismiss }: { t: Toast; onDismiss: () => void }) {
   return (
     <div
       className={`rounded-card border px-4 py-3 text-sm shadow-glass backdrop-blur flex flex-col gap-2 ${
-        t.type === 'success' ? 'bg-success-light border-success/20 text-success' : t.type === 'error' ? 'bg-danger-light border-danger/20 text-danger' : 'bg-white border-line text-navy'
+        t.type === 'success' ? 'bg-success-light border-success/20 text-success' : t.type === 'error' ? 'bg-danger-light border-danger/20 text-danger' : 'bg-panel border-line text-navy'
       }`}
     >
       <div className="flex items-start gap-3"><p className="flex-1">{t.message}</p><button type="button" onClick={onDismiss} aria-label="Tutup notifikasi" className="shrink-0 rounded p-1 hover:bg-black/5"><X className="h-4 w-4" /></button></div>
@@ -33,7 +33,7 @@ function ToastItem({ t, onDismiss }: { t: Toast; onDismiss: () => void }) {
           <code className="font-mono text-[10px] break-all">{t.traceId}</code>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1 shrink-0 bg-white/60 hover:bg-white rounded px-2 py-1 shadow-sm transition-colors text-slate-700"
+            className="flex items-center gap-1 shrink-0 bg-panel/60 hover:bg-panel rounded px-2 py-1 shadow-sm transition-colors text-muted"
             title="Salin Trace ID"
           >
             {copied ? <Check className="w-3 h-3 text-success" /> : <Copy className="w-3 h-3" />}

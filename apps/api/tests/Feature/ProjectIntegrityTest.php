@@ -79,4 +79,19 @@ class ProjectIntegrityTest extends TestCase
         $this->assertDatabaseHas('projects', ['id' => $project->id, 'start_date' => '2026-10-06', 'end_date' => '2026-10-20']);
         $this->putJson('/api/v1/projects/'.$project->id, ['start_date' => '2026-10-21', 'end_date' => '2026-10-22'])->assertOk();
     }
+
+    public function test_vendor_pagination_with_equal_names_keeps_distinct_rows_and_reader_projection(): void
+    {
+        $first = ProjectVendor::create(['name' => 'Vendor sama', 'phone' => 'Kontak privat satu']);
+        $second = ProjectVendor::create(['name' => 'Vendor sama', 'phone' => 'Kontak privat dua']);
+        User::where('email', 'manager.project@dashboard.test')->update(['role' => 'LEADER']);
+        $this->authenticated('manager.project@dashboard.test');
+        foreach ([1 => $first->id, 2 => $second->id] as $page => $id) {
+            $response = $this->getJson('/api/v1/vendors?search=Vendor&per_page=1&page='.$page)->assertOk()
+                ->assertJsonPath('data.total', 2)->assertJsonPath('data.current_page', $page);
+            $this->assertEquals($id, $response->json('data.data.0.id'));
+            $this->assertCount(1, $response->json('data.data'));
+            $this->assertArrayNotHasKey('phone', $response->json('data.data.0'));
+        }
+    }
 }

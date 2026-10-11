@@ -140,7 +140,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
 
       {/* DOCUMENT PREVIEW CONTAINER (Ready for Print) */}
       <div className="relative overflow-hidden rounded-card-lg bg-white text-navy p-8 sm:p-12 border border-line shadow-card-hover print:border-none print:shadow-none print:p-0">
-        {/* WATERMARK DIAGONAL "DIGITAL TECH" */}
+        {/* WATERMARK DIAGONAL "SRT CORP" */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 flex items-center justify-center select-none overflow-hidden z-0"
@@ -149,7 +149,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
             className="text-navy font-black tracking-widest uppercase opacity-[0.035] transform -rotate-45"
             style={{ fontSize: '13vw', lineHeight: 1 }}
           >
-            DIGITAL TECH
+            SRT CORP
           </span>
         </div>
 
@@ -158,7 +158,7 @@ export function ProjectReportsExport({ project, initialReportType = 'progress' }
           <div className="flex items-start justify-between">
             <div>
               <span className="text-[11px] font-bold tracking-widest uppercase text-primary">
-                PT DIGITAL TECH REKAYASA &bull; DIVISI MANAJEMEN PROYEK
+                SRT CORP &bull; DIVISI MANAJEMEN PROYEK
               </span>
               <h1 className="text-xl sm:text-2xl font-black uppercase text-navy mt-1">
                 {reportType === 'progress'

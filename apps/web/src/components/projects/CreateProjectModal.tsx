@@ -8,16 +8,17 @@ interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (project: Project) => void;
+  initialClassification?: 'new' | 'maintenance';
 }
 
-export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProjectModalProps) {
+export function CreateProjectModal({ isOpen, onClose, onSuccess, initialClassification = 'new' }: CreateProjectModalProps) {
   const [form, setForm] = useState({
     name: '',
     project_code: '',
     client_name: '',
     location: '',
     contract_value: '',
-    classification: 'new' as 'new' | 'maintenance',
+    classification: initialClassification,
     status: 'planning',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
@@ -25,6 +26,15 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setForm(prev => ({
+        ...prev,
+        classification: initialClassification,
+      }));
+    }
+  }, [isOpen, initialClassification]);
 
   if (!isOpen) return null;
 
@@ -56,16 +66,16 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-xl rounded-card-lg bg-white dark:bg-navy-light shadow-card-hover border border-line dark:border-line/20 overflow-hidden">
+      <div className="w-full max-w-xl rounded-card-lg bg-panel dark:bg-navy-light shadow-card-hover border border-line dark:border-line/20 overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-line dark:border-line/20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-card bg-surface-2 text-primary border border-primary/20">
+            <div className="p-2.5 rounded-card bg-surface-2 text-primary dark:text-primary-300 border border-primary/20">
               <Building2 className="h-5 w-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-navy dark:text-white">Tambah Proyek Baru</h3>
-              <p className="text-xs text-slate-500">Inisialisasi kontrak proyek konstruksi atau jasa divisi</p>
+              <p className="text-xs text-subtle">Inisialisasi kontrak proyek konstruksi atau jasa divisi</p>
             </div>
           </div>
           <button
@@ -78,7 +88,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         </div>
 
         {error && (
-          <div className="mx-6 mt-4 p-3 rounded-card bg-danger-light text-danger text-xs border border-danger/30 font-medium">
+          <div className="mx-6 mt-4 p-3 rounded-card bg-danger-light text-danger dark:text-red-300 text-xs border border-danger/30 font-medium">
             {error}
           </div>
         )}
@@ -96,7 +106,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 placeholder="Misal: Pembangunan Gedung Lab Komputer"
-                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
               />
             </div>
             <div>
@@ -108,7 +118,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 value={form.project_code}
                 onChange={e => setForm({ ...form, project_code: e.target.value })}
                 placeholder="PRJ-2026-005"
-                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary uppercase transition-all"
+                className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary uppercase transition-all"
               />
             </div>
           </div>
@@ -124,7 +134,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 value={form.client_name}
                 onChange={e => setForm({ ...form, client_name: e.target.value })}
                 placeholder="PT Maju Bersama / Dinas PUPR"
-                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
               />
             </div>
             <div>
@@ -138,7 +148,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   value={form.location}
                   onChange={e => setForm({ ...form, location: e.target.value })}
                   placeholder="Jakarta Barat / Surabaya"
-                  className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 pl-9 pr-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                  className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 pl-9 pr-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                 />
               </div>
             </div>
@@ -156,7 +166,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 value={form.contract_value}
                 onChange={e => setForm({ ...form, contract_value: e.target.value })}
                 placeholder="500000000"
-                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary font-medium transition-all"
+                className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary font-medium transition-all"
               />
             </div>
             <div>
@@ -179,7 +189,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               <select
                 value={form.status}
                 onChange={e => setForm({ ...form, status: e.target.value })}
-                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
               >
                 <option value="planning">Planning (Perencanaan)</option>
                 <option value="in_progress">In Progress (Berjalan)</option>
@@ -198,7 +208,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 type="date"
                 value={form.start_date}
                 onChange={e => setForm({ ...form, start_date: e.target.value })}
-                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
               />
             </div>
             <div>
@@ -209,7 +219,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 type="date"
                 value={form.end_date}
                 onChange={e => setForm({ ...form, end_date: e.target.value })}
-                className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
               />
             </div>
           </div>
@@ -223,7 +233,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
               placeholder="Rincian lingkup pekerjaan, spesifikasi, dan target proyek..."
-              className="w-full rounded-input border border-line dark:border-line/20 bg-white dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              className="w-full rounded-input border border-line dark:border-line/20 bg-panel dark:bg-navy/40 px-3 py-2 text-xs text-navy dark:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
             />
           </div>
 

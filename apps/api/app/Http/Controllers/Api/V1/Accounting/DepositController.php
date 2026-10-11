@@ -19,12 +19,19 @@ class DepositController extends Controller
 
     public function index(Request $r)
     {
-        return response()->json($this->service->list($this->filters($r), $r->attributes->get('user')));
+        $filters = $r->validate(['month' => 'required_without:omzet_id|date_format:Y-m', 'omzet_id' => 'nullable|uuid', 'page' => 'nullable|integer|min:1|max:1000000']);
+
+        return response()->json($this->service->list($filters, $r->attributes->get('user')));
     }
 
     public function sources(Request $r)
     {
         return response()->json($this->service->sources($this->filters($r), $r->attributes->get('user')));
+    }
+
+    public function reconciliation(Request $r)
+    {
+        return response()->json($this->service->reconciliation($this->filters($r), $r->attributes->get('user')));
     }
 
     public function show(Request $r, string $id)

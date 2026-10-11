@@ -21,6 +21,7 @@ import { Plus } from "lucide-react";
 import { JournalTable } from "../../../components/accounting/JournalTable";
 import { JournalFormDrawer } from "../../../components/accounting/JournalFormDrawer";
 import { JournalFilterBar } from "../../../components/accounting/JournalFilterBar";
+import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 
 export default function AccountingJournalPage() {
   const { user } = useAuth();
@@ -36,6 +37,8 @@ export default function AccountingJournalPage() {
   const transactions = useAccountingTransactions(periodId, search, page);
   const mutations = useTransactionMutations();
   
+  const busy = mutations.create.isPending || mutations.update.isPending || mutations.cancel.isPending || mutations.upload.isPending;
+
   const [editingTx, setEditingTx] = useState<AccTransaction | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -53,19 +56,22 @@ export default function AccountingJournalPage() {
     period &&
     !["draft", "reopened", "needs_correction"].includes(period.status),
   );
-  const canWrite = hasCapability(user?.role ?? '', 'write:acc_transaction', user?.divisionCode) && !locked;
+  const canWrite = hasCapability(user?.role ?? '', 'write:acc_transaction', user?.divisionCode) && Boolean(periodId && period) && !locked;
 
   const handleEdit = (tx: AccTransaction) => {
+    if (!canWrite || busy) return;
     setEditingTx(tx);
     setIsDrawerOpen(true);
   };
 
   const handleCreateNew = () => {
+    if (!canWrite || busy) return;
     setEditingTx(null);
     setIsDrawerOpen(true);
   };
 
   const handleSubmit = async (payload: TransactionPayload) => {
+    if (!canWrite || busy || payload.period_id !== periodId) return;
     try {
       if (editingTx) {
         await mutations.update.mutateAsync({ id: editingTx.id, payload });
@@ -86,6 +92,7 @@ export default function AccountingJournalPage() {
   };
 
   const handleCancel = async (tx: AccTransaction) => {
+    if (!canWrite || busy) return;
     const reason = window.prompt("Alasan pembatalan (wajib):")?.trim();
     if (!reason) return;
     try {
@@ -97,7 +104,7 @@ export default function AccountingJournalPage() {
   };
 
   const handleUpload = async (tx: AccTransaction, file?: File) => {
-    if (!file) return;
+    if (!file || !canWrite || busy) return;
     try {
       await mutations.upload.mutateAsync({ id: tx.id, file });
       toast("Bukti berhasil diunggah", "success");
@@ -131,15 +138,11 @@ export default function AccountingJournalPage() {
 
   return (
     <section className="space-y-5">
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-navy">Jurnal Aktual</h1>
-          <p className="text-sm text-slate-600 mt-1">
-            Pencatatan aktual yang deterministik dengan kontrol bukti dan versi.
-          </p>
-        </div>
-        
-        {canWrite && (
+      <AccountingPageHeader
+        area="Pembukuan · Transaksi"
+        title="Jurnal transaksi"
+        description="Catat debit dan kredit, lampirkan bukti, dan telusuri koreksi jurnal pada periode aktif."
+        actions={canWrite ? (
           <button
             onClick={handleCreateNew}
             className="inline-flex items-center justify-center gap-2 rounded-input bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -147,15 +150,16 @@ export default function AccountingJournalPage() {
             <Plus className="h-4 w-4" />
             Jurnal Baru
           </button>
-        )}
-      </header>
+        ) : undefined}
+      />
 
       <JournalFilterBar
         periods={periods.data ?? []}
         periodId={periodId}
-        setPeriodId={setPeriodId}
+        disabled={busy}
+        setPeriodId={value => { if (busy) return; setPeriodId(value); setPage(1); setEditingTx(null); setIsDrawerOpen(false); }}
         search={search}
-        setSearch={setSearch}
+        setSearch={value => { setSearch(value); setPage(1); }}
       />
 
       {locked && <LockedNotice />}
@@ -164,9 +168,9 @@ export default function AccountingJournalPage() {
         loading={transactions.isLoading || periods.isLoading}
         error={transactions.error || periods.error}
         empty={!transactionData.length && !search}
-        retry={() => void transactions.refetch()}
-        emptyTitle={`Belum ada transaksi di periode ${period?.periodMonth ?? 'ini'}`}
-        emptyDescription="Catat mutasi finansial sekarang. Data akan tercatat dengan trace_id yang immutable."
+        retry={() => { void periods.refetch(); void transactions.refetch(); }}
+        emptyTitle={period ? `Belum ada transaksi di periode ${period.periodMonth}` : 'Belum ada periode Accounting'}
+        emptyDescription={period ? 'Pilih rekening dan kategori untuk mencatat jurnal pada periode ini.' : 'Buat periode melalui menu Periode Akuntansi sebelum mencatat jurnal.'}
         emptyAction={
           canWrite ? (
             <button
@@ -181,21 +185,22 @@ export default function AccountingJournalPage() {
       >
         <JournalTable
           transactions={transactionData}
-          canWrite={canWrite}
+          canWrite={canWrite && !busy}
           onEdit={handleEdit}
           onCancel={handleCancel}
           onUpload={handleUpload}
           onDownload={handleDownload}
           page={page}
-          setPage={setPage}
+          setPage={value => { if (!busy) setPage(value); }}
           totalPages={totalPages}
           totalEntries={totalEntries}
         />
       </AccountingQueryState>
 
       <JournalFormDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        key={periodId}
+        isOpen={isDrawerOpen && canWrite}
+        onClose={() => { if (!busy) setIsDrawerOpen(false); }}
         onSubmit={handleSubmit}
         editingTx={editingTx}
         periodId={periodId}

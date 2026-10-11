@@ -15,13 +15,13 @@ describe('Accounting Master Data CRUD isolation', () => {
     localStorage.clear();
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => String(input).includes('/auth/me') ? ok({ id: 'test', name: 'Pengguna Uji', role: localStorage.getItem('dashboard-divisi.role-demo'), divisionCode: localStorage.getItem('dashboard-divisi.division-demo') }) : ok([])));
   });
 
   it('renders ACC Master Data page and shows empty state when no data', async () => {
     render(<App />);
-    expect(await screen.findByRole('heading', { name: /Master Data Accounting/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Master akun & kategori/i })).toBeInTheDocument();
     const emptyStates = await screen.findAllByText(/Belum ada data/i);
     expect(emptyStates.length).toBeGreaterThan(0);
   });
@@ -36,7 +36,7 @@ describe('Accounting Master Data CRUD isolation', () => {
   it('rejects non-ACC direct master data route', async () => {
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'WRAP');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     render(<App />);
     expect(await screen.findByText(/tidak memiliki izin/i)).toBeInTheDocument();
   });
@@ -47,13 +47,13 @@ describe('Accounting Master Data form accessibility', () => {
     localStorage.clear();
     localStorage.setItem('dashboard-divisi.role-demo', 'MANAGER');
     localStorage.setItem('dashboard-divisi.division-demo', 'ACC');
-    history.pushState({}, '', '/accounting/master');
+    history.pushState({}, '', '/accounting/pembukuan/master');
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => String(input).includes('/auth/me') ? ok({ id: 'test', name: 'Pengguna Uji', role: localStorage.getItem('dashboard-divisi.role-demo'), divisionCode: localStorage.getItem('dashboard-divisi.division-demo') }) : ok([])));
   });
 
   it('form has proper headings and interactive buttons', async () => {
     render(<App />);
-    expect(await screen.findByRole('heading', { name: /Master Data Accounting/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Master akun & kategori/i })).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: /Tambah kategori/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
     expect(await screen.findByRole('button', { name: /Tambah rekening/i })).toBeInTheDocument();

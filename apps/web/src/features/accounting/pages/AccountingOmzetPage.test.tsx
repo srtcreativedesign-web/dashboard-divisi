@@ -1,3 +1,4 @@
+import { MemoryRouter } from 'react-router-dom';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,6 +13,8 @@ const fixture: OmzetRecord = {
   id: 'rec-1', outlet_id: 'outlet-1', outlet_name: 'Outlet anonim', source_division_code: 'CELL',
   business_date: '2026-10-04', shift: '1', outlet_amount: '1000.00', cash_amount: '1000.00',
   qris_amount: '0', edc_amount: '0', transfer_amount: '0', other_amount: '0',
+  expense_amount: '0', expected_deposit_amount: '1000.00', shift_total: '1000.00', shift_difference: '0.00',
+  shift_breakdown: [{ shift_no: 1, gross_amount: '1000.00' }],
   source_reference: 'Laporan anonim', notes: '', requires_ap: true, status: 'submitted', version: 2,
   received_amount: '1000.00', payment_difference: '0.00', ap_amount: null, ap_difference: null,
   review_notes: null, decision_notes: null, events: [], unlock_requests: [],
@@ -27,7 +30,7 @@ beforeEach(() => {
   vi.mocked(omzetApi.detail).mockResolvedValue(envelope(fixture));
 });
 afterEach(() => { cleanup(); client.clear(); });
-const mount = () => render(<QueryClientProvider client={client}><AccountingOmzetPage /></QueryClientProvider>);
+const mount = (route = '/accounting') => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[route]}><AccountingOmzetPage /></MemoryRouter></QueryClientProvider>);
 
 describe('Alur rekap omzet sesuai role', () => {
   it('Admin menyimpan draf dengan outlet lintas divisi dan rincian pembayaran', async () => {
@@ -40,12 +43,11 @@ describe('Alur rekap omzet sesuai role', () => {
     const form = within(screen.getByRole('form', { name: 'Form rekap omzet' }));
     fireEvent.change(form.getByLabelText('Outlet'), { target: { value: 'outlet-1' } });
     fireEvent.change(form.getByLabelText('Tanggal omzet'), { target: { value: '2026-10-04' } });
-    fireEvent.change(form.getByLabelText('Shift'), { target: { value: '1' } });
-    fireEvent.change(form.getByLabelText('Omzet laporan outlet (Rp)'), { target: { value: '1000' } });
+    fireEvent.change(form.getByLabelText('Shift 1 (Rp)'), { target: { value: '1000' } });
     fireEvent.change(form.getByLabelText('Tunai (Rp)'), { target: { value: '1000' } });
     fireEvent.change(form.getByLabelText('Referensi laporan sumber'), { target: { value: 'Laporan anonim' } });
     fireEvent.click(form.getByRole('button', { name: 'Simpan draf' }));
-    await waitFor(() => expect(omzetApi.save).toHaveBeenCalledWith(expect.objectContaining({ outlet_id: 'outlet-1', cash_amount: '1000', outlet_amount: '1000', source_reference: 'Laporan anonim' }), undefined));
+    await waitFor(() => expect(omzetApi.save).toHaveBeenCalledWith(expect.objectContaining({ outlet_id: 'outlet-1', cash_amount: '1000', outlet_amount: '1000.00', expense_amount: '0', source_reference: 'Laporan anonim', shift_breakdown: expect.arrayContaining([expect.objectContaining({ shift_no: 1, gross_amount: '1000' })]) }), undefined));
     expect(await screen.findByRole('button', { name: 'Ajukan pemeriksaan' })).toBeInTheDocument();
     expect(omzetApi.action).not.toHaveBeenCalled();
   });
@@ -84,4 +86,31 @@ describe('Alur rekap omzet sesuai role', () => {
     expect(screen.queryByRole('button', { name: 'Edit draf' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Ajukan pemeriksaan' })).not.toBeInTheDocument();
   });
+});
+
+it('drill-down dashboard mempertahankan bulan/status valid dan mengabaikan filter palsu', async () => {
+  mount('/accounting?month=2026-07&status=submitted');
+  await waitFor(() => expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ month: '2026-07', status: 'submitted' })));
+  cleanup(); client.clear(); vi.mocked(omzetApi.list).mockClear();
+  mount('/accounting?month=2026-13&status=paid');
+  await waitFor(() => expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: '' })));
+  expect(vi.mocked(omzetApi.list).mock.calls[0]![0].month).not.toBe('2026-13');
+});
+
+it('tautan antrean membuka UUID rekap langsung; UUID palsu tidak memicu detail', async () => {
+  const id = '11111111-1111-4111-8111-111111111111';
+  mount('/accounting/pendapatan/rekap?rekap=' + id);
+  await waitFor(() => expect(omzetApi.detail).toHaveBeenCalledWith(id));
+  cleanup(); client.clear(); vi.mocked(omzetApi.detail).mockClear();
+  mount('/accounting/pendapatan/rekap?rekap=private-path');
+  await screen.findByRole('button', { name: 'Lihat' });
+  expect(omzetApi.detail).not.toHaveBeenCalled();
+});
+it('tautan buat membuka form draf hanya untuk Admin', async () => {
+  mount('/accounting/pendapatan/rekap?new=1');
+  expect(await screen.findByRole('form', { name: 'Form rekap omzet' })).toBeInTheDocument();
+  cleanup(); client.clear(); identity.role = 'ACCOUNTING';
+  mount('/accounting/pendapatan/rekap?new=1');
+  await screen.findByRole('button', { name: 'Lihat' });
+  expect(screen.queryByRole('form', { name: 'Form rekap omzet' })).not.toBeInTheDocument();
 });

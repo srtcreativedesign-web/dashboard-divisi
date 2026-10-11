@@ -146,22 +146,22 @@ export function AgingBucketBar({
 
   return (
     <section
-      className="rounded-card-lg border border-line/60 bg-white/95 backdrop-blur-md p-5 shadow-xs"
+      className="rounded-card-lg border border-line/60 bg-panel/95 backdrop-blur-md p-5 shadow-xs"
       data-testid="aging-bucket-bar-section"
     >
       {/* Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-line pb-3">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-navy flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary-600" />
+              <Clock className="h-5 w-5 text-primary-600 dark:text-primary-300" />
               Umur tagihan
             </h3>
-            <span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[10px] font-bold text-primary-700 border border-primary-200">
+            <span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[10px] font-bold text-primary-700 dark:text-primary-300 border border-primary-200">
               Analisis Piutang &amp; Hutang
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-slate-600 font-medium">
+          <p className="mt-0.5 text-xs text-muted font-medium">
             Pemetaan kewajiban aktif per interval usia jatuh tempo terhadap tanggal acuan{' '}
             <span className="font-semibold text-navy">{referenceDate}</span>
           </p>
@@ -171,7 +171,7 @@ export function AgingBucketBar({
           <button
             type="button"
             onClick={() => onSelectBucket(null)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700 hover:bg-primary-100 transition-colors self-start sm:self-auto shadow-2xs"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700 dark:text-primary-300 hover:bg-primary-100 transition-colors self-start sm:self-auto shadow-2xs"
             data-testid="reset-bucket-filter"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -183,7 +183,7 @@ export function AgingBucketBar({
       {/* Stacked Horizontal Progress Bar */}
       <div className="mt-4">
         <div className="flex items-center justify-between text-xs mb-1.5">
-          <span className="text-slate-600 font-medium">
+          <span className="text-muted font-medium">
             Proporsi Nominal Outstanding:
           </span>
           <span className="font-black text-navy">
@@ -192,7 +192,7 @@ export function AgingBucketBar({
         </div>
 
         <div
-          className="relative flex h-4 w-full overflow-hidden rounded-pill bg-slate-100 p-0.5 shadow-inner"
+          className="relative flex h-4 w-full overflow-hidden rounded-pill bg-surface p-0.5 shadow-inner"
           role="progressbar"
           aria-label="Distribusi umur penagihan outstanding"
         >
@@ -229,7 +229,7 @@ export function AgingBucketBar({
               className={`rounded-xl border p-3.5 text-left transition-all duration-200 cursor-pointer ${
                 isSelected
                   ? `${b.bgActive} ${b.borderColor} ring-2 ring-primary/40 shadow-sm`
-                  : 'bg-white border-line/60 hover:border-slate-300 hover:shadow-2xs'
+                  : 'bg-panel border-line/60 hover:border-slate-300 hover:shadow-2xs'
               }`}
               data-testid={`bucket-card-${b.id}`}
             >
@@ -242,7 +242,7 @@ export function AgingBucketBar({
                   className={`rounded-pill px-2 py-0.5 text-[10px] font-bold border ${
                     isSelected
                       ? 'bg-navy text-white border-navy'
-                      : 'bg-slate-100 text-slate-700 border-slate-200'
+                      : 'bg-surface text-muted border-line'
                   }`}
                 >
                   {isSelected ? 'Filter Aktif' : b.rangeLabel}
@@ -251,7 +251,7 @@ export function AgingBucketBar({
 
               <div className="mt-2.5">
                 <p className="text-lg font-black text-navy">{rupiah(b.amount)}</p>
-                <div className="mt-1 flex items-center justify-between text-xs text-slate-600 font-medium">
+                <div className="mt-1 flex items-center justify-between text-xs text-muted font-medium">
                   <span>{b.count} Dokumen</span>
                   <span className={`font-bold ${b.textColor}`}>
                     {b.percentage.toFixed(1)}%

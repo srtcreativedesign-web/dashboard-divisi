@@ -53,6 +53,11 @@ jobs:
       - name: Test orkestrasi pemeriksaan rilis
         run: npm run release:test
 
+      - name: Verifikasi policy frontend dan backend
+        run: |
+          npm run policy:check
+          npm run policy:test
+
       - name: Lint (eslint)
         run: npm run lint
 

@@ -180,3 +180,6 @@ ACC-A01/ACC-A02 kini memiliki master pegawai minimal, rekap manual dan histori k
 ## Pembaruan ACC-A10 tahap manual — 6 Oktober 2026
 
 Rekap setoran tersedia pada /accounting/setoran dan tujuh route /api/v1/accounting/deposits. Admin alokasi ke satu kanal omzet tervalidasi; Finance penerimaan aktual bertahap. Nominal eksak, referensi unik, version/row lock, histori dan audit wajib. Tiga tabel acc_deposits/acc_deposit_receipts/acc_deposit_events, event append-only pada runtime. Bukti berupa referensi eksternal; unggahan, settlement/fee/jurnal otomatis dan UAT tetap terbuka. [Acuan dan bukti lengkap](42_REKAP_SETORAN_MANUAL.md). Peran: keempat peran.
+
+## Dashboard Accounting — 7 Oktober 2026
+ACC-DASH-002 selesai teknis: role ringkasan tidak meminta detail; bulan/status drill-down valid; nominal sen kecil tidak berubah; periode jurnal kosong terpisah dari operasi; agregasi >25 baris, void payment dan scope; 159 web/279 backend/53 pemeriksaan native lulus. Admin desktop terang/gelap dan mobile, filter correction/detail voucher diperiksa. Grafik berisi native belum tersedia; contoh tren terisi diuji dengan fixture, UAT bisnis semua role tetap terbuka. Bukti/batas dokumen 58.

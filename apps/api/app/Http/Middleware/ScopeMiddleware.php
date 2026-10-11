@@ -28,7 +28,11 @@ class ScopeMiddleware
             ?? $request->input('division_code');
 
         // Rekap pusat berada di ACC; outlet hanyalah sumber data lintas divisi.
-        if (! $divisionCode && $request->is('api/v1/accounting/omzet', 'api/v1/accounting/omzet/*', 'api/v1/accounting/vouchers', 'api/v1/accounting/vouchers/*')) {
+        if (! $divisionCode && $request->is(
+            'api/v1/accounting/omzet', 'api/v1/accounting/omzet/*',
+            'api/v1/accounting/vouchers', 'api/v1/accounting/vouchers/*',
+            'api/v1/accounting/cellular-preview', 'api/v1/accounting/cellular-imports', 'api/v1/accounting/cellular-imports/*'
+        )) {
             $divisionCode = 'ACC';
         }
 

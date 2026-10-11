@@ -26,7 +26,7 @@ class AccExcelParserService
      */
     public function preview(Division $division, AccountingPeriod $period, UploadedFile|array $source): array
     {
-        $rawRows = is_array($source) ? $source : $this->extractRowsFromXlsx($source);
+        $rawRows = is_array($source) ? $source : $this->extractRowsFromFile($source);
 
         $categoryMap = AccountingCategory::where('is_active', true)
             ->pluck('id', 'code')
@@ -293,10 +293,27 @@ class AccExcelParserService
     }
 
     /**
-     * Parse raw rows from .xlsx file using built-in ZipArchive and SimpleXML.
+     * Read JSON rows or parse .xlsx with ZipArchive and SimpleXML.
      */
-    private function extractRowsFromXlsx(UploadedFile $file): array
+    private function extractRowsFromFile(UploadedFile $file): array
     {
+        if (strtolower($file->getClientOriginalExtension()) === 'json') {
+            try {
+                $rows = json_decode(file_get_contents($file->getRealPath()), true, 16, JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                throw new InvalidArgumentException('File JSON tidak valid.');
+            }
+            if (! is_array($rows) || ! array_is_list($rows) || count($rows) > 1000) {
+                throw new InvalidArgumentException('File JSON harus berupa daftar maksimal 1000 baris.');
+            }
+            foreach ($rows as $row) {
+                if (! is_array($row) || array_is_list($row) || collect($row)->contains(fn ($value) => ! is_scalar($value) && $value !== null)) {
+                    throw new InvalidArgumentException('Setiap baris JSON harus berupa objek dengan nilai sederhana.');
+                }
+            }
+
+            return $rows;
+        }
         $zip = new ZipArchive;
         if ($zip->open($file->getRealPath()) !== true) {
             throw new InvalidArgumentException('Gagal membuka file Excel (.xlsx). Pastikan berkas valid.');

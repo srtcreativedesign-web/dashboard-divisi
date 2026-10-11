@@ -50,6 +50,10 @@ Ringkasan terbaru 6 Oktober 2026: 01–03 selesai teknis; 04 parsial (retensi/de
 
 ## Penerimaan pekerjaan
 
+ENT-03a-2 penelusuran setoran per sumber selesai teknis pada 7 Oktober 2026: [scope/bukti](49_PENELUSURAN_SETORAN_PER_SUMBER.md). Gate lulus 267 backend/118 web/dua contracts; daftar sumber mencakup semua tanggal dan kembali ke daftar bulanan. Tidak menutup jurnal/PNL atau UAT.
+
+ENT-03a pencocokan omzet/setoran selesai teknis pada 7 Oktober 2026: [scope/bukti](48_PENCOCOKAN_OMZET_DAN_SETORAN.md). Tidak menutup TODO-07 (PNL/jurnal) atau penerimaan bisnis; laporan hanya membandingkan catatan sumber/alokasi/penerimaan.
+
 Jalur kesiapan enterprise sejak 7 Oktober 2026: [TODO dan urutan ENT-01–09](46_TODO_KESIAPAN_ENTERPRISE.md). ENT-01 dimulai dari gate teknis lokal serta konfigurasi CI REQ. Verifikasi remote masih terblokir billing GitHub; tidak menutup TODO-13 atau menyatakan kesiapan produksi.
 
 Checklist selesai hanya jika hasil dan bukti dicatat. Tes teknis bukan sign-off bisnis. Tracker rinci dan log tetap disimpan pada Tasks/dashboard-divisi-mvp serta Dashboard.md. Tidak ada estimasi tanggal yang belum didukung scope/dependensi.
@@ -59,3 +63,53 @@ Checklist selesai hanya jika hasil dan bukti dicatat. Tes teknis bukan sign-off 
 - [x] TODO-UI-01 — tahap pertama Accounting: dashboard, omzet, voucher, setoran dan navigasi. [Bukti/batas](43_AUDIT_DAN_PERBAIKAN_UI_ACCOUNTING.md). Peran: keempat peran. Selesai teknis dan inspeksi Admin; bukan UAT semua role.
 - [ ] TODO-UI-02 — audit/perapihan HR, Project dan Cellular; data terisi/tabel panjang, tema gelap, responsivitas dan UAT per role. Peran: Senior Product Designer + Senior Product Manager + Senior Fullstack Programmer + Application Security Engineer.
 - [x] TODO-UI-01b — penyempurnaan dashboard Accounting: header, pemilih periode, kartu pekerjaan, keadaan kosong/error dan panduan bernomor. [Bukti/batas](45_PENYEMPURNAAN_UI_ACCOUNTING.md). Peran: keempat peran. 20 tes Accounting, lint/typecheck/build dan inspeksi Admin desktop/mobile lulus; UAT semua role tetap terbuka.
+
+
+- [x] TODO-UI-02a / ENT-09a — perbaikan teknis Project/Cellular/HR: pagination, request lama, konteks koreksi/pembatalan, akses keyboard, kontainer tabel dan tema. [Scope/bukti](50_PENYELESAIAN_TEKNIS_UI_LINTAS_MODUL.md). Peran: keempat peran. Gate final 267 backend/128 web/dua contracts lulus. Parent TODO-UI-02 dan UAT semua role/data nyata tetap terbuka.
+
+Ringkasan per 7 Oktober 2026: [status dan dependensi seluruh pekerjaan](51_STATUS_DAN_DEPENDENSI_PENYELESAIAN.md). Tidak menutup item bisnis/produksi melalui tes teknis.
+
+- [x] TODO-08c / PRJ-UI-003 — direktori vendor lengkap dengan pencarian/pagination, respons lama, pemisahan hasil simpan dan reload serta batas kontak tetap. [Scope/bukti](52_DIREKTORI_VENDOR_PROJECT.md). Peran: keempat peran. Gate final exit 0: 268 backend/2219 assertions, 134 web, dua contracts dan seluruh guard gate/policy/database/scanner. Lint/typecheck/build/Pint lulus. Workflow pembayaran, approval dan UAT tetap terbuka.
+
+- [x] TODO-UI-02b / TODO-07b / UI-ACC-004 — tema terang/gelap Project/Accounting dan kelanjutan jurnal: nominal string/saldo belum tersedia, konteks periode/pending/filter/retry. Peran: Senior Product Designer + Senior Fullstack Programmer. 144 web/typecheck/build lulus; lint hasil pull masih 105 error. [Scope dan batas](54_TEMA_DAN_JURNAL_ACCOUNTING.md). Parent jurnal/PNL/UAT tetap terbuka.
+
+- [x] ACC-VCH-001 — Voucher Pengajuan Pengeluaran Admin: jenis operasional, form identitas/pembayaran/referensi, rekening encrypted/masked, pratinjau dan PDF. Peran: keempat peran. 270 backend, 149 web, typecheck/build/lint file berubah serta 38 pemeriksaan database lulus. Migrasi additive setelah backup. Scope/batas: [dokumen 55](55_VOUCHER_PENGELUARAN_ADMIN.md). Admin ACC pusat; pembayaran nyata/BAST/penambahan izin Admin divisi lain tidak termasuk. Lint global development dan UAT bisnis tetap terbuka.
+
+- [x] ACC-PAY-001 — Realisasi voucher oleh Finance dengan bukti wajib: sebagian/lunas, nominal presisi, versi/duplikasi, status/sisa di daftar/detail/PDF, dan pembatalan catatan oleh Manager. Peran: keempat peran. [Scope/bukti](56_REALISASI_PEMBAYARAN_VOUCHER.md). 154 web/typecheck/build/lint file berubah/policy dan 38 pemeriksaan database lulus. Migrasi additive sesudah backup, tanpa seed/transaksi native. Jurnal otomatis/mapping akun, UAT dan lint global tetap terbuka.
+
+- [x] ACC-SEED-001 — Delapan skenario voucher UAT tersimpan melalui API pada PostgreSQL; seed idempotent, pengujian role/CSRF/versi/nominal/proof/audit dan perbaikan tempdir scanner. Peran: keempat peran. 88 pemeriksaan native, 277 backend/2346 assertions, 38 pemeriksaan database, scanner/Pint/lint seeder lulus. [Scope/bukti](57_SEED_UAT_DAN_KEAMANAN_VOUCHER.md). Hanya voucher; UAT bisnis/pentest/produksi tetap terbuka.
+
+- [x] ACC-DASH-002 — Dashboard Accounting berbasis KPI/tren/antrean role/status/jadwal realisasi dan drill-down bulan/voucher. Keempat peran. 159 web, 279 backend/2378 assertions, 53 pemeriksaan native, typecheck/build/lint scoped/Pint/policy lulus. [Scope/bukti](58_DASHBOARD_ACCOUNTING_PEMANTAUAN.md). Data dari database, tanpa migrasi/seed tambahan; UAT bisnis dan produksi tetap terbuka.
+
+- [x] ACC-SEED-002 — Omzet harian UAT Cellular dua shift: 1–30 September dan 1–7 Oktober, 74 rekap (72 validated/2 draft). API berizin H+1/Manager/Accounting, 358 event/audit, pengulangan idempotent; 536+179 pemeriksaan native, lint/sintaks seeder dan delapan tes dashboard lulus. Keempat peran. [Scope/bukti](59_SEED_OMZET_HARIAN_SEPTEMBER_OKTOBER.md). Tidak memposting jurnal atau membuat stok/setoran; UAT bisnis tetap terbuka.
+
+- [x] ACC-SEED-003 — Seed menu Accounting September/Oktober: periode/master, 20 jurnal termasuk 4 impor, 8 outstanding, 12 setoran/8 penerimaan, 4 pegawai/48 absensi/4 cuti, 4 saldo bank UAT. Keempat peran. 189 pemeriksaan native/idempotence, 281 backend/2403 assertions, 161 web; parser JSON dan hardcode/kontras cashflow diperbaiki. [Scope/bukti](60_SEED_MENU_ACCOUNTING.md). Saldo bank belum diverifikasi; UAT bisnis/produksi dan backlog layanan legacy tetap terbuka.
+
+- [x] UI-ACC-005 — Penajaman visual dashboard Accounting: kartu omzet utama, hierarki angka, antrean koreksi dan disclosure metrik. Keempat peran. 12 tes dashboard/role, lint scoped, typecheck/build dan QA Admin desktop terang/gelap/mobile lulus. [Scope/bukti](61_PENAJAMAN_VISUAL_DASHBOARD_ACCOUNTING.md). Kontras sidebar gelap/cache identitas antartab, UAT bisnis dan lint global tetap terbuka. REQ tanpa PR.
+
+## Lanjutan 8 Oktober 2026 — laporan Cellular
+
+- [x] ACC-CEL-PREVIEW-001a — adapter lima sumber DATA CELLULAR T3, preview API/UI, akses pusat, scanner dan test (dokumen 65).
+- [ ] ACC-CEL-PREVIEW-001b — QA visual gabungan, terang/gelap/mobile dan penerimaan pemilik data.
+- [ ] ACC-CEL-STAGING-002 — staging privat, versi/duplikat persisten, audit dan workflow penyelesaian sumber.
+- [ ] ACC-CEL-SCOPE-003 — pemetaan semua outlet dan akses Admin Cellular sesuai scope.
+- [ ] ACC-CEL-INTEGRATION-004 — sumber operasi/shift ke H+1, Accounting dan settlement. Formula fee/HPP/bonus/CMO menunggu keputusan bisnis.
+- [ ] ENT-DEPENDENCY-PATCH — remediasi tiga advisory baseline Laravel/CommonMark dan regresi.
+
+- [x] ACC-WORK-001a — ruang kerja Admin/Staff Accounting dari omzet/voucher persisten, antrean role, deep-link/URL context dan fasilitas sumber pendukung. Scope/verifikasi dokumen 66.
+- [ ] ACC-WORK-001b — walkthrough pengguna serta integrasi staging sumber, jadwal laporan dan rekonsiliasi Ecsys. Tidak ditutup melalui perubahan UI.
+
+- [x] ACC-RESET-001 — Reset navigasi Accounting enam kelompok submenu, antrean per role, dashboard acuan visual Project dan register/detail persisten. Dokumen 67 menggantikan keputusan navigasi 66. Regresi 195/196 + perbaikan selector/4 tes ulang lulus; typecheck/build/lint scoped/QA Staff terang-gelap-mobile lulus. REQ tanpa PR.
+- [ ] ACC-RESET-002 — Walkthrough native semua role, penerimaan pengguna dan iterasi fungsi menu target (staging/Ecsys/ledger/PNL/bonus/CMO); tidak ditutup dengan reset UI.
+
+- [x] ACC-FIRST-USE-001 — Arahan mulai kerja per role di dashboard dan petunjuk urutan register; 19 tes/typecheck/build/lint scoped/QA Staff native lulus. Dokumen 68. UAT pengguna pertama dan staging/alur sumber tetap terbuka.
+
+- [x] ACC-DASH-003 — Meja kerja dashboard berisi transaksi omzet/voucher per role, prioritas antrean berisi, konteks sumber, deep-link dan pagination nyata; mobile vertikal. Dokumen 69; 200 tes/typecheck/lint scoped/build/QA Staff native lulus. REQ tanpa PR.
+- [ ] ACC-DASH-003-UAT — Walkthrough pengguna pertama dan seluruh role native, penilaian pengguna. Jadwal/staging/pemeriksaan sumber berdampingan tetap terbuka.
+
+- [x] UI-SYSTEM-001a — Tetapkan UI Project sebagai dasar bahasa visual lintas divisi; header bersama dan konteks kerja Accounting berbasis periode/role/cakupan diterapkan. Peran: keempat peran. [Keputusan dan batas](70_STANDAR_UI_LINTAS_DIVISI.md). Penyelarasan seluruh halaman detail dan UAT semua role tetap terbuka.
+- [ ] UI-SYSTEM-001b — Terapkan standar bersama pada daftar/detail/form Accounting, lalu Cellular, dengan konteks dan tindakan khusus role; lakukan QA terang/gelap/mobile dan UAT pengguna.
+- [x] ACC-IA-001a — Arsitektur menu Accounting diubah menjadi ruang kerja berbasis pekerjaan; register, omzet dan voucher mendapat konteks kerja serta header bersama. Peran: keempat peran. [Keputusan dan batas](71_ARSITEKTUR_FITUR_ACCOUNTING_BERBASIS_PEKERJAAN.md). Fitur yang belum memiliki definisi/backend tetap backlog.
+- [x] ACC-IA-001b — Selaraskan isi setoran, pencocokan, jurnal, periode, hutang-piutang, rekonsiliasi, cashflow, HR, master dan impor dengan kontrak halaman. Seluruh 17 halaman Accounting memakai header dan surface contract bersama; 34 tes role/routing lulus. Audit lintas divisi pada dokumen 72.
+- [x] UI-XDIV-001 — Accounting dan Cellular dimigrasikan ke bahasa visual Divisi Project untuk workspace, tabel, panel, dan input; Divisi Project dipertahankan tanpa perubahan. Isi dan kewenangan tetap khusus divisi/role. [Audit dan bukti](72_AUDIT_KESELARASAN_UI_LINTAS_DIVISI.md). Peran: Senior Product Designer + Senior Fullstack Programmer.
+- [ ] UI-XDIV-002 — UAT visual per role pada resolusi desktop/mobile dan tema terang/gelap bersama pengguna bisnis; catat temuan sebagai backlog terpisah tanpa mengubah matriks kewenangan.

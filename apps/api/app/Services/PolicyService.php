@@ -6,15 +6,17 @@ use App\Exceptions\ApiException;
 
 class PolicyService
 {
+    public const BOD_CAPABILITIES = ['view:division', 'view:report', 'view:acc_report', 'view:acc_detail', 'view:projects', 'view:cellular', 'view:cellular_sales'];
+
     public const DOMAIN_CAPABILITIES = [
         'ACC' => [
-            'MANAGER' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'manage:acc_master', 'manage:acc_period', 'approve:acc_period', 'approve:pnl', 'approve:voucher', 'approve:omzet', 'manage:omzet_unlock', 'view:acc_hr', 'manage:acc_employees', 'view:acc_deposits', 'void:acc_deposits'],
+            'MANAGER' => ['preview:cellular_report', 'view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'manage:acc_master', 'manage:acc_period', 'approve:acc_period', 'approve:pnl', 'approve:voucher', 'approve:omzet', 'manage:omzet_unlock', 'view:acc_hr', 'manage:acc_employees', 'view:acc_deposits', 'void:acc_deposits', 'view:inventory', 'approve:inventory'],
             'HEAD_OPS' => ['view:division', 'view:acc_report'],
             'SPV' => ['view:division', 'view:acc_report'],
             'LEADER' => ['view:division', 'view:acc_report'],
-            'ADMIN' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'write:acc_transaction', 'import:acc_transaction', 'write:acc_outstanding', 'write:acc_bank', 'submit:acc_period', 'write:leave_records', 'write:attendance', 'write:omzet', 'write:voucher', 'attach:voucher', 'write:stock', 'view:bonus', 'view:acc_hr', 'manage:acc_employees', 'write:acc_hr', 'view:acc_deposits', 'write:acc_deposits'],
+            'ADMIN' => ['preview:cellular_report', 'view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'write:acc_transaction', 'import:acc_transaction', 'write:acc_outstanding', 'write:acc_bank', 'submit:acc_period', 'write:leave_records', 'write:attendance', 'write:omzet', 'write:voucher', 'attach:voucher', 'write:stock', 'view:bonus', 'view:acc_hr', 'manage:acc_employees', 'write:acc_hr', 'view:acc_deposits', 'write:acc_deposits', 'view:inventory'],
             'ADMIN_GUDANG' => ['view:division', 'view:acc_report', 'write:inventory', 'view:inventory'],
-            'ACCOUNTING' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'view:acc_pnl', 'view:acc_balance_sheet', 'write:acc_outstanding', 'write:acc_bank', 'submit:acc_period', 'view:omzet', 'validate:omzet', 'validate:voucher', 'attach:voucher', 'write:pnl', 'view:pnl', 'write:tax', 'write:contract', 'view:debt', 'write:ecsys', 'view:acc_hr', 'view:acc_deposits'],
+            'ACCOUNTING' => ['preview:cellular_report', 'view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'view:acc_pnl', 'view:acc_balance_sheet', 'write:acc_outstanding', 'write:acc_bank', 'submit:acc_period', 'view:omzet', 'validate:omzet', 'validate:voucher', 'attach:voucher', 'write:pnl', 'view:pnl', 'write:tax', 'write:contract', 'view:debt', 'write:ecsys', 'view:acc_hr', 'view:acc_deposits', 'view:inventory'],
             'FINANCE' => ['view:division', 'view:acc_report', 'view:acc_detail', 'view:acc_journal', 'view:acc_master', 'write:acc_transaction', 'import:acc_transaction', 'write:acc_outstanding', 'submit:acc_period', 'write:cashflow', 'view:cashflow', 'execute:payment', 'view:acc_deposits', 'receive:acc_deposits'],
         ],
         'PROJECT' => [
@@ -28,14 +30,14 @@ class PolicyService
             'FINANCE' => ['view:division', 'view:projects'],
         ],
         'CELL' => [
-            'MANAGER' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'write:cellular_stock', 'view:cellular_sales', 'void:cellular_sale'],
-            'HEAD_OPS' => ['view:division', 'view:cellular'],
-            'SPV' => ['view:division', 'view:cellular'],
-            'LEADER' => ['view:division', 'view:cellular'],
-            'ADMIN' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'view:cellular_sales', 'write:cellular_sale'],
-            'ADMIN_GUDANG' => ['view:division', 'view:cellular', 'write:cellular_stock'],
-            'ACCOUNTING' => ['view:division', 'view:cellular', 'view:cellular_sales'],
-            'FINANCE' => ['view:division', 'view:cellular', 'view:cellular_sales'],
+            'MANAGER' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'approve:cellular_stock', 'view:cellular_sales', 'void:cellular_sale', 'view:cellular_daily', 'approve:cellular_daily', 'view:cellular_settlement', 'view:cellular_shift', 'approve:cellular_shift', 'view:cellular_accounting'],
+            'HEAD_OPS' => ['view:division', 'view:cellular', 'view:cellular_daily', 'view:cellular_shift', 'manage:cellular_shift'],
+            'SPV' => ['view:division', 'view:cellular', 'view:cellular_daily', 'view:cellular_shift', 'review:cellular_shift'],
+            'LEADER' => ['view:division', 'view:cellular', 'view:cellular_daily', 'view:cellular_shift', 'write:cellular_shift'],
+            'ADMIN' => ['view:division', 'view:cellular', 'manage:cellular_catalog', 'view:cellular_sales', 'write:cellular_sale', 'view:cellular_daily', 'write:cellular_daily'],
+            'ADMIN_GUDANG' => ['view:division', 'view:cellular', 'write:cellular_stock', 'view:cellular_daily'],
+            'ACCOUNTING' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'validate:cellular_daily', 'view:cellular_settlement', 'reconcile:cellular_settlement', 'view:cellular_shift', 'view:cellular_accounting'],
+            'FINANCE' => ['view:division', 'view:cellular', 'view:cellular_sales', 'view:cellular_daily', 'view:cellular_settlement', 'write:cellular_settlement'],
         ],
     ];
 
@@ -50,6 +52,7 @@ class PolicyService
             || str_starts_with($capability, 'approve:')
             || str_starts_with($capability, 'review:')
             || str_starts_with($capability, 'validate:')
+            || str_starts_with($capability, 'reconcile:')
             || str_starts_with($capability, 'execute:');
     }
 
@@ -57,7 +60,7 @@ class PolicyService
     {
         $role = strtoupper($user['role'] ?? '');
         if ($role === 'BOD') {
-            return in_array($capability, ['view:division', 'view:report', 'view:acc_report', 'view:acc_detail', 'view:projects', 'view:cellular', 'view:cellular_sales'], true);
+            return in_array($capability, self::BOD_CAPABILITIES, true);
         }
         // Hak akses berasal dari identitas pengguna, bukan divisi pada payload.
         $division = $this->normalizeDivisionCode($user['divisionCode'] ?? $user['division_code'] ?? null);

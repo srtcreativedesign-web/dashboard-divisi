@@ -105,7 +105,7 @@ export function JournalFormDrawer({
   return (
     <DetailSheet
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={() => { if (!isSubmitting && !isLoading) onClose(); }}
       title={editingTx ? "Edit Jurnal" : "Jurnal Baru"}
       subtitle={editingTx ? "Perbarui entri yang sudah ada." : "Tambahkan entri pencatatan baru."}
       size="md"
@@ -115,7 +115,7 @@ export function JournalFormDrawer({
             type="button"
             onClick={onClose}
             disabled={isSubmitting || isLoading}
-            className="rounded-input border px-4 py-2 hover:bg-slate-50 transition-colors cursor-pointer"
+            className="rounded-input border px-4 py-2 hover:bg-surface transition-colors cursor-pointer"
           >
             Batal
           </button>
@@ -130,19 +130,20 @@ export function JournalFormDrawer({
         </div>
       }
     >
-      <form id="journal-form" onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form id="journal-form" onSubmit={handleSubmit(handleFormSubmit)}>
+        <fieldset disabled={isSubmitting || isLoading} className="space-y-4">
         <div>
-          <label className="text-sm font-medium text-slate-700">Tanggal</label>
+          <label className="text-sm font-medium text-muted">Tanggal</label>
           <input
             type="date"
             {...register("transaction_date")}
             className="mt-1 w-full rounded-input border border-line p-2 text-sm"
           />
-          {errors.transaction_date && <p className="mt-1 text-xs text-danger">{errors.transaction_date.message}</p>}
+          {errors.transaction_date && <p className="mt-1 text-xs text-danger dark:text-red-300">{errors.transaction_date.message}</p>}
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Referensi</label>
+          <label className="text-sm font-medium text-muted">Referensi</label>
           <input
             type="text"
             placeholder="Opsional"
@@ -152,7 +153,7 @@ export function JournalFormDrawer({
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Rekening</label>
+          <label className="text-sm font-medium text-muted">Rekening</label>
           <select
             {...register("account_id")}
             className="mt-1 w-full rounded-input border border-line p-2 text-sm"
@@ -164,11 +165,11 @@ export function JournalFormDrawer({
               </option>
             ))}
           </select>
-          {errors.account_id && <p className="mt-1 text-xs text-danger">{errors.account_id.message}</p>}
+          {errors.account_id && <p className="mt-1 text-xs text-danger dark:text-red-300">{errors.account_id.message}</p>}
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Kategori</label>
+          <label className="text-sm font-medium text-muted">Kategori</label>
           <select
             {...register("category_id")}
             className="mt-1 w-full rounded-input border border-line p-2 text-sm"
@@ -180,11 +181,11 @@ export function JournalFormDrawer({
               </option>
             ))}
           </select>
-          {errors.category_id && <p className="mt-1 text-xs text-danger">{errors.category_id.message}</p>}
+          {errors.category_id && <p className="mt-1 text-xs text-danger dark:text-red-300">{errors.category_id.message}</p>}
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Debit (Rp)</label>
+          <label className="text-sm font-medium text-muted">Debit (Rp)</label>
           <Controller
             name="debit_amount"
             control={control}
@@ -203,11 +204,11 @@ export function JournalFormDrawer({
               />
             )}
           />
-          {errors.debit_amount && <p className="mt-1 text-xs text-danger">{errors.debit_amount.message}</p>}
+          {errors.debit_amount && <p className="mt-1 text-xs text-danger dark:text-red-300">{errors.debit_amount.message}</p>}
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Kredit (Rp)</label>
+          <label className="text-sm font-medium text-muted">Kredit (Rp)</label>
           <Controller
             name="credit_amount"
             control={control}
@@ -226,19 +227,20 @@ export function JournalFormDrawer({
               />
             )}
           />
-          {errors.credit_amount && <p className="mt-1 text-xs text-danger">{errors.credit_amount.message}</p>}
+          {errors.credit_amount && <p className="mt-1 text-xs text-danger dark:text-red-300">{errors.credit_amount.message}</p>}
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Deskripsi</label>
+          <label className="text-sm font-medium text-muted">Deskripsi</label>
           <textarea
             {...register("description")}
             rows={3}
             className="mt-1 w-full rounded-input border border-line p-2 text-sm"
             placeholder="Masukkan keterangan jurnal..."
           />
-          {errors.description && <p className="mt-1 text-xs text-danger">{errors.description.message}</p>}
+          {errors.description && <p className="mt-1 text-xs text-danger dark:text-red-300">{errors.description.message}</p>}
         </div>
+        </fieldset>
       </form>
     </DetailSheet>
   );
