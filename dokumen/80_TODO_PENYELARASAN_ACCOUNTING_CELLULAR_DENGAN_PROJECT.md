@@ -110,6 +110,7 @@ Sebuah halaman selesai apabila:
 - [ ] Selaraskan dashboard dan Pekerjaan Saya berdasarkan antrean dokumen aktual.
 - [ ] Selaraskan omzet, voucher, pencocokan, dan jurnal.
 - [x] Rombak Rekap Setoran menjadi register rekonsiliasi sumber omzet, batas kanal, bukti, penerimaan Finance, sisa, status, dan audit trail.
+- [x] Pisahkan Cuti dan Absensi sebagai dokumen kerja berbeda dengan register, form bertahap, detail, koreksi berversi, pembatalan beralasan, dan histori; persetujuan tetap berupa referensi eksternal sampai kebijakan approver internal ditetapkan.
 - [ ] Selaraskan hutang-piutang, cashflow, periode, master data, dan impor.
 - [ ] Pisahkan pekerjaan input, pemeriksaan, persetujuan, realisasi, dan pemantauan berdasarkan role.
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
@@ -132,9 +133,9 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Accounting: rombak Cuti dan Absensi menjadi dokumen terpisah dengan periode, pegawai, perhitungan, dan approval.
-2. Cellular: selaraskan Produk & Paket dengan pola register/detail/form Project.
-3. Accounting: lanjutkan omzet, voucher, pencocokan, dan jurnal.
+1. Cellular: selaraskan Produk & Paket dengan pola register/detail/form Project.
+2. Accounting: lanjutkan omzet, voucher, pencocokan, dan jurnal.
+3. Accounting: selaraskan master data dan staging impor.
 4. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 5. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 6. Regresi lintas role dan UAT visual terang/gelap.

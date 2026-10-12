@@ -18,28 +18,34 @@ function show(role:string, rows:HrRecord[]=[]){
 }
 it('Finance tidak meminta data HR dan Staff Accounting hanya membaca',async()=>{
   show('FINANCE');expect(screen.getByRole('alert')).toHaveTextContent('Akses rekap kepegawaian tidak tersedia');expect(hrApi.employees).not.toHaveBeenCalled();expect(hrApi.list).not.toHaveBeenCalled();
-  cleanup();show('ACCOUNTING',[record]);await screen.findByText('CUTI-1');expect(screen.queryByRole('form',{name:'Catat rekap'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:/^Koreksi CUTI-1$/})).not.toBeInTheDocument();expect(screen.getByRole('button',{name:/^Histori CUTI-1$/})).toBeInTheDocument();
+  cleanup();show('ACCOUNTING',[record]);await screen.findByText('CUTI-1');expect(screen.queryByRole('form',{name:'Catat rekap'})).not.toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Buka CUTI-1'}));await screen.findByText('Histori perubahan');expect(screen.queryByRole('button',{name:'Koreksi dokumen'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Batalkan dokumen'})).not.toBeInTheDocument();
 });
 it('Admin menyimpan jumlah hari sumber desimal dan mempertahankan input saat gagal',async()=>{
   vi.mocked(hrApi.create).mockRejectedValueOnce(new Error('Rentang cuti bertumpang tindih.')).mockResolvedValueOnce({data:record,meta:{trace_id:'t'}});
-  show('ADMIN');await screen.findByRole('option',{name:'HR-1 — Pegawai anonim'});
+  show('ADMIN');fireEvent.click(screen.getByRole('button',{name:'Catat cuti'}));await screen.findByRole('option',{name:'HR-1 — Pegawai anonim'});
   fireEvent.change(screen.getByLabelText('Pegawai'),{target:{value:'e'}});
   for(const [label,value] of [['Referensi sumber','CUTI-1'],['Jenis cuti sesuai sumber','Tahunan'],['Jumlah hari menurut sumber','1.50'],['Referensi persetujuan cuti','SETUJU-1']])fireEvent.change(screen.getByLabelText(label!),{target:{value}});
   fireEvent.submit(screen.getByRole('form',{name:'Catat rekap'}));expect(await screen.findByRole('alert')).toHaveTextContent('Rentang cuti bertumpang tindih.');expect(screen.getByLabelText('Jumlah hari menurut sumber')).toHaveValue('1.50');expect(screen.queryByText('Data berhasil disimpan.')).not.toBeInTheDocument();
   expect(hrApi.create).toHaveBeenCalledWith(expect.objectContaining({employee_id:'e',source_days:'1.50',source_reference:'CUTI-1'}));
-  fireEvent.submit(screen.getByRole('form',{name:'Catat rekap'}));expect(await screen.findByText('Data berhasil disimpan.')).toBeInTheDocument();expect(screen.getByLabelText('Referensi sumber')).toHaveValue('');
+  fireEvent.submit(screen.getByRole('form',{name:'Catat rekap'}));expect(await screen.findByText('Data berhasil disimpan.')).toBeInTheDocument();expect(screen.queryByRole('form',{name:'Catat rekap'})).not.toBeInTheDocument();
 });
 it('koreksi membawa versi dan alasan tanpa mengganti pegawai atau referensi sumber',async()=>{
   vi.mocked(hrApi.correct).mockRejectedValue(new Error('Versi sudah berubah.'));show('ADMIN',[record]);
-  fireEvent.click(await screen.findByRole('button',{name:/^Koreksi CUTI-1$/}));expect(screen.getByLabelText('Pegawai')).toBeDisabled();expect(screen.getByLabelText('Referensi sumber')).toBeDisabled();
+  fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Koreksi dokumen'}));expect(screen.getByLabelText('Pegawai')).toBeDisabled();expect(screen.getByLabelText('Referensi sumber')).toBeDisabled();
   fireEvent.change(screen.getByLabelText('Alasan koreksi'),{target:{value:'Jumlah hari dikoreksi sesuai sumber'}});
   fireEvent.change(screen.getByLabelText('Jumlah hari menurut sumber'),{target:{value:'1.25'}});
   fireEvent.submit(screen.getByRole('form',{name:'Koreksi rekap'}));expect(await screen.findByRole('alert')).toHaveTextContent('Versi sudah berubah.');
   expect(hrApi.correct).toHaveBeenCalledWith(record,expect.objectContaining({kind:'leave',source_days:'1.25'}),'Jumlah hari dikoreksi sesuai sumber');expect(screen.getByLabelText('Jumlah hari menurut sumber')).toHaveValue('1.25');
 });
+it('pembatalan dilakukan dari detail dan tetap membawa versi serta alasan',async()=>{
+ vi.mocked(hrApi.void).mockResolvedValue({data:{...record,status:'voided',version:3},meta:{trace_id:'t'}});show('ADMIN',[record]);
+ fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Batalkan dokumen'}));
+ fireEvent.change(screen.getByLabelText('Alasan pembatalan'),{target:{value:'Dokumen sumber dibatalkan oleh pihak terkait'}});fireEvent.submit(screen.getByRole('form',{name:'Batalkan rekap'}));
+ expect(await screen.findByText('Rekap dibatalkan; histori tetap tersimpan.')).toBeInTheDocument();expect(hrApi.void).toHaveBeenCalledWith(record,'Dokumen sumber dibatalkan oleh pihak terkait');
+});
 it('absensi mencatat status, jadwal dan menit dari sumber tanpa hari cuti',async()=>{
   vi.mocked(hrApi.create).mockResolvedValue({data:record,meta:{trace_id:'t'}});show('ADMIN');
-  await screen.findByRole('option',{name:'HR-1 — Pegawai anonim'});fireEvent.click(screen.getByRole('button',{name:'Absensi'}));
+  fireEvent.click(screen.getByRole('button',{name:/Realisasi absensi/}));fireEvent.click(screen.getByRole('button',{name:'Catat absensi'}));await screen.findByRole('option',{name:'HR-1 — Pegawai anonim'});
   fireEvent.change(screen.getByLabelText('Pegawai'),{target:{value:'e'}});
   fireEvent.change(screen.getByLabelText('Referensi sumber'),{target:{value:'ABSEN-1'}});
   fireEvent.change(screen.getByLabelText('Referensi jadwal'),{target:{value:'JADWAL-1'}});
@@ -49,20 +55,18 @@ it('absensi mencatat status, jadwal dan menit dari sumber tanpa hari cuti',async
   expect(vi.mocked(hrApi.create).mock.calls[0]?.[0]).not.toHaveProperty('source_days');
 });
 
-it('perubahan bulan membersihkan koreksi, pembatalan dan histori sebelumnya',async()=>{
- show('ADMIN',[record]); fireEvent.click(await screen.findByRole('button',{name:'Histori CUTI-1'}));
- fireEvent.click(screen.getByRole('button',{name:'Koreksi CUTI-1'})); fireEvent.click(screen.getByRole('button',{name:'Batalkan rekap CUTI-1'}));
- expect(screen.getByRole('form',{name:'Koreksi rekap'})).toBeInTheDocument(); expect(screen.getByText('Histori rekap')).toBeInTheDocument();
+it('perubahan bulan membersihkan koreksi dan detail sebelumnya',async()=>{
+ show('ADMIN',[record]);fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Koreksi dokumen'}));
+ expect(screen.getByRole('form',{name:'Koreksi rekap'})).toBeInTheDocument();
  fireEvent.change(screen.getByLabelText('Bulan rekap'),{target:{value:'2026-09'}});
- expect(screen.queryByRole('form',{name:'Koreksi rekap'})).not.toBeInTheDocument(); expect(screen.queryByRole('form',{name:'Batalkan rekap'})).not.toBeInTheDocument();
- expect(screen.queryByText('Histori rekap')).not.toBeInTheDocument(); expect(screen.getByLabelText('Referensi sumber')).toHaveValue(''); expect(hrApi.void).not.toHaveBeenCalled();
+ expect(screen.queryByRole('form',{name:'Koreksi rekap'})).not.toBeInTheDocument();expect(screen.queryByText('Histori perubahan')).not.toBeInTheDocument();expect(hrApi.void).not.toHaveBeenCalled();
 });
 it('histori bisa ditutup tanpa mengubah rekap',async()=>{
- show('ACCOUNTING',[record]); fireEvent.click(await screen.findByRole('button',{name:'Histori CUTI-1'}));
- fireEvent.click(screen.getByRole('button',{name:'Tutup histori'})); expect(screen.queryByText('Histori rekap')).not.toBeInTheDocument(); expect(hrApi.correct).not.toHaveBeenCalled();
+ show('ACCOUNTING',[record]);fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));await screen.findByText('Histori perubahan');
+ fireEvent.click(screen.getByRole('button',{name:'Tutup panel'}));expect(screen.queryByText('Histori perubahan')).not.toBeInTheDocument();expect(hrApi.correct).not.toHaveBeenCalled();
 });
 it('filter bulan dikunci selama koreksi berlangsung',async()=>{
- vi.mocked(hrApi.correct).mockImplementation(()=>new Promise(()=>{}));show('ADMIN',[record]);fireEvent.click(await screen.findByRole('button',{name:'Koreksi CUTI-1'}));
+ vi.mocked(hrApi.correct).mockImplementation(()=>new Promise(()=>{}));show('ADMIN',[record]);fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Koreksi dokumen'}));
  fireEvent.change(screen.getByLabelText('Alasan koreksi'),{target:{value:'Koreksi sumber yang diverifikasi'}}); fireEvent.submit(screen.getByRole('form',{name:'Koreksi rekap'}));
- for(const button of await screen.findAllByRole('button',{name:'Menyimpan...'})) expect(button).toBeDisabled(); expect(screen.getByLabelText('Bulan rekap')).toBeDisabled();expect(screen.getByRole('button',{name:'Absensi'})).toBeDisabled();
+ for(const button of await screen.findAllByRole('button',{name:'Menyimpan...'}))expect(button).toBeDisabled();expect(screen.getByLabelText('Bulan rekap')).toBeDisabled();expect(screen.getByRole('button',{name:/Realisasi absensi/})).toBeDisabled();
 });
