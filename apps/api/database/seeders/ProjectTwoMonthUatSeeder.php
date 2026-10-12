@@ -62,7 +62,7 @@ class ProjectTwoMonthUatSeeder extends Seeder
                 $milestones = [];
                 foreach (['Persiapan', 'Pelaksanaan', 'Serah terima'] as $i => $title) {
                     $done = $status === 'completed' || ($status !== 'planning' && $i === 0);
-                    $milestones[] = ProjectMilestone::create(['project_id' => $project->id, 'title' => $title.' [UAT]', 'weight_percentage' => [20, 60, 20][$i], 'status' => $done ? 'completed' : 'pending', 'payment_status' => $done, 'due_date' => $i === 0 ? $start : $end]);
+                    $milestones[] = ProjectMilestone::create(['project_id' => $project->id, 'title' => $title.' [UAT]', 'weight_percentage' => [20, 60, 20][$i], 'status' => $done ? 'completed' : 'pending', 'payment_status' => $done, 'start_date' => $i === 2 ? $end : $start, 'due_date' => $i === 0 ? $start : $end]);
                 }
                 $rabs = [];
                 foreach (['material', 'labor', 'overhead'] as $i => $category) {

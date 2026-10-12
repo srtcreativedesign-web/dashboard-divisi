@@ -122,7 +122,16 @@ describe('ProjectStageCard', () => {
     fireEvent.click(screen.getByText('1. SURVEI').closest('div')!);
     expect(handleStageClick).toHaveBeenCalledWith(
       mockProject,
-      expect.objectContaining({ title: '1. SURVEI' })
+      expect.objectContaining({ title: '1. SURVEI' }),
+      'SURVEI'
+    );
+
+    // Click EXECUTION box (virtual milestone, no matching DB row) -> stage key forwarded
+    fireEvent.click(screen.getByText('5. EXECUTION').closest('div')!);
+    expect(handleStageClick).toHaveBeenCalledWith(
+      mockProject,
+      expect.objectContaining({ title: '5. EXECUTION' }),
+      'EXECUTION'
     );
   });
 });

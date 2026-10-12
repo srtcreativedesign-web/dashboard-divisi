@@ -3,12 +3,14 @@ import { Project, ProjectMilestone } from '../../types/project';
 import { projectApi } from '../../api/projects';
 import { X, CheckCircle2, Clock, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { ProjectGanttChart } from './ProjectGanttChart';
 
 interface MilestoneUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
   project: Project;
   milestone: ProjectMilestone;
+  showTimeline?: boolean;
   onSuccess: (updatedMilestone: ProjectMilestone) => void;
 }
 
@@ -17,10 +19,12 @@ export function MilestoneUpdateModal({
   onClose,
   project,
   milestone,
+  showTimeline,
   onSuccess,
 }: MilestoneUpdateModalProps) {
   const [status, setStatus] = useState<string>(milestone.status || 'pending');
   const [notes, setNotes] = useState<string>(milestone.notes || '');
+  const [startDate, setStartDate] = useState<string>(milestone.start_date || '');
   const [completionDate, setCompletionDate] = useState<string>(
     milestone.completion_date || ''
   );
@@ -34,6 +38,7 @@ export function MilestoneUpdateModal({
     if (isOpen) {
       setStatus(milestone.status || 'pending');
       setNotes(milestone.notes || '');
+      setStartDate(milestone.start_date || '');
       setCompletionDate(milestone.completion_date || '');
       setActualPercentage(
         milestone.actual_percentage ?? (milestone.status === 'completed' ? 100 : 0)
@@ -70,6 +75,7 @@ export function MilestoneUpdateModal({
       const updated = await projectApi.updateMilestone(project.id, milestone.id, {
         status,
         notes: notes.trim(),
+        start_date: startDate || undefined,
         completion_date: status === 'completed' ? (completionDate || new Date().toISOString().split('T')[0]) : undefined,
         actual_percentage: actualPercentage,
       });
@@ -105,7 +111,9 @@ export function MilestoneUpdateModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className="w-full max-w-lg rounded-card-lg bg-white border border-line shadow-card-hover overflow-hidden animate-in zoom-in-95 duration-150"
+        className={`w-full ${
+          showTimeline ? 'max-w-4xl' : 'max-w-lg'
+        } max-h-[calc(100vh-2rem)] overflow-y-auto rounded-card-lg bg-white border border-line shadow-card-hover animate-in zoom-in-95 duration-150`}
         role="dialog"
         aria-modal="true"
       >
@@ -231,6 +239,17 @@ export function MilestoneUpdateModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
+                Tanggal Mulai
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs text-navy focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-navy uppercase tracking-wider mb-1.5">
                 Tanggal Selesai
               </label>
               <input
@@ -254,6 +273,17 @@ export function MilestoneUpdateModal({
               />
             </div>
           </div>
+
+          {/* Project Gantt Timeline (EXECUTION stage) */}
+          {showTimeline && (
+            <div className="border-t border-line pt-4 -mx-6 px-6">
+              <h4 className="text-sm font-bold text-navy">Linimasa Gantt Proyek</h4>
+              <p className="text-xs text-subtle mt-0.5 mb-3">
+                Status penyelesaian seluruh tahapan dan target jadwal masing-masing
+              </p>
+              <ProjectGanttChart project={project} />
+            </div>
+          )}
 
           {/* Footer Actions */}
           <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-line">

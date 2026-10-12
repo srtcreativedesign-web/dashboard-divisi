@@ -19,6 +19,8 @@ import {
   ComposedChart,
   Legend,
   Line,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -82,6 +84,14 @@ export default function ProjectDashboardPage() {
   ];
 
   const monthlyTrend = buildMonthlyTrend(projects);
+
+  // LPJ status: final hanya untuk proyek selesai, sisanya masih dalam proses
+  const lpjDone = projects.filter(p => p.status === 'completed').length;
+  const lpjProcess = projects.length - lpjDone;
+  const lpjData = [
+    { name: 'LPJ Selesai', value: lpjDone, color: '#15803d' },
+    { name: 'LPJ dalam Proses', value: lpjProcess, color: '#0284c7' },
+  ];
 
 
   if (loading) return <LoadingState label="Memuat proyek..." />;
@@ -259,6 +269,62 @@ export default function ProjectDashboardPage() {
 
         {/* Kolom Kanan: Aktivitas & Timeline */}
         <div className="space-y-6">
+
+          {/* Status LPJ Doughnut */}
+          <div className="rounded-card-lg bg-panel shadow-card border border-line p-6">
+            <div className="flex items-center justify-between mb-4 gap-2">
+              <div>
+                <h2 className="text-base font-bold text-navy">Status LPJ Proyek</h2>
+                <p className="text-xs text-subtle">LPJ final vs proyek yang masih berjalan</p>
+              </div>
+              {projects.length > 0 && (
+                <span className="shrink-0 rounded-pill bg-surface border border-line px-2 py-0.5 text-[10px] font-bold text-muted">
+                  {lpjDone}/{projects.length} LPJ
+                </span>
+              )}
+            </div>
+            {projects.length > 0 ? (
+              <>
+                <div className="h-52" role="img" aria-label="Grafik Status LPJ Proyek">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={lpjData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="62%"
+                        outerRadius="85%"
+                        paddingAngle={2}
+                        strokeWidth={0}
+                      >
+                        {lpjData.map((d) => (
+                          <Cell key={d.name} fill={d.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => [`${value} proyek`, 'Jumlah']}
+                        contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid var(--color-line)', backgroundColor: 'var(--color-panel)', color: 'var(--color-navy)' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="mt-3 flex items-center justify-center gap-5 text-xs font-semibold text-navy">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-success inline-block" />
+                    LPJ Selesai: {lpjDone}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-primary-600 inline-block" />
+                    Dalam Proses: {lpjProcess}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <p className="text-center text-sm text-subtle py-8">Belum ada data LPJ.</p>
+            )}
+          </div>
 
           <div className="rounded-card-lg bg-panel shadow-card border border-line p-6 h-full min-h-[400px]">
             <h2 className="text-base font-bold text-navy mb-6 flex items-center gap-2">

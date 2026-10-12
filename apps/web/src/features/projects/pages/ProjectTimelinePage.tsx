@@ -1,15 +1,11 @@
 import React from 'react';
 import { ProjectPageLayout } from '../../../layout/ProjectPageLayout';
-import { Button } from '../../../components/ui/Button';
-import { BarChart } from '../../../components/charts';
+import { ProjectGanttChart } from '../../../components/projects/ProjectGanttChart';
 import {
   Calendar,
   Clock,
   CheckCircle2,
   AlertTriangle,
-  Layers,
-  ArrowRight,
-  TrendingUp,
   Hourglass,
 } from 'lucide-react';
 
@@ -194,60 +190,7 @@ export default function ProjectTimelinePage() {
               </div>
             </div>
 
-            {/* VISUAL STEPPER TIMELINE */}
-            <div className="rounded-card-lg border border-line bg-panel shadow-card p-6">
-              <h3 className="text-sm font-bold text-navy mb-4">Urutan Kronologis Tahapan Milestone</h3>
-              <div className="relative pl-6 space-y-8 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-line">
-                {milestones.length > 0 ? (
-                  milestones.map((ms, idx) => {
-                    const actual = ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0);
-                    const isDone = actual >= 100 || ms.status === 'completed';
-                    const isInProgress = !isDone && (actual > 0 || ms.status === 'in_progress');
-
-                    return (
-                      <div key={ms.id} className="relative flex items-start gap-4">
-                        <div
-                          className={`absolute -left-6 top-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                            isDone
-                              ? 'bg-success border-success text-white'
-                              : isInProgress
-                              ? 'bg-primary-600 border-primary-600 text-white animate-pulse'
-                              : 'bg-panel border-line text-slate-400'
-                          }`}
-                        >
-                          {isDone ? (
-                            <CheckCircle2 className="h-3 w-3" />
-                          ) : (
-                            <span className="text-[10px] font-bold">{idx + 1}</span>
-                          )}
-                        </div>
-
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="font-bold text-xs text-navy">{ms.title}</h4>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-input bg-surface border border-line text-muted">
-                              Bobot: {ms.weight_percentage}%
-                            </span>
-                            <span className="text-[10px] font-semibold text-slate-400">
-                              Progres: {ms.actual_percentage ?? (ms.status === 'completed' ? 100 : 0)}%
-                            </span>
-                          </div>
-                          <p className="text-xs text-subtle">
-                            Target Jatuh Tempo:{' '}
-                            <span className="font-medium text-muted">
-                              {ms.due_date ? new Date(ms.due_date).toLocaleDateString('id-ID') : 'Belum diatur'}
-                            </span>
-                          </p>
-                          {ms.notes && <p className="text-[11px] text-slate-400 italic">{ms.notes}</p>}
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-xs text-slate-400 italic">Belum ada linimasa tahapan.</p>
-                )}
-              </div>
-            </div>
+            <ProjectGanttChart project={project} />
           </div>
         );
       }}

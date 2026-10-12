@@ -49,7 +49,7 @@ export default function ProjectDetailPage() {
 
   // Milestone State
   const [showMilestoneModal, setShowMilestoneModal] = useState(false);
-  const [milestoneForm, setMilestoneForm] = useState({ title: '', weight_percentage: 0, due_date: '' });
+  const [milestoneForm, setMilestoneForm] = useState({ title: '', weight_percentage: 0, start_date: '', due_date: '' });
   const [submittingMilestone, setSubmittingMilestone] = useState(false);
 
   useEffect(() => {
@@ -126,7 +126,7 @@ export default function ProjectDetailPage() {
       await projectApi.addMilestone(Number(id), milestoneForm);
       await fetchProject();
       setShowMilestoneModal(false);
-      setMilestoneForm({ title: '', weight_percentage: 0, due_date: '' });
+      setMilestoneForm({ title: '', weight_percentage: 0, start_date: '', due_date: '' });
     } catch {
       alert('Gagal menambah termin/milestone');
     } finally {
@@ -636,6 +636,15 @@ export default function ProjectDetailPage() {
                   max="100"
                   value={milestoneForm.weight_percentage}
                   onChange={(e) => setMilestoneForm({ ...milestoneForm, weight_percentage: Number(e.target.value) })}
+                  className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Tanggal Mulai</label>
+                <input
+                  type="date"
+                  value={milestoneForm.start_date}
+                  onChange={(e) => setMilestoneForm({ ...milestoneForm, start_date: e.target.value })}
                   className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
                 />
               </div>

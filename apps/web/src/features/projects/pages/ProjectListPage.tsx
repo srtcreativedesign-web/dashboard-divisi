@@ -49,6 +49,7 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
   const [activeMilestoneModal, setActiveMilestoneModal] = useState<{
     project: Project;
     milestone: ProjectMilestone;
+    showTimeline?: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -84,7 +85,8 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
     }
   };
 
-  const handleStageClick = async (project: Project, milestone: ProjectMilestone) => {
+  const handleStageClick = async (project: Project, milestone: ProjectMilestone, stageKey?: string) => {
+    const showTimeline = stageKey === 'EXECUTION';
     if (milestone.id < 0) {
       try {
         const fresh = await projectApi.syncStandardMilestones(project.id);
@@ -95,13 +97,13 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
           fresh.find((m) =>
             m.title.toUpperCase().includes(milestone.title.replace(/^\d+\.\s*/, '').toUpperCase())
           ) || fresh[0] || milestone;
-        setActiveMilestoneModal({ project, milestone: target });
+        setActiveMilestoneModal({ project: { ...project, milestones: fresh }, milestone: target, showTimeline });
       } catch (e) {
         console.error(e);
-        setActiveMilestoneModal({ project, milestone });
+        setActiveMilestoneModal({ project, milestone, showTimeline });
       }
     } else {
-      setActiveMilestoneModal({ project, milestone });
+      setActiveMilestoneModal({ project, milestone, showTimeline });
     }
   };
 
@@ -641,6 +643,7 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
           isOpen={!!activeMilestoneModal}
           project={activeMilestoneModal.project}
           milestone={activeMilestoneModal.milestone}
+          showTimeline={activeMilestoneModal.showTimeline}
           onClose={() => setActiveMilestoneModal(null)}
           onSuccess={handleMilestoneUpdated}
         />

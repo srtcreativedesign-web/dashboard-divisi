@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface ProjectStageCardProps {
   project: Project;
-  onStageClick: (project: Project, milestone: ProjectMilestone) => void;
+  onStageClick: (project: Project, milestone: ProjectMilestone, stageKey?: string) => void;
   onDeleteProject?: (project: Project) => void;
   onRabClick?: (project: Project) => void;
 }
@@ -61,6 +61,7 @@ export function ProjectStageCard({
 
       if (found) {
         return {
+          key: std.key,
           milestone: found,
           stageTitle: found.title.startsWith(`${idx + 1}.`) ? found.title : std.title,
           status: found.status || 'pending',
@@ -82,6 +83,7 @@ export function ProjectStageCard({
       };
 
       return {
+        key: std.key,
         milestone: virtualMilestone,
         stageTitle: std.title,
         status: 'pending',
@@ -201,7 +203,7 @@ export function ProjectStageCard({
           return (
             <div
               key={sIdx}
-              onClick={() => onStageClick(project, stage.milestone)}
+              onClick={() => onStageClick(project, stage.milestone, stage.key)}
               className={`group/stage relative rounded-card p-3 border cursor-pointer transition-all ${
                 isCompleted
                   ? 'bg-emerald-50/70 border-emerald-300 hover:border-emerald-400 hover:bg-emerald-100/60 shadow-xs'
