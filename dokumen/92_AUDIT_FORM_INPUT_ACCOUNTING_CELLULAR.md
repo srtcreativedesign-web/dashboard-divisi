@@ -35,7 +35,7 @@ Standar form yang dipakai mulai tahap ini:
 
 | Area form | Nilai saat audit | Keputusan |
 |---|---:|---|
-| Voucher pengeluaran | 88 | Poles ringkasan nilai, lampiran, dan jejak maker-checker. |
+| Voucher pengeluaran | 93 | Selesai; workbench menampilkan antrean, PIC, prioritas, jatuh tempo, sisa pembayaran, kesiapan draf, lampiran, maker-checker, realisasi Finance, dan audit trail. |
 | Realisasi pembayaran voucher | 84 | Perjelas saldo, tujuan pembayaran, bukti, dan pemisahan tugas Finance. |
 | Dokumen persediaan | 82 | Selaraskan struktur dengan dokumen persediaan Cellular. |
 | Omzet H+1 | 92 | Selesai; workbench menampilkan antrean status, PIC, tenggat H+1, shift, kanal pembayaran, selisih, kesiapan draf, pemeriksaan, keputusan Manager, dan audit trail. |
@@ -46,7 +46,7 @@ Standar form yang dipakai mulai tahap ini:
 
 ## Urutan implementasi
 
-1. Voucher, pencocokan, dan jurnal Accounting.
+1. Pencocokan dan jurnal Accounting.
 2. Master data dan staging impor Accounting.
 3. Regresi lintas role serta UAT visual terang/gelap.
 

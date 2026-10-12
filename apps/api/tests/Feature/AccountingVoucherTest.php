@@ -166,6 +166,12 @@ class AccountingVoucherTest extends TestCase
     {
         $record = $this->createRecord();
         $this->createRecord(['type' => 'PURCHASING', 'source_reference' => 'REQ-002']);
+        $summary = $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/vouchers?month=2026-10')->assertOk()->json('data.summary');
+        $this->assertSame(2, $summary['total_records']);
+        $this->assertSame(2, $summary['status_counts']['draft']);
+        $this->assertSame('2469.12', $summary['total_amount']);
+        $this->assertSame('0.00', $summary['remaining_amount']);
+        $this->assertSame(0, $summary['overdue_count']);
         $this->authenticated('bod1@dashboard.test')->getJson('/api/v1/accounting/vouchers?month=2026-10&type=PURCHASING')->assertOk()->assertJsonPath('data.total', 1)->assertJsonPath('data.items.0.type', 'PURCHASING');
         $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/vouchers?month=2026-09')->assertOk()->assertJsonPath('data.total', 0);
         $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/vouchers?month=2026-10&status=approved')->assertOk()->assertJsonPath('data.total', 0);

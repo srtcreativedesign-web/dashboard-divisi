@@ -11,6 +11,7 @@ vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: identit
 vi.mock('../../../api/omzet', () => ({ omzetApi: { list: vi.fn(), outlets: vi.fn() } }));
 vi.mock('../../../api/vouchers', () => ({ voucherApi: { list: vi.fn() } }));
 const envelope = <T,>(data: T) => ({ data, meta: { trace_id: 'work-test' } });
+const emptyVoucherSummary = { total_records: 0, status_counts: { draft: 0, submitted: 0, correction: 0, pending_approval: 0, approved: 0 }, urgent_count: 0, awaiting_payment_count: 0, overdue_count: 0, total_amount: '0.00', remaining_amount: '0.00' };
 const fixture: OmzetRecord = {
   id: '11111111-1111-4111-8111-111111111111', outlet_id: 'outlet-1', outlet_name: 'Outlet anonim', source_division_code: 'CELL', business_date: '2026-10-04', shift: '1', outlet_amount: '1000.00', cash_amount: '1000', qris_amount: '0', edc_amount: '0', transfer_amount: '0', other_amount: '0', expense_amount: '0', expected_deposit_amount: '1000.00', shift_total: null, shift_difference: null, shift_breakdown: [], source_reference: 'Sumber anonim', notes: '', requires_ap: false, status: 'correction', version: 2, received_amount: '1000', payment_difference: '0', ap_amount: null, ap_difference: null, review_notes: 'Perbaiki rincian tunai', decision_notes: null, events: [], unlock_requests: [], submission_window: { opens_at: '2026-10-05T00:00:00+07:00', deadline: '2026-10-05T23:59:59+07:00', can_submit: false, can_request_unlock: true, has_permit: false },
 };
@@ -22,7 +23,7 @@ beforeEach(() => {
   client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   vi.mocked(omzetApi.outlets).mockResolvedValue(envelope([{ id: 'outlet-1', code: 'CELL1', name: 'Outlet anonim', divisionCode: 'CELL' }]));
   vi.mocked(omzetApi.list).mockImplementation(async filter => envelope({ items: [{ ...fixture, status: filter.status as OmzetRecord['status'] }], total: 47, current_page: Number(filter.page), last_page: 3, summary: { validated_count: 0, total_records: 47, exception_count: 0, status_counts: { draft: 0, submitted: 47, correction: 0, pending_approval: 0, validated: 0 }, outlet_amount: '0', received_amount: '0', ap_difference: '0' } }));
-  vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [], total: 0, current_page: 1, last_page: 1 }));
+  vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [], total: 0, current_page: 1, last_page: 1, summary: emptyVoucherSummary }));
 });
 afterEach(() => { cleanup(); client.clear(); });
 describe('Ruang kerja Accounting dari transaksi persisten', () => {
@@ -67,7 +68,7 @@ describe('Ruang kerja Accounting dari transaksi persisten', () => {
   });
   it('voucher membuka detail UUID dan tidak menganggap persetujuan sebagai pembayaran', async () => {
     const voucher: VoucherRecord = { id: fixture.id, type: 'OPERATIONAL', outlet_id: fixture.outlet_id, outlet_name: fixture.outlet_name, source_division_code: 'CELL', voucher_date: '2026-09-04', due_date: '2026-10-04', entity_name: 'Penerima anonim', source_reference: 'Anonim', amount: '1000', description: 'Kebutuhan outlet', status: 'approved', version: 1, voucher_no: 'V/ANONIM', created_by: 'admin', reviewed_by: null, approved_by: null, review_notes: null, decision_notes: null, events: [] };
-    vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [voucher], total: 1, current_page: 1, last_page: 1 }));
+    vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [voucher], total: 1, current_page: 1, last_page: 1, summary: { ...emptyVoucherSummary, total_records: 1, status_counts: { ...emptyVoucherSummary.status_counts, approved: 1 }, awaiting_payment_count: 1, total_amount: '1000.00', remaining_amount: '1000.00' } }));
     mount(); fireEvent.click(screen.getByRole('button', { name: 'Voucher pengeluaran' }));
     fireEvent.click(await screen.findByRole('button', { name: /Disetujui/ }));
     expect(await screen.findByRole('link', { name: /Lihat hasil/ })).toHaveAttribute('href', expect.stringContaining('voucher=' + fixture.id));

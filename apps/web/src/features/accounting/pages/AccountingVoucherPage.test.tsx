@@ -20,12 +20,12 @@ beforeEach(() => {
   vi.clearAllMocks(); identity.id = 'creator'; identity.role = 'ADMIN';
   client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
   vi.mocked(voucherApi.outlets).mockResolvedValue(envelope([{ id: 'outlet-1', code: 'CELL-1', name: 'Outlet anonim', divisionCode: 'CELL' }]));
-  vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [fixture], total: 1, current_page: 1, last_page: 1 }));
+  vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [fixture], total: 1, current_page: 1, last_page: 1, summary: { total_records: 1, status_counts: { draft: 1, submitted: 0, correction: 0, pending_approval: 0, approved: 0 }, urgent_count: 0, awaiting_payment_count: 0, overdue_count: 0, total_amount: '1000.50', remaining_amount: '0.00' } }));
   vi.mocked(voucherApi.detail).mockResolvedValue(envelope(fixture));
 });
 afterEach(() => { cleanup(); client.clear(); });
 const mount = (route = '/accounting') => render(<QueryClientProvider client={client}><MemoryRouter initialEntries={[route]}><AccountingVoucherPage /></MemoryRouter></QueryClientProvider>);
-const open = async () => { fireEvent.click(await screen.findByRole('button', { name: 'Lihat' })); await screen.findByRole('heading', { name: 'Riwayat voucher' }); };
+const open = async () => { fireEvent.click(await screen.findByRole('button', { name: 'Buka voucher' })); await screen.findByRole('heading', { name: 'Riwayat voucher' }); };
 
 describe('Alur voucher sesuai peran', () => {
   it('Admin mengunggah lampiran pada versi voucher yang tampil lalu dapat mengunduh hasilnya', async () => {
@@ -42,7 +42,7 @@ describe('Alur voucher sesuai peran', () => {
   });
   it('Admin menyimpan voucher operasional beserta rencana transfer dan referensi dokumen', async () => {
     vi.mocked(voucherApi.save).mockResolvedValue(envelope({...fixture,type:'OPERATIONAL'}));
-    mount(); await screen.findByText('Outlet anonim');
+    mount(); await screen.findByRole('button', { name: 'Buka voucher' });
     fireEvent.click(screen.getByRole('button',{name:'Buat voucher'}));
     const form=within(screen.getByRole('form',{name:'Form voucher'}));
     fireEvent.change(form.getByLabelText('Jenis voucher'),{target:{value:'OPERATIONAL'}});
@@ -60,7 +60,7 @@ describe('Alur voucher sesuai peran', () => {
   });
   it('Admin menyimpan draf pembelian tanpa langsung mengajukan atau menyetujui', async () => {
     vi.mocked(voucherApi.save).mockResolvedValue(envelope(fixture));
-    mount(); await screen.findByText('Outlet anonim');
+    mount(); await screen.findByRole('button', { name: 'Buka voucher' });
     fireEvent.click(screen.getByRole('button', { name: 'Buat voucher' }));
     const form = within(screen.getByRole('form', { name: 'Form voucher' }));
     for (const [label, value] of [['Jenis voucher', 'PURCHASING'], ['Outlet sumber', 'outlet-1'], ['Tanggal voucher', '2026-10-05'], ['Jatuh tempo', '2026-10-20'], ['Penerima pembayaran', 'Pemasok anonim'], ['Referensi tagihan / permintaan', 'REQ-TEST'], ['Nominal voucher (Rp)', '1000.50'], ['Rincian tagihan / barang', 'Pembelian sepuluh barang anonim']] as const) {

@@ -44,7 +44,21 @@ export interface VoucherRecord extends VoucherInput {
   decision_notes: string | null;
   events: Array<{ id: number; action: string; actor_role: string; created_at: string; metadata: { version: number; status: VoucherStatus; reason?: string | null; snapshot: VoucherInput } }>;
 }
-export interface VoucherList { items: VoucherRecord[]; total: number; current_page: number; last_page: number }
+export interface VoucherList {
+  items: VoucherRecord[];
+  total: number;
+  current_page: number;
+  last_page: number;
+  summary: {
+    total_records: number;
+    status_counts: Record<VoucherStatus, number>;
+    urgent_count: number;
+    awaiting_payment_count: number;
+    overdue_count: number;
+    total_amount: string;
+    remaining_amount: string;
+  };
+}
 export interface VoucherAttachment { id: string; original_name: string; mime_type: string; size_bytes: number; sha256: string; uploaded_by: string; created_at: string }
 export interface VoucherPaymentInput { paid_date: string; amount: string; method: 'CASH' | 'BANK'; reference: string; notes: string }
 export interface VoucherPayment extends VoucherPaymentInput { id: string; status: 'recorded' | 'voided'; created_by: string; created_at: string; original_name: string; voided_at?: string | null; void_reason?: string | null }

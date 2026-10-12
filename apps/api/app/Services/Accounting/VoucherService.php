@@ -37,10 +37,33 @@ class VoucherService
     {
         $start = CarbonImmutable::createFromFormat('!Y-m', $filters['month'])->startOfMonth();
         $query = $this->query()->whereBetween('voucher_date', [$start->toDateString(), $start->endOfMonth()->toDateString()]);
-        foreach (['status', 'type', 'outlet_id'] as $field) {
+        foreach (['type', 'outlet_id'] as $field) {
             if (! empty($filters[$field])) {
                 $query->where($field, $filters[$field]);
             }
+        }
+        $summaryRecords = (clone $query)->withSum(['payments' => fn ($q) => $q->where('status', 'recorded')], 'amount_cents')->get();
+        $statusCounts = collect(['draft', 'submitted', 'correction', 'pending_approval', 'approved'])
+            ->mapWithKeys(fn ($status) => [$status => $summaryRecords->where('status', $status)->count()])->all();
+        $totalAmount = $remainingAmount = $overdueCount = $awaitingPaymentCount = 0;
+        $today = CarbonImmutable::now('Asia/Jakarta')->toDateString();
+        foreach ($summaryRecords as $record) {
+            $totalAmount += VoucherPaymentService::cents($record->amount);
+            $payment = VoucherPaymentService::summary($record);
+            if ($record->status === 'approved') {
+                $remaining = VoucherPaymentService::cents($payment['remaining_amount']);
+                $remainingAmount += $remaining;
+                $awaitingPaymentCount += $remaining > 0 ? 1 : 0;
+                $overdueCount += $remaining > 0 && $record->due_date < $today ? 1 : 0;
+            }
+        }
+        $summary = ['total_records' => $summaryRecords->count(), 'status_counts' => $statusCounts,
+            'urgent_count' => $summaryRecords->where('priority', 'URGENT')->count(),
+            'awaiting_payment_count' => $awaitingPaymentCount, 'overdue_count' => $overdueCount,
+            'total_amount' => VoucherPaymentService::money($totalAmount),
+            'remaining_amount' => VoucherPaymentService::money($remainingAmount)];
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
         }
         $page = $query->withSum(['payments' => fn ($q) => $q->where('status', 'recorded')], 'amount_cents')->orderByDesc('voucher_date')->orderByDesc('created_at')->orderBy('id')->paginate(25);
 
@@ -49,7 +72,7 @@ class VoucherService
             unset($data['payments_sum_amount_cents']);
 
             return $data + ['payment_summary' => VoucherPaymentService::summary($record)];
-        })->all(), 'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage()];
+        })->all(), 'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'summary' => $summary];
     }
 
     public function detail(string $id, ?array $user = null): array

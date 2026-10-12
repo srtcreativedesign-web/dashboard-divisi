@@ -9,6 +9,7 @@ import AccountingPaymentRunPage from './AccountingPaymentRunPage';
 vi.mock('../../../api/vouchers', () => ({ voucherApi: { list: vi.fn(), outlets: vi.fn() } }));
 vi.mock('../api/dashboard', () => ({ dashboardApi: { operations: vi.fn() } }));
 const envelope = <T,>(data: T) => ({ data, meta: { trace_id: 'payment-run-test' } });
+const voucherSummary = { total_records: 1, status_counts: { draft: 0, submitted: 0, correction: 0, pending_approval: 0, approved: 1 }, urgent_count: 1, awaiting_payment_count: 1, overdue_count: 1, total_amount: '1000000.00', remaining_amount: '600000.00' };
 let client: QueryClient;
 const record = { id: '11111111-1111-4111-8111-111111111111', voucher_no: 'VCH-UAT-01', type: 'OPERATIONAL' as const, outlet_id: 'outlet-1', outlet_name: 'Cellular T3', source_division_code: 'CELL', voucher_date: '2026-10-01', due_date: '2026-10-02', entity_name: 'Vendor UAT', source_reference: 'INV-UAT-01', amount: '1000000.00', description: 'Kebutuhan UAT', priority: 'URGENT' as const, payment_method: 'BANK' as const, status: 'approved' as const, version: 4, created_by: 'admin', reviewed_by: 'accounting', approved_by: 'manager', review_notes: null, decision_notes: 'Disetujui untuk realisasi', events: [], payment_summary: { paid_amount: '400000.00', remaining_amount: '600000.00', status: 'PARTIAL' as const } };
 const mount = () => render(<QueryClientProvider client={client}><MemoryRouter><AccountingPaymentRunPage /></MemoryRouter></QueryClientProvider>);
@@ -16,7 +17,7 @@ const mount = () => render(<QueryClientProvider client={client}><MemoryRouter><A
 beforeEach(() => {
   vi.clearAllMocks(); client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   vi.mocked(voucherApi.outlets).mockResolvedValue(envelope([{ id: 'outlet-1', code: 'CELL-T3', name: 'Cellular T3', divisionCode: 'CELL' }]));
-  vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [record], total: 1, current_page: 1, last_page: 1 }));
+  vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [record], total: 1, current_page: 1, last_page: 1, summary: voucherSummary }));
   vi.mocked(dashboardApi.operations).mockResolvedValue(envelope({ month: '2026-10', as_of: '2026-10-10T10:00:00+07:00', total: 1, counts: { draft: 0, correction: 0, submitted: 0, pending_approval: 0, approved: 1 }, approved_amount: '1000000.00', paid_amount: '400000.00', remaining_amount: '600000.00', unpaid_count: 1, partial_count: 1, paid_count: 0, overdue_count: 1, due_vouchers: [] }));
 });
 afterEach(() => { cleanup(); client.clear(); });
