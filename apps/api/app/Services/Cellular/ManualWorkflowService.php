@@ -45,17 +45,20 @@ class ManualWorkflowService
         return $product;
     }
 
-    private function recordAudit(array $user, string $action, string $id): void
+    private function recordAudit(array $user, string $action, string $id, ?array $metadata = null): void
     {
         $this->audit->logRequired(['actorId' => $user['sub'], 'actorRole' => $user['role'], 'entity' => 'Cellular',
-            'entityId' => $id, 'divisionCode' => 'CELL', 'action' => 'cellular.'.$action]);
+            'entityId' => $id, 'divisionCode' => 'CELL', 'action' => 'cellular.'.$action, 'metadata' => $metadata]);
     }
 
     public function products(array $user): array
     {
         $this->outlets($user);
 
-        return DB::table('cel_products')->orderBy('sku')->limit(500)->get()->all();
+        return DB::table('cel_products as products')->select('products.*')
+            ->selectSub(fn ($query) => $query->from('cel_stock_balances')->selectRaw('COALESCE(SUM(quantity), 0)')->whereColumn('product_id', 'products.id'), 'stock_quantity')
+            ->selectSub(fn ($query) => $query->from('cel_stock_balances')->selectRaw('COUNT(DISTINCT outlet_id)')->whereColumn('product_id', 'products.id'), 'stock_locations')
+            ->orderBy('products.sku')->limit(500)->get()->all();
     }
 
     public function createProduct(array $data, array $user): array
@@ -72,6 +75,44 @@ class ManualWorkflowService
             $data['sku'] = $sku;
             DB::table('cel_products')->insert($data + ['id' => $id, 'is_active' => true, 'created_at' => now(), 'updated_at' => now()]);
             $this->recordAudit($user, 'product.created', $id);
+
+            return (array) DB::table('cel_products')->where('id', $id)->first();
+        });
+    }
+
+    public function updateProduct(string $id, array $data, array $user): array
+    {
+        $this->policy->assertCapability($user, 'manage:cellular_catalog');
+        $this->outlets($user);
+
+        return DB::transaction(function () use ($id, $data, $user) {
+            $product = DB::table('cel_products')->where('id', $id)->lockForUpdate()->first();
+            if (! $product) {
+                throw new ApiException('RESOURCE_NOT_FOUND', 'Produk Cellular tidak ditemukan.');
+            }
+            if ((int) $product->version !== (int) $data['version']) {
+                throw new ApiException('VERSION_CONFLICT', 'Produk sudah diubah pengguna lain. Muat ulang data sebelum menyimpan.');
+            }
+            $sku = strtoupper(trim($data['sku']));
+            if (DB::table('cel_products')->where('sku', $sku)->where('id', '<>', $id)->exists()) {
+                throw new ApiException('VERSION_CONFLICT', 'SKU sudah terdaftar.');
+            }
+            if ($product->is_active && ! $data['is_active'] && DB::table('cel_stock_balances')->where('product_id', $id)->where('quantity', '>', 0)->exists()) {
+                throw new ApiException('INVALID_STATE_TRANSITION', 'Produk masih memiliki stok. Habiskan atau transfer stok sebelum menonaktifkan produk.');
+            }
+            $changes = [
+                'sku' => $sku,
+                'name' => trim($data['name']),
+                'kind' => $data['kind'],
+                'provider' => isset($data['provider']) ? trim($data['provider']) ?: null : null,
+                'variant' => isset($data['variant']) ? trim($data['variant']) ?: null : null,
+                'is_active' => $data['is_active'],
+                'version' => $product->version + 1,
+                'updated_at' => now(),
+            ];
+            DB::table('cel_products')->where('id', $id)->update($changes);
+            $action = (bool) $product->is_active !== (bool) $data['is_active'] ? ($data['is_active'] ? 'product.activated' : 'product.deactivated') : 'product.updated';
+            $this->recordAudit($user, $action, $id, ['reason' => trim($data['change_reason']), 'version' => $changes['version']]);
 
             return (array) DB::table('cel_products')->where('id', $id)->first();
         });

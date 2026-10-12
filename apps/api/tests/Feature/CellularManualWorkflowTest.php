@@ -89,6 +89,33 @@ class CellularManualWorkflowTest extends TestCase
         $this->getJson('/api/v1/cellular/movements?outlet_id='.$foreign->id)->assertForbidden();
     }
 
+    public function test_catalog_update_uses_version_reason_and_preserves_products_with_stock(): void
+    {
+        $sale = $this->setupStock();
+        $product = $this->getJson('/api/v1/cellular/products')->assertOk()->json('data.0');
+        $payload = [
+            'sku' => $product['sku'],
+            'name' => 'Kartu uji revisi',
+            'kind' => 'SIM_CARD',
+            'provider' => 'Provider uji',
+            'variant' => '20GB',
+            'is_active' => true,
+            'version' => 1,
+            'change_reason' => 'Koreksi nama dan paket berdasarkan master provider.',
+        ];
+        $this->putJson('/api/v1/cellular/products/'.$sale['product_id'], $payload)->assertOk()
+            ->assertJsonPath('data.name', 'Kartu uji revisi')->assertJsonPath('data.version', 2);
+        $this->putJson('/api/v1/cellular/products/'.$sale['product_id'], $payload)->assertStatus(409);
+        $this->putJson('/api/v1/cellular/products/'.$sale['product_id'], array_replace($payload, [
+            'version' => 2,
+            'is_active' => false,
+            'change_reason' => 'Menonaktifkan produk dari katalog operasional.',
+        ]))->assertStatus(409);
+        $this->deleteJson('/api/v1/cellular/products/'.$sale['product_id'])->assertStatus(405);
+        $this->assertDatabaseHas('cel_products', ['id' => $sale['product_id'], 'is_active' => true, 'version' => 2]);
+        $this->assertDatabaseHas('audit_events', ['entity_id' => $sale['product_id'], 'action' => 'cellular.product.updated']);
+    }
+
     public function test_required_audit_failure_rolls_back_sale_and_stock(): void
     {
         $sale = $this->setupStock();

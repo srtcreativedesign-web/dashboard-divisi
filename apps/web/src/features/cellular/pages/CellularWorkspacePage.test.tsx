@@ -35,7 +35,7 @@ describe('Antrean Kerja Cellular', () => {
   beforeEach(() => {
     session.role = 'ADMIN';
     vi.spyOn(cellularApi, 'outlets').mockResolvedValue(response([{ id: 'outlet-1', code: 'CELL-A', name: 'Outlet Uji' }]));
-    vi.spyOn(cellularApi, 'products').mockResolvedValue(response([{ id: 'product-1', sku: 'SIM-10', name: 'Perdana 10 GB', kind: 'SIM_CARD', provider: 'Telkomsel', variant: '10 GB' }]));
+    vi.spyOn(cellularApi, 'products').mockResolvedValue(response([{ id: 'product-1', sku: 'SIM-10', name: 'Perdana 10 GB', kind: 'SIM_CARD', provider: 'Telkomsel', variant: '10 GB', is_active: true, version: 1, stock_quantity: 2, stock_locations: 1 }]));
     vi.spyOn(cellularApi, 'stock').mockResolvedValue(response([{ id: 'stock-1', outlet_id: 'outlet-1', product_id: 'product-1', sku: 'SIM-10', name: 'Perdana 10 GB', quantity: 2, version: 1 }]));
     vi.spyOn(cellularApi, 'movements').mockResolvedValue(response([]));
     vi.spyOn(cellularApi, 'sales').mockResolvedValue(response([{ id: 'sale-1', outlet_id: 'outlet-1', outlet_name: 'Outlet Uji', product_name: 'Perdana 10 GB', business_date: '2026-10-03', quantity: 2, unit_price: '750000.00', total_amount: '1500000.00', source_reference: 'SALE-1', status: 'posted', version: 1, void_reason: null }]));

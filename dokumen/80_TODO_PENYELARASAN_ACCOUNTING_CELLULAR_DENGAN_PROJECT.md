@@ -86,7 +86,7 @@ Sebuah halaman selesai apabila:
 
 ### Persediaan dan master
 
-- [ ] Selaraskan Produk & Paket dengan pola daftar/detail/form Project.
+- [x] Selaraskan Produk & Paket dengan pola register, detail, form bertahap, filter, status aktif, optimistic version, alasan perubahan, dan audit wajib.
 - [x] Selaraskan Stok & Mutasi dengan pola register, detail transaksi, dan alur dokumen.
 - [x] Bedakan pengalaman Admin Gudang dari role pembaca dan Manager pemeriksa.
 - [x] Tambahkan indikator stok kritis yang dapat ditindaklanjuti per outlet.
@@ -133,12 +133,11 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Cellular: selaraskan Produk & Paket dengan pola register/detail/form Project.
-2. Accounting: lanjutkan omzet, voucher, pencocokan, dan jurnal.
-3. Accounting: selaraskan master data dan staging impor.
-4. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
-5. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
-6. Regresi lintas role dan UAT visual terang/gelap.
+1. Accounting: lanjutkan omzet, voucher, pencocokan, dan jurnal.
+2. Accounting: selaraskan master data dan staging impor.
+3. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
+4. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
+5. Regresi lintas role dan UAT visual terang/gelap.
 
 ## Pencapaian role terbaru
 

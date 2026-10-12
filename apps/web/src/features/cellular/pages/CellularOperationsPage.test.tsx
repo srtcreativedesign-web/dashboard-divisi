@@ -7,11 +7,11 @@ import { cellularApi, type Movement, type Sale, type Stock } from '../api';
 
 const auth = vi.hoisted(() => ({ role: 'ADMIN' }));
 vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: { role: auth.role, divisionCode: 'CELL' } }) }));
-vi.mock('../api', () => ({ cellularApi: { products: vi.fn(), outlets: vi.fn(), stock: vi.fn(), movements: vi.fn(), movementRegister: vi.fn(), sales: vi.fn(), createProduct: vi.fn(), adjust: vi.fn(), sell: vi.fn(), voidSale: vi.fn() } }));
+vi.mock('../api', () => ({ cellularApi: { products: vi.fn(), outlets: vi.fn(), stock: vi.fn(), movements: vi.fn(), movementRegister: vi.fn(), sales: vi.fn(), createProduct: vi.fn(), updateProduct: vi.fn(), adjust: vi.fn(), sell: vi.fn(), voidSale: vi.fn() } }));
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 function renderPage(role: string, rows: Sale[] = [], path = '/cellular/produk', movementRows: Movement[] = [], stockRows: Stock[] = []) {
   auth.role = role;
-  vi.mocked(cellularApi.products).mockResolvedValue({ data: [{ id: 'p', sku: 'SIM-1', name: 'Kartu uji', kind: 'SIM_CARD', provider: 'Provider uji', variant: '10GB' }], meta: { trace_id: 't' } });
+  vi.mocked(cellularApi.products).mockResolvedValue({ data: [{ id: 'p', sku: 'SIM-1', name: 'Kartu uji', kind: 'SIM_CARD', provider: 'Provider uji', variant: '10GB', is_active: true, version: 1, stock_quantity: 2, stock_locations: 1, updated_at: '2026-10-10T03:00:00Z' }], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.outlets).mockResolvedValue({ data: [{ id: 'o', code: 'CELL-1', name: 'Outlet uji' }], meta: { trace_id: 't' } });
   vi.mocked(cellularApi.stock).mockResolvedValue({ data: stockRows, meta: { trace_id: 't' } });
   vi.mocked(cellularApi.movements).mockResolvedValue({ data: movementRows, meta: { trace_id: 't' } });
@@ -31,7 +31,7 @@ describe('Operasional Cellular', () => {
     renderPage('LEADER');
     expect(await screen.findByText('Kartu uji')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Penjualan' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('form', { name: 'Tambah produk' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Tambah produk' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Stok & mutasi' }));
     expect(screen.queryByRole('form', { name: 'Catat mutasi stok' })).not.toBeInTheDocument();
     expect(cellularApi.sales).not.toHaveBeenCalled();
@@ -94,10 +94,20 @@ it('akun tanpa capability tidak meminta data Cellular', () => {
 });
 it('mengunci konteks dan menolak submit berulang saat produk sedang disimpan', async () => {
  vi.mocked(cellularApi.createProduct).mockImplementation(()=>new Promise(()=>{})); renderPage('ADMIN'); await screen.findByText('Kartu uji');
+ fireEvent.click(screen.getByRole('button',{name:'Tambah produk'}));
  fireEvent.change(screen.getByLabelText('SKU'),{target:{value:'UJI-2'}}); fireEvent.change(screen.getByLabelText('Nama produk'),{target:{value:'Produk anonim'}});
  const form=screen.getByRole('form',{name:'Tambah produk'}); fireEvent.submit(form); await waitFor(()=>expect(cellularApi.createProduct).toHaveBeenCalledOnce());
  expect(screen.getByRole('button',{name:'Stok & mutasi'})).toBeDisabled(); expect(screen.getByLabelText('SKU')).toBeDisabled();
  fireEvent.submit(form); expect(cellularApi.createProduct).toHaveBeenCalledOnce();
+});
+it('membuka detail produk dan menyimpan koreksi dengan versi serta alasan', async () => {
+ vi.mocked(cellularApi.updateProduct).mockResolvedValue({ data: {} as never, meta: { trace_id: 't' } }); renderPage('MANAGER');
+ await screen.findByText('Kartu uji'); fireEvent.click(screen.getByRole('button',{name:'Buka produk SIM-1'}));
+ expect(screen.getByRole('dialog',{name:'Kartu uji'})).toHaveTextContent('2 unit');
+ fireEvent.click(screen.getByRole('button',{name:'Ubah produk'}));
+ const form=screen.getByRole('form',{name:'Ubah produk'}); fireEvent.change(screen.getByLabelText('Nama produk'),{target:{value:'Kartu uji revisi'}});
+ fireEvent.change(screen.getByLabelText('Alasan perubahan'),{target:{value:'Perbaikan nama dari dokumen master'}}); fireEvent.submit(form);
+ await waitFor(()=>expect(cellularApi.updateProduct).toHaveBeenCalledWith(expect.objectContaining({id:'p',version:1}),expect.objectContaining({name:'Kartu uji revisi',change_reason:'Perbaikan nama dari dokumen master'})));
 });
 it('perubahan bulan atau tab menutup pembatalan penjualan sebelumnya', async()=>{
  const sale:Sale={id:'s',outlet_id:'o',outlet_name:'Outlet uji',product_name:'Kartu uji',business_date:'2026-10-07',quantity:1,unit_price:'0.10',total_amount:'0.10',source_reference:'JUAL-1',status:'posted',version:1,void_reason:null};

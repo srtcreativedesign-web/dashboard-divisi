@@ -25,8 +25,8 @@ Standar form yang dipakai mulai tahap ini:
 | Closing harian H+1 | 93 | Pertahankan; sudah memiliki konteks periode, SLA, role, timeline, dan koreksi. |
 | Dokumen persediaan | 91 | Pertahankan; tambah unggahan bukti fisik pada tahap lanjutan. |
 | Mutasi stok manual | 84 | Rapikan istilah sumber dan pratinjau saldo setelah mutasi. |
-| Penjualan dan pembatalan | 61 | Prioritas P0; ubah menjadi register, form bertahap, ringkasan stok/nilai, detail audit, dan dialog pembatalan. |
-| Produk dan paket | 66 | Prioritas P1; pindahkan tambah produk ke dialog, tambahkan detail, status aktif, dan validasi duplikasi. |
+| Penjualan dan pembatalan | 92 | Selesai; register, form bertahap, ringkasan stok/nilai, detail audit, dan dialog pembatalan tersedia. |
+| Produk dan paket | 92 | Selesai; register terfilter, KPI, detail, form bertahap, status aktif, validasi duplikasi, optimistic version, alasan perubahan, dan audit wajib tersedia. |
 | Tagihan dan settlement | 82 | Prioritas P1; perjelas sumber closing, sisa rekonsiliasi, dan hasil posting. |
 | Kontrol shift | 78 | Prioritas P1; kelompokkan checklist, masalah, tenggat, dan eskalasi. |
 | Staging impor spreadsheet | 74 | Prioritas P1; tampilkan pemetaan kolom, validasi per baris, dan ringkasan sebelum commit. |
@@ -46,10 +46,10 @@ Standar form yang dipakai mulai tahap ini:
 
 ## Urutan implementasi
 
-1. Penjualan dan pembatalan Cellular sebagai pola form transaksi baru.
-2. Produk dan paket Cellular.
-3. Kontrol shift, settlement, omzet H+1, master data, dan staging impor.
-4. Penyempurnaan voucher serta dokumen persediaan yang sudah mendekati standar.
+1. Omzet H+1 Accounting.
+2. Voucher, pencocokan, dan jurnal Accounting.
+3. Master data dan staging impor Accounting.
+4. Regresi lintas role serta UAT visual terang/gelap.
 
 ## Batas kebijakan
 

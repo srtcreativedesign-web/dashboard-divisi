@@ -17,7 +17,7 @@ function renderPage() {
 describe('Kontrol Persediaan Cellular', () => {
   beforeEach(() => {
     session.role = 'ADMIN_GUDANG';
-    vi.spyOn(cellularApi, 'inventoryCatalog').mockResolvedValue(response({ products: [{ id: 'product-1', sku: 'TSEL-10', name: 'Perdana 10 GB', kind: 'SIM_CARD', provider: 'Telkomsel', variant: '10 GB' }], outlets: [{ id: 'outlet-1', code: 'T3', name: 'Cellular T3' }], balances: [{ id: 'stock-1', product_id: 'product-1', outlet_id: 'outlet-1', sku: 'TSEL-10', name: 'Perdana 10 GB', quantity: 10, version: 1 }] }));
+    vi.spyOn(cellularApi, 'inventoryCatalog').mockResolvedValue(response({ products: [{ id: 'product-1', sku: 'TSEL-10', name: 'Perdana 10 GB', kind: 'SIM_CARD', provider: 'Telkomsel', variant: '10 GB', is_active: true, version: 1, stock_quantity: 10, stock_locations: 1 }], outlets: [{ id: 'outlet-1', code: 'T3', name: 'Cellular T3' }], balances: [{ id: 'stock-1', product_id: 'product-1', outlet_id: 'outlet-1', sku: 'TSEL-10', name: 'Perdana 10 GB', quantity: 10, version: 1 }] }));
     vi.spyOn(cellularApi, 'inventoryDocuments').mockResolvedValue(response([document]));
   });
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });

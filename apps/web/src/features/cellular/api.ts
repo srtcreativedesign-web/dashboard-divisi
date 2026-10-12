@@ -1,6 +1,6 @@
 import { api } from '../../api/client';
 
-export interface Product { id: string; sku: string; name: string; kind: 'SIM_CARD' | 'ACCESSORY'; provider: string | null; variant: string | null }
+export interface Product { id: string; sku: string; name: string; kind: 'SIM_CARD' | 'ACCESSORY'; provider: string | null; variant: string | null; is_active: boolean; version: number; stock_quantity: number; stock_locations: number; created_at?: string; updated_at?: string }
 export interface Outlet { id: string; code: string; name: string }
 export interface Stock { id: string; outlet_id: string; product_id: string; sku: string; name: string; quantity: number; version: number }
 export interface Movement { id: string; product_id?: string; outlet_id: string; sku: string; name: string; provider?: string | null; variant?: string | null; quantity_delta: number; quantity_after: number; kind: 'ADJUSTMENT' | 'SALE' | 'VOID' | 'RECEIPT' | 'ISSUE' | 'TRANSFER_OUT' | 'TRANSFER_IN' | 'STOCK_COUNT'; reference?: string; reason?: string; source_key?: string; source_document_type?: string; source_document_id?: string | null; actor_id?: string; created_at: string }
@@ -28,6 +28,7 @@ export const cellularApi = {
   movementRegister: (filters: MovementFilters = {}) => api.get<Movement[]>('/cellular/movements', filters as Record<string, string | undefined>),
   sales: (month: string) => api.get<Sale[]>('/cellular/sales', { month }),
   createProduct: (data: { sku: string; name: string; kind: string; provider: string | null; variant: string | null }) => api.post<Product>('/cellular/products', data),
+  updateProduct: (product: Product, data: { sku: string; name: string; kind: string; provider: string | null; variant: string | null; is_active: boolean; change_reason: string }) => api.put<Product>(`/cellular/products/${product.id}`, { ...data, version: product.version }),
   adjust: (data: { product_id: string; outlet_id: string; quantity_delta: number; reference: string; reason: string }) => api.post<Stock[]>('/cellular/stock', data),
   sell: (data: { product_id: string; outlet_id: string; business_date: string; quantity: number; unit_price: string; reference: string }) => api.post<Sale[]>('/cellular/sales', data),
   voidSale: (sale: Sale, reason: string) => api.post<Sale[]>(`/cellular/sales/${sale.id}/void`, { version: sale.version, reason }),

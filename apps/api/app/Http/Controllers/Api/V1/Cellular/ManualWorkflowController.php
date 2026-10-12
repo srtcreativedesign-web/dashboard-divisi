@@ -52,6 +52,22 @@ class ManualWorkflowController extends Controller
         return $this->mutate(fn () => $this->service->createProduct($data, $r->attributes->get('user')));
     }
 
+    public function updateProduct(Request $r, string $id)
+    {
+        $data = $r->validate([
+            'sku' => 'required|string|max:50|regex:/^[a-zA-Z0-9_-]+$/',
+            'name' => 'required|string|max:255',
+            'kind' => 'required|in:SIM_CARD,ACCESSORY',
+            'provider' => 'nullable|string|max:100',
+            'variant' => 'nullable|string|max:255',
+            'is_active' => 'required|boolean',
+            'version' => 'required|integer|min:1',
+            'change_reason' => 'required|string|min:10|max:1000',
+        ]);
+
+        return $this->mutate(fn () => $this->service->updateProduct($id, $data, $r->attributes->get('user')), 200);
+    }
+
     public function adjust(Request $r)
     {
         $data = $r->validate(['product_id' => 'required|uuid', 'outlet_id' => 'required|uuid', 'quantity_delta' => 'required|integer|min:-1000000|max:1000000|not_in:0', 'reference' => 'required|string|max:255', 'reason' => 'required|string|min:10|max:2000']);

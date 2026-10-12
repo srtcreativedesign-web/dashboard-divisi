@@ -306,6 +306,7 @@ Route::prefix('v1')->group(function () {
             Route::get('analytics', [AnalyticsController::class, 'index'])->middleware('capability:view:cellular_sales');
             Route::get('products', [ManualWorkflowController::class, 'products']);
             Route::post('products', [ManualWorkflowController::class, 'createProduct'])->middleware('capability:manage:cellular_catalog');
+            Route::put('products/{id}', [ManualWorkflowController::class, 'updateProduct'])->whereUuid('id')->middleware('capability:manage:cellular_catalog');
             Route::get('stock', [ManualWorkflowController::class, 'stock']);
             Route::get('movements', [ManualWorkflowController::class, 'movements']);
             Route::prefix('inventory-documents')->group(function () {

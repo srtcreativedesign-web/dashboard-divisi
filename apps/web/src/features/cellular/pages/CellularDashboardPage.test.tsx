@@ -20,8 +20,8 @@ describe('Pusat Kendali Cellular', () => {
     session.role = 'MANAGER';
     vi.spyOn(cellularApi, 'outlets').mockResolvedValue(response([{ id: 'outlet-1', code: 'CELL-A', name: 'Outlet Cellular Uji' }]));
     vi.spyOn(cellularApi, 'products').mockResolvedValue(response([
-      { id: 'product-1', sku: 'SIM-10', name: 'Perdana 10 GB', kind: 'SIM_CARD', provider: 'Telkomsel', variant: '10 GB' },
-      { id: 'product-2', sku: 'ACC-01', name: 'Kabel Data', kind: 'ACCESSORY', provider: null, variant: null },
+      { id: 'product-1', sku: 'SIM-10', name: 'Perdana 10 GB', kind: 'SIM_CARD', provider: 'Telkomsel', variant: '10 GB', is_active: true, version: 1, stock_quantity: 4, stock_locations: 1 },
+      { id: 'product-2', sku: 'ACC-01', name: 'Kabel Data', kind: 'ACCESSORY', provider: null, variant: null, is_active: true, version: 1, stock_quantity: 20, stock_locations: 1 },
     ]));
     vi.spyOn(cellularApi, 'stock').mockResolvedValue(response([
       { id: 'stock-1', outlet_id: 'outlet-1', product_id: 'product-1', sku: 'SIM-10', name: 'Perdana 10 GB', quantity: 4, version: 1 },
