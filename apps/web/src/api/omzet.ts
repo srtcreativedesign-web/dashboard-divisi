@@ -42,7 +42,15 @@ export interface OmzetList {
   total: number;
   current_page: number;
   last_page: number;
-  summary: { validated_count: number; outlet_amount: string; received_amount: string; ap_difference: string };
+  summary: {
+    validated_count: number;
+    total_records: number;
+    exception_count: number;
+    status_counts: Record<OmzetStatus, number>;
+    outlet_amount: string;
+    received_amount: string;
+    ap_difference: string;
+  };
 }
 const base = '/accounting/omzet';
 export const omzetApi = {

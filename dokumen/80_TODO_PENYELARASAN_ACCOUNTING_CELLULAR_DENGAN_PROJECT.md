@@ -108,7 +108,8 @@ Sebuah halaman selesai apabila:
 
 - [x] Audit setiap halaman terhadap kerangka Project dan kebutuhan lima role: Manager, Admin, Accounting, Finance, Admin Gudang.
 - [ ] Selaraskan dashboard dan Pekerjaan Saya berdasarkan antrean dokumen aktual.
-- [ ] Selaraskan omzet, voucher, pencocokan, dan jurnal.
+- [x] Selaraskan Omzet H+1 sebagai workbench operasional: antrean status, PIC berikutnya, tenggat H+1, indikator selisih, register terfilter, detail keputusan, dan form bertahap dengan pemeriksaan kesiapan.
+- [ ] Selaraskan voucher, pencocokan, dan jurnal sebagai rangkaian hilir dari dokumen sumber tervalidasi.
 - [x] Rombak Rekap Setoran menjadi register rekonsiliasi sumber omzet, batas kanal, bukti, penerimaan Finance, sisa, status, dan audit trail.
 - [x] Pisahkan Cuti dan Absensi sebagai dokumen kerja berbeda dengan register, form bertahap, detail, koreksi berversi, pembatalan beralasan, dan histori; persetujuan tetap berupa referensi eksternal sampai kebijakan approver internal ditetapkan.
 - [ ] Selaraskan hutang-piutang, cashflow, periode, master data, dan impor.
@@ -133,7 +134,7 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Accounting: lanjutkan omzet, voucher, pencocokan, dan jurnal.
+1. Accounting: lanjutkan voucher, pencocokan, dan jurnal.
 2. Accounting: selaraskan master data dan staging impor.
 3. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 4. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.

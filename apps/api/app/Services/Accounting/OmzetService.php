@@ -85,7 +85,8 @@ class OmzetService
         if (! empty($filters['outlet_id'])) {
             $query->where('outlet_id', $filters['outlet_id']);
         }
-        $validated = (clone $query)->where('status', 'validated')->get();
+        $records = (clone $query)->get();
+        $validated = $records->where('status', 'validated');
         $total = $payments = $apDifference = 0;
         foreach ($validated as $record) {
             $total += $this->cents($record->outlet_amount);
@@ -93,8 +94,19 @@ class OmzetService
             $payments += $this->cents($record->outlet_amount) - $this->centsSigned($differences['payment_difference']);
             $apDifference += $this->centsSigned($differences['ap_difference'] ?? '0');
         }
-        $summary = ['validated_count' => $validated->count(), 'outlet_amount' => $this->money($total),
-            'received_amount' => $this->money($payments), 'ap_difference' => $this->money($apDifference)];
+        $statusCounts = collect(['draft', 'submitted', 'correction', 'pending_approval', 'validated'])
+            ->mapWithKeys(fn ($status) => [$status => $records->where('status', $status)->count()])->all();
+        $exceptionCount = $records->filter(function ($record) {
+            $differences = $this->differences($record);
+
+            return $this->centsSigned($differences['payment_difference']) !== 0
+                || $this->centsSigned($differences['ap_difference'] ?? '0') !== 0
+                || ($differences['shift_difference'] !== null && $this->centsSigned($differences['shift_difference']) !== 0);
+        })->count();
+        $summary = ['validated_count' => $validated->count(), 'total_records' => $records->count(),
+            'status_counts' => $statusCounts, 'exception_count' => $exceptionCount,
+            'outlet_amount' => $this->money($total), 'received_amount' => $this->money($payments),
+            'ap_difference' => $this->money($apDifference)];
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }

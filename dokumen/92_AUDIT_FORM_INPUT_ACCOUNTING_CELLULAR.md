@@ -38,7 +38,7 @@ Standar form yang dipakai mulai tahap ini:
 | Voucher pengeluaran | 88 | Poles ringkasan nilai, lampiran, dan jejak maker-checker. |
 | Realisasi pembayaran voucher | 84 | Perjelas saldo, tujuan pembayaran, bukti, dan pemisahan tugas Finance. |
 | Dokumen persediaan | 82 | Selaraskan struktur dengan dokumen persediaan Cellular. |
-| Omzet H+1 | 79 | Prioritas P1; pecah konteks shift, kanal pembayaran, selisih, dan pengajuan. |
+| Omzet H+1 | 92 | Selesai; workbench menampilkan antrean status, PIC, tenggat H+1, shift, kanal pembayaran, selisih, kesiapan draf, pemeriksaan, keputusan Manager, dan audit trail. |
 | Rekap setoran | 92 | Selesai; register, form bertahap, batas alokasi kanal, bukti, penerimaan Finance, sisa rekonsiliasi, status, dan audit trail sudah tersedia. |
 | Cuti dan absensi | 92 | Selesai; dokumen dipisahkan, form memakai konteks sumber, register/detail/audit tersedia, koreksi berversi, dan pembatalan beralasan. Approval internal menunggu kebijakan perusahaan; sistem hanya mencatat referensi persetujuan eksternal. |
 | Master data | 70 | Prioritas P1; gunakan register-detail-form dan proteksi perubahan data referensi. |
@@ -46,10 +46,9 @@ Standar form yang dipakai mulai tahap ini:
 
 ## Urutan implementasi
 
-1. Omzet H+1 Accounting.
-2. Voucher, pencocokan, dan jurnal Accounting.
-3. Master data dan staging impor Accounting.
-4. Regresi lintas role serta UAT visual terang/gelap.
+1. Voucher, pencocokan, dan jurnal Accounting.
+2. Master data dan staging impor Accounting.
+3. Regresi lintas role serta UAT visual terang/gelap.
 
 ## Batas kebijakan
 

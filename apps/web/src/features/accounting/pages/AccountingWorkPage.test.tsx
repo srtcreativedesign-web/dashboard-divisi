@@ -21,7 +21,7 @@ beforeEach(() => {
   vi.clearAllMocks(); identity.role = 'ADMIN'; identity.divisionCode = 'ACC';
   client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   vi.mocked(omzetApi.outlets).mockResolvedValue(envelope([{ id: 'outlet-1', code: 'CELL1', name: 'Outlet anonim', divisionCode: 'CELL' }]));
-  vi.mocked(omzetApi.list).mockImplementation(async filter => envelope({ items: [{ ...fixture, status: filter.status as OmzetRecord['status'] }], total: 47, current_page: Number(filter.page), last_page: 3, summary: { validated_count: 0, outlet_amount: '0', received_amount: '0', ap_difference: '0' } }));
+  vi.mocked(omzetApi.list).mockImplementation(async filter => envelope({ items: [{ ...fixture, status: filter.status as OmzetRecord['status'] }], total: 47, current_page: Number(filter.page), last_page: 3, summary: { validated_count: 0, total_records: 47, exception_count: 0, status_counts: { draft: 0, submitted: 47, correction: 0, pending_approval: 0, validated: 0 }, outlet_amount: '0', received_amount: '0', ap_difference: '0' } }));
   vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [], total: 0, current_page: 1, last_page: 1 }));
 });
 afterEach(() => { cleanup(); client.clear(); });

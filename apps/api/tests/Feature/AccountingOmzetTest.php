@@ -72,6 +72,9 @@ class AccountingOmzetTest extends TestCase
         $this->assertCount(3, $validated['events']);
         $summary = $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/omzet?month=2026-10')->assertOk()->json('data.summary');
         $this->assertSame(1, $summary['validated_count']);
+        $this->assertSame(1, $summary['total_records']);
+        $this->assertSame(1, $summary['status_counts']['validated']);
+        $this->assertSame(0, $summary['exception_count']);
         $this->assertSame('1000.50', $summary['outlet_amount']);
         $this->assertDatabaseHas('audit_events', ['action' => 'accounting.omzet.review']);
     }
@@ -99,6 +102,9 @@ class AccountingOmzetTest extends TestCase
         $pending = $this->action($submitted, 'review', 'reviewer.omzet@dashboard.test', ['decision' => 'validate', 'reason' => 'Pembayaran lebih dari laporan outlet'])->assertOk()->json('data');
         $this->assertSame('-100.00', $pending['payment_difference']);
         $this->assertSame('pending_approval', $pending['status']);
+        $summary = $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/omzet?month=2026-10')->assertOk()->json('data.summary');
+        $this->assertSame(1, $summary['status_counts']['pending_approval']);
+        $this->assertSame(1, $summary['exception_count']);
         $correct = $this->action($pending, 'decide', 'manager.acc@dashboard.test', ['decision' => 'reject', 'reason' => 'Mohon perbaiki rincian pembayaran'])->assertOk()->json('data');
         $this->assertSame('correction', $correct['status']);
     }
