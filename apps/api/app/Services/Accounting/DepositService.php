@@ -136,6 +136,44 @@ class DepositService
         foreach ($channels as $channel) {
             $sources->selectRaw("COALESCE(a.{$channel}_allocated, 0) as {$channel}_allocated, COALESCE(r.{$channel}_received, 0) as {$channel}_received");
         }
+        $summary = [
+            'total_sources' => $total,
+            'matched_sources' => 0,
+            'attention_sources' => 0,
+            'allocation_pending_sources' => 0,
+            'receipt_pending_sources' => 0,
+            'exception_sources' => 0,
+            'reported_amount' => 0,
+            'allocated_amount' => 0,
+            'received_amount' => 0,
+        ];
+        (clone $sources)->get()->each(function ($source) use ($channels, &$summary) {
+            $allocationPending = false;
+            $receiptPending = false;
+            $exception = false;
+            foreach ($channels as $channel) {
+                $reported = $this->cents($source->{$channel.'_amount'});
+                $allocated = (int) $source->{$channel.'_allocated'};
+                $received = (int) $source->{$channel.'_received'};
+                $summary['reported_amount'] += $reported;
+                $summary['allocated_amount'] += $allocated;
+                $summary['received_amount'] += $received;
+                $allocationPending = $allocationPending || $reported !== $allocated;
+                $receiptPending = $receiptPending || $allocated !== $received;
+                $exception = $exception || $allocated > $reported || $received > $allocated;
+            }
+            $summary['allocation_pending_sources'] += (int) $allocationPending;
+            $summary['receipt_pending_sources'] += (int) $receiptPending;
+            $summary['exception_sources'] += (int) $exception;
+            $matched = ! $allocationPending && ! $receiptPending;
+            $summary['matched_sources'] += (int) $matched;
+            $summary['attention_sources'] += (int) ! $matched;
+        });
+        $summary['unallocated_amount'] = $this->money($summary['reported_amount'] - $summary['allocated_amount']);
+        $summary['remaining_amount'] = $this->money($summary['allocated_amount'] - $summary['received_amount']);
+        foreach (['reported_amount', 'allocated_amount', 'received_amount'] as $amount) {
+            $summary[$amount] = $this->money($summary[$amount]);
+        }
         $page = (int) ($f['page'] ?? 1);
         $items = $sources->orderByDesc('business_date')->orderBy('acc_omzet_records.id')->offset(($page - 1) * 50)->limit(50)->get()->map(function ($source) use ($channels) {
             return [
@@ -153,7 +191,7 @@ class DepositService
             ];
         })->all();
 
-        return ['month' => $f['month'], 'as_of' => CarbonImmutable::now('Asia/Jakarta')->toIso8601String(), 'items' => $items, 'total' => $total, 'page' => $page];
+        return ['month' => $f['month'], 'as_of' => CarbonImmutable::now('Asia/Jakarta')->toIso8601String(), 'summary' => $summary, 'items' => $items, 'total' => $total, 'page' => $page];
     }
 
     public function detail(string $id, array $u): array

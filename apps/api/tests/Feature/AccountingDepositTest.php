@@ -90,6 +90,12 @@ class AccountingDepositTest extends TestCase
         $this->postJson('/api/v1/accounting/deposits/'.$qris.'/receive', $this->receipt(1, '100.20', 'BANK-QRIS'))->assertOk();
         $url = '/api/v1/accounting/deposits/reconciliation?month='.now('Asia/Jakarta')->subDay()->format('Y-m');
         $response = $this->getJson($url)->assertOk()->assertJsonPath('data.total', 1)
+            ->assertJsonPath('data.summary.total_sources', 1)->assertJsonPath('data.summary.matched_sources', 0)
+            ->assertJsonPath('data.summary.attention_sources', 1)->assertJsonPath('data.summary.allocation_pending_sources', 1)
+            ->assertJsonPath('data.summary.receipt_pending_sources', 1)->assertJsonPath('data.summary.exception_sources', 0)
+            ->assertJsonPath('data.summary.reported_amount', '1000.50')->assertJsonPath('data.summary.allocated_amount', '700.15')
+            ->assertJsonPath('data.summary.received_amount', '250.35')->assertJsonPath('data.summary.unallocated_amount', '300.35')
+            ->assertJsonPath('data.summary.remaining_amount', '449.80')
             ->assertJsonPath('data.items.0.channels.0.reported_amount', '500.25')->assertJsonPath('data.items.0.channels.0.allocated_amount', '300.15')
             ->assertJsonPath('data.items.0.channels.0.received_amount', '150.15')->assertJsonPath('data.items.0.channels.0.unallocated_amount', '200.10')
             ->assertJsonPath('data.items.0.channels.0.remaining_amount', '150.00')->assertJsonPath('data.items.0.channels.1.received_amount', '100.20')
