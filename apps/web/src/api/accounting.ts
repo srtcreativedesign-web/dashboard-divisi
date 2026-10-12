@@ -1,8 +1,8 @@
 import { api, downloadFile } from './client';
 
 export interface AccPeriod { id: string; periodMonth: string; status: string; notes?: string; version: number; transactionCount?: number; updatedAt?: string; }
-export interface AccCategory { id: string; code: string; name: string; parent?: string; isActive: boolean; requiresOutlet: boolean }
-export interface AccAccount { id: string; code: string; displayName: string; type: string; isActive: boolean; outletIds?: string[] }
+export interface AccCategory { id: string; code: string; name: string; parent?: string; isActive: boolean; requiresOutlet: boolean; aliases?: { aliasCode: string; normalizedAlias: string }[] }
+export interface AccAccount { id: string; code: string; displayName: string; type: string; isActive: boolean; categoryId?: string; description?: string; outletIds?: string[] }
 export interface AccAttachment { id: string; fileName: string; fileSize: number; mimeType: string }
 export interface AccTransaction { id: string; periodId: string; accountId: string; categoryId: string; outletId?: string; transactionDate: string; description: string; referenceNo?: string; debitAmount: number | string; creditAmount: number | string; runningBalance?: number | string; isDraft: boolean; isCancelled: boolean; cancellationReason?: string; version: number; attachments?: AccAttachment[] }
 export interface AccSummary { periodId: string; periodMonth: string; status: string; totalTransactions: number; totalDebit: number | string; totalCredit: number | string; netBalance: number | string; missingAttachmentCount: number; isReadyForSubmission: boolean }
@@ -16,8 +16,18 @@ export interface AccTransactionResponse {
   };
 }
 export interface TransactionPayload { period_id: string; account_id: string; category_id: string; outlet_id?: string; transaction_date: string; description: string; reference_no?: string; debit_amount: number; credit_amount: number; is_draft: boolean; version?: number }
-export interface CategoryPayload { code: string; name: string; parent?: string; requires_outlet?: boolean }
-export interface AccountPayload { code: string; display_name: string; type: string; outlet_ids?: string[] }
+export interface CategoryPayload { code: string; name: string; parent?: string; requires_outlet?: boolean; aliases?: string[] }
+export interface AccountPayload { code: string; display_name: string; type: string; category_id?: string | null; description?: string; outlet_ids?: string[] }
+
+export interface AccMasterHistoryItem {
+  id: string;
+  entity_type: 'CATEGORY' | 'ACCOUNT';
+  entity_id: string;
+  action: 'CREATE' | 'UPDATE' | 'DEACTIVATE';
+  actor_email?: string;
+  actor_role?: string;
+  created_at: string;
+}
 
 // Outstanding
 export interface AccOutstandingItem {
@@ -143,12 +153,14 @@ export const accountingApi = {
   periods: () => api.get<AccPeriod[]>(`${base}/periods`),
   categories: () => api.get<AccCategory[]>(`${base}/categories`, { per_page: '100' }),
   accounts: async () => {
-    const response = await api.get<(AccAccount & { display_name?: string; is_active?: boolean; outlet_ids?: string[]; outlets?: { id: string; isActive: boolean }[] })[]>(`${base}/accounts`, { per_page: '100' });
+    const response = await api.get<(AccAccount & { display_name?: string; is_active?: boolean; categoryId?: string; description?: string; outlet_ids?: string[]; outlets?: { id: string; isActive: boolean }[] })[]>(`${base}/accounts`, { per_page: '100' });
     return { ...response, data: response.data.map(account => ({
       ...account,
       type: account.type.toLowerCase(),
       displayName: account.displayName ?? account.display_name ?? account.code,
       isActive: account.isActive ?? account.is_active ?? false,
+      categoryId: account.categoryId,
+      description: account.description,
       outletIds: account.outletIds ?? account.outlet_ids ?? account.outlets?.filter(outlet => outlet.isActive).map(outlet => outlet.id) ?? [],
     })) };
   },
@@ -170,11 +182,12 @@ export const accountingApi = {
   cancelTransaction: (id: string, reason: string) => api.post<AccTransaction>(`${base}/transactions/${id}/cancel`, { cancellation_reason: reason }),
   transitionPeriod: (id: string, status: string, notes?: string) => api.post<AccPeriod>(`${base}/periods/${id}/transition`, { status, notes }),
   createCategory: (payload: CategoryPayload) => api.post<AccCategory>(`${base}/categories`, payload),
-  updateCategory: (id: string, payload: Partial<CategoryPayload>) => api.patch<AccCategory>(`${base}/categories/${id}`, payload),
+  updateCategory: (id: string, payload: Partial<CategoryPayload>) => api.put<AccCategory>(`${base}/categories/${id}`, payload),
   deactivateCategory: (id: string) => api.post<AccCategory>(`${base}/categories/${id}/deactivate`, {}),
   createAccount: (payload: AccountPayload) => api.post<AccAccount>(`${base}/accounts`, { ...payload, type: payload.type.toUpperCase() }),
-  updateAccount: (id: string, payload: Partial<AccountPayload>) => api.patch<AccAccount>(`${base}/accounts/${id}`, { ...payload, ...(payload.type ? { type: payload.type.toUpperCase() } : {}) }),
+  updateAccount: (id: string, payload: Partial<AccountPayload>) => api.put<AccAccount>(`${base}/accounts/${id}`, { ...payload, ...(payload.type ? { type: payload.type.toUpperCase() } : {}) }),
   deactivateAccount: (id: string) => api.post<AccAccount>(`${base}/accounts/${id}/deactivate`, {}),
+  masterHistory: () => api.get<AccMasterHistoryItem[]>(`${base}/master/history`, { per_page: '8' }),
   uploadAttachment: (id: string, file: File) => {
     const form = new FormData();
     form.append('file', file);

@@ -1,4 +1,6 @@
-import { Filter, Search, CheckCircle2, RefreshCw, AlertTriangle } from "lucide-react";
+import { Filter, Search, CheckCircle2, RefreshCw, AlertTriangle, XCircle } from "lucide-react";
+
+export type ImportRowStatus = "valid" | "normalized" | "warning" | "duplicate_warning" | "error";
 
 export interface DisplayRow {
   rowNum: number;
@@ -10,21 +12,17 @@ export interface DisplayRow {
   description: string;
   debit: number;
   credit: number;
-  status: "valid" | "normalized" | "duplicate_warning" | "error";
+  status: ImportRowStatus;
   notes: string;
 }
 
 interface ImportStagingTableProps {
   rows: DisplayRow[];
-  filterStatus: "all" | "valid" | "normalized" | "duplicate_warning" | "error";
-  setFilterStatus: (
-    val: "all" | "valid" | "normalized" | "duplicate_warning" | "error"
-  ) => void;
+  filterStatus: "all" | ImportRowStatus;
+  setFilterStatus: (val: "all" | ImportRowStatus) => void;
   search: string;
   setSearch: (val: string) => void;
-  validCount: number;
-  normalizedCount: number;
-  warnCount: number;
+  counts: Record<ImportRowStatus, number>;
 }
 
 const rupiah = (val: number) =>
@@ -40,9 +38,7 @@ export function ImportStagingTable({
   setFilterStatus,
   search,
   setSearch,
-  validCount,
-  normalizedCount,
-  warnCount,
+  counts,
 }: ImportStagingTableProps) {
   const filteredRows = rows.filter((row) => {
     const matchStatus = filterStatus === "all" || row.status === filterStatus;
@@ -78,7 +74,7 @@ export function ImportStagingTable({
                 : "bg-surface text-slate-600 hover:bg-slate-200"
             }`}
           >
-            Valid ({validCount})
+            Valid ({counts.valid})
           </button>
           <button
             type="button"
@@ -89,7 +85,14 @@ export function ImportStagingTable({
                 : "bg-surface text-slate-600 hover:bg-slate-200"
             }`}
           >
-            Dinormalisasi ({normalizedCount})
+            Dinormalisasi ({counts.normalized})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterStatus("warning")}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${filterStatus === "warning" ? "bg-amber-600 text-white" : "bg-surface text-slate-600 hover:bg-slate-200"}`}
+          >
+            Peringatan ({counts.warning})
           </button>
           <button
             type="button"
@@ -100,7 +103,14 @@ export function ImportStagingTable({
                 : "bg-surface text-slate-600 hover:bg-slate-200"
             }`}
           >
-            Warning Duplikat ({warnCount})
+            Duplikat ({counts.duplicate_warning})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterStatus("error")}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${filterStatus === "error" ? "bg-danger text-white" : "bg-surface text-slate-600 hover:bg-slate-200"}`}
+          >
+            Error ({counts.error})
           </button>
         </div>
 
@@ -133,7 +143,7 @@ export function ImportStagingTable({
           </thead>
           <tbody className="divide-y divide-line">
             {filteredRows.map((r) => (
-              <tr key={r.rowNum} className="hover:bg-slate-50/80 transition">
+              <tr key={r.rowNum} className="hover:bg-surface/60 transition">
                 <td className="px-4 py-3 font-mono text-[11px] text-slate-400">
                   #{r.rowNum}
                 </td>
@@ -186,12 +196,17 @@ export function ImportStagingTable({
                       <AlertTriangle className="h-3 w-3" /> Warning
                     </span>
                   )}
+                  {r.status === "warning" && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800" title={r.notes}>
+                      <AlertTriangle className="h-3 w-3" /> Perlu telaah
+                    </span>
+                  )}
                   {r.status === "error" && (
                     <span
                       className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-800"
                       title={r.notes}
                     >
-                      Error
+                      <XCircle className="h-3 w-3" /> Error
                     </span>
                   )}
                 </td>

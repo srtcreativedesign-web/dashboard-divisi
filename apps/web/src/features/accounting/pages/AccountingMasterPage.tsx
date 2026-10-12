@@ -1,617 +1,129 @@
+import { cloneElement, useMemo, useState } from 'react';
+import { Activity, AlertTriangle, Building2, CheckCircle2, DatabaseZap, History, Pencil, Plus, Search, ShieldCheck, Tags, WalletCards, XCircle } from 'lucide-react';
+import type { AccAccount, AccCategory, AccountPayload, CategoryPayload } from '../../../api/accounting';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
+import { AccountingQueryState } from '../../../components/accounting/AccountingStates';
+import { Button } from '../../../components/ui/Button';
+import { DetailSheet } from '../../../components/ui/DetailSheet';
+import { KPICard, KPICardGrid } from '../../../components/ui/primitives';
+import { useAccountingAccounts, useAccountingCategories, useAccountingMasterHistory, useAccountMutations, useCategoryMutations } from '../../../hooks/useAccounting';
+import { useOrgOutlets } from '../../../hooks/useOrg';
 import { hasCapability } from '../../../session/capability';
-import { cloneElement, useEffect, useState } from "react";
-import { Plus, Pencil, XCircle, Tag, WalletCards, ShieldCheck } from "lucide-react";
-import type {
-  AccCategory,
-  AccAccount,
-  CategoryPayload,
-  AccountPayload,
-} from "../../../api/accounting";
-import { AccountingQueryState } from "../../../components/accounting/AccountingStates";
-import { useToast } from "../../../components/ui/Toast";
-import {
-  useAccountingCategories,
-  useAccountingAccounts,
-  useCategoryMutations,
-  useAccountMutations,
-} from "../../../hooks/useAccounting";
-import { useAuth } from "../../../session/AuthContext";
-import { DetailSheet } from "../../../components/ui/DetailSheet";
-import { Button } from "../../../components/ui/Button";
-import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
+import { useAuth } from '../../../session/AuthContext';
+import { useToast } from '../../../components/ui/Toast';
 
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: React.ReactElement<{
-    className?: string;
-    "aria-invalid"?: boolean;
-    "aria-describedby"?: string;
-  }>;
-}) {
-  const id = `err-${label.toLowerCase().replace(/\W/g, "-")}`;
-  return (
-    <label className="text-sm font-medium">
-      {label}
-      <span className="block">
-        {cloneElement(children, {
-          className:
-            "mt-1 w-full rounded-input border border-line p-2 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary",
-          "aria-invalid": Boolean(error),
-          "aria-describedby": error ? id : undefined,
-        })}
-      </span>
-      {error && (
-        <span id={id} className="mt-1 block text-xs text-danger dark:text-red-300" role="alert">
-          {error}
-        </span>
-      )}
-    </label>
-  );
+type Editor = 'category' | 'account' | null;
+type MasterTab = 'categories' | 'accounts';
+const inputClass = 'mt-1.5 w-full rounded-input border border-line bg-panel px-3 py-2.5 text-sm text-navy outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60';
+const ACC_TYPES = ['asset', 'liability', 'equity', 'revenue', 'expense'] as const;
+const TYPE_LABELS: Record<string, string> = { asset: 'Aset', liability: 'Liabilitas', equity: 'Ekuitas', revenue: 'Pendapatan', expense: 'Beban' };
+
+function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: React.ReactElement<{ className?: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string }> }) {
+  const id = `field-${label.toLowerCase().replace(/\W/g, '-')}`;
+  return <label className="block text-sm font-semibold text-navy">{label}{hint && <span className="ml-1 font-normal text-subtle">· {hint}</span>}{cloneElement(children, { className: inputClass, 'aria-invalid': Boolean(error), 'aria-describedby': error ? id : undefined })}{error && <span id={id} role="alert" className="mt-1.5 block text-xs font-medium text-danger">{error}</span>}</label>;
 }
 
-const ACC_TYPES = ["asset", "liability", "equity", "revenue", "expense"] as const;
+function StatusBadge({ active }: { active: boolean }) {
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold ${active ? 'bg-success-light text-success-dark' : 'bg-surface text-muted'}`}><span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-success' : 'bg-slate-400'}`} />{active ? 'Aktif' : 'Inaktif'}</span>;
+}
 
 export default function AccountingMasterPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const canWrite = hasCapability(user?.role ?? '', 'manage:acc_master', user?.divisionCode);
-
   const categories = useAccountingCategories();
   const accounts = useAccountingAccounts();
+  const history = useAccountingMasterHistory();
+  const outlets = useOrgOutlets('ACC');
   const catMut = useCategoryMutations();
   const accMut = useAccountMutations();
-
-  const [catForm, setCatForm] = useState<CategoryPayload>({
-    code: "",
-    name: "",
-    requires_outlet: false,
-  });
-  const [catErrors, setCatErrors] = useState<Record<string, string>>({});
-  const [catEditing, setCatEditing] = useState<AccCategory | null>(null);
-
-  const [accForm, setAccForm] = useState<AccountPayload>({
-    code: "",
-    display_name: "",
-    type: "asset",
-    outlet_ids: [],
-  });
-  const [accErrors, setAccErrors] = useState<Record<string, string>>({});
-  const [accEditing, setAccEditing] = useState<AccAccount | null>(null);
-  const [outletInput, setOutletInput] = useState("");
-
-  const [activeTab, setActiveTab] = useState<'categories' | 'accounts'>('categories');
-  const [editor, setEditor] = useState<'category' | 'account' | null>(null);
+  const [tab, setTab] = useState<MasterTab>('categories');
   const [search, setSearch] = useState('');
+  const [editor, setEditor] = useState<Editor>(null);
+  const [catEditing, setCatEditing] = useState<AccCategory | null>(null);
+  const [accEditing, setAccEditing] = useState<AccAccount | null>(null);
+  const [deactivateTarget, setDeactivateTarget] = useState<{ kind: MasterTab; item: AccCategory | AccAccount } | null>(null);
+  const [catForm, setCatForm] = useState<CategoryPayload>({ code: '', name: '', requires_outlet: false, aliases: [] });
+  const [aliasInput, setAliasInput] = useState('');
+  const [accForm, setAccForm] = useState<AccountPayload>({ code: '', display_name: '', type: 'asset', category_id: null, description: '', outlet_ids: [] });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (!catEditing) return;
-    setCatForm({
-      code: catEditing.code,
-      name: catEditing.name,
-      requires_outlet: catEditing.requiresOutlet,
-    });
-  }, [catEditing]);
+  const categoryById = useMemo(() => new Map((categories.data ?? []).map(item => [item.id, item])), [categories.data]);
+  const query = search.trim().toLowerCase();
+  const visibleCategories = (categories.data ?? []).filter(item => `${item.code} ${item.name} ${(item.aliases ?? []).map(alias => alias.aliasCode).join(' ')}`.toLowerCase().includes(query));
+  const visibleAccounts = (accounts.data ?? []).filter(item => `${item.code} ${item.displayName} ${item.description ?? ''}`.toLowerCase().includes(query));
+  const activeCategoryCount = (categories.data ?? []).filter(item => item.isActive).length;
+  const activeAccountCount = (accounts.data ?? []).filter(item => item.isActive).length;
+  const outletBoundCount = (accounts.data ?? []).filter(item => (item.outletIds?.length ?? 0) > 0).length;
+  const inactiveCount = (categories.data ?? []).filter(item => !item.isActive).length + (accounts.data ?? []).filter(item => !item.isActive).length;
+  const pending = catMut.create.isPending || catMut.update.isPending || accMut.create.isPending || accMut.update.isPending;
 
-  useEffect(() => {
-    if (!accEditing) return;
-    setAccForm({
-      code: accEditing.code,
-      display_name: accEditing.displayName,
-      type: accEditing.type,
-      outlet_ids: [...(accEditing.outletIds ?? [])],
-    });
-  }, [accEditing]);
-
-  const submitCat = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const errs: Record<string, string> = {};
-    if (!catForm.code.trim()) errs.code = "Kode wajib diisi";
-    if (catForm.code.trim().length > 10) errs.code = "Maksimal 10 karakter";
-    if (!catForm.name.trim()) errs.name = "Nama wajib diisi";
-    setCatErrors(errs);
-    if (Object.keys(errs).length) return;
-
-    try {
-      if (catEditing) {
-        await catMut.update.mutateAsync({ id: catEditing.id, payload: catForm });
-        toast("Kategori berhasil diperbarui", "success");
-        setCatEditing(null);
-      } else {
-        await catMut.create.mutateAsync(catForm);
-        toast("Kategori berhasil dibuat", "success");
-      }
-      setCatForm({ code: "", name: "", requires_outlet: false });
-      setEditor(null);
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Gagal menyimpan kategori", "error");
-    }
+  const resetCategory = () => { setCatEditing(null); setCatForm({ code: '', name: '', requires_outlet: false, aliases: [] }); setAliasInput(''); setErrors({}); };
+  const resetAccount = () => { setAccEditing(null); setAccForm({ code: '', display_name: '', type: 'asset', category_id: null, description: '', outlet_ids: [] }); setErrors({}); };
+  const openCategory = (item?: AccCategory) => {
+    resetCategory();
+    if (item) { setCatEditing(item); setCatForm({ code: item.code, name: item.name, parent: item.parent, requires_outlet: item.requiresOutlet, aliases: (item.aliases ?? []).map(alias => alias.aliasCode) }); setAliasInput((item.aliases ?? []).map(alias => alias.aliasCode).join(', ')); }
+    setEditor('category');
+  };
+  const openAccount = (item?: AccAccount) => {
+    resetAccount();
+    if (item) { setAccEditing(item); setAccForm({ code: item.code, display_name: item.displayName, type: item.type, category_id: item.categoryId ?? null, description: item.description ?? '', outlet_ids: item.outletIds ?? [] }); }
+    setEditor('account');
   };
 
-  const deactivateCat = async (cat: AccCategory) => {
-    if (!window.confirm(`Nonaktifkan kategori "${cat.name}"?`)) return;
-    try {
-      await catMut.deactivate.mutateAsync(cat.id);
-      toast("Kategori dinonaktifkan", "success");
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Gagal menonaktifkan kategori", "error");
-    }
+  const submitCategory = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const next: Record<string, string> = {};
+    if (!catForm.code.trim()) next.code = 'Kode wajib diisi.';
+    if (catForm.code.trim().length > 20) next.code = 'Kode maksimal 20 karakter.';
+    if (!catForm.name.trim()) next.name = 'Nama wajib diisi.';
+    setErrors(next); if (Object.keys(next).length) return;
+    const payload = { ...catForm, code: catForm.code.trim(), name: catForm.name.trim(), aliases: aliasInput.split(',').map(value => value.trim()).filter(Boolean) };
+    try { if (catEditing) await catMut.update.mutateAsync({ id: catEditing.id, payload }); else await catMut.create.mutateAsync(payload); toast(catEditing ? 'Kategori berhasil diperbarui' : 'Kategori berhasil dibuat', 'success'); setEditor(null); resetCategory(); }
+    catch (error) { toast(error instanceof Error ? error.message : 'Kategori gagal disimpan', 'error'); }
   };
 
-  const submitAcc = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const errs: Record<string, string> = {};
-    if (!accForm.code.trim()) errs.code = "Kode wajib diisi";
-    if (accForm.code.trim().length > 10) errs.code = "Maksimal 10 karakter";
-    if (!accForm.display_name.trim()) errs.display_name = "Nama tampilan wajib diisi";
-    if (!ACC_TYPES.includes(accForm.type as (typeof ACC_TYPES)[number])) errs.type = "Tipe tidak valid";
-    setAccErrors(errs);
-    if (Object.keys(errs).length) return;
-
-    try {
-      if (accEditing) {
-        await accMut.update.mutateAsync({ id: accEditing.id, payload: accForm });
-        toast("Rekening berhasil diperbarui", "success");
-        setAccEditing(null);
-      } else {
-        await accMut.create.mutateAsync(accForm);
-        toast("Rekening berhasil dibuat", "success");
-      }
-      setAccForm({ code: "", display_name: "", type: "asset", outlet_ids: [] });
-      setEditor(null);
-      setOutletInput("");
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Gagal menyimpan rekening", "error");
-    }
+  const submitAccount = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const next: Record<string, string> = {};
+    if (!accForm.code.trim()) next.code = 'Kode akun wajib diisi.';
+    if (accForm.code.trim().length > 50) next.code = 'Kode maksimal 50 karakter.';
+    if (!accForm.display_name.trim()) next.display_name = 'Nama tampilan wajib diisi.';
+    if (!ACC_TYPES.includes(accForm.type as typeof ACC_TYPES[number])) next.type = 'Tipe akun tidak valid.';
+    const selectedCategory = accForm.category_id ? categoryById.get(accForm.category_id) : undefined;
+    if (selectedCategory?.requiresOutlet && !(accForm.outlet_ids?.length)) next.outlet_ids = 'Kategori ini mewajibkan minimal satu outlet.';
+    setErrors(next); if (Object.keys(next).length) return;
+    const payload = { ...accForm, code: accForm.code.trim(), display_name: accForm.display_name.trim(), description: accForm.description?.trim(), category_id: accForm.category_id || null };
+    try { if (accEditing) await accMut.update.mutateAsync({ id: accEditing.id, payload }); else await accMut.create.mutateAsync(payload); toast(accEditing ? 'Rekening berhasil diperbarui' : 'Rekening berhasil dibuat', 'success'); setEditor(null); resetAccount(); }
+    catch (error) { toast(error instanceof Error ? error.message : 'Rekening gagal disimpan', 'error'); }
   };
 
-  const deactivateAcc = async (acc: AccAccount) => {
-    if (!window.confirm(`Nonaktifkan rekening "${acc.displayName}"?`)) return;
-    try {
-      await accMut.deactivate.mutateAsync(acc.id);
-      toast("Rekening dinonaktifkan", "success");
-    } catch (err) {
-      toast(err instanceof Error ? err.message : "Gagal menonaktifkan rekening", "error");
-    }
+  const confirmDeactivate = async () => {
+    if (!deactivateTarget) return;
+    try { if (deactivateTarget.kind === 'categories') await catMut.deactivate.mutateAsync(deactivateTarget.item.id); else await accMut.deactivate.mutateAsync(deactivateTarget.item.id); toast(`${deactivateTarget.kind === 'categories' ? 'Kategori' : 'Rekening'} berhasil dinonaktifkan`, 'success'); setDeactivateTarget(null); }
+    catch (error) { toast(error instanceof Error ? error.message : 'Data gagal dinonaktifkan', 'error'); }
   };
 
-  const addOutletId = () => {
-    const trimmed = outletInput.trim();
-    if (!trimmed || accForm.outlet_ids?.includes(trimmed)) return;
-    setAccForm({
-      ...accForm,
-      outlet_ids: [...(accForm.outlet_ids ?? []), trimmed],
-    });
-    setOutletInput("");
-  };
+  return <section className="space-y-6 pb-12 animate-fade-in">
+    <AccountingPageHeader area="Data & Integrasi · Tata kelola referensi" title="Master akun & kategori" description="Satu pusat kendali untuk klasifikasi jurnal, chart of accounts, normalisasi kode impor, dan cakupan outlet." actions={<span className="inline-flex items-center gap-2 rounded-card border border-line bg-panel px-3 py-2 text-xs font-semibold text-muted"><ShieldCheck className="h-4 w-4 text-primary" />{canWrite ? 'Hak kelola aktif' : 'Mode hanya baca'}</span>} />
 
-  const removeOutletId = (id: string) => {
-    setAccForm({
-      ...accForm,
-      outlet_ids: (accForm.outlet_ids ?? []).filter((x) => x !== id),
-    });
-  };
+    <div className="rounded-card-lg border border-line bg-panel p-5 shadow-card"><div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Alur pengendalian master</p><h2 className="mt-1 text-lg font-bold text-navy">Definisikan → hubungkan → gunakan → telusuri</h2><p className="mt-1 text-sm text-subtle">Kategori menormalkan sumber data, rekening menentukan pencatatan, dan setiap perubahan dicatat oleh server.</p></div><div className="flex flex-wrap gap-2 text-xs font-semibold text-muted">{['1. Kategori', '2. Rekening', '3. Relasi outlet', '4. Audit'].map((step, index) => <span key={step} className={`rounded-full px-3 py-1.5 ${index === 0 ? 'bg-primary text-white' : 'bg-surface'}`}>{step}</span>)}</div></div></div>
 
-  const cancelCatEdit = () => {
-    setCatEditing(null);
-    setCatForm({ code: "", name: "", requires_outlet: false });
-    setCatErrors({});
-  };
+    <KPICardGrid columns={4}><KPICard label="Kategori aktif" value={activeCategoryCount} note="Siap digunakan untuk klasifikasi" icon={<Tags />} /><KPICard label="Rekening aktif" value={activeAccountCount} note="Chart of accounts operasional" icon={<WalletCards />} /><KPICard label="Terikat outlet" value={outletBoundCount} note="Rekening dengan pembatasan unit" icon={<Building2 />} /><KPICard label="Referensi inaktif" value={inactiveCount} note="Tetap tersimpan untuk histori" icon={<Activity />} /></KPICardGrid>
 
-  const cancelAccEdit = () => {
-    setAccEditing(null);
-    setAccForm({ code: "", display_name: "", type: "asset", outlet_ids: [] });
-    setAccErrors({});
-    setOutletInput("");
-  };
-
-  const filteredCategories = categories.data?.filter(item => `${item.code} ${item.name}`.toLowerCase().includes(search.toLowerCase()));
-  const filteredAccounts = accounts.data?.filter(item => `${item.code} ${item.displayName}`.toLowerCase().includes(search.toLowerCase()));
-
-  return (
-    <section className="space-y-8 pb-12 animate-fade-in">
-      <AccountingPageHeader area="Data & Integrasi · Referensi" title="Master akun & kategori" description={canWrite ? "Kelola kategori buku kas, daftar rekening, dan relasi outlet sesuai standar perusahaan." : "Lihat referensi kategori dan rekening yang digunakan dalam penjurnalan dan pelaporan."} actions={<div className="flex items-center gap-2">
-           <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-surface rounded-md text-muted">
-             <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-300" />
-             {canWrite ? 'Dapat mengelola' : 'Hanya baca'}
-           </span>
-        </div>} />
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2" aria-label="Tipe master data">
-          <Button variant={activeTab === 'categories' ? 'primary' : 'secondary'} onClick={() => { setActiveTab('categories'); setSearch(''); }}>Kategori ({categories.data?.length ?? '—'})</Button>
-          <Button variant={activeTab === 'accounts' ? 'primary' : 'secondary'} onClick={() => { setActiveTab('accounts'); setSearch(''); }}>Rekening ({accounts.data?.length ?? '—'})</Button>
-        </div>
-        <input aria-label="Cari master data" value={search} onChange={event => setSearch(event.target.value)} placeholder="Cari kode atau nama…" className="w-full rounded-lg border border-line bg-panel px-3 text-sm sm:w-72" />
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="min-w-0 overflow-hidden rounded-card-lg border border-line bg-panel shadow-card">
+        <div className="flex flex-col gap-4 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex gap-2" role="tablist" aria-label="Jenis master data"><Button role="tab" aria-selected={tab === 'categories'} variant={tab === 'categories' ? 'primary' : 'secondary'} onClick={() => { setTab('categories'); setSearch(''); }}>Kategori ({categories.data?.length ?? '—'})</Button><Button role="tab" aria-selected={tab === 'accounts'} variant={tab === 'accounts' ? 'primary' : 'secondary'} onClick={() => { setTab('accounts'); setSearch(''); }}>Rekening ({accounts.data?.length ?? '—'})</Button></div><div className="flex w-full gap-2 sm:w-auto"><label className="relative min-w-0 flex-1 sm:w-72"><span className="sr-only">Cari master data</span><Search className="absolute left-3 top-2.5 h-4 w-4 text-subtle" /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Cari kode, nama, atau alias…" className="w-full rounded-input border border-line bg-surface py-2 pl-9 pr-3 text-sm outline-none focus:border-primary" /></label>{canWrite && <Button aria-label={tab === 'categories' ? 'Tambah kategori' : 'Tambah rekening'} className="shrink-0 gap-1.5" onClick={() => tab === 'categories' ? openCategory() : openAccount()}><Plus className="h-4 w-4" />Tambah</Button>}</div></div>
+        {tab === 'categories' ? <AccountingQueryState loading={categories.isLoading} error={categories.error} empty={!visibleCategories.length} retry={() => void categories.refetch()}><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b border-line bg-surface/70 text-xs uppercase tracking-wide text-muted"><tr><th className="px-5 py-3">Kode & nama</th><th className="px-5 py-3">Normalisasi impor</th><th className="px-5 py-3">Aturan</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-right">Aksi</th></tr></thead><tbody className="divide-y divide-line">{visibleCategories.map(item => <tr key={item.id} className="transition hover:bg-surface/50"><td className="px-5 py-4"><p className="font-mono text-xs font-bold text-primary">{item.code}</p><p className="mt-1 font-semibold text-navy">{item.name}</p></td><td className="px-5 py-4"><div className="flex max-w-xs flex-wrap gap-1">{item.aliases?.length ? item.aliases.map(alias => <span key={alias.aliasCode} className="rounded bg-surface px-2 py-1 font-mono text-[11px] text-muted">{alias.aliasCode}</span>) : <span className="text-xs text-subtle">Tanpa alias</span>}</div></td><td className="px-5 py-4 text-xs text-muted">{item.requiresOutlet ? 'Outlet wajib' : 'Outlet opsional'}</td><td className="px-5 py-4"><StatusBadge active={item.isActive} /></td><td className="px-5 py-4"><div className="flex justify-end gap-1">{canWrite && <><button aria-label={`Edit kategori ${item.name}`} onClick={() => openCategory(item)} className="rounded-lg p-2 text-muted hover:bg-surface hover:text-primary"><Pencil className="h-4 w-4" /></button><button aria-label={`Nonaktifkan kategori ${item.name}`} disabled={!item.isActive} onClick={() => setDeactivateTarget({ kind: 'categories', item })} className="rounded-lg p-2 text-muted hover:bg-danger/10 hover:text-danger disabled:opacity-30"><XCircle className="h-4 w-4" /></button></>}</div></td></tr>)}</tbody></table></div></AccountingQueryState> : <AccountingQueryState loading={accounts.isLoading} error={accounts.error} empty={!visibleAccounts.length} retry={() => void accounts.refetch()}><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b border-line bg-surface/70 text-xs uppercase tracking-wide text-muted"><tr><th className="px-5 py-3">Kode & rekening</th><th className="px-5 py-3">Klasifikasi</th><th className="px-5 py-3">Cakupan</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-right">Aksi</th></tr></thead><tbody className="divide-y divide-line">{visibleAccounts.map(item => <tr key={item.id} className="transition hover:bg-surface/50"><td className="px-5 py-4"><p className="font-mono text-xs font-bold text-primary">{item.code}</p><p className="mt-1 font-semibold text-navy">{item.displayName}</p>{item.description && <p className="mt-1 max-w-sm truncate text-xs text-subtle">{item.description}</p>}</td><td className="px-5 py-4"><p className="text-xs font-semibold text-navy">{TYPE_LABELS[item.type] ?? item.type}</p><p className="mt-1 text-xs text-subtle">{item.categoryId ? categoryById.get(item.categoryId)?.name ?? 'Kategori tercatat' : 'Tanpa kategori'}</p></td><td className="px-5 py-4 text-xs text-muted">{item.outletIds?.length ? `${item.outletIds.length} outlet` : 'Semua unit'}</td><td className="px-5 py-4"><StatusBadge active={item.isActive} /></td><td className="px-5 py-4"><div className="flex justify-end gap-1">{canWrite && <><button aria-label={`Edit rekening ${item.displayName}`} onClick={() => openAccount(item)} className="rounded-lg p-2 text-muted hover:bg-surface hover:text-primary"><Pencil className="h-4 w-4" /></button><button aria-label={`Nonaktifkan rekening ${item.displayName}`} disabled={!item.isActive} onClick={() => setDeactivateTarget({ kind: 'accounts', item })} className="rounded-lg p-2 text-muted hover:bg-danger/10 hover:text-danger disabled:opacity-30"><XCircle className="h-4 w-4" /></button></>}</div></td></tr>)}</tbody></table></div></AccountingQueryState>}
       </div>
-      <div className="space-y-6">
-        <div hidden={activeTab !== 'categories'}>
-          <div className="rounded-card border border-line bg-panel flex flex-col overflow-hidden">
-            <div className="border-b border-line bg-surface/50 p-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-bold text-navy flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-slate-400" /> Kategori Jurnal
-                </h2>
-                <p className="text-xs text-subtle mt-0.5">Klasifikasi arus kas (mis. PNJL, BIAYA).</p>
-              </div>
-              {canWrite && (
-                <Button
-                  onClick={() => {
-                    cancelCatEdit();
-                    setEditor('category');
-                  }}
-                  size="sm"
-                  className="gap-1.5"
-                >
-                  <Plus className="h-4 w-4" /> Tambah kategori
-                </Button>
-              )}
-            </div>
-            
-            <AccountingQueryState
-              loading={categories.isLoading}
-              error={categories.error}
-              empty={!filteredCategories?.length}
-              retry={() => void categories.refetch()}
-            >
-              <div
-                role="region"
-                aria-label="Daftar kategori"
-                className="max-h-[65vh] overflow-auto" tabIndex={0}
-              >
-                <table className="w-full text-left text-sm" role="table">
-                  <thead className="sticky top-0 bg-surface border-b border-line z-10 shadow-sm">
-                    <tr>
-                      <th scope="col" className="p-3 font-semibold text-muted w-24">Kode</th>
-                      <th scope="col" className="p-3 font-semibold text-muted">Nama Kategori</th>
-                      <th scope="col" className="p-3 font-semibold text-muted text-center w-24">Status</th>
-                      <th scope="col" className="sr-only">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {filteredCategories?.map((x) => (
-                      <tr className="hover:bg-surface/50 transition-colors group" key={x.id}>
-                        <td className="p-3 font-mono text-muted">{x.code}</td>
-                        <td className="p-3 font-medium text-navy">
-                          {x.name}
-                          {x.requiresOutlet && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">Wajib outlet</span>}
-                        </td>
-                        <td className="p-3 text-center">
-                          {x.isActive 
-                            ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Aktif</span>
-                            : <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface text-muted">Inaktif</span>
-                          }
-                        </td>
-                        <td className="p-3 w-20">
-                          {canWrite && (
-                            <div className="flex gap-1 justify-end opacity-100 transition-opacity">
-                              <button
-                                type="button"
-                                aria-label={`Edit kategori ${x.name}`}
-                                onClick={() => {
-                                  setCatEditing(x);
-                                  setEditor('category');
-                                }}
-                                className="rounded p-1.5 text-slate-400 hover:bg-slate-200 hover:text-navy transition-colors"
-                                disabled={catMut.update.isPending}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                type="button"
-                                aria-label={`Nonaktifkan kategori ${x.name}`}
-                                onClick={() => void deactivateCat(x)}
-                                className="rounded p-1.5 text-slate-400 hover:bg-danger/10 hover:text-danger transition-colors"
-                                disabled={!x.isActive || catMut.deactivate.isPending}
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </AccountingQueryState>
-          </div>
 
-          {canWrite && (
-            <DetailSheet isOpen={editor === 'category'} onClose={() => setEditor(null)} title={catEditing ? 'Edit kategori' : 'Tambah kategori'}>
-            <form
-              onSubmit={(e) => void submitCat(e)}
-              className="rounded-card border border-line bg-panel overflow-hidden"
-              noValidate
-              aria-label={catEditing ? "Form edit kategori" : "Form tambah kategori"}
-            >
-              <div className="border-b border-line bg-surface/50 p-4">
-                <h2 className="font-bold text-navy">
-                  {catEditing ? "Edit Kategori" : "Tambah Kategori"}
-                </h2>
-              </div>
-              <div className="p-4 space-y-4">
-                <Field label="Kode Unik" error={catErrors.code}>
-                  <input
-                    value={catForm.code}
-                    onChange={(e) => setCatForm({ ...catForm, code: e.target.value.toUpperCase() })}
-                    placeholder="e.g. PNJL"
-                    maxLength={10}
-                    disabled={catMut.create.isPending || catMut.update.isPending}
-                  />
-                </Field>
-                <Field label="Nama Deskriptif" error={catErrors.name}>
-                  <input
-                    value={catForm.name}
-                    onChange={(e) => setCatForm({ ...catForm, name: e.target.value })}
-                    placeholder="e.g. Penjualan Barang"
-                    disabled={catMut.create.isPending || catMut.update.isPending}
-                  />
-                </Field>
-                <label className="flex items-center gap-2.5 text-sm p-3 border border-line rounded-input bg-surface/50 cursor-pointer hover:bg-surface transition-colors">
-                  <input
-                    type="checkbox"
-                    checked={catForm.requires_outlet ?? false}
-                    onChange={(e) => setCatForm({ ...catForm, requires_outlet: e.target.checked })}
-                    className="rounded text-primary dark:text-primary-300 focus:ring-primary w-4 h-4 cursor-pointer"
-                    disabled={catMut.create.isPending || catMut.update.isPending}
-                  />
-                  <div>
-                    <span className="block font-medium text-navy leading-none">Wajibkan Outlet</span>
-                    <span className="text-xs text-subtle mt-1 block">Jurnal untuk kategori ini wajib di-tag ke outlet.</span>
-                  </div>
-                </label>
-                <div className="flex gap-2 pt-2">
-                  {catEditing && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={cancelCatEdit}
-                      className="flex-1"
-                      disabled={catMut.update.isPending}
-                    >
-                      Batal
-                    </Button>
-                  )}
-                  <Button
-                    type="submit"
-                    disabled={catMut.create.isPending || catMut.update.isPending}
-                    className="flex-1"
-                  >
-                    {catMut.create.isPending || catMut.update.isPending ? "Menyimpan..." : "Simpan"}
-                  </Button>
-                </div>
-              </div>
-            </form>
-            </DetailSheet>
-          )}
-        </div>
+      <aside className="space-y-4"><div className="rounded-card-lg border border-line bg-panel p-5 shadow-card"><div className="flex items-start gap-3"><div className="rounded-card bg-primary/10 p-2 text-primary"><DatabaseZap className="h-5 w-5" /></div><div><h2 className="font-bold text-navy">Kontrol kualitas</h2><p className="mt-1 text-xs leading-relaxed text-subtle">Kode harus unik. Alias membantu normalisasi impor. Referensi yang sudah dipakai dinonaktifkan agar histori transaksi tetap utuh.</p></div></div><ul className="mt-4 space-y-2 text-xs text-muted"><li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-success" />Validasi server dan pembatasan divisi</li><li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-success" />Perubahan memiliki jejak aktor</li><li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-success" />Rekening dapat dibatasi per outlet</li></ul></div><div className="rounded-card-lg border border-line bg-panel p-5 shadow-card"><div className="flex items-center justify-between"><h2 className="flex items-center gap-2 font-bold text-navy"><History className="h-4 w-4 text-primary" />Aktivitas terbaru</h2><span className="text-[10px] font-semibold uppercase text-subtle">Audit server</span></div>{history.isLoading ? <p className="mt-4 text-xs text-subtle">Memuat aktivitas…</p> : history.data?.length ? <ol className="mt-4 space-y-3">{history.data.slice(0, 5).map(item => <li key={item.id} className="border-l-2 border-line pl-3"><p className="text-xs font-semibold text-navy">{item.action} · {item.entity_type === 'CATEGORY' ? 'Kategori' : 'Rekening'}</p><p className="mt-0.5 truncate text-[11px] text-subtle">{item.actor_email ?? item.actor_role ?? 'Pengguna sistem'}</p><time className="text-[10px] text-muted">{new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Jakarta' }).format(new Date(item.created_at))}</time></li>)}</ol> : <p className="mt-4 text-xs text-subtle">Belum ada aktivitas tercatat.</p>}</div></aside>
+    </div>
 
-        <div hidden={activeTab !== 'accounts'}>
-          <div className="rounded-card border border-line bg-panel flex flex-col overflow-hidden">
-            <div className="border-b border-line bg-surface/50 p-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-bold text-navy flex items-center gap-2">
-                  <WalletCards className="w-4 h-4 text-slate-400" /> Daftar Rekening
-                </h2>
-                <p className="text-xs text-subtle mt-0.5">Pemetaan akun (Asset, Liability, Revenue).</p>
-              </div>
-              {canWrite && (
-                <Button
-                  onClick={() => {
-                    cancelAccEdit();
-                    setEditor('account');
-                  }}
-                  size="sm"
-                  className="gap-1.5"
-                >
-                  <Plus className="h-4 w-4" /> Tambah rekening
-                </Button>
-              )}
-            </div>
+    <DetailSheet isOpen={editor === 'category'} onClose={() => { setEditor(null); resetCategory(); }} title={catEditing ? 'Perbarui kategori' : 'Kategori baru'} subtitle="Atur identitas, aturan outlet, dan alias untuk normalisasi data impor." icon={Tags} size="lg"><form onSubmit={event => void submitCategory(event)} aria-label={catEditing ? 'Form edit kategori' : 'Form tambah kategori'} className="space-y-6" noValidate><section className="rounded-card border border-line bg-surface/40 p-4"><p className="text-xs font-bold uppercase tracking-wide text-primary">1 · Identitas klasifikasi</p><div className="mt-4 grid gap-4 sm:grid-cols-[160px_1fr]"><Field label="Kode kategori" hint="unik" error={errors.code}><input value={catForm.code} onChange={event => setCatForm({ ...catForm, code: event.target.value })} disabled={Boolean(catEditing) || pending} placeholder="B2a" /></Field><Field label="Nama kategori" error={errors.name}><input value={catForm.name} onChange={event => setCatForm({ ...catForm, name: event.target.value })} disabled={pending} placeholder="Pendapatan kartu perdana" /></Field></div><Field label="Kelompok laporan" hint="opsional"><select value={catForm.parent ?? ''} onChange={event => setCatForm({ ...catForm, parent: event.target.value || undefined })} disabled={pending}><option value="">Belum dikelompokkan</option><option value="B">Pendapatan / operasional (B)</option><option value="C">Beban / pendukung (C)</option><option value="D">Penyesuaian (D)</option></select></Field></section><section className="rounded-card border border-line bg-surface/40 p-4"><p className="text-xs font-bold uppercase tracking-wide text-primary">2 · Aturan penggunaan</p><label className="mt-4 flex cursor-pointer items-start gap-3 rounded-card border border-line bg-panel p-4"><input type="checkbox" checked={catForm.requires_outlet ?? false} onChange={event => setCatForm({ ...catForm, requires_outlet: event.target.checked })} disabled={pending} className="mt-0.5 h-4 w-4 rounded" /><span><span className="block text-sm font-semibold text-navy">Wajib memilih outlet</span><span className="mt-1 block text-xs text-subtle">Transaksi dengan kategori ini tidak boleh dicatat tanpa unit sumber.</span></span></label><div className="mt-4"><Field label="Alias kode" hint="pisahkan dengan koma"><input value={aliasInput} onChange={event => setAliasInput(event.target.value)} disabled={pending} placeholder="2a, B2.A, CARD-SALES" /></Field></div></section><div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={() => { setEditor(null); resetCategory(); }}>Batal</Button><Button type="submit" disabled={pending}>{pending ? 'Menyimpan…' : catEditing ? 'Simpan perubahan' : 'Buat kategori'}</Button></div></form></DetailSheet>
 
-            <AccountingQueryState
-              loading={accounts.isLoading}
-              error={accounts.error}
-              empty={!filteredAccounts?.length}
-              retry={() => void accounts.refetch()}
-            >
-              <div
-                role="region"
-                aria-label="Daftar rekening"
-                className="max-h-[65vh] overflow-auto" tabIndex={0}
-              >
-                <table className="w-full text-left text-sm" role="table">
-                  <thead className="sticky top-0 bg-surface border-b border-line z-10 shadow-sm">
-                    <tr>
-                      <th scope="col" className="p-3 font-semibold text-muted w-24">Kode</th>
-                      <th scope="col" className="p-3 font-semibold text-muted">Rekening</th>
-                      <th scope="col" className="p-3 font-semibold text-muted w-28">Tipe</th>
-                      <th scope="col" className="p-3 font-semibold text-muted w-32">Relasi outlet</th>
-                      <th scope="col" className="sr-only">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {filteredAccounts?.map((x) => (
-                      <tr className="hover:bg-surface/50 transition-colors group" key={x.id}>
-                        <td className="p-3 font-mono text-muted">{x.code}</td>
-                        <td className="p-3 font-medium text-navy">
-                           {x.displayName}
-                           {!x.isActive && <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface text-muted">Inaktif</span>}
-                        </td>
-                        <td className="p-3 text-subtle capitalize">{x.type}</td>
-                        <td className="p-3">
-                           {x.outletIds?.length 
-                              ? <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-medium text-[11px]">{x.outletIds.length} Relasi</span>
-                              : <span className="text-slate-400 text-xs italic">Semua</span>
-                           }
-                        </td>
-                        <td className="p-3 w-20">
-                          {canWrite && (
-                            <div className="flex gap-1 justify-end opacity-100 transition-opacity">
-                              <button
-                                type="button"
-                                aria-label={`Edit rekening ${x.displayName}`}
-                                onClick={() => {
-                                  setAccEditing(x);
-                                  setEditor('account');
-                                }}
-                                className="rounded p-1.5 text-slate-400 hover:bg-slate-200 hover:text-navy transition-colors"
-                                disabled={accMut.update.isPending}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                type="button"
-                                aria-label={`Nonaktifkan rekening ${x.displayName}`}
-                                onClick={() => void deactivateAcc(x)}
-                                className="rounded p-1.5 text-slate-400 hover:bg-danger/10 hover:text-danger transition-colors"
-                                disabled={!x.isActive || accMut.deactivate.isPending}
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </AccountingQueryState>
-          </div>
+    <DetailSheet isOpen={editor === 'account'} onClose={() => { setEditor(null); resetAccount(); }} title={accEditing ? 'Perbarui rekening' : 'Rekening baru'} subtitle="Susun chart of accounts dan batasi pemakaian ke outlet yang tepat." icon={WalletCards} size="lg"><form onSubmit={event => void submitAccount(event)} aria-label={accEditing ? 'Form edit rekening' : 'Form tambah rekening'} className="space-y-6" noValidate><section className="rounded-card border border-line bg-surface/40 p-4"><p className="text-xs font-bold uppercase tracking-wide text-primary">1 · Identitas akun</p><div className="mt-4 grid gap-4 sm:grid-cols-[160px_1fr]"><Field label="Kode akun" hint="unik" error={errors.code}><input value={accForm.code} onChange={event => setAccForm({ ...accForm, code: event.target.value })} disabled={Boolean(accEditing) || pending} placeholder="1101" /></Field><Field label="Nama tampilan" error={errors.display_name}><input value={accForm.display_name} onChange={event => setAccForm({ ...accForm, display_name: event.target.value })} disabled={pending} placeholder="Kas operasional" /></Field></div><div className="mt-4"><Field label="Keterangan" hint="fungsi akun"><textarea rows={3} value={accForm.description ?? ''} onChange={event => setAccForm({ ...accForm, description: event.target.value })} disabled={pending} placeholder="Digunakan untuk penerimaan kas harian…" /></Field></div></section><section className="rounded-card border border-line bg-surface/40 p-4"><p className="text-xs font-bold uppercase tracking-wide text-primary">2 · Klasifikasi</p><div className="mt-4 grid gap-4 sm:grid-cols-2"><Field label="Tipe akun" error={errors.type}><select value={accForm.type} onChange={event => setAccForm({ ...accForm, type: event.target.value })} disabled={pending}>{ACC_TYPES.map(type => <option key={type} value={type}>{TYPE_LABELS[type]}</option>)}</select></Field><Field label="Kategori induk" hint="opsional"><select value={accForm.category_id ?? ''} onChange={event => setAccForm({ ...accForm, category_id: event.target.value || null })} disabled={pending}><option value="">Tanpa kategori</option>{(categories.data ?? []).filter(item => item.isActive).map(item => <option key={item.id} value={item.id}>{item.code} · {item.name}</option>)}</select></Field></div></section><section className="rounded-card border border-line bg-surface/40 p-4"><p className="text-xs font-bold uppercase tracking-wide text-primary">3 · Cakupan outlet</p><p className="mt-1 text-xs text-subtle">Kosongkan untuk rekening global. Pilihan memakai outlet aktif dari organisasi, bukan ID yang diketik manual.</p>{outlets.isPlaceholderData && <p className="mt-3 rounded-card border border-warning/30 bg-warning-light p-3 text-xs text-warning-dark">Daftar outlet server belum tersedia. Tunggu koneksi aktif sebelum memilih.</p>}<div className="mt-4 space-y-2">{(outlets.data ?? []).filter(item => item.isActive && item.id).map(item => <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-card border border-line bg-panel p-3"><input type="checkbox" checked={accForm.outlet_ids?.includes(item.id as string) ?? false} onChange={event => setAccForm({ ...accForm, outlet_ids: event.target.checked ? [...(accForm.outlet_ids ?? []), item.id as string] : (accForm.outlet_ids ?? []).filter(id => id !== item.id) })} disabled={pending} /><span className="text-sm font-semibold text-navy">{item.code}</span><span className="text-xs text-subtle">{item.name}</span></label>)}{!outlets.isLoading && !(outlets.data ?? []).some(item => item.id) && <p className="text-xs text-subtle">Belum ada outlet Accounting aktif dari server.</p>}</div>{errors.outlet_ids && <p role="alert" className="mt-2 text-xs font-medium text-danger">{errors.outlet_ids}</p>}</section><div className="flex justify-end gap-2"><Button type="button" variant="secondary" onClick={() => { setEditor(null); resetAccount(); }}>Batal</Button><Button type="submit" disabled={pending}>{pending ? 'Menyimpan…' : accEditing ? 'Simpan perubahan' : 'Buat rekening'}</Button></div></form></DetailSheet>
 
-          {canWrite && (
-            <DetailSheet isOpen={editor === 'account'} onClose={() => setEditor(null)} title={accEditing ? 'Edit rekening' : 'Tambah rekening'}>
-            <form
-              onSubmit={(e) => void submitAcc(e)}
-              className="rounded-card border border-line bg-panel overflow-hidden"
-              noValidate
-              aria-label={accEditing ? "Form edit rekening" : "Form tambah rekening"}
-            >
-              <div className="border-b border-line bg-surface/50 p-4">
-                <h2 className="font-bold text-navy">
-                  {accEditing ? "Edit Rekening" : "Tambah Rekening"}
-                </h2>
-              </div>
-              <div className="p-4 space-y-4">
-                <Field label="Kode Akun" error={accErrors.code}>
-                  <input
-                    value={accForm.code}
-                    onChange={(e) => setAccForm({ ...accForm, code: e.target.value })}
-                    placeholder="e.g. 1101"
-                    maxLength={10}
-                    disabled={accMut.create.isPending || accMut.update.isPending}
-                  />
-                </Field>
-                <Field label="Nama Tampilan" error={accErrors.display_name}>
-                  <input
-                    value={accForm.display_name}
-                    onChange={(e) => setAccForm({ ...accForm, display_name: e.target.value })}
-                    placeholder="e.g. Kas Besar"
-                    disabled={accMut.create.isPending || accMut.update.isPending}
-                  />
-                </Field>
-                <Field label="Tipe Akun" error={accErrors.type}>
-                  <select
-                    value={accForm.type}
-                    onChange={(e) => setAccForm({ ...accForm, type: e.target.value })}
-                    disabled={accMut.create.isPending || accMut.update.isPending}
-                    className="bg-panel"
-                  >
-                    {ACC_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {t.charAt(0).toUpperCase() + t.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <div>
-                  <label className="text-sm font-medium block">
-                    Relasi Outlet <span className="text-slate-400 font-normal ml-1">(Opsional)</span>
-                  </label>
-                  <p className="text-[11px] text-subtle mb-2 mt-0.5 leading-tight">Batasi akses akun ini hanya ke outlet tertentu. Kosongkan untuk akses global.</p>
-                  <div className="flex gap-2">
-                    <input
-                      value={outletInput}
-                      onChange={(e) => setOutletInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addOutletId();
-                        }
-                      }}
-                      placeholder="Outlet ID"
-                      className="w-full rounded-input border border-line p-2 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                      disabled={accMut.create.isPending || accMut.update.isPending}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={addOutletId}
-                      disabled={accMut.create.isPending || accMut.update.isPending}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  {(accForm.outlet_ids ?? []).length > 0 && (
-                    <div className="mt-3 p-3 bg-surface border border-line rounded-lg">
-                      <p className="text-[11px] font-semibold text-subtle uppercase mb-2">Terhubung dengan:</p>
-                      <ul
-                        className="flex flex-wrap gap-2"
-                        aria-label="Daftar outlet terpilih"
-                      >
-                        {accForm.outlet_ids?.map((id) => (
-                          <li
-                            key={id}
-                            className="flex items-center gap-1.5 rounded-md bg-panel border border-line px-2 py-1 text-xs font-medium text-navy shadow-sm"
-                          >
-                            <span>{id}</span>
-                            <button
-                              type="button"
-                              aria-label={`Hapus outlet ${id}`}
-                              onClick={() => removeOutletId(id)}
-                              className="text-slate-400 hover:text-danger focus:outline-none"
-                              disabled={accMut.create.isPending || accMut.update.isPending}
-                            >
-                              <XCircle className="w-3.5 h-3.5" />
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2 pt-2">
-                  {accEditing && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={cancelAccEdit}
-                      className="flex-1"
-                      disabled={accMut.update.isPending}
-                    >
-                      Batal
-                    </Button>
-                  )}
-                  <Button
-                    type="submit"
-                    disabled={accMut.create.isPending || accMut.update.isPending}
-                    className="flex-1"
-                  >
-                    {accMut.create.isPending || accMut.update.isPending ? "Menyimpan..." : "Simpan"}
-                  </Button>
-                </div>
-              </div>
-            </form>
-            </DetailSheet>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+    <DetailSheet isOpen={Boolean(deactivateTarget)} onClose={() => setDeactivateTarget(null)} title="Nonaktifkan referensi?" subtitle="Tindakan ini menghentikan pemakaian baru tanpa menghapus histori transaksi." icon={AlertTriangle} size="sm">{deactivateTarget && <div className="space-y-5"><div className="rounded-card border border-warning/30 bg-warning-light p-4"><p className="text-sm font-bold text-warning-dark">{deactivateTarget.kind === 'categories' ? (deactivateTarget.item as AccCategory).name : (deactivateTarget.item as AccAccount).displayName}</p><p className="mt-1 font-mono text-xs text-warning-dark">{deactivateTarget.item.code}</p></div><ul className="space-y-2 text-sm text-muted"><li>• Tidak dapat dipilih untuk transaksi baru.</li><li>• Transaksi lama dan jejak audit tetap tersimpan.</li><li>• Perubahan dicatat dengan akun Anda.</li></ul><div className="flex justify-end gap-2"><Button variant="secondary" onClick={() => setDeactivateTarget(null)}>Kembali</Button><Button onClick={() => void confirmDeactivate()} disabled={catMut.deactivate.isPending || accMut.deactivate.isPending} className="bg-danger hover:bg-danger/90">{catMut.deactivate.isPending || accMut.deactivate.isPending ? 'Memproses…' : 'Ya, nonaktifkan'}</Button></div></div>}</DetailSheet>
+  </section>;
 }

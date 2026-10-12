@@ -16,7 +16,8 @@ interface Division {
   sortOrder: number;
 }
 
-interface Outlet {
+export interface OrgOutlet {
+  id?: string;
   code: string;
   name: string;
   divisionId: string;
@@ -40,11 +41,12 @@ export function useOrgOutlets(divisionCode?: string) {
   return useQuery({
     queryKey: ['org', 'outlets', divisionCode ?? 'all'],
     queryFn: async () => {
-      const res = await api.get<Outlet[]>('/org/outlets', divisionCode ? { divisionCode } : undefined);
+      const res = await api.get<OrgOutlet[]>('/org/outlets', divisionCode ? { divisionCode } : undefined);
       return res.data;
     },
     staleTime: 2 * 60 * 1000,
     placeholderData: getRealOutlets(divisionCode).map((o) => ({
+      id: undefined,
       code: o.code,
       name: o.name,
       divisionId: o.divisionCode,

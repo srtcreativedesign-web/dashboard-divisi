@@ -46,9 +46,9 @@ describe('Accounting Master Data CRUD', () => {
     fireEvent.click(screen.getByRole('button', { name: /Tambah kategori/i }));
     const catForm = screen.getByRole('form', { name: /Form tambah kategori/i });
     const cat = within(catForm);
-    fireEvent.change(cat.getByLabelText(/kode/i), { target: { value: 'TEST' } });
+    fireEvent.change(cat.getByLabelText(/kode kategori/i), { target: { value: 'TEST' } });
     fireEvent.change(cat.getByLabelText(/nama/i), { target: { value: 'Test Kategori' } });
-    fireEvent.click(cat.getByRole('button', { name: /simpan/i }));
+    fireEvent.click(cat.getByRole('button', { name: /buat kategori/i }));
     await waitFor(() => {
       expect(screen.getByText(/Kategori berhasil dibuat/i)).toBeInTheDocument();
     });
@@ -57,13 +57,13 @@ describe('Accounting Master Data CRUD', () => {
   it('ACC user can add a rekening', async () => {
     render(<App />);
     await screen.findByRole('heading', { name: /Master akun & kategori/i });
-    fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
+    fireEvent.click(screen.getByRole('tab', { name: /^Rekening \(/i }));
     fireEvent.click(screen.getByRole('button', { name: /Tambah rekening/i }));
     const accForm = screen.getByRole('form', { name: /Form tambah rekening/i });
     const acc = within(accForm);
     fireEvent.change(acc.getByLabelText(/kode/i), { target: { value: '1101' } });
     fireEvent.change(acc.getByLabelText(/nama tampilan/i), { target: { value: 'Test Rekening' } });
-    fireEvent.click(acc.getByRole('button', { name: /simpan/i }));
+    fireEvent.click(acc.getByRole('button', { name: /buat rekening/i }));
     await waitFor(() => {
       expect(screen.getByText(/Rekening berhasil dibuat/i)).toBeInTheDocument();
     });
@@ -75,7 +75,7 @@ describe('Accounting Master Data CRUD', () => {
     fireEvent.click(screen.getByRole('button', { name: /Tambah kategori/i }));
     const catForm = screen.getByRole('form', { name: /Form tambah kategori/i });
     const cat = within(catForm);
-    fireEvent.click(cat.getByRole('button', { name: /simpan/i }));
+    fireEvent.click(cat.getByRole('button', { name: /buat kategori/i }));
     await waitFor(() => {
       expect(cat.getByText(/Kode wajib diisi/i)).toBeInTheDocument();
       expect(cat.getByText(/Nama wajib diisi/i)).toBeInTheDocument();
@@ -85,13 +85,13 @@ describe('Accounting Master Data CRUD', () => {
   it('validates required fields on account form', async () => {
     render(<App />);
     await screen.findByRole('heading', { name: /Master akun & kategori/i });
-    fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
+    fireEvent.click(screen.getByRole('tab', { name: /^Rekening \(/i }));
     fireEvent.click(screen.getByRole('button', { name: /Tambah rekening/i }));
     const accForm = screen.getByRole('form', { name: /Form tambah rekening/i });
     const acc = within(accForm);
-    fireEvent.click(acc.getByRole('button', { name: /simpan/i }));
+    fireEvent.click(acc.getByRole('button', { name: /buat rekening/i }));
     await waitFor(() => {
-      expect(acc.getByText(/Kode wajib diisi/i)).toBeInTheDocument();
+      expect(acc.getByText(/Kode akun wajib diisi/i)).toBeInTheDocument();
       expect(acc.getByText(/Nama tampilan wajib diisi/i)).toBeInTheDocument();
     });
   });

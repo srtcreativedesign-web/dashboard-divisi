@@ -1,73 +1,17 @@
-interface ImportSummaryCardsProps {
-  totalRows: number;
-  validCount: number;
-  normalizedCount: number;
-  warnCount: number;
-  totalDebit: number;
-  totalCredit: number;
-}
+import { AlertTriangle, CheckCircle2, CircleDollarSign, CopyCheck, RefreshCw, XCircle } from 'lucide-react';
+import { KPICard, KPICardGrid } from '../../ui/primitives';
 
-const rupiah = (val: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(val);
+interface Props { totalRows: number; validCount: number; normalizedCount: number; warningCount: number; duplicateCount: number; errorCount: number; totalDebit: number; totalCredit: number }
+const rupiah = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
 
-export function ImportSummaryCards({
-  totalRows,
-  validCount,
-  normalizedCount,
-  warnCount,
-  totalDebit,
-  totalCredit,
-}: ImportSummaryCardsProps) {
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-      <div className="rounded-card border border-line bg-white p-3 shadow-sm">
-        <p className="text-[11px] font-semibold text-slate-500 uppercase">
-          Total Baris
-        </p>
-        <p className="mt-1 text-xl font-bold text-navy">{totalRows}</p>
-      </div>
-      <div className="rounded-card border border-line bg-white p-3 shadow-sm">
-        <p className="text-[11px] font-semibold text-slate-500 uppercase">
-          Valid Langsung
-        </p>
-        <p className="mt-1 text-xl font-bold text-emerald-600">
-          {validCount}
-        </p>
-      </div>
-      <div className="rounded-card border border-line bg-white p-3 shadow-sm">
-        <p className="text-[11px] font-semibold text-slate-500 uppercase">
-          Dinormalisasi
-        </p>
-        <p className="mt-1 text-xl font-bold text-primary">
-          {normalizedCount}
-        </p>
-      </div>
-      <div className="rounded-card border border-line bg-white p-3 shadow-sm">
-        <p className="text-[11px] font-semibold text-slate-500 uppercase">
-          Kandidat Duplikat
-        </p>
-        <p className="mt-1 text-xl font-bold text-amber-600">{warnCount}</p>
-      </div>
-      <div className="rounded-card border border-line bg-white p-3 shadow-sm">
-        <p className="text-[11px] font-semibold text-slate-500 uppercase">
-          Total Debit
-        </p>
-        <p className="mt-1 text-sm font-bold text-emerald-600 font-mono">
-          {rupiah(totalDebit)}
-        </p>
-      </div>
-      <div className="rounded-card border border-line bg-white p-3 shadow-sm">
-        <p className="text-[11px] font-semibold text-slate-500 uppercase">
-          Total Kredit
-        </p>
-        <p className="mt-1 text-sm font-bold text-rose-600 font-mono">
-          {rupiah(totalCredit)}
-        </p>
-      </div>
-    </div>
-  );
+export function ImportSummaryCards({ totalRows, validCount, normalizedCount, warningCount, duplicateCount, errorCount, totalDebit, totalCredit }: Props) {
+  return <div className="space-y-4">
+    <KPICardGrid columns={4}>
+      <KPICard label="Baris terbaca" value={totalRows} note={`${validCount} valid tanpa perubahan`} icon={<CheckCircle2 />} />
+      <KPICard label="Dinormalisasi" value={normalizedCount} note="Dipetakan ke kode master" icon={<RefreshCw />} />
+      <KPICard label="Perlu telaah" value={warningCount + duplicateCount} note={`${duplicateCount} kandidat duplikat`} icon={duplicateCount ? <CopyCheck /> : <AlertTriangle />} />
+      <KPICard label="Baris error" value={errorCount} note={errorCount ? 'Menghalangi commit batch' : 'Tidak ada penghalang'} icon={errorCount ? <XCircle /> : <CheckCircle2 />} />
+    </KPICardGrid>
+    <div className="grid gap-3 rounded-card-lg border border-line bg-panel p-4 shadow-card sm:grid-cols-2"><div className="flex items-center gap-3"><span className="rounded-card bg-success-light p-2 text-success"><CircleDollarSign className="h-5 w-5" /></span><div><p className="text-xs text-subtle">Total debit sumber</p><p className="font-bold tabular-nums text-navy">{rupiah(totalDebit)}</p></div></div><div className="flex items-center gap-3 sm:border-l sm:border-line sm:pl-4"><span className="rounded-card bg-danger-light p-2 text-danger"><CircleDollarSign className="h-5 w-5" /></span><div><p className="text-xs text-subtle">Total kredit sumber</p><p className="font-bold tabular-nums text-navy">{rupiah(totalCredit)}</p></div></div></div>
+  </div>;
 }

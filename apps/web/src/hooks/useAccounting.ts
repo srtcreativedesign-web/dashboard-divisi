@@ -15,6 +15,7 @@ export const accountingKeys = {
   periods: ['accounting', 'periods'] as const,
   categories: ['accounting', 'categories'] as const,
   accounts: ['accounting', 'accounts'] as const,
+  masterHistory: ['accounting', 'master-history'] as const,
   outstandings: ['accounting', 'outstandings'] as const,
   reconciliations: ['accounting', 'reconciliations'] as const,
   cashflowReport: ['accounting', 'cashflow-report'] as const,
@@ -38,6 +39,13 @@ export function useAccountingAccounts() {
   return useQuery({
     queryKey: accountingKeys.accounts,
     queryFn: async () => (await accountingApi.accounts()).data,
+  });
+}
+
+export function useAccountingMasterHistory() {
+  return useQuery({
+    queryKey: accountingKeys.masterHistory,
+    queryFn: async () => (await accountingApi.masterHistory()).data,
   });
 }
 
