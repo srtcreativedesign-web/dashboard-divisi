@@ -41,14 +41,15 @@ Standar form yang dipakai mulai tahap ini:
 | Omzet H+1 | 92 | Selesai; workbench menampilkan antrean status, PIC, tenggat H+1, shift, kanal pembayaran, selisih, kesiapan draf, pemeriksaan, keputusan Manager, dan audit trail. |
 | Rekap setoran | 92 | Selesai; register, form bertahap, batas alokasi kanal, bukti, penerimaan Finance, sisa rekonsiliasi, status, dan audit trail sudah tersedia. |
 | Pencocokan omzet–setoran | 93 | Selesai; ringkasan seluruh periode, progres sumber, selisih alokasi/penerimaan, pengecualian, tindakan berikutnya, dan rincian kanal responsif tersedia. |
+| Jurnal transaksi | 93 | Selesai; ringkasan periode, kelengkapan bukti, sumber dokumen, form bertahap, kesiapan draf, penguncian periode, versioning, dan pembatalan beralasan tersedia. |
 | Cuti dan absensi | 92 | Selesai; dokumen dipisahkan, form memakai konteks sumber, register/detail/audit tersedia, koreksi berversi, dan pembatalan beralasan. Approval internal menunggu kebijakan perusahaan; sistem hanya mencatat referensi persetujuan eksternal. |
 | Master data | 70 | Prioritas P1; gunakan register-detail-form dan proteksi perubahan data referensi. |
 | Preview laporan Cellular | 74 | Prioritas P1; ubah dari pratinjau teknis menjadi pekerjaan rekonsiliasi yang dapat ditindaklanjuti. |
 
 ## Urutan implementasi
 
-1. Jurnal Accounting sebagai hilir pencocokan dan voucher tervalidasi.
-2. Master data dan staging impor Accounting.
+1. Master data dan staging impor Accounting.
+2. Hutang-piutang, cashflow, dan kontrol periode Accounting.
 3. Regresi lintas role serta UAT visual terang/gelap.
 
 ## Batas kebijakan

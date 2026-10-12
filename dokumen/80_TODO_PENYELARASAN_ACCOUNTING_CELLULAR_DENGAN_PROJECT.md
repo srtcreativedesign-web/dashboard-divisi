@@ -110,8 +110,9 @@ Sebuah halaman selesai apabila:
 - [ ] Selaraskan dashboard dan Pekerjaan Saya berdasarkan antrean dokumen aktual.
 - [x] Selaraskan Omzet H+1 sebagai workbench operasional: antrean status, PIC berikutnya, tenggat H+1, indikator selisih, register terfilter, detail keputusan, dan form bertahap dengan pemeriksaan kesiapan.
 - [x] Selaraskan Voucher Pengeluaran sebagai workbench lintas role: ringkasan antrean, PIC, prioritas, jatuh tempo, sisa pembayaran, form bertahap, kesiapan dokumen, lampiran, keputusan, realisasi, dan audit trail.
-- [ ] Selaraskan pencocokan dan jurnal sebagai rangkaian hilir dari omzet serta voucher tervalidasi. Pencocokan omzet–setoran selesai; jurnal menjadi pekerjaan berikutnya.
+- [x] Selaraskan pencocokan dan jurnal sebagai rangkaian hilir dari omzet serta voucher tervalidasi.
 - [x] Rombak Pencocokan Omzet–Setoran menjadi workbench periode: progres sumber, nilai omzet/alokasi/penerimaan, pengecualian, PIC berikutnya, status per sumber, dan rincian kanal responsif.
+- [x] Rombak Jurnal menjadi workbench pembukuan: ringkasan periode, kelengkapan bukti, rujukan sumber, form bertahap, kesiapan draf, periode terkunci, koreksi berversi, dan pembatalan beralasan.
 - [x] Rombak Rekap Setoran menjadi register rekonsiliasi sumber omzet, batas kanal, bukti, penerimaan Finance, sisa, status, dan audit trail.
 - [x] Pisahkan Cuti dan Absensi sebagai dokumen kerja berbeda dengan register, form bertahap, detail, koreksi berversi, pembatalan beralasan, dan histori; persetujuan tetap berupa referensi eksternal sampai kebijakan approver internal ditetapkan.
 - [ ] Selaraskan hutang-piutang, cashflow, periode, master data, dan impor.
@@ -136,8 +137,8 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Accounting: lanjutkan jurnal sebagai hilir pencocokan dan voucher tervalidasi.
-2. Accounting: selaraskan master data dan staging impor.
+1. Accounting: selaraskan master data dan staging impor.
+2. Accounting: selaraskan hutang-piutang, cashflow, dan kontrol periode.
 3. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 4. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 5. Regresi lintas role dan UAT visual terang/gelap.

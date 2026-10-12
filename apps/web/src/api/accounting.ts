@@ -5,7 +5,7 @@ export interface AccCategory { id: string; code: string; name: string; parent?: 
 export interface AccAccount { id: string; code: string; displayName: string; type: string; isActive: boolean; outletIds?: string[] }
 export interface AccAttachment { id: string; fileName: string; fileSize: number; mimeType: string }
 export interface AccTransaction { id: string; periodId: string; accountId: string; categoryId: string; outletId?: string; transactionDate: string; description: string; referenceNo?: string; debitAmount: number | string; creditAmount: number | string; runningBalance?: number | string; isDraft: boolean; isCancelled: boolean; cancellationReason?: string; version: number; attachments?: AccAttachment[] }
-export interface AccSummary { totalDebit: number | string; totalCredit: number | string; runningBalance: number | string; missingAttachmentCount: number; isReadyForSubmission: boolean }
+export interface AccSummary { periodId: string; periodMonth: string; status: string; totalTransactions: number; totalDebit: number | string; totalCredit: number | string; netBalance: number | string; missingAttachmentCount: number; isReadyForSubmission: boolean }
 
 export interface AccTransactionResponse {
   data: AccTransaction[];
