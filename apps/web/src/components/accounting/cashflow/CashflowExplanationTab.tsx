@@ -14,6 +14,7 @@ interface CashflowExplanationTabProps {
   setSelectedGroup: (val: "ALL" | "B" | "C" | "D") => void;
   searchCategory: string;
   setSearchCategory: (val: string) => void;
+  onOpenSources?: (group: "B" | "C" | "D", categoryCode: string) => void;
 }
 
 const rupiah = (val: number) =>
@@ -29,6 +30,7 @@ export function CashflowExplanationTab({
   setSelectedGroup,
   searchCategory,
   setSearchCategory,
+  onOpenSources,
 }: CashflowExplanationTabProps) {
   const filteredCategories = categories.filter((item) => {
     const matchGroup = selectedGroup === "ALL" || item.group === selectedGroup;
@@ -125,7 +127,7 @@ export function CashflowExplanationTab({
             {filteredCategories.map((cat) => (
               <tr key={cat.code} className="hover:bg-slate-50/50">
                 <td className="p-2.5 font-mono font-bold text-navy">
-                  {cat.code}
+                  {onOpenSources ? <button type="button" onClick={() => onOpenSources(cat.group as "B" | "C" | "D", cat.code)} className="rounded font-bold text-primary-700 underline-offset-2 hover:underline dark:text-primary-300" aria-label={`Buka jurnal sumber ${cat.code}`}>{cat.code}</button> : cat.code}
                 </td>
                 <td className="p-2.5">
                   <span

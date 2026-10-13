@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AccountingAccount;
 use App\Models\AccountingBankReconciliation;
 use App\Models\AccountingOutstanding;
 use App\Models\AccountingPeriod;
@@ -82,6 +83,16 @@ class AccountingCashflowTest extends TestCase
                     'operational',
                     'backoffice',
                 ],
+                'quality' => [
+                    'posted_transaction_count',
+                    'draft_transaction_count',
+                    'missing_attachment_count',
+                    'bank_account_count',
+                    'unverified_bank_count',
+                    'exception_count',
+                    'is_complete',
+                ],
+                'comparison',
             ],
             'meta' => ['trace_id'],
             'links' => ['self'],
@@ -126,5 +137,55 @@ class AccountingCashflowTest extends TestCase
         $transaction->update(['debit_amount' => $transaction->debit_amount + 25000]);
         $after = $this->getJson('/api/v1/accounting/cashflow/report?period_month=2026-08-01', $headers)->json('data.kpis.ending_cash_balance');
         $this->assertEqualsWithDelta($before + 25000, $after, 0.01);
+    }
+
+    public function test_report_compares_with_previous_period_and_exposes_category_movements(): void
+    {
+        $division = Division::where('code', 'ACC')->firstOrFail();
+        $july = AccountingPeriod::create([
+            'division_id' => $division->id,
+            'period_month' => '2026-07-01',
+            'status' => 'closed',
+        ]);
+        AccountingBankReconciliation::create([
+            'id' => 'cashflow-comparison-july',
+            'division_id' => $division->id,
+            'period_id' => $july->id,
+            'account_id' => AccountingAccount::where('code', 'ACC-1001')->firstOrFail()->id,
+            'jul_balance' => 100000,
+            'aug_balance' => 100000,
+            'mutation' => 0,
+            'is_verified' => true,
+        ]);
+
+        $response = $this->getJson('/api/v1/accounting/cashflow/report?period_month=2026-08', $this->getAuthHeader());
+
+        $response->assertOk()
+            ->assertJsonPath('data.comparison.previous_period_month', '2026-07-01')
+            ->assertJsonStructure(['data' => ['comparison' => ['metrics' => ['total_revenue' => ['current', 'previous', 'delta', 'delta_percentage']], 'top_category_movements']]]);
+    }
+
+    public function test_can_drill_down_cashflow_sources_with_filters_and_pagination(): void
+    {
+        $response = $this->getJson('/api/v1/accounting/cashflow/details?period_month=2026-08&group=operational&per_page=5&page=1', $this->getAuthHeader());
+
+        $response->assertOk()->assertJsonStructure([
+            'data' => [
+                'period' => ['id', 'period_month', 'status'],
+                'items' => [['id', 'transaction_date', 'reference_no', 'description', 'category_code', 'category_name', 'account_code', 'account_name', 'outlet_name', 'group', 'debit_amount', 'credit_amount', 'cashflow_amount', 'has_attachment']],
+                'meta' => ['total', 'per_page', 'current_page', 'last_page'],
+            ],
+        ]);
+        $this->assertLessThanOrEqual(5, count($response->json('data.items')));
+        $this->assertTrue(collect($response->json('data.items'))->every(fn (array $item) => $item['group'] === 'operational'));
+    }
+
+    public function test_cashflow_details_rejects_cross_division_and_invalid_filters(): void
+    {
+        $this->authenticated('manager.wrap@dashboard.test')
+            ->getJson('/api/v1/accounting/cashflow/details?period_month=2026-08')
+            ->assertForbidden();
+        $this->getJson('/api/v1/accounting/cashflow/details?period_month=2026-08&group=invalid', $this->getAuthHeader())
+            ->assertStatus(400);
     }
 }

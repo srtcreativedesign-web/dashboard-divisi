@@ -36,4 +36,19 @@ class AccountingCashflowController extends Controller
             'kpis' => array_intersect_key($report['kpis'], array_flip(['total_revenue', 'total_expenses', 'ending_cash_balance'])),
         ]);
     }
+
+    public function details(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'period_month' => 'nullable|date_format:Y-m,Y-m-d',
+            'group' => 'nullable|string|in:revenue,operational,backoffice',
+            'category_code' => 'nullable|string|max:20',
+            'search' => 'nullable|string|max:100',
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+        ]);
+        $division = Division::where('code', 'ACC')->firstOrFail();
+
+        return response()->json($this->cashflowService->getCashflowDetails($division, $validated));
+    }
 }

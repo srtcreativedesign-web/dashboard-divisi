@@ -1,10 +1,11 @@
 import { AccountingQueryState } from "../../../components/accounting/AccountingStates";
 import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
 import { useState } from "react";
-import { Download, TrendingUp, FileText } from "lucide-react";
+import { Database, Download, TrendingUp, FileText } from "lucide-react";
 import {
   useAccountingPeriods,
   useAccountingCashflowReport,
+  useAccountingCashflowDetails,
 } from "../../../hooks/useAccounting";
 import { useToast } from "../../../components/ui/Toast";
 import { WaterfallChart } from "../../../components/accounting/WaterfallChart";
@@ -18,18 +19,25 @@ import {
   CashflowExplanationTab,
   type ExpenseCategory,
 } from "../../../components/accounting/cashflow/CashflowExplanationTab";
+import { CashflowComparisonPanel } from "../../../components/accounting/cashflow/CashflowComparisonPanel";
+import { CashflowQualityPanel } from "../../../components/accounting/cashflow/CashflowQualityPanel";
+import { CashflowSourceLedger } from "../../../components/accounting/cashflow/CashflowSourceLedger";
 
 export default function AccountingCashflowReportPage() {
   const { toast } = useToast();
   const periods = useAccountingPeriods();
   const [selectedPeriod, setSelectedPeriod] = useState("");
-  const [activeTab, setActiveTab] = useState<"statement" | "explanation">(
+  const [activeTab, setActiveTab] = useState<"statement" | "explanation" | "sources">(
     "statement"
   );
   const [selectedGroup, setSelectedGroup] = useState<"ALL" | "B" | "C" | "D">(
     "ALL"
   );
   const [searchCategory, setSearchCategory] = useState("");
+  const [sourceSearch, setSourceSearch] = useState("");
+  const [sourceGroup, setSourceGroup] = useState("");
+  const [sourceCategory, setSourceCategory] = useState("");
+  const [sourcePage, setSourcePage] = useState(1);
 
   const activePeriod = periods.data?.find(p => p.id === selectedPeriod) ??
     periods.data?.find((p) =>
@@ -41,6 +49,14 @@ export default function AccountingCashflowReportPage() {
   const exportFilename = `Cashflow_${isSimulation ? 'UAT_' : ''}${activePeriod?.periodMonth.slice(0, 7) ?? 'Report'}`;
 
   const report = useAccountingCashflowReport({ period_month: activePeriod?.periodMonth.slice(0, 10) });
+  const sourceLedger = useAccountingCashflowDetails(activeTab === 'sources' && activePeriod ? {
+    period_month: activePeriod.periodMonth.slice(0, 10),
+    group: sourceGroup || undefined,
+    category_code: sourceCategory || undefined,
+    search: sourceSearch || undefined,
+    per_page: '20',
+    page: String(sourcePage),
+  } : undefined);
   const { data: reportData, isLoading } = report;
   const cf = reportData?.kpis
     ? {
@@ -107,8 +123,10 @@ export default function AccountingCashflowReportPage() {
   ];
 
   const exportColumns: ColumnDef[] = [
+    { header: "Kelompok", key: "groupLabel" },
     { header: "Kode", key: "code" },
     { header: "Keterangan", key: "name" },
+    { header: "Jumlah transaksi", key: "transaction_count" },
     { header: "Nominal", key: "amount" },
   ];
 
@@ -117,7 +135,7 @@ export default function AccountingCashflowReportPage() {
       title: exportTitle,
       filename: exportFilename,
       columns: exportColumns,
-      data: allExpenseCategories,
+      data: allExpenseCategories.map(item => ({ ...item, transaction_count: 'transaction_count' in item ? item.transaction_count : '' })),
     });
     toast("Laporan Cashflow berhasil diekspor dalam format PDF", "success");
   };
@@ -127,7 +145,7 @@ export default function AccountingCashflowReportPage() {
       title: exportTitle,
       filename: exportFilename,
       columns: exportColumns,
-      data: allExpenseCategories,
+      data: allExpenseCategories.map(item => ({ ...item, transaction_count: 'transaction_count' in item ? item.transaction_count : '' })),
     });
     toast("Laporan Cashflow berhasil diekspor dalam format Excel", "success");
   };
@@ -162,6 +180,8 @@ export default function AccountingCashflowReportPage() {
       </label>
       <AccountingQueryState loading={isLoading || periods.isLoading} error={report.error || periods.error} empty={!reportData} retry={() => { void report.refetch(); void periods.refetch(); }}>
       {isSimulation && <p role="note" className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">Data UAT / SIMULASI untuk pengujian. Periode masih draf dan saldo bank belum diverifikasi; angka ini bukan laporan keuangan perusahaan.</p>}
+      {reportData?.quality && <CashflowQualityPanel quality={reportData.quality} />}
+      {reportData?.comparison && <CashflowComparisonPanel comparison={reportData.comparison} currentPeriod={reportData.period.period_month} />}
       {/* Tabs */}
       <div className="flex border-b border-line">
         <button
@@ -187,6 +207,14 @@ export default function AccountingCashflowReportPage() {
         >
           <TrendingUp className="h-4 w-4" />
           Rincian kategori
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("sources")}
+          className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${activeTab === "sources" ? "border-primary text-primary dark:text-primary-300" : "border-transparent text-subtle hover:text-navy"}`}
+        >
+          <Database className="h-4 w-4" />
+          Sumber transaksi
         </button>
       </div>
 
@@ -222,14 +250,17 @@ export default function AccountingCashflowReportPage() {
             backofficeExpenses={cf.backofficeExpenses}
           />
         </div>
-      ) : (
+      ) : activeTab === "explanation" ? (
         <CashflowExplanationTab
           categories={allExpenseCategories}
           selectedGroup={selectedGroup}
           setSelectedGroup={setSelectedGroup}
           searchCategory={searchCategory}
           setSearchCategory={setSearchCategory}
+          onOpenSources={(group, categoryCode) => { setSourceGroup(group === 'B' ? 'revenue' : group === 'C' ? 'operational' : 'backoffice'); setSourceCategory(categoryCode); setSourcePage(1); setActiveTab('sources'); }}
         />
+      ) : (
+        <CashflowSourceLedger data={sourceLedger.data} loading={sourceLedger.isLoading || sourceLedger.isFetching} search={sourceSearch} onSearch={setSourceSearch} group={sourceGroup} onGroup={setSourceGroup} categoryCode={sourceCategory} onClearCategory={() => { setSourceCategory(''); setSourcePage(1); }} page={sourcePage} onPage={setSourcePage} />
       )}
       </AccountingQueryState>
     </section>

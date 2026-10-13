@@ -133,7 +133,7 @@ export interface AccImportPreviewResponse {
 
 // Cashflow Report
 export interface AccCashflowReportResponse {
-  period: { period_month: string; status: string };
+  period: { id: string; period_month: string; status: string };
   kpis: {
     initial_cash_balance: number;
     total_revenue: number;
@@ -150,11 +150,20 @@ export interface AccCashflowReportResponse {
     projected_ending_balance: number;
   };
   breakdown: {
-    revenue: { code: string; name: string; amount: number }[];
-    operational: { code: string; name: string; amount: number }[];
-    backoffice: { code: string; name: string; amount: number }[];
+    revenue: { code: string; name: string; amount: number; transaction_count: number }[];
+    operational: { code: string; name: string; amount: number; transaction_count: number }[];
+    backoffice: { code: string; name: string; amount: number; transaction_count: number }[];
+  };
+  quality: { posted_transaction_count: number; draft_transaction_count: number; missing_attachment_count: number; bank_account_count: number; unverified_bank_count: number; exception_count: number; is_complete: boolean };
+  comparison: null | {
+    previous_period_month: string;
+    metrics: Record<'total_revenue' | 'total_expenses' | 'ending_cash_balance' | 'projected_ending_balance', { current: number; previous: number; delta: number; delta_percentage: number | null }>;
+    top_category_movements: { code: string; name: string; current: number; previous: number; delta: number }[];
   };
 }
+
+export interface AccCashflowDetailItem { id: string; transaction_date: string; reference_no?: string; description: string; category_code?: string; category_name?: string; account_code?: string; account_name?: string; outlet_name?: string; group: 'revenue' | 'operational' | 'backoffice'; debit_amount: number; credit_amount: number; cashflow_amount: number; has_attachment: boolean }
+export interface AccCashflowDetailsResponse { period: { id: string; period_month: string; status: string }; items: AccCashflowDetailItem[]; meta: { total: number; per_page: number; current_page: number; last_page: number } }
 
 const base = '/accounting';
 
@@ -242,4 +251,6 @@ export const accountingApi = {
     api.get<Pick<AccCashflowReportResponse, 'period'> & { kpis: Pick<AccCashflowReportResponse['kpis'], 'total_revenue' | 'total_expenses' | 'ending_cash_balance'> }>(`${base}/cashflow/summary`, params),
   cashflowReport: (params?: { period_month?: string }) =>
     api.get<AccCashflowReportResponse>(`${base}/cashflow/report`, params),
+  cashflowDetails: (params?: { period_month?: string; group?: string; category_code?: string; search?: string; per_page?: string; page?: string }) =>
+    api.get<AccCashflowDetailsResponse>(`${base}/cashflow/details`, params),
 };

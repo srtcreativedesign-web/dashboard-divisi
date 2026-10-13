@@ -125,15 +125,20 @@ globalThis.fetch = async (input: RequestInfo | URL, _init?: RequestInit) => {
     return new Response(JSON.stringify({
       data: {
         period: { period_month: '2026-08', status: 'draft' },
-        kpis: { initial_cash_balance: 941786678.76, total_revenue: 5050891572.12, total_available: 5992678250.88, total_operational_expenses: 3735973049, total_backoffice_expenses: 845547534, total_expenses: 4581520583, ending_cash_balance: 1411157667.88, total_bank_ending_balance: 1411157667, reconciliation_variance: 0.88, is_reconciled: true, total_active_outstanding: 1546704169, projected_ending_balance: -135546501.12 },
+        kpis: { initial_cash_balance: 941786678.76, total_revenue: 5050891572.12, total_available: 5992678250.88, total_operational_expenses: 3735973049, total_backoffice_expenses: 845547534, total_expenses: 4581520583, ending_cash_balance: 1411157667.88, total_bank_ending_balance: 1411157667, reconciliation_variance: 0.88, is_reconciled: true, total_active_outstanding: 1546704169, total_active_receivable: 200000000, projected_ending_balance: 645345498.88 },
+        quality: { posted_transaction_count: 24, draft_transaction_count: 1, missing_attachment_count: 2, bank_account_count: 31, unverified_bank_count: 1, exception_count: 5, is_complete: false },
+        comparison: { previous_period_month: '2026-07-01', metrics: { total_revenue: { current: 5050891572.12, previous: 4800000000, delta: 250891572.12, delta_percentage: 5.23 }, total_expenses: { current: 4581520583, previous: 4400000000, delta: 181520583, delta_percentage: 4.13 }, ending_cash_balance: { current: 1411157667.88, previous: 1300000000, delta: 111157667.88, delta_percentage: 8.55 }, projected_ending_balance: { current: 645345498.88, previous: 500000000, delta: 145345498.88, delta_percentage: 29.07 } }, top_category_movements: [{ code: 'C1', name: 'Tagihan PT Angkasa Pura Indonesia', current: 1720636274, previous: 1600000000, delta: 120636274 }] },
         breakdown: {
-          revenue: [{ code: 'B1', name: 'Sales Store Harian', amount: 4760786093 }],
-          operational: [{ code: 'C1', name: 'Tagihan PT Angkasa Pura Indonesia', amount: 1720636274 }],
-          backoffice: [{ code: 'D1', name: 'Gaji Back Office', amount: 114510000 }],
+          revenue: [{ code: 'B1', name: 'Sales Store Harian', amount: 4760786093, transaction_count: 12 }],
+          operational: [{ code: 'C1', name: 'Tagihan PT Angkasa Pura Indonesia', amount: 1720636274, transaction_count: 8 }],
+          backoffice: [{ code: 'D1', name: 'Gaji Back Office', amount: 114510000, transaction_count: 4 }],
         },
       },
       meta: { trace_id: 'test-trace' },
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/accounting/cashflow/details')) {
+    return new Response(JSON.stringify({ data: { period: { id: 'p1', period_month: '2026-08-01', status: 'draft' }, items: [{ id: 'tx1', transaction_date: '2026-08-15', reference_no: 'JV-001', description: 'Tagihan operasional', category_code: 'C1', category_name: 'Biaya Operasional', account_code: '5101', account_name: 'Beban Operasional', outlet_name: 'Data Cellular T3', group: 'operational', debit_amount: 0, credit_amount: 125000, cashflow_amount: 125000, has_attachment: true }], meta: { total: 1, per_page: 20, current_page: 1, last_page: 1 } }, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
   if (url.includes('/accounting/periods')) {
     return new Response(JSON.stringify({ data: [{ id: 'p1', periodMonth: '2026-08', status: 'draft', version: 1 }], meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });

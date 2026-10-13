@@ -219,6 +219,20 @@ describe('Sistem Visualisasi Finansial & Modul Accounting Fase 3 (ISSUE-21)', ()
 
       expect(await screen.findByTestId('waterfall-chart-section')).toBeInTheDocument();
       expect(screen.getByText(/Waterfall Chart: Jembatan Aliran Arus Kas/i)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Kualitas laporan/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Perubahan dari Juli 2026/i })).toBeInTheDocument();
+    });
+
+    it('AccountingCashflowReportPage menelusuri jurnal sumber cashflow', async () => {
+      renderWithProviders(<AccountingCashflowReportPage />, 'MANAGER', 'ACC');
+
+      fireEvent.click(await screen.findByRole('button', { name: /Rincian kategori/i }));
+      fireEvent.click(await screen.findByRole('button', { name: /Buka jurnal sumber C1/i }));
+      expect(await screen.findByRole('heading', { name: /Jurnal pembentuk cashflow/i })).toBeInTheDocument();
+      expect(screen.getByText(/Kategori aktif:/i)).toHaveTextContent('C1');
+      expect(await screen.findByText('JV-001')).toBeInTheDocument();
+      expect(screen.getByText('Tagihan operasional')).toBeInTheDocument();
+      expect(screen.getByText('Data Cellular T3')).toBeInTheDocument();
     });
 
     it('AccountingCashflowReportPage tidak lagi menampilkan kolom persentase porsi arus kas pada tab penjelasan', async () => {

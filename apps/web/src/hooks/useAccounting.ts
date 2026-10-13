@@ -7,6 +7,7 @@ import {
   type AccOutstandingResponse,
   type AccReconciliationResponse,
   type AccCashflowReportResponse,
+  type AccCashflowDetailsResponse,
   type AccImportPreviewResponse,
 } from '../api/accounting';
 
@@ -165,6 +166,14 @@ export function useAccountingCashflowReport(params?: { period_month?: string }) 
   return useQuery<AccCashflowReportResponse>({
     queryKey: ['accounting', 'cashflow-report', params],
     queryFn: async () => (await accountingApi.cashflowReport(params)).data,
+  });
+}
+
+export function useAccountingCashflowDetails(params?: { period_month?: string; group?: string; category_code?: string; search?: string; per_page?: string; page?: string }) {
+  return useQuery<AccCashflowDetailsResponse>({
+    queryKey: ['accounting', 'cashflow-details', params],
+    queryFn: async () => (await accountingApi.cashflowDetails(params)).data,
+    enabled: Boolean(params?.period_month),
   });
 }
 

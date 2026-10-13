@@ -242,6 +242,7 @@ Route::prefix('v1')->group(function () {
             // Laporan Cashflow
             Route::middleware(['capability:view:acc_detail'])->group(function () {
                 Route::get('cashflow/report', [AccountingCashflowController::class, 'report']);
+                Route::get('cashflow/details', [AccountingCashflowController::class, 'details']);
             });
         });
 
