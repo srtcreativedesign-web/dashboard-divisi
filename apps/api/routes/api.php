@@ -211,11 +211,9 @@ Route::prefix('v1')->group(function () {
             Route::middleware(['capability:view:acc_detail'])->group(function () {
                 Route::get('outstandings', [AccountingOutstandingController::class, 'list']);
             });
-            Route::middleware(['capability:submit:acc_period'])->group(function () {
-                Route::post('outstandings', [AccountingOutstandingController::class, 'create']);
-                Route::post('outstandings/{id}/pay', [AccountingOutstandingController::class, 'recordPayment']);
-                Route::post('outstandings/{id}/cancel', [AccountingOutstandingController::class, 'cancel']);
-            });
+            Route::post('outstandings', [AccountingOutstandingController::class, 'create'])->middleware('capability:write:acc_outstanding');
+            Route::post('outstandings/{id}/pay', [AccountingOutstandingController::class, 'recordPayment'])->middleware('capability:execute:payment');
+            Route::post('outstandings/{id}/cancel', [AccountingOutstandingController::class, 'cancel'])->middleware('capability:manage:acc_period');
 
             // Rekonsiliasi Bank
             Route::middleware(['capability:view:acc_detail'])->group(function () {

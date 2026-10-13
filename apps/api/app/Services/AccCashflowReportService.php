@@ -65,12 +65,14 @@ class AccCashflowReportService
         $variance = abs($totalBankAug - $endingCashBalance);
 
         // 4. Outstandings
-        $totalOutstanding = (int) AccountingOutstanding::where('division_id', $division->id)
+        $activeOutstanding = AccountingOutstanding::where('division_id', $division->id)
             ->where('period_id', $period->id)
             ->whereNotIn('status', ['paid', 'cancelled'])
-            ->sum('remaining_amount');
+            ->get();
+        $totalOutstanding = (int) $activeOutstanding->where('direction', 'PAYABLE')->sum('remaining_amount');
+        $totalReceivable = (int) $activeOutstanding->where('direction', 'RECEIVABLE')->sum('remaining_amount');
 
-        $projectedEndingBalance = $endingCashBalance - $totalOutstanding;
+        $projectedEndingBalance = $endingCashBalance - $totalOutstanding + $totalReceivable;
 
         return [
             'period' => [
@@ -89,6 +91,7 @@ class AccCashflowReportService
                 'reconciliation_variance' => round($variance, 2),
                 'is_reconciled' => AccountingBankReconciliation::where('period_id', $period->id)->exists() && $variance <= 1.0,
                 'total_active_outstanding' => $totalOutstanding,
+                'total_active_receivable' => $totalReceivable,
                 'projected_ending_balance' => $projectedEndingBalance,
             ],
             'breakdown' => $breakdown,

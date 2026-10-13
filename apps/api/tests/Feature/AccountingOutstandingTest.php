@@ -68,6 +68,8 @@ class AccountingOutstandingTest extends TestCase
             ],
         ]);
         $this->assertEquals(50000000, $response->json('data.kpis.total_active_outstanding'));
+        $this->assertEquals(50000000, $response->json('data.kpis.total_active_payable'));
+        $this->assertEquals(0, $response->json('data.kpis.total_active_receivable'));
         $this->assertCount(1, $response->json('data.items'));
     }
 
@@ -77,6 +79,9 @@ class AccountingOutstandingTest extends TestCase
             'period_id' => $this->period->id,
             'account_id' => $this->account->id,
             'description' => 'Sewa Gudang Tahunan',
+            'direction' => 'PAYABLE',
+            'counterparty_name' => 'PT Pemilik Gudang',
+            'document_number' => 'INV-GDG-2026-08',
             'amount' => 100000000,
             'due_date' => '2026-09-30',
             'category_name' => 'Operasional Wrapping',
@@ -112,10 +117,12 @@ class AccountingOutstandingTest extends TestCase
             'status' => 'unpaid',
         ]);
 
-        $response = $this->authenticated('admin.acc@dashboard.test')
+        $response = $this->authenticated('finance@dashboard.test')
             ->postJson("/api/v1/accounting/outstandings/{$item->id}/pay", [
                 'amount' => 40000000,
                 'notes' => 'Pembayaran termin 1',
+                'payment_date' => '2026-09-01',
+                'version' => 1,
             ]);
 
         $response->assertStatus(200);
@@ -144,9 +151,12 @@ class AccountingOutstandingTest extends TestCase
             'status' => 'unpaid',
         ]);
 
-        $response = $this->authenticated('admin.acc@dashboard.test')
+        $response = $this->authenticated('finance@dashboard.test')
             ->postJson("/api/v1/accounting/outstandings/{$item->id}/pay", [
                 'amount' => 25000000,
+                'notes' => 'Pembayaran melebihi sisa tagihan',
+                'payment_date' => '2026-09-01',
+                'version' => 1,
             ]);
 
         $response->assertStatus(422);
@@ -167,9 +177,10 @@ class AccountingOutstandingTest extends TestCase
             'status' => 'unpaid',
         ]);
 
-        $response = $this->authenticated('admin.acc@dashboard.test')
+        $response = $this->authenticated('manager.acc@dashboard.test')
             ->postJson("/api/v1/accounting/outstandings/{$item->id}/cancel", [
                 'reason' => 'Vendor salah menerbitkan invoice',
+                'version' => 1,
             ]);
 
         $response->assertStatus(200);
@@ -181,5 +192,86 @@ class AccountingOutstandingTest extends TestCase
             'status' => 'cancelled',
             'cancellation_reason' => 'Vendor salah menerbitkan invoice',
         ]);
+    }
+
+    public function test_receivable_changes_projection_and_is_returned_with_direction(): void
+    {
+        AccountingOutstanding::create([
+            'id' => (string) Str::uuid(), 'division_id' => $this->period->division_id,
+            'period_id' => $this->period->id, 'code' => 'AR-TEST-01', 'direction' => 'RECEIVABLE',
+            'counterparty_name' => 'Tenant Cellular', 'document_number' => 'INV-AR-001',
+            'description' => 'Piutang tenant', 'amount' => 25000000, 'paid_amount' => 0,
+            'remaining_amount' => 25000000, 'due_date' => '2026-09-20', 'status' => 'unpaid', 'version' => 1,
+        ]);
+
+        $response = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson('/api/v1/accounting/outstandings?direction=RECEIVABLE');
+
+        $response->assertOk()->assertJsonPath('data.kpis.total_active_receivable', 25000000)
+            ->assertJsonPath('data.items.0.direction', 'RECEIVABLE')
+            ->assertJsonPath('data.items.0.counterparty_name', 'Tenant Cellular');
+    }
+
+    public function test_create_rejects_locked_period(): void
+    {
+        $this->period->update(['status' => 'closed']);
+
+        $response = $this->authenticated('admin.acc@dashboard.test')->postJson('/api/v1/accounting/outstandings', [
+            'period_id' => $this->period->id, 'direction' => 'PAYABLE', 'counterparty_name' => 'Vendor',
+            'description' => 'Tagihan periode tutup', 'amount' => 1000, 'due_date' => '2026-09-30',
+        ]);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseMissing('accounting_outstandings', ['description' => 'Tagihan periode tutup']);
+    }
+
+    public function test_payment_rejects_stale_version(): void
+    {
+        $item = AccountingOutstanding::create([
+            'id' => (string) Str::uuid(), 'division_id' => $this->period->division_id,
+            'period_id' => $this->period->id, 'code' => 'AP-TEST-VERSION', 'direction' => 'PAYABLE',
+            'description' => 'Tagihan versi', 'amount' => 10000, 'paid_amount' => 0,
+            'remaining_amount' => 10000, 'due_date' => '2026-09-15', 'status' => 'unpaid', 'version' => 2,
+        ]);
+
+        $response = $this->authenticated('finance@dashboard.test')
+            ->postJson("/api/v1/accounting/outstandings/{$item->id}/pay", [
+                'amount' => 5000, 'payment_date' => '2026-09-01',
+                'notes' => 'Pembayaran dengan versi lama', 'version' => 1,
+            ]);
+
+        $response->assertStatus(409)->assertJsonPath('error.code', 'VERSION_CONFLICT');
+    }
+
+    public function test_roles_are_separated_between_create_settlement_and_cancel(): void
+    {
+        $item = AccountingOutstanding::create([
+            'id' => (string) Str::uuid(), 'division_id' => $this->period->division_id,
+            'period_id' => $this->period->id, 'code' => 'AP-ROLE-01', 'direction' => 'PAYABLE',
+            'description' => 'Tagihan pemisahan tugas', 'amount' => 10000, 'paid_amount' => 0,
+            'remaining_amount' => 10000, 'due_date' => '2026-09-15', 'status' => 'unpaid', 'version' => 1,
+        ]);
+        $payment = ['amount' => 5000, 'payment_date' => '2026-09-01', 'notes' => 'Referensi transfer pengujian', 'version' => 1];
+
+        $this->authenticated('admin.acc@dashboard.test')->postJson("/api/v1/accounting/outstandings/{$item->id}/pay", $payment)->assertForbidden();
+        $this->authenticated('finance@dashboard.test')->postJson('/api/v1/accounting/outstandings', [
+            'period_id' => $this->period->id, 'direction' => 'PAYABLE', 'counterparty_name' => 'Vendor',
+            'description' => 'Finance tidak boleh membuat', 'amount' => 1000, 'due_date' => '2026-09-30',
+        ])->assertForbidden();
+        $this->authenticated('admin.acc@dashboard.test')->postJson("/api/v1/accounting/outstandings/{$item->id}/cancel", ['reason' => 'Admin tidak dapat membatalkan', 'version' => 1])->assertForbidden();
+    }
+
+    public function test_partially_settled_document_cannot_be_cancelled(): void
+    {
+        $item = AccountingOutstanding::create([
+            'id' => (string) Str::uuid(), 'division_id' => $this->period->division_id,
+            'period_id' => $this->period->id, 'code' => 'AP-PARTIAL-01', 'direction' => 'PAYABLE',
+            'description' => 'Tagihan sudah sebagian', 'amount' => 10000, 'paid_amount' => 5000,
+            'remaining_amount' => 5000, 'due_date' => '2026-09-15', 'status' => 'partial', 'version' => 2,
+        ]);
+
+        $this->authenticated('manager.acc@dashboard.test')
+            ->postJson("/api/v1/accounting/outstandings/{$item->id}/cancel", ['reason' => 'Mencoba membatalkan transaksi parsial', 'version' => 2])
+            ->assertStatus(422);
     }
 }

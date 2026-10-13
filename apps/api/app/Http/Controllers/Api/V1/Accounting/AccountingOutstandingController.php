@@ -24,6 +24,7 @@ class AccountingOutstandingController extends Controller
             'period_id' => $request->query('period_id'),
             'status' => $request->query('status'),
             'search' => $request->query('search'),
+            'direction' => $request->query('direction'),
         ];
 
         $data = $this->outstandingService->getOutstandings($division, $filters);
@@ -38,11 +39,14 @@ class AccountingOutstandingController extends Controller
 
         $validated = $request->validate([
             'description' => 'required|string|max:500',
+            'direction' => 'required|in:PAYABLE,RECEIVABLE',
+            'counterparty_name' => 'required|string|max:200',
+            'document_number' => 'nullable|string|max:150',
             'amount' => 'required|integer|min:1',
-            'due_date' => 'nullable|date',
+            'due_date' => 'required|date_format:Y-m-d',
             'category_name' => 'nullable|string|max:100',
-            'period_id' => 'nullable|string',
-            'account_id' => 'nullable|string',
+            'period_id' => 'required|uuid',
+            'account_id' => 'nullable|uuid',
         ]);
 
         $division = Division::where('code', 'ACC')->firstOrFail();
@@ -63,13 +67,15 @@ class AccountingOutstandingController extends Controller
 
         $validated = $request->validate([
             'amount' => 'required|integer|min:1',
-            'account_id' => 'nullable|string',
-            'payment_date' => 'nullable|date',
-            'notes' => 'nullable|string|max:500',
+            'account_id' => 'nullable|uuid',
+            'payment_date' => 'required|date_format:Y-m-d',
+            'notes' => 'required|string|min:10|max:500',
+            'version' => 'required|integer|min:1',
         ]);
 
         try {
-            $result = $this->outstandingService->recordPayment($id, $validated, $user);
+            $division = Division::where('code', 'ACC')->firstOrFail();
+            $result = $this->outstandingService->recordPayment($division, $id, $validated, $user);
 
             return response()->json($result);
         } catch (InvalidArgumentException $e) {
@@ -84,10 +90,12 @@ class AccountingOutstandingController extends Controller
 
         $validated = $request->validate([
             'reason' => 'required|string|max:500',
+            'version' => 'required|integer|min:1',
         ]);
 
         try {
-            $item = $this->outstandingService->cancel($id, $validated['reason'], $user);
+            $division = Division::where('code', 'ACC')->firstOrFail();
+            $item = $this->outstandingService->cancel($division, $id, $validated['reason'], (int) $validated['version'], $user);
 
             return response()->json($item);
         } catch (InvalidArgumentException $e) {

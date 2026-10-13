@@ -25,12 +25,16 @@ class AccountingOutstanding extends Model
         'category_id',
         'outlet_id',
         'code',
+        'direction',
+        'counterparty_name',
+        'document_number',
         'description',
         'amount',
         'paid_amount',
         'remaining_amount',
         'due_date',
         'status',
+        'version',
         'category_name',
         'cancelled_at',
         'cancelled_by_id',
@@ -45,6 +49,7 @@ class AccountingOutstanding extends Model
         'remaining_amount' => 'integer',
         'due_date' => 'date',
         'cancelled_at' => 'datetime',
+        'version' => 'integer',
     ];
 
     public function division(): BelongsTo

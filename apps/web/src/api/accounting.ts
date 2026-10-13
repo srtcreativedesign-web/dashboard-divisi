@@ -33,12 +33,17 @@ export interface AccMasterHistoryItem {
 export interface AccOutstandingItem {
   id: string;
   code: string;
+  period_id: string;
+  direction: 'PAYABLE' | 'RECEIVABLE';
+  counterparty_name?: string;
+  document_number?: string;
   description: string;
   amount: number;
   paid_amount: number;
   remaining_amount: number;
   due_date: string;
   status: 'unpaid' | 'partial' | 'paid' | 'cancelled';
+  version: number;
   category_name?: string;
   account_name?: string;
   outlet_name?: string;
@@ -51,6 +56,8 @@ export interface AccOutstandingItem {
 export interface AccOutstandingResponse {
   kpis: {
     total_active_outstanding: number;
+    total_active_payable: number;
+    total_active_receivable: number;
     total_paid: number;
     total_items_count: number;
     active_items_count: number;
@@ -138,6 +145,7 @@ export interface AccCashflowReportResponse {
     reconciliation_variance: number;
     is_reconciled: boolean;
     total_active_outstanding: number;
+    total_active_receivable: number;
     projected_ending_balance: number;
   };
   breakdown: {
@@ -196,14 +204,14 @@ export const accountingApi = {
   downloadAttachment: (id: string, attachmentId: string) => downloadFile(`${base}/transactions/${id}/attachments/${attachmentId}/download`),
 
   // Outstanding API
-  outstandings: (params?: { period_id?: string; status?: string; search?: string }) =>
+  outstandings: (params?: { period_id?: string; status?: string; search?: string; direction?: string }) =>
     api.get<AccOutstandingResponse>(`${base}/outstandings`, params),
-  createOutstanding: (payload: { description: string; amount: number; due_date?: string; category_name?: string; period_id?: string; account_id?: string }) =>
+  createOutstanding: (payload: { direction: 'PAYABLE' | 'RECEIVABLE'; counterparty_name: string; document_number?: string; description: string; amount: number; due_date: string; category_name?: string; period_id: string; account_id?: string }) =>
     api.post<AccOutstandingItem>(`${base}/outstandings`, payload),
-  payOutstanding: (id: string, payload: { amount: number; payment_date?: string; notes?: string; account_id?: string }) =>
+  payOutstanding: (id: string, payload: { amount: number; payment_date: string; notes: string; version: number; account_id?: string }) =>
     api.post<{ outstanding: AccOutstandingItem }>(`${base}/outstandings/${id}/pay`, payload),
-  cancelOutstanding: (id: string, reason: string) =>
-    api.post<AccOutstandingItem>(`${base}/outstandings/${id}/cancel`, { reason }),
+  cancelOutstanding: (id: string, reason: string, version: number) =>
+    api.post<AccOutstandingItem>(`${base}/outstandings/${id}/cancel`, { reason, version }),
 
   // Reconciliation API
   reconciliations: (params?: { period_id?: string; bank_name?: string; search?: string }) =>

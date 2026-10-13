@@ -110,7 +110,8 @@ function restoreCheck(input) {
       throw Error('RESTORE_DATA_OR_SCHEMA_MISMATCH');
     }
     for (const testDatabase of [d.database, target]) {
-      const setup = "BEGIN; CREATE TEMP TABLE erp_constraint_probe (LIKE public.projects INCLUDING CONSTRAINTS EXCLUDING DEFAULTS); ";
+      // Keep schema defaults so newly added required columns do not make this status-only probe stale.
+      const setup = "BEGIN; CREATE TEMP TABLE erp_constraint_probe (LIKE public.projects INCLUDING CONSTRAINTS INCLUDING DEFAULTS); ";
       d.sql(setup + "INSERT INTO erp_constraint_probe(id,name,division_code,status,contract_value) VALUES (0,'Anonim','PROJECT','planning',0),(1,'Anonim','PROJECT','in_progress',0),(2,'Anonim','PROJECT','on_hold',0),(3,'Anonim','PROJECT','completed',0); ROLLBACK;", identity, testDatabase);
       let rejected = false;
       try { d.sql(setup + "INSERT INTO erp_constraint_probe(id,name,division_code,status,contract_value) VALUES(0,'Anonim','PROJECT','invalid_status',0); ROLLBACK;", identity, testDatabase); } catch { rejected = true; }
@@ -123,7 +124,7 @@ function restoreCheck(input) {
           ["cel_manual_sales", `INSERT INTO erp_cell_probe(id,product_id,outlet_id,product_name,outlet_name,business_date,quantity,unit_price_cents,total_cents,source_reference,source_key,created_by,status,version) VALUES (${uid},${uid},${uid},'Anonim','Anonim','2026-10-06',1,10,10,'ANONIM','ANONIM',${uid},'posted',1)`, `INSERT INTO erp_cell_probe(id,product_id,outlet_id,product_name,outlet_name,business_date,quantity,unit_price_cents,total_cents,source_reference,source_key,created_by,status,version) VALUES (${uid},${uid},${uid},'Anonim','Anonim','2026-10-06',1,10,11,'ANONIM','ANONIM',${uid},'posted',1)`],
         ];
         for (const [table, accepted, invalid] of probes) {
-          const begin = `BEGIN; CREATE TEMP TABLE erp_cell_probe (LIKE public.${table} INCLUDING CONSTRAINTS EXCLUDING DEFAULTS); `;
+          const begin = `BEGIN; CREATE TEMP TABLE erp_cell_probe (LIKE public.${table} INCLUDING CONSTRAINTS INCLUDING DEFAULTS); `;
           d.sql(begin + accepted + '; ROLLBACK;', identity, testDatabase);
           let denied = false;
           try { d.sql(begin + invalid + '; ROLLBACK;', identity, testDatabase); } catch { denied = true; }

@@ -115,7 +115,9 @@ Sebuah halaman selesai apabila:
 - [x] Rombak Jurnal menjadi workbench pembukuan: ringkasan periode, kelengkapan bukti, rujukan sumber, form bertahap, kesiapan draf, periode terkunci, koreksi berversi, dan pembatalan beralasan.
 - [x] Rombak Rekap Setoran menjadi register rekonsiliasi sumber omzet, batas kanal, bukti, penerimaan Finance, sisa, status, dan audit trail.
 - [x] Pisahkan Cuti dan Absensi sebagai dokumen kerja berbeda dengan register, form bertahap, detail, koreksi berversi, pembatalan beralasan, dan histori; persetujuan tetap berupa referensi eksternal sampai kebijakan approver internal ditetapkan.
-- [ ] Selaraskan hutang-piutang, cashflow, periode, master data, dan impor.
+- [x] Selaraskan master data dan staging impor: outlet server, histori, periode terbuka, klasifikasi preview, pengakuan duplikat, dan capability commit. Dokumen 93.
+- [x] Selaraskan hutang-piutang dan proyeksi cashflow: AP/AR, pihak lawan, periode, jatuh tempo, maker–executor–controller, versioning, audit, dan scope Accounting. Dokumen 94.
+- [ ] Selaraskan laporan cashflow penuh dan kontrol periode, termasuk closing checklist dan dampak penguncian lintas dokumen.
 - [ ] Pisahkan pekerjaan input, pemeriksaan, persetujuan, realisasi, dan pemantauan berdasarkan role.
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
 - [x] Implementasikan Payment Run Finance berbasis voucher approved: prioritas, jatuh tempo, status realisasi, sisa, bukti, dan drill-down dokumen.
@@ -137,11 +139,10 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Accounting: selaraskan master data dan staging impor.
-2. Accounting: selaraskan hutang-piutang, cashflow, dan kontrol periode.
-3. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
-4. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
-5. Regresi lintas role dan UAT visual terang/gelap.
+1. Accounting: selaraskan laporan cashflow penuh dan kontrol periode.
+2. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
+3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
+4. Regresi lintas role dan UAT visual terang/gelap.
 
 ## Pencapaian role terbaru
 

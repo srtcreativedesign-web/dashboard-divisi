@@ -97,7 +97,7 @@ export function useAccountMutations() {
 }
 
 // Outstandings hooks
-export function useAccountingOutstandings(params?: { period_id?: string; status?: string; search?: string }) {
+export function useAccountingOutstandings(params?: { period_id?: string; status?: string; search?: string; direction?: string }) {
   return useQuery<AccOutstandingResponse>({
     queryKey: ['accounting', 'outstandings', params],
     queryFn: async () => (await accountingApi.outstandings(params)).data,
@@ -109,18 +109,18 @@ export function useOutstandingMutations() {
   const refresh = () => client.invalidateQueries({ queryKey: ['accounting', 'outstandings'] });
   return {
     create: useMutation({
-      mutationFn: (p: { description: string; amount: number; due_date?: string; category_name?: string; period_id?: string; account_id?: string }) =>
+      mutationFn: (p: { direction: 'PAYABLE' | 'RECEIVABLE'; counterparty_name: string; document_number?: string; description: string; amount: number; due_date: string; category_name?: string; period_id: string; account_id?: string }) =>
         accountingApi.createOutstanding(p),
       onSuccess: refresh,
     }),
     pay: useMutation({
-      mutationFn: ({ id, payload }: { id: string; payload: { amount: number; payment_date?: string; notes?: string; account_id?: string } }) =>
+      mutationFn: ({ id, payload }: { id: string; payload: { amount: number; payment_date: string; notes: string; version: number; account_id?: string } }) =>
         accountingApi.payOutstanding(id, payload),
       onSuccess: refresh,
     }),
     cancel: useMutation({
-      mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-        accountingApi.cancelOutstanding(id, reason),
+      mutationFn: ({ id, reason, version }: { id: string; reason: string; version: number }) =>
+        accountingApi.cancelOutstanding(id, reason, version),
       onSuccess: refresh,
     }),
   };

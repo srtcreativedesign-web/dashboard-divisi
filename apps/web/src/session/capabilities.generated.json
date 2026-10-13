@@ -105,7 +105,6 @@
         "view:acc_report",
         "view:cashflow",
         "view:division",
-        "write:acc_outstanding",
         "write:acc_transaction",
         "write:cashflow"
       ]

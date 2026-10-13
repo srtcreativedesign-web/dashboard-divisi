@@ -1,148 +1,16 @@
-import { ArrowUpRight, Check, Clock, SearchX, X, XCircle } from "lucide-react";
-import { AntiSlopEmptyState } from "../../ui/AntiSlopEmptyState";
-import { useTableNavigation } from "../../../hooks/useTableNavigation";
+import { ArrowRight, CalendarClock, SearchX, X } from 'lucide-react';
+import type { AccOutstandingItem } from '../../../api/accounting';
+import { AntiSlopEmptyState } from '../../ui/AntiSlopEmptyState';
 
-interface OutstandingItem {
-  id: string;
-  code: string;
-  description: string;
-  amount: number;
-  paidAmount: number;
-  remainingAmount: number;
-  dueDate: string;
-  status: "unpaid" | "partial" | "paid" | "cancelled";
-  category: string;
-}
+interface Props { items: AccOutstandingItem[]; canSettle: boolean; canCancel: boolean; onSettle: (item: AccOutstandingItem) => void; onCancel: (item: AccOutstandingItem) => void }
+const money = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+const date = (value?: string) => value ? new Date(`${value.slice(0, 10)}T00:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+const labels = { unpaid: 'Belum realisasi', partial: 'Sebagian', paid: 'Lunas', cancelled: 'Dibatalkan' } as const;
 
-interface OutstandingTableProps {
-  items: OutstandingItem[];
-  onPay: (item: OutstandingItem) => void;
-  onCancel: (item: OutstandingItem) => void;
-}
-
-const rupiah = (val: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(val);
-
-export function OutstandingTable({
-  items,
-  onPay,
-  onCancel,
-}: OutstandingTableProps) {
-  const { focusedIndex, containerRef } = useTableNavigation(items.length);
-
-  return (
-    <div className="overflow-x-auto" ref={containerRef}>
-      <table className="w-full text-left text-xs text-slate-600">
-        <thead className="bg-surface/60 text-[11px] font-semibold text-slate-500 uppercase border-b border-line">
-          <tr>
-            <th className="px-4 py-3">Kode</th>
-            <th className="px-4 py-3">Deskripsi Kewajiban</th>
-            <th className="px-4 py-3">Jatuh Tempo</th>
-            <th className="px-4 py-3 text-right">Nominal Awal</th>
-            <th className="px-4 py-3 text-right">Terbayar</th>
-            <th className="px-4 py-3 text-right">Sisa Tagihan</th>
-            <th className="px-4 py-3 text-center">Status</th>
-            <th className="px-4 py-3 text-center">Aksi</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
-          {items.length === 0 ? (
-            <tr>
-              <td colSpan={8} className="p-0">
-                <AntiSlopEmptyState
-                  title="Data Kosong"
-                  description="Tidak ada data kewajiban atau outstanding yang sesuai dengan filter saat ini."
-                  icon={<SearchX className="h-8 w-8 text-slate-400" strokeWidth={1.5} />}
-                  className="border-0 rounded-none bg-transparent"
-                />
-              </td>
-            </tr>
-          ) : (
-            items.map((it, idx) => (
-              <tr 
-                key={it.id} 
-                className={`transition ${idx === focusedIndex ? 'bg-primary-light/40' : 'hover:bg-slate-50/80'}`}
-              >
-                <td className="px-4 py-3 font-mono text-[11px] text-slate-400">
-                  {it.code}
-                </td>
-                <td className="px-4 py-3">
-                  <p className="font-semibold text-navy">{it.description}</p>
-                  <p className="text-[10px] text-slate-400">{it.category}</p>
-                </td>
-                <td className="px-4 py-3 font-mono text-slate-600">
-                  {it.dueDate}
-                </td>
-                <td className="px-4 py-3 text-right font-mono font-medium text-slate-700">
-                  {rupiah(it.amount)}
-                </td>
-                <td className="px-4 py-3 text-right font-mono text-success">
-                  {it.paidAmount > 0 ? rupiah(it.paidAmount) : "-"}
-                </td>
-                <td className="px-4 py-3 text-right font-mono font-bold text-rose-600">
-                  {it.remainingAmount > 0 ? rupiah(it.remainingAmount) : "-"}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                      it.status === "paid"
-                        ? "bg-emerald-100 text-emerald-800"
-                        : it.status === "partial"
-                        ? "bg-primary-light text-primary-dark"
-                        : it.status === "cancelled"
-                        ? "bg-slate-200 text-slate-600 line-through"
-                        : "bg-amber-100 text-amber-800"
-                    }`}
-                  >
-                    {it.status === "paid" ? (
-                      <>
-                        <Check className="h-3 w-3" /> Lunas
-                      </>
-                    ) : it.status === "partial" ? (
-                      <>
-                        <ArrowUpRight className="h-3 w-3" /> Sebagian
-                      </>
-                    ) : it.status === "cancelled" ? (
-                      <>
-                        <XCircle className="h-3 w-3" /> Batal
-                      </>
-                    ) : (
-                      <>
-                        <Clock className="h-3 w-3" /> Belum Bayar
-                      </>
-                    )}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {it.status !== "paid" && it.status !== "cancelled" && (
-                    <div className="flex items-center justify-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => onPay(it)}
-                        className="rounded bg-primary/10 px-2 py-1 text-[11px] font-semibold text-primary hover:bg-primary hover:text-white transition cursor-pointer"
-                      >
-                        Bayar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onCancel(it)}
-                        title="Batalkan kewajiban"
-                        className="rounded p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+export function OutstandingTable({ items, canSettle, canCancel, onSettle, onCancel }: Props) {
+  if (!items.length) return <AntiSlopEmptyState title="Tidak ada dokumen" description="Belum ada hutang atau piutang yang sesuai dengan periode dan filter ini." icon={<SearchX className="h-8 w-8 text-subtle" />} className="border-0 bg-transparent" />;
+  return <div className="overflow-x-auto"><table className="w-full text-left text-sm md:min-w-[980px]"><caption className="sr-only">Register hutang dan piutang</caption><thead className="hidden border-b border-line bg-surface/60 text-[10px] uppercase tracking-wider text-subtle md:table-header-group"><tr>{['Dokumen & pihak', 'Jenis', 'Jatuh tempo', 'Nilai awal', 'Sisa', 'Status', 'Tindakan'].map(label => <th key={label} className={`px-5 py-3 font-semibold ${['Nilai awal', 'Sisa'].includes(label) ? 'text-right' : ''}`}>{label}</th>)}</tr></thead><tbody className="block divide-y divide-line md:table-row-group">{items.map(item => {
+    const active = !['paid', 'cancelled'].includes(item.status); const overdue = active && item.due_date < new Date().toISOString().slice(0, 10);
+    return <tr key={item.id} className="grid grid-cols-2 hover:bg-surface md:table-row"><td className="col-span-2 block px-5 py-4 md:table-cell"><div className="flex items-center gap-2"><span className="font-mono text-[11px] text-subtle">{item.code}</span>{item.document_number && <span className="rounded bg-surface px-2 py-0.5 text-[10px] text-muted">{item.document_number}</span>}</div><p className="mt-1 font-semibold text-navy">{item.counterparty_name || 'Pihak belum dicatat'}</p><p className="mt-1 max-w-sm text-xs text-subtle">{item.description}</p></td><td className="block px-5 py-3 md:table-cell md:py-4"><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${item.direction === 'PAYABLE' ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'}`}>{item.direction === 'PAYABLE' ? 'Hutang' : 'Piutang'}</span></td><td className="block px-5 py-3 md:table-cell md:py-4"><span className="mb-1 block text-[10px] uppercase text-subtle md:hidden">Jatuh tempo</span><span className={`inline-flex items-center gap-1 ${overdue ? 'font-semibold text-danger' : 'text-muted'}`}><CalendarClock className="h-3.5 w-3.5" />{date(item.due_date)}</span></td><td className="block px-5 py-3 text-right tabular-nums text-muted md:table-cell md:py-4"><span className="mb-1 block text-[10px] uppercase text-subtle md:hidden">Nilai awal</span>{money(item.amount)}</td><td className="block px-5 py-3 text-right font-bold tabular-nums text-navy md:table-cell md:py-4"><span className="mb-1 block text-[10px] font-normal uppercase text-subtle md:hidden">Sisa</span>{money(item.remaining_amount)}</td><td className="block px-5 py-3 md:table-cell md:py-4"><span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${item.status === 'paid' ? 'bg-success/10 text-success' : item.status === 'cancelled' ? 'bg-surface text-subtle' : item.status === 'partial' ? 'bg-primary/10 text-primary' : overdue ? 'bg-danger/10 text-danger' : 'bg-warning/10 text-warning-dark'}`}>{overdue ? 'Lewat jatuh tempo' : labels[item.status]}</span></td><td className="col-span-2 block px-5 py-3 md:table-cell md:whitespace-nowrap md:py-4">{active && <div className="flex items-center gap-2">{canSettle && <button type="button" onClick={() => onSettle(item)} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white">{item.direction === 'PAYABLE' ? 'Bayar' : 'Terima'}<ArrowRight className="h-3.5 w-3.5" /></button>}{canCancel && <button type="button" onClick={() => onCancel(item)} aria-label={`Batalkan ${item.code}`} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-line px-3 text-xs font-semibold text-muted hover:border-danger/40 hover:text-danger"><X className="h-3.5 w-3.5" />Batal</button>}</div>}</td></tr>;
+  })}</tbody></table></div>;
 }

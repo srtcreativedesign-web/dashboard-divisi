@@ -51,23 +51,41 @@ function normalizeConstraint(definition) {
 }
 function fingerprint(identity, target = database, version = 2) {
   if (![1, 2].includes(version)) throw Error('FINGERPRINT_VERSION_REJECTED');
-  const tables = sql("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename", identity, target).split('\n').filter(Boolean);
+  let tables;
+  try { tables = sql("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename", identity, target).split('\n').filter(Boolean); }
+  catch (error) { console.error(JSON.stringify({ fingerprintFailed: true, objectType: 'table_catalog' })); throw error; }
   const result = { tables: {}, columns: '', indexes: '', constraints: '', sequences: {} };
   for (const name of tables) {
     if (!/^[a-z_][a-z0-9_]*$/.test(name)) throw Error('UNSAFE_TABLE_NAME');
-    result.tables[name] = JSON.parse(sql(`SELECT json_build_object('count',count(*),'digest',md5(coalesce(string_agg(to_jsonb(t)::text,E'\\n' ORDER BY to_jsonb(t)::text),''))) FROM public."${name}" t`, identity, target));
+    try {
+      result.tables[name] = JSON.parse(sql(`SELECT json_build_object('count',count(*),'digest',md5(coalesce(string_agg(to_jsonb(t)::text,E'\\n' ORDER BY to_jsonb(t)::text),''))) FROM public."${name}" t`, identity, target));
+    } catch (error) {
+      console.error(JSON.stringify({ fingerprintFailed: true, objectType: 'table', objectName: name }));
+      throw error;
+    }
   }
-  result.columns = sql("SELECT md5(string_agg(row_to_json(c)::text,E'\\n' ORDER BY table_name,ordinal_position)) FROM (SELECT table_name,column_name,ordinal_position,data_type,udt_name,is_nullable,column_default,numeric_precision,numeric_scale FROM information_schema.columns WHERE table_schema='public') c", identity, target);
-  result.indexes = sql("SELECT md5(string_agg(indexdef,E'\\n' ORDER BY indexname)) FROM pg_indexes WHERE schemaname='public'", identity, target);
-  result.constraints = sql("SELECT md5(string_agg(c.conrelid::regclass::text || ':' || CASE WHEN c.contype='n' THEN '' ELSE c.conname END || ':' || CASE WHEN c.conrelid='public.projects'::regclass AND c.conname='projects_status_check' THEN replace(replace(replace(pg_get_constraintdef(c.oid,true),'::character varying',''),'::text[]',''),'::text','') ELSE pg_get_constraintdef(c.oid,true) END,E'\\n' ORDER BY c.conrelid::regclass::text,c.contype,CASE WHEN c.contype='n' THEN pg_get_constraintdef(c.oid,true) ELSE c.conname END)) FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public'", identity, target);
+  const fingerprintQuery = (objectType, query) => {
+    try { return sql(query, identity, target); }
+    catch (error) { console.error(JSON.stringify({ fingerprintFailed: true, objectType })); throw error; }
+  };
+  result.columns = fingerprintQuery('columns', "SELECT md5(string_agg(row_to_json(c)::text,E'\\n' ORDER BY table_name,ordinal_position)) FROM (SELECT table_name,column_name,ordinal_position,data_type,udt_name,is_nullable,column_default,numeric_precision,numeric_scale FROM information_schema.columns WHERE table_schema='public') c");
+  result.indexes = fingerprintQuery('indexes', "SELECT md5(string_agg(indexdef,E'\\n' ORDER BY indexname)) FROM pg_indexes WHERE schemaname='public'");
+  result.constraints = fingerprintQuery('constraints', "SELECT md5(string_agg(c.conrelid::regclass::text || ':' || CASE WHEN c.contype='n' THEN '' ELSE c.conname END || ':' || CASE WHEN c.conrelid='public.projects'::regclass AND c.conname='projects_status_check' THEN replace(replace(replace(pg_get_constraintdef(c.oid,true),'::character varying',''),'::text[]',''),'::text','') ELSE pg_get_constraintdef(c.oid,true) END,E'\\n' ORDER BY c.conrelid::regclass::text,c.contype,CASE WHEN c.contype='n' THEN pg_get_constraintdef(c.oid,true) ELSE c.conname END)) FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public'");
   if (version === 2) {
-    const definitions = sql("SELECT c.conrelid::regclass::text || ':' || c.contype::text || ':' || CASE WHEN c.contype='n' THEN '' ELSE c.conname END || ':' || c.convalidated::text || ':' || c.condeferrable::text || ':' || c.condeferred::text || ':' || pg_get_constraintdef(c.oid,true) FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public' ORDER BY 1", identity, target);
+    const definitions = fingerprintQuery('constraint_definitions', "SELECT c.conrelid::regclass::text || ':' || c.contype::text || ':' || CASE WHEN c.contype='n' THEN '' ELSE c.conname END || ':' || c.convalidated::text || ':' || c.condeferrable::text || ':' || c.condeferred::text || ':' || pg_get_constraintdef(c.oid,true) FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public' ORDER BY 1");
     result.constraints = crypto.createHash('sha256').update(normalizeConstraint(definitions)).digest('hex');
   }
-  const sequences = sql("SELECT sequencename FROM pg_sequences WHERE schemaname='public' ORDER BY sequencename", identity, target).split('\n').filter(Boolean);
+  let sequences;
+  try { sequences = sql("SELECT sequencename FROM pg_sequences WHERE schemaname='public' ORDER BY sequencename", identity, target).split('\n').filter(Boolean); }
+  catch (error) { console.error(JSON.stringify({ fingerprintFailed: true, objectType: 'sequence_catalog' })); throw error; }
   for (const name of sequences) {
     if (!/^[a-z_][a-z0-9_]*$/.test(name)) throw Error('UNSAFE_SEQUENCE_NAME');
-    result.sequences[name] = sql(`SELECT last_value,is_called FROM public."${name}"`, identity, target);
+    try {
+      result.sequences[name] = sql(`SELECT last_value,is_called FROM public."${name}"`, identity, target);
+    } catch (error) {
+      console.error(JSON.stringify({ fingerprintFailed: true, objectType: 'sequence', objectName: name }));
+      throw error;
+    }
   }
   return result;
 }

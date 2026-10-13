@@ -12,6 +12,7 @@ interface CashflowStatementTableProps {
   totalBackoffice: number;
   totalEndingBalance: number;
   totalOutstanding: number;
+  totalReceivable?: number;
   projectedEndingBalance: number;
   revenueItems: readonly ExpenseItem[];
   operationalExpenses: readonly ExpenseItem[];
@@ -33,6 +34,7 @@ export function CashflowStatementTable({
   totalBackoffice,
   totalEndingBalance,
   totalOutstanding,
+  totalReceivable = 0,
   projectedEndingBalance,
   revenueItems,
   operationalExpenses,
@@ -125,11 +127,15 @@ export function CashflowStatementTable({
         {/* Section Outstanding Proyeksi */}
         <div className="p-4 bg-warning/10 border-t-2 border-warning/40 space-y-2">
           <div className="flex justify-between font-bold text-warning dark:text-amber-300">
-            <span>OUTSTANDING KEWAJIBAN BULAN INI</span>
+            <span>HUTANG AKTIF BULAN INI</span>
             <span className="font-mono">-{rupiah(totalOutstanding)}</span>
           </div>
+          <div className="flex justify-between font-bold text-success dark:text-emerald-300">
+            <span>PIUTANG AKTIF BULAN INI</span>
+            <span className="font-mono">+{rupiah(totalReceivable)}</span>
+          </div>
           <div className="flex justify-between font-bold text-danger dark:text-rose-300 pt-2 border-t border-warning/30 text-sm">
-            <span>PROYEKSI SALDO AKHIR SETELAH OUTSTANDING</span>
+            <span>PROYEKSI SALDO SETELAH HUTANG & PIUTANG</span>
             <span className="font-mono">{rupiah(projectedEndingBalance)}</span>
           </div>
         </div>

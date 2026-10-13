@@ -1,71 +1,13 @@
-const rupiah = (val: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(val);
+import { ArrowDownLeft, ArrowUpRight, Landmark, WalletCards } from 'lucide-react';
+import type { AccOutstandingResponse } from '../../../api/accounting';
 
-interface OutstandingKpiCardsProps {
-  kpis: {
-    total_active_outstanding: number;
-    total_paid: number;
-    actual_cash_balance: number;
-    projected_ending_balance: number;
-  };
-  activeItemsCount: number;
-}
-
-export function OutstandingKpiCards({
-  kpis,
-  activeItemsCount,
-}: OutstandingKpiCardsProps) {
-  return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div className="rounded-card-lg border border-line bg-white p-5 shadow-glass">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          Total Outstanding Aktif
-        </p>
-        <p className="mt-2 text-2xl font-bold text-warning-dark">
-          {rupiah(kpis.total_active_outstanding)}
-        </p>
-        <p className="mt-1 text-xs text-slate-500">
-          {activeItemsCount} item kewajiban operasional
-        </p>
-      </div>
-
-      <div className="rounded-card-lg border border-line bg-white p-5 shadow-glass">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          Total Realisasi Bayar
-        </p>
-        <p className="mt-2 text-2xl font-bold text-success">
-          {rupiah(kpis.total_paid)}
-        </p>
-        <p className="mt-1 text-xs text-slate-500">
-          Tertaut ke transaksi jurnal
-        </p>
-      </div>
-
-      <div className="rounded-card-lg border border-line bg-white p-5 shadow-glass">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          Saldo Kas Aktual (Buku)
-        </p>
-        <p className="mt-2 text-2xl font-bold text-navy">
-          {rupiah(kpis.actual_cash_balance)}
-        </p>
-        <p className="mt-1 text-xs text-slate-500">Bulan Berjalan</p>
-      </div>
-
-      <div className="rounded-card-lg border border-line bg-white p-5 shadow-glass bg-rose-50/50 border-rose-200">
-        <p className="text-xs font-semibold text-rose-700 uppercase tracking-wider">
-          Proyeksi Saldo Setelah Outstanding
-        </p>
-        <p className="mt-2 text-2xl font-bold text-rose-600">
-          {rupiah(kpis.projected_ending_balance)}
-        </p>
-        <p className="mt-1 text-xs text-rose-600/80">
-          Saldo Kas - Total Outstanding
-        </p>
-      </div>
-    </div>
-  );
+const money = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+export function OutstandingKpiCards({ kpis }: { kpis: AccOutstandingResponse['kpis'] }) {
+  const cards = [
+    { label: 'Hutang aktif', value: kpis.total_active_payable, note: 'Kas yang masih harus dibayarkan', icon: ArrowUpRight, tone: 'text-danger bg-danger/10' },
+    { label: 'Piutang aktif', value: kpis.total_active_receivable, note: 'Kas yang masih harus diterima', icon: ArrowDownLeft, tone: 'text-success bg-success/10' },
+    { label: 'Saldo kas buku', value: kpis.actual_cash_balance, note: 'Sebelum hutang dan piutang', icon: Landmark, tone: 'text-primary bg-primary/10' },
+    { label: 'Proyeksi setelah realisasi', value: kpis.projected_ending_balance, note: 'Saldo − hutang + piutang', icon: WalletCards, tone: 'text-violet-700 bg-violet-500/10 dark:text-violet-300' },
+  ];
+  return <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(({ label, value, note, icon: Icon, tone }) => <article key={label} className="rounded-card-lg border border-line bg-panel p-5 shadow-sm"><div className={`inline-flex rounded-xl p-2.5 ${tone}`}><Icon className="h-5 w-5" /></div><p className="mt-4 text-xs font-bold uppercase tracking-wider text-subtle">{label}</p><p className="mt-1 break-words text-2xl font-black tabular-nums text-navy">{money(value)}</p><p className="mt-2 text-xs text-subtle">{note}</p></article>)}</div>;
 }

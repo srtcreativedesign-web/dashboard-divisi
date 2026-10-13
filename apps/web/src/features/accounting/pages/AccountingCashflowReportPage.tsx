@@ -51,6 +51,7 @@ export default function AccountingCashflowReportPage() {
         totalEndingBalance: reportData.kpis.ending_cash_balance,
         totalAvailable: reportData.kpis.total_available,
         totalOutstanding: reportData.kpis.total_active_outstanding,
+        totalReceivable: reportData.kpis.total_active_receivable,
         projectedEndingBalance: reportData.kpis.projected_ending_balance,
         operationalExpenses: reportData.breakdown.operational,
         backofficeExpenses: reportData.breakdown.backoffice,
@@ -63,6 +64,7 @@ export default function AccountingCashflowReportPage() {
         totalEndingBalance: 0,
         totalAvailable: 0,
         totalOutstanding: 0,
+        totalReceivable: 0,
         projectedEndingBalance: 0,
         operationalExpenses: [],
         backofficeExpenses: [],
@@ -213,6 +215,7 @@ export default function AccountingCashflowReportPage() {
             totalBackoffice={cf.totalBackoffice}
             totalEndingBalance={cf.totalEndingBalance}
             totalOutstanding={cf.totalOutstanding}
+            totalReceivable={cf.totalReceivable}
             projectedEndingBalance={cf.projectedEndingBalance}
             revenueItems={reportData?.breakdown.revenue ?? []}
             operationalExpenses={cf.operationalExpenses}
