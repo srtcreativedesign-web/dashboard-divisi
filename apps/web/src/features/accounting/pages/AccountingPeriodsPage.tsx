@@ -1,210 +1,113 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { AlertTriangle, CalendarClock, CalendarDays, CheckCircle2, ChevronRight, CircleAlert, Clock, RefreshCw, ShieldCheck } from 'lucide-react';
+import { accountingApi, type AccPeriod } from '../../../api/accounting';
+import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
+import { AccountingQueryState } from '../../../components/accounting/AccountingStates';
+import { Button } from '../../../components/ui/Button';
+import { Card } from '../../../components/ui/Card';
+import { useToast } from '../../../components/ui/Toast';
+import { useAccountingPeriods } from '../../../hooks/useAccounting';
+import { useAuth } from '../../../session/AuthContext';
 import { hasCapability } from '../../../session/capability';
-import { useState } from "react";
-import { CalendarDays, Clock, ShieldCheck, CheckCircle2, CalendarClock, History } from "lucide-react";
-import { accountingApi } from "../../../api/accounting";
-import { AccountingQueryState } from "../../../components/accounting/AccountingStates";
-import { useToast } from "../../../components/ui/Toast";
-import { useAccountingPeriods } from "../../../hooks/useAccounting";
-import { useAuth } from "../../../session/AuthContext";
-import { StatusPill } from "../../../components/StatusPill";
-import { Button } from "../../../components/ui/Button";
-import { Card } from "../../../components/ui/Card";
-import { AccountingPageHeader } from "../../../components/accounting/AccountingPageHeader";
+
+const statusLabels: Record<string, string> = {
+  draft: 'Draf', pending_approval: 'Menunggu persetujuan', needs_correction: 'Perlu koreksi',
+  approved: 'Disetujui', closed: 'Ditutup', reopened: 'Dibuka kembali',
+};
+const formatPeriod = (value: string) => new Date(`${value.slice(0, 10)}T00:00:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+const rupiah = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+const panel = 'rounded-card-lg border border-line bg-panel';
 
 export default function AccountingPeriodsPage() {
-  const query = useAccountingPeriods();
+  const periods = useAccountingPeriods();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [busy, setBusy] = useState("");
+  const [selectedId, setSelectedId] = useState('');
+  const [notes, setNotes] = useState('');
+  const [busy, setBusy] = useState(false);
+  const canSubmit = hasCapability(user?.role ?? '', 'submit:acc_period', user?.divisionCode);
+  const canManage = hasCapability(user?.role ?? '', 'manage:acc_period', user?.divisionCode);
 
-  const transition = async (id: string, status: string) => {
-    setBusy(id);
-    try {
-      await accountingApi.transitionPeriod(id, status);
-      toast("Status periode berhasil diperbarui", "success");
-      await query.refetch();
-    } catch (e) {
-      toast(
-        e instanceof Error ? e.message : "Gagal memperbarui periode",
-        "error"
-      );
-    } finally {
-      setBusy("");
+  useEffect(() => {
+    if (!selectedId && periods.data?.[0]) setSelectedId(periods.data[0].id);
+    if (selectedId && periods.data && !periods.data.some(period => period.id === selectedId)) setSelectedId(periods.data[0]?.id ?? '');
+  }, [periods.data, selectedId]);
+
+  const selected = periods.data?.find(period => period.id === selectedId);
+  const readiness = useQuery({
+    queryKey: ['accounting', 'period-readiness', selectedId],
+    queryFn: async () => (await accountingApi.periodReadiness(selectedId)).data,
+    enabled: Boolean(selectedId),
+  });
+  const counts = useMemo(() => ({
+    pending: periods.data?.filter(period => period.status === 'pending_approval').length ?? 0,
+    correction: periods.data?.filter(period => ['needs_correction', 'reopened'].includes(period.status)).length ?? 0,
+    closed: periods.data?.filter(period => period.status === 'closed').length ?? 0,
+  }), [periods.data]);
+
+  const runTransition = async (period: AccPeriod, status: string, requireReason = false) => {
+    const reason = notes.trim();
+    if (requireReason && reason.length < 10) {
+      toast('Catatan minimal 10 karakter diperlukan untuk keputusan ini.', 'error');
+      return;
     }
+    setBusy(true);
+    try {
+      await accountingApi.transitionPeriod(period.id, status, reason || undefined);
+      setNotes('');
+      await periods.refetch();
+      await readiness.refetch();
+      toast('Status periode berhasil diperbarui.', 'success');
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Status periode gagal diperbarui.', 'error');
+    } finally { setBusy(false); }
   };
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      draft: "Draf",
-      pending_approval: "Menunggu persetujuan",
-      needs_correction: "Perlu koreksi",
-      approved: "Disetujui",
-      closed: "Selesai",
-      reopened: "Dibuka kembali",
-    };
-    return labels[status.toLowerCase()] || status;
-  };
+  return <section className="space-y-6 pb-12">
+    <AccountingPageHeader area="Pembukuan · Kontrol Periode" title="Periode & penutupan" description="Pantau kesiapan jurnal dan rekonsiliasi, teruskan pekerjaan ke penanggung jawab berikutnya, lalu kunci periode dengan jejak keputusan." actions={<Button variant="secondary" disabled={periods.isFetching} onClick={() => void periods.refetch()}><RefreshCw className="h-4 w-4" />Muat ulang</Button>} />
 
-  const isAdmin = hasCapability(user?.role ?? '', 'submit:acc_period', user?.divisionCode);
-  const isManager = hasCapability(user?.role ?? '', 'manage:acc_period', user?.divisionCode);
-
-  // KPIs
-  const totalPeriods = query.data?.length ?? 0;
-  const pendingPeriods =
-    query.data?.filter((p) => p.status === "pending_approval").length ?? 0;
-  const closedPeriods =
-    query.data?.filter((p) => p.status === "closed" || p.status === "approved").length ?? 0;
-
-  return (
-    <section className="space-y-8 pb-12 animate-fade-in">
-      <AccountingPageHeader area="Pembukuan · Kontrol Periode" title="Periode & penutupan" description={isAdmin ? "Kelola siklus Accounting tiap bulan dan ajukan periode yang sudah direkonsiliasi kepada Manager." : "Tinjau dan putuskan periode Accounting yang telah diajukan sesuai kewenangan Anda."} actions={<div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-surface rounded-md text-muted">
-            <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-300" />
-            {isAdmin ? "Akses Admin" : isManager ? "Akses Manager" : "Hanya baca"}
-          </span>
-        </div>} />
-
-      {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="p-5 flex items-start gap-4">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-lg shrink-0">
-            <CalendarDays className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase text-subtle tracking-wider">
-              Total Periode
-            </p>
-            <p className="text-2xl font-black text-navy mt-1">{totalPeriods}</p>
-          </div>
-        </Card>
-        <Card className="p-5 flex items-start gap-4">
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-lg shrink-0">
-            <Clock className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase text-subtle tracking-wider">
-              Menunggu Persetujuan
-            </p>
-            <p className="text-2xl font-black text-navy mt-1">
-              {pendingPeriods}
-            </p>
-          </div>
-        </Card>
-        <Card className="p-5 flex items-start gap-4">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
-            <CheckCircle2 className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold uppercase text-subtle tracking-wider">
-              Disetujui / Selesai
-            </p>
-            <p className="text-2xl font-black text-navy mt-1">
-              {closedPeriods}
-            </p>
-          </div>
-        </Card>
-      </div>
-
-      <div className="rounded-card border border-line bg-panel flex flex-col overflow-hidden">
-        <div className="border-b border-line bg-surface/50 p-4">
-          <h2 className="font-bold text-navy flex items-center gap-2">
-            <History className="w-4 h-4 text-slate-400" /> Histori & Status Siklus
-          </h2>
-        </div>
-
-        <div className="p-6">
-          <AccountingQueryState
-            loading={query.isLoading}
-            error={query.error}
-            empty={!query.data?.length}
-            retry={() => void query.refetch()}
-          >
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {query.data?.map((p) => {
-                const isDraft = ["draft", "reopened"].includes(p.status);
-                const isPending = p.status === "pending_approval";
-                
-                return (
-                  <Card
-                    key={p.id}
-                    className="flex flex-col justify-between overflow-hidden group hover:shadow-md transition-shadow border-line"
-                  >
-                    <div className="p-5">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-primary dark:text-primary-300 bg-primary/5 px-2 py-1 rounded-md">
-                          <CalendarClock className="w-4 h-4" />
-                          <h2 className="font-bold text-sm tracking-wide uppercase">
-                            {p.periodMonth}
-                          </h2>
-                        </div>
-                        <StatusPill status={getStatusLabel(p.status)} />
-                      </div>
-                      
-                      <div className="space-y-2 mt-4 text-sm text-muted">
-                        <div className="flex justify-between border-b border-dashed border-line pb-2">
-                          <span className="text-slate-400">Total Transaksi</span>
-                          <span className="font-medium text-navy">{p.transactionCount ?? 0} tx</span>
-                        </div>
-                        <div className="flex justify-between pt-1">
-                          <span className="text-slate-400">Terakhir Update</span>
-                          <span className="font-medium text-navy">
-                            {p.updatedAt ? new Date(p.updatedAt).toLocaleDateString('id-ID') : '-'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="px-5 py-4 bg-surface/50 border-t border-line mt-auto">
-                      {isAdmin && isDraft && (
-                        <Button
-                          disabled={busy === p.id}
-                          onClick={() => void transition(p.id, "pending_approval")}
-                          className="w-full shadow-sm"
-                          size="sm"
-                        >
-                          Ajukan ke Manager
-                        </Button>
-                      )}
-                      {isAdmin && !isDraft && (
-                        <p className="text-[11px] text-center text-slate-400 font-medium italic">
-                          Menunggu aksi Manager
-                        </p>
-                      )}
-
-                      {isManager && isPending && (
-                        <div className="flex w-full gap-2">
-                          <Button
-                            variant="secondary"
-                            disabled={busy === p.id}
-                            onClick={() => void transition(p.id, "needs_correction")}
-                            className="flex-1 shadow-sm bg-panel"
-                            size="sm"
-                          >
-                            Koreksi
-                          </Button>
-                          <Button
-                            disabled={busy === p.id}
-                            onClick={() => void transition(p.id, "approved")}
-                            className="flex-1 shadow-sm"
-                            size="sm"
-                          >
-                            Setujui
-                          </Button>
-                        </div>
-                      )}
-                      {isManager && !isPending && (
-                        <p className="text-[11px] text-center text-slate-400 font-medium italic">
-                          {p.status === 'draft' ? 'Sedang direkonsiliasi oleh Admin' : 'Siklus ini telah selesai'}
-                        </p>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </AccountingQueryState>
-        </div>
-      </div>
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Ringkasan periode">
+      {[
+        { label: 'Total periode', value: periods.data?.length ?? 0, icon: CalendarDays, hint: 'Siklus Accounting tercatat' },
+        { label: 'Menunggu Manager', value: counts.pending, icon: Clock, hint: 'Perlu keputusan' },
+        { label: 'Perlu koreksi', value: counts.correction, icon: CircleAlert, hint: 'Kembali ke penyusun' },
+        { label: 'Sudah ditutup', value: counts.closed, icon: CheckCircle2, hint: 'Transaksi dikunci' },
+      ].map(({ label, value, icon: Icon, hint }) => <Card key={label} className="p-5"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-wider text-subtle">{label}</p><p className="mt-2 text-2xl font-black text-navy">{value}</p><p className="mt-1 text-xs text-subtle">{hint}</p></div><span className="rounded-card bg-primary-50 p-2.5 text-primary-700 dark:bg-primary-950 dark:text-primary-300"><Icon className="h-5 w-5" /></span></div></Card>)}
     </section>
-  );
+
+    <AccountingQueryState loading={periods.isLoading} error={periods.error} empty={!periods.data?.length} retry={() => void periods.refetch()} emptyTitle="Belum ada periode Accounting">
+      <div className="grid gap-5 xl:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.7fr)]">
+        <section className={panel + ' overflow-hidden'} aria-label="Daftar periode">
+          <div className="border-b border-line p-4"><h2 className="font-semibold text-navy">Daftar periode</h2><p className="mt-1 text-xs text-subtle">Pilih bulan untuk melihat kesiapan dan tindakan.</p></div>
+          <div className="divide-y divide-line">{periods.data?.map(period => <button key={period.id} type="button" onClick={() => { setSelectedId(period.id); setNotes(''); }} className={`flex w-full items-center justify-between gap-3 p-4 text-left transition ${selectedId === period.id ? 'bg-primary-50/70 dark:bg-primary-950/40' : 'hover:bg-surface'}`}><span><strong className="block text-sm text-navy">{formatPeriod(period.periodMonth)}</strong><span className="mt-1 block text-xs text-subtle">{statusLabels[period.status] ?? period.status} · versi {period.version}</span></span><ChevronRight className="h-4 w-4 text-subtle" /></button>)}</div>
+        </section>
+
+        {selected && <section className="space-y-5">
+          <div className={panel + ' p-5'}><div className="flex flex-wrap items-start justify-between gap-4"><div className="flex gap-3"><span className="rounded-card bg-primary-50 p-3 text-primary-700 dark:bg-primary-950 dark:text-primary-300"><CalendarClock className="h-5 w-5" /></span><div><p className="text-xs font-semibold uppercase tracking-wider text-subtle">Periode dipilih</p><h2 className="mt-1 text-xl font-bold text-navy">{formatPeriod(selected.periodMonth)}</h2><p className="mt-1 text-sm text-subtle">{selected.notes || 'Belum ada catatan keputusan.'}</p></div></div><span className="rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-navy">{statusLabels[selected.status] ?? selected.status}</span></div></div>
+
+          <AccountingQueryState loading={readiness.isLoading} error={readiness.error} empty={!readiness.data} retry={() => void readiness.refetch()} emptyTitle="Kesiapan belum tersedia">
+            {readiness.data && <>
+              <section className="grid gap-3 sm:grid-cols-3" aria-label="Angka kesiapan periode">
+                <Card className="p-4"><p className="text-xs text-subtle">Jurnal aktif</p><p className="mt-2 text-xl font-bold text-navy">{readiness.data.transactionCount}</p></Card>
+                <Card className="p-4"><p className="text-xs text-subtle">Saldo kas buku</p><p className="mt-2 text-lg font-bold text-navy">{rupiah(readiness.data.cashBalance)}</p></Card>
+                <Card className="p-4"><p className="text-xs text-subtle">Selisih bank</p><p className={`mt-2 text-lg font-bold ${readiness.data.variance > 1 ? 'text-danger dark:text-red-300' : 'text-navy'}`}>{rupiah(readiness.data.variance)}</p></Card>
+              </section>
+              <section className={panel + ' p-5'}><div className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="font-semibold text-navy">Checklist kesiapan</h2><p className="mt-1 text-xs text-subtle">Status berasal dari jurnal, lampiran, saldo rekening, dan rekonsiliasi periode ini.</p></div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${readiness.data.readyForClose ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200'}`}>{readiness.data.readyForClose ? 'Siap ditutup' : 'Masih ada pengecualian'}</span></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{readiness.data.checks.map(check => <article key={check.code} className="flex gap-3 rounded-card border border-line bg-surface/60 p-3">{check.passed ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />}<div><h3 className="text-sm font-semibold text-navy">{check.label}</h3><p className="mt-1 text-xs leading-relaxed text-subtle">{check.message}</p></div></article>)}</div></section>
+            </>}
+          </AccountingQueryState>
+
+          {(canSubmit || canManage) && <section className={panel + ' p-5'}><div className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary-700 dark:text-primary-300" /><h2 className="font-semibold text-navy">Tindakan dan penanggung jawab</h2></div><p className="mt-2 text-sm text-subtle">Admin menyiapkan dan mengajukan. Manager memutuskan koreksi, persetujuan, penutupan, serta pembukaan kembali.</p><label className="mt-4 block text-xs font-semibold text-navy">Catatan keputusan<textarea value={notes} onChange={event => setNotes(event.target.value)} rows={3} maxLength={500} placeholder="Wajib minimal 10 karakter untuk koreksi, penutupan, atau pembukaan kembali" className="mt-2 block w-full rounded-input border border-line bg-panel p-3 text-sm font-normal" /></label><div className="mt-4 flex flex-wrap gap-2">
+            {canSubmit && selected.status === 'draft' && <Button disabled={busy || !readiness.data?.readyForSubmission} onClick={() => void runTransition(selected, 'pending_approval')}>Ajukan ke Manager</Button>}
+            {canSubmit && selected.status === 'needs_correction' && <Button disabled={busy} onClick={() => void runTransition(selected, 'draft')}>Mulai koreksi</Button>}
+            {canManage && selected.status === 'pending_approval' && <><Button disabled={busy} variant="secondary" onClick={() => void runTransition(selected, 'needs_correction', true)}>Minta koreksi</Button><Button disabled={busy} onClick={() => void runTransition(selected, 'approved')}>Setujui periode</Button></>}
+            {canManage && selected.status === 'approved' && <><Button disabled={busy} variant="secondary" onClick={() => void runTransition(selected, 'needs_correction', true)}>Kembalikan untuk koreksi</Button><Button disabled={busy || !readiness.data?.readyForClose} onClick={() => void runTransition(selected, 'closed', true)}>Tutup dan kunci</Button></>}
+            {canManage && selected.status === 'closed' && <Button disabled={busy} variant="secondary" onClick={() => void runTransition(selected, 'reopened', true)}>Buka kembali</Button>}
+            {canManage && selected.status === 'reopened' && <Button disabled={busy} onClick={() => void runTransition(selected, 'draft')}>Aktifkan periode koreksi</Button>}
+            {selected.status === 'closed' && !canManage && <p className="text-sm text-subtle">Periode terkunci. Hubungi Manager jika diperlukan koreksi.</p>}
+          </div>{readiness.data && !readiness.data.readyForClose && <p className="mt-3 text-xs text-amber-700 dark:text-amber-300">Selesaikan pengecualian pada checklist sebelum penutupan. Tombol tidak aktif selama syarat teknis belum terpenuhi.</p>}</section>}
+        </section>}
+      </div>
+    </AccountingQueryState>
+  </section>;
 }

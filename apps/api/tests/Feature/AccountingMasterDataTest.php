@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AccountingAccount;
+use App\Models\AccountingBankReconciliation;
 use App\Models\AccountingCategory;
 use App\Models\AccountingCategoryAlias;
 use App\Models\Division;
@@ -235,10 +236,23 @@ class AccountingMasterDataTest extends TestCase
         $approveRes->assertStatus(200);
         $this->assertEquals('approved', $approveRes->json('data.status'));
 
+        $acc = Division::where('code', 'ACC')->firstOrFail();
+        AccountingBankReconciliation::create([
+            'id' => 'reconciliation-ready-period-2026-09',
+            'division_id' => $acc->id,
+            'period_id' => $periodId,
+            'account_id' => AccountingAccount::where('code', 'ACC-1001')->firstOrFail()->id,
+            'jul_balance' => 0,
+            'aug_balance' => 0,
+            'mutation' => 0,
+            'is_verified' => true,
+        ]);
+
         // Manager closes approved -> closed
         $closeRes = $this->authenticated('manager.acc@dashboard.test')
             ->postJson("/api/v1/accounting/periods/{$periodId}/transition", [
                 'status' => 'closed',
+                'notes' => 'Rekonsiliasi selesai dan saldo telah diperiksa',
             ]);
         $closeRes->assertStatus(200);
         $this->assertEquals('closed', $closeRes->json('data.status'));
@@ -247,6 +261,7 @@ class AccountingMasterDataTest extends TestCase
         $reopenRes = $this->authenticated('manager.acc@dashboard.test')
             ->postJson("/api/v1/accounting/periods/{$periodId}/transition", [
                 'status' => 'reopened',
+                'notes' => 'Periode dibuka untuk koreksi transaksi bank',
             ]);
         $reopenRes->assertStatus(200);
         $this->assertEquals('reopened', $reopenRes->json('data.status'));

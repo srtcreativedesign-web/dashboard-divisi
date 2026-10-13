@@ -6,9 +6,7 @@ use App\Models\AccountingBankReconciliation;
 use App\Models\AccountingPeriod;
 use App\Models\AccountingTransaction;
 use App\Models\Division;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use InvalidArgumentException;
 
 class AccReconciliationService
 {
@@ -112,36 +110,5 @@ class AccReconciliationService
                 ];
             }),
         ];
-    }
-
-    public function updatePeriodStatus(string $periodId, string $newStatus, ?string $notes, User $user): AccountingPeriod
-    {
-        /** @var AccountingPeriod $period */
-        $period = AccountingPeriod::findOrFail($periodId);
-
-        $allowedTransitions = [
-            'draft' => ['submitted'],
-            'submitted' => ['approved', 'draft'],
-            'approved' => ['closed', 'draft'],
-            'closed' => ['draft'],
-        ];
-
-        $current = $period->status ?? 'draft';
-        if (! isset($allowedTransitions[$current]) || ! in_array($newStatus, $allowedTransitions[$current])) {
-            throw new InvalidArgumentException("Perubahan status periode dari '{$current}' ke '{$newStatus}' tidak diizinkan.");
-        }
-
-        // Manager check for approval / close
-        if (in_array($newStatus, ['approved', 'closed']) && ! in_array($user->role, ['MANAGER', 'SUPERADMIN'])) {
-            throw new InvalidArgumentException('Hanya Manager atau Superadmin yang berwenang menyetujui atau menutup periode.');
-        }
-
-        $period->update([
-            'status' => $newStatus,
-            'notes' => $notes ?? $period->notes,
-            'updated_by_id' => $user->id,
-        ]);
-
-        return $period->fresh();
     }
 }

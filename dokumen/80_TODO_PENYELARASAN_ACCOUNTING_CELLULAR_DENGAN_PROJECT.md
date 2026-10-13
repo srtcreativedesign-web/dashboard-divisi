@@ -117,7 +117,8 @@ Sebuah halaman selesai apabila:
 - [x] Pisahkan Cuti dan Absensi sebagai dokumen kerja berbeda dengan register, form bertahap, detail, koreksi berversi, pembatalan beralasan, dan histori; persetujuan tetap berupa referensi eksternal sampai kebijakan approver internal ditetapkan.
 - [x] Selaraskan master data dan staging impor: outlet server, histori, periode terbuka, klasifikasi preview, pengakuan duplikat, dan capability commit. Dokumen 93.
 - [x] Selaraskan hutang-piutang dan proyeksi cashflow: AP/AR, pihak lawan, periode, jatuh tempo, maker–executor–controller, versioning, audit, dan scope Accounting. Dokumen 94.
-- [ ] Selaraskan laporan cashflow penuh dan kontrol periode, termasuk closing checklist dan dampak penguncian lintas dokumen.
+- [x] Selaraskan kontrol periode: state machine tunggal, PIC, alasan keputusan, readiness jurnal/lampiran/rekening/selisih, gate server, row lock, scope, dan audit. Dokumen 95.
+- [ ] Lengkapi laporan cashflow penuh, termasuk drill-down sumber, perbandingan periode, dan ekspor.
 - [ ] Pisahkan pekerjaan input, pemeriksaan, persetujuan, realisasi, dan pemantauan berdasarkan role.
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
 - [x] Implementasikan Payment Run Finance berbasis voucher approved: prioritas, jatuh tempo, status realisasi, sisa, bukti, dan drill-down dokumen.
@@ -139,7 +140,7 @@ Sebuah halaman selesai apabila:
 
 ## Urutan eksekusi aktif
 
-1. Accounting: selaraskan laporan cashflow penuh dan kontrol periode.
+1. Accounting: lengkapi laporan cashflow penuh, drill-down sumber, perbandingan periode, dan ekspor.
 2. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 4. Regresi lintas role dan UAT visual terang/gelap.

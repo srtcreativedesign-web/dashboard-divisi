@@ -1,6 +1,7 @@
 import { api, downloadFile } from './client';
 
 export interface AccPeriod { id: string; periodMonth: string; status: string; notes?: string; version: number; transactionCount?: number; updatedAt?: string; }
+export interface AccPeriodReadiness { periodId: string; transactionCount: number; draftTransactionCount: number; missingAttachmentCount: number; bankAccountCount: number; unverifiedBankCount: number; bankBalance: number; cashBalance: number; variance: number; readyForSubmission: boolean; readyForClose: boolean; checks: { code: string; label: string; passed: boolean; count: number; message: string }[] }
 export interface AccCategory { id: string; code: string; name: string; parent?: string; isActive: boolean; requiresOutlet: boolean; aliases?: { aliasCode: string; normalizedAlias: string }[] }
 export interface AccAccount { id: string; code: string; displayName: string; type: string; isActive: boolean; categoryId?: string; description?: string; outletIds?: string[] }
 export interface AccAttachment { id: string; fileName: string; fileSize: number; mimeType: string }
@@ -159,6 +160,7 @@ const base = '/accounting';
 
 export const accountingApi = {
   periods: () => api.get<AccPeriod[]>(`${base}/periods`),
+  periodReadiness: (id: string) => api.get<AccPeriodReadiness>(`${base}/periods/${id}/readiness`),
   categories: () => api.get<AccCategory[]>(`${base}/categories`, { per_page: '100' }),
   accounts: async () => {
     const response = await api.get<(AccAccount & { display_name?: string; is_active?: boolean; categoryId?: string; description?: string; outlet_ids?: string[]; outlets?: { id: string; isActive: boolean }[] })[]>(`${base}/accounts`, { per_page: '100' });

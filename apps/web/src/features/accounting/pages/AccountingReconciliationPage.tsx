@@ -9,7 +9,7 @@ import { useAccountingReconciliations, useReconciliationMutations } from '../../
 import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 
 const rupiah = (value: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 2 }).format(value);
-const statusLabels: Record<string, string> = { draft: 'Draf', submitted: 'Menunggu persetujuan', approved: 'Disetujui', closed: 'Ditutup', reopened: 'Dibuka kembali' };
+const statusLabels: Record<string, string> = { draft: 'Draf', pending_approval: 'Menunggu persetujuan', needs_correction: 'Perlu koreksi', approved: 'Disetujui', closed: 'Ditutup', reopened: 'Dibuka kembali' };
 
 export default function AccountingReconciliationPage() {
   const { user } = useAuth();
@@ -72,7 +72,7 @@ export default function AccountingReconciliationPage() {
             <label className="min-w-0 flex-1 text-xs font-medium text-muted">Catatan / alasan perubahan<textarea value={notes} onChange={event => setNotes(event.target.value)} rows={2} placeholder="Jelaskan hasil pemeriksaan atau alasan pembukaan kembali" className="mt-2 block w-full rounded-lg border border-line p-3 text-sm" /></label>
             <div className="flex flex-wrap gap-2">
               {hasCapability(user?.role ?? '', 'submit:acc_period', user?.divisionCode) && period.status === 'draft' && <Button disabled={pending} onClick={() => void action('submit')}>Ajukan periode</Button>}
-              {isManager && period.status === 'submitted' && <Button disabled={pending} onClick={() => void action('approve')}>Setujui rekonsiliasi</Button>}
+              {isManager && period.status === 'pending_approval' && <Button disabled={pending} onClick={() => void action('approve')}>Setujui rekonsiliasi</Button>}
               {isManager && period.status === 'approved' && <Button disabled={pending} onClick={() => void action('close')}>Tutup periode</Button>}
               {isManager && ['approved', 'closed'].includes(period.status) && <Button variant="secondary" disabled={pending} onClick={() => void action('reopen')}>Buka kembali</Button>}
             </div>

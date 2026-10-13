@@ -72,6 +72,16 @@ class AccountingMasterController extends Controller
         return response()->json($this->periodService->toResource($period));
     }
 
+    public function getPeriodReadiness(Request $request, string $id): JsonResponse
+    {
+        $user = $request->attributes->get('user') ?? [];
+        $this->assertPeriodScope($user);
+
+        $period = $this->periodService->find($id);
+
+        return response()->json($this->periodService->readiness($period));
+    }
+
     public function transitionPeriod(Request $request, string $id): JsonResponse
     {
         $user = $request->attributes->get('user') ?? [];

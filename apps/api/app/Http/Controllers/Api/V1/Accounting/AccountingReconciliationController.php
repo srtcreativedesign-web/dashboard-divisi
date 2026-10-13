@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Api\V1\Accounting;
 
-use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Models\Division;
-use App\Models\User;
+use App\Services\AccPeriodService;
 use App\Services\AccReconciliationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use InvalidArgumentException;
 
 class AccountingReconciliationController extends Controller
 {
     public function __construct(
-        protected AccReconciliationService $reconciliationService
+        protected AccReconciliationService $reconciliationService,
+        protected AccPeriodService $periodService
     ) {}
 
     public function list(Request $request): JsonResponse
@@ -33,77 +32,46 @@ class AccountingReconciliationController extends Controller
 
     public function submitPeriod(Request $request): JsonResponse
     {
-        $userData = $request->attributes->get('user') ?? [];
-        $user = User::find($userData['id'] ?? '') ?? User::where('email', $userData['email'] ?? '')->firstOrFail();
-
         $validated = $request->validate([
             'period_id' => 'required|string',
             'notes' => 'nullable|string|max:500',
         ]);
+        $period = $this->periodService->transition($request->attributes->get('user') ?? [], $validated['period_id'], AccPeriodService::STATUS_PENDING, $validated['notes'] ?? null);
 
-        try {
-            $period = $this->reconciliationService->updatePeriodStatus($validated['period_id'], 'submitted', $validated['notes'] ?? null, $user);
-
-            return response()->json($period);
-        } catch (InvalidArgumentException $e) {
-            throw new ApiException('TRANSITION_ERROR', $e->getMessage(), null, 422);
-        }
+        return response()->json($this->periodService->toResource($period));
     }
 
     public function approvePeriod(Request $request): JsonResponse
     {
-        $userData = $request->attributes->get('user') ?? [];
-        $user = User::find($userData['id'] ?? '') ?? User::where('email', $userData['email'] ?? '')->firstOrFail();
-
         $validated = $request->validate([
             'period_id' => 'required|string',
             'notes' => 'nullable|string|max:500',
         ]);
 
-        try {
-            $period = $this->reconciliationService->updatePeriodStatus($validated['period_id'], 'approved', $validated['notes'] ?? null, $user);
+        $period = $this->periodService->transition($request->attributes->get('user') ?? [], $validated['period_id'], AccPeriodService::STATUS_APPROVED, $validated['notes'] ?? null);
 
-            return response()->json($period);
-        } catch (InvalidArgumentException $e) {
-            throw new ApiException('TRANSITION_ERROR', $e->getMessage(), null, 422);
-        }
+        return response()->json($this->periodService->toResource($period));
     }
 
     public function closePeriod(Request $request): JsonResponse
     {
-        $userData = $request->attributes->get('user') ?? [];
-        $user = User::find($userData['id'] ?? '') ?? User::where('email', $userData['email'] ?? '')->firstOrFail();
-
         $validated = $request->validate([
             'period_id' => 'required|string',
-            'notes' => 'nullable|string|max:500',
+            'notes' => 'required|string|min:10|max:500',
         ]);
+        $period = $this->periodService->transition($request->attributes->get('user') ?? [], $validated['period_id'], AccPeriodService::STATUS_CLOSED, $validated['notes']);
 
-        try {
-            $period = $this->reconciliationService->updatePeriodStatus($validated['period_id'], 'closed', $validated['notes'] ?? null, $user);
-
-            return response()->json($period);
-        } catch (InvalidArgumentException $e) {
-            throw new ApiException('TRANSITION_ERROR', $e->getMessage(), null, 422);
-        }
+        return response()->json($this->periodService->toResource($period));
     }
 
     public function reopenPeriod(Request $request): JsonResponse
     {
-        $userData = $request->attributes->get('user') ?? [];
-        $user = User::find($userData['id'] ?? '') ?? User::where('email', $userData['email'] ?? '')->firstOrFail();
-
         $validated = $request->validate([
             'period_id' => 'required|string',
-            'notes' => 'required|string|max:500',
+            'notes' => 'required|string|min:10|max:500',
         ]);
+        $period = $this->periodService->transition($request->attributes->get('user') ?? [], $validated['period_id'], AccPeriodService::STATUS_REOPENED, $validated['notes']);
 
-        try {
-            $period = $this->reconciliationService->updatePeriodStatus($validated['period_id'], 'draft', $validated['notes'], $user);
-
-            return response()->json($period);
-        } catch (InvalidArgumentException $e) {
-            throw new ApiException('TRANSITION_ERROR', $e->getMessage(), null, 422);
-        }
+        return response()->json($this->periodService->toResource($period));
     }
 }

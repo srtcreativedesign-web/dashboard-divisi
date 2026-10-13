@@ -42,8 +42,8 @@ class AccountingReconciliationTest extends TestCase
             'period_id' => $this->period->id,
             'account_id' => $this->accountBank1->id,
             'jul_balance' => 50000000,
-            'aug_balance' => 75000000,
-            'mutation' => 25000000,
+            'aug_balance' => 50000000,
+            'mutation' => 0,
             'is_verified' => true,
         ]);
     }
@@ -71,6 +71,21 @@ class AccountingReconciliationTest extends TestCase
         $this->assertCount(1, $response->json('data.items'));
     }
 
+    public function test_period_readiness_uses_journal_and_bank_data(): void
+    {
+        $response = $this->authenticated('admin.acc@dashboard.test')
+            ->getJson("/api/v1/accounting/periods/{$this->period->id}/readiness");
+
+        $response->assertOk()
+            ->assertJsonPath('data.periodId', $this->period->id)
+            ->assertJsonPath('data.transactionCount', 0)
+            ->assertJsonPath('data.bankAccountCount', 1)
+            ->assertJsonPath('data.unverifiedBankCount', 0)
+            ->assertJsonPath('data.readyForSubmission', true)
+            ->assertJsonPath('data.readyForClose', true)
+            ->assertJsonCount(5, 'data.checks');
+    }
+
     public function test_admin_can_submit_period()
     {
         $response = $this->authenticated('admin.acc@dashboard.test')
@@ -80,16 +95,16 @@ class AccountingReconciliationTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        $this->assertEquals('submitted', $response->json('data.status'));
+        $this->assertEquals('pending_approval', $response->json('data.status'));
         $this->assertDatabaseHas('accounting_periods', [
             'id' => $this->period->id,
-            'status' => 'submitted',
+            'status' => 'pending_approval',
         ]);
     }
 
     public function test_non_manager_cannot_approve_period()
     {
-        $this->period->update(['status' => 'submitted']);
+        $this->period->update(['status' => 'pending_approval']);
 
         $response = $this->authenticated('admin.acc@dashboard.test')
             ->postJson('/api/v1/accounting/reconciliations/approve', [
@@ -102,7 +117,7 @@ class AccountingReconciliationTest extends TestCase
 
     public function test_manager_can_approve_and_close_period()
     {
-        $this->period->update(['status' => 'submitted']);
+        $this->period->update(['status' => 'pending_approval']);
 
         $approveRes = $this->authenticated('manager.acc@dashboard.test')
             ->postJson('/api/v1/accounting/reconciliations/approve', [
@@ -134,6 +149,6 @@ class AccountingReconciliationTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        $this->assertEquals('draft', $response->json('data.status'));
+        $this->assertEquals('reopened', $response->json('data.status'));
     }
 }

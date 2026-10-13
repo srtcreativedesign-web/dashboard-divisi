@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Exceptions\ApiException;
+use App\Models\AccountingBankReconciliation;
 use App\Models\AccountingMasterHistory;
 use App\Models\AccountingPeriod;
+use App\Models\AccountingTransaction;
 use App\Models\Division;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
@@ -144,7 +146,13 @@ class AccPeriodService
     public function transition(array $user, string $id, string $targetStatus, ?string $notes = null): AccountingPeriod
     {
         return DB::transaction(function () use ($user, $id, $targetStatus, $notes) {
-            $period = $this->find($id);
+            $period = AccountingPeriod::where('division_id', $this->resolveAccDivisionId())
+                ->whereKey($id)
+                ->lockForUpdate()
+                ->first();
+            if (! $period) {
+                throw new ApiException('RESOURCE_NOT_FOUND', 'Periode tidak ditemukan');
+            }
 
             $role = $user['role'] ?? '';
             $divisionCode = $user['divisionCode'] ?? $user['division_code'] ?? null;
@@ -169,10 +177,32 @@ class AccPeriodService
                 if (! in_array($role, ['ADMIN', 'MANAGER'], true)) {
                     throw new ApiException('FORBIDDEN_CAPABILITY', 'Hanya Admin atau Manager ACC yang dapat mengajukan periode');
                 }
+            } elseif ($targetStatus === self::STATUS_DRAFT && $currentStatus === self::STATUS_REOPENED && $role !== 'MANAGER') {
+                throw new ApiException('FORBIDDEN_CAPABILITY', 'Hanya Manager ACC yang dapat mengaktifkan kembali periode yang dibuka ulang');
+            } elseif ($targetStatus === self::STATUS_DRAFT && $currentStatus === self::STATUS_NEEDS_CORRECTION && ! in_array($role, ['ADMIN', 'MANAGER'], true)) {
+                throw new ApiException('FORBIDDEN_CAPABILITY', 'Hanya Admin atau Manager ACC yang dapat memulai koreksi periode');
             }
 
             if (! $this->canTransition($currentStatus, $targetStatus)) {
                 throw new ApiException('INVALID_STATE_TRANSITION', "Transisi dari {$period->status} ke {$targetStatus} tidak diperbolehkan");
+            }
+
+            if (in_array($targetStatus, [self::STATUS_NEEDS_CORRECTION, self::STATUS_CLOSED, self::STATUS_REOPENED], true)
+                && mb_strlen(trim((string) $notes)) < 10) {
+                throw new ApiException('VALIDATION_ERROR', 'Catatan keputusan minimal 10 karakter diperlukan untuk koreksi, penutupan, atau pembukaan kembali periode');
+            }
+
+            if ($targetStatus === self::STATUS_PENDING) {
+                $readiness = $this->readiness($period);
+                if (! $readiness['readyForSubmission']) {
+                    throw new ApiException('PERIOD_NOT_READY', 'Periode belum siap diajukan. Selesaikan jurnal draf dan lampiran yang belum lengkap.', ['readiness' => $readiness], 422);
+                }
+            }
+            if ($targetStatus === self::STATUS_CLOSED) {
+                $readiness = $this->readiness($period);
+                if (! $readiness['readyForClose']) {
+                    throw new ApiException('PERIOD_NOT_READY', 'Periode belum siap ditutup. Selesaikan seluruh pengecualian rekonsiliasi.', ['readiness' => $readiness], 422);
+                }
             }
 
             $changes = ['status' => [$period->status, $targetStatus]];
@@ -223,6 +253,53 @@ class AccPeriodService
             'closedAt' => $period->closed_at?->toISOString(),
             'createdAt' => $period->created_at?->toISOString(),
             'updatedAt' => $period->updated_at?->toISOString(),
+        ];
+    }
+
+    public function readiness(AccountingPeriod $period): array
+    {
+        if ((string) $period->division_id !== $this->resolveAccDivisionId()) {
+            throw new ApiException('RESOURCE_NOT_FOUND', 'Periode tidak ditemukan');
+        }
+
+        $transactions = AccountingTransaction::where('division_id', $period->division_id)
+            ->where('period_id', $period->id)
+            ->whereNull('cancelled_at');
+        $transactionCount = (clone $transactions)->count();
+        $draftCount = (clone $transactions)->where('is_draft', true)->count();
+        $missingAttachmentCount = (clone $transactions)->doesntHave('attachments')->count();
+
+        $reconciliations = AccountingBankReconciliation::where('division_id', $period->division_id)
+            ->where('period_id', $period->id);
+        $bankAccountCount = (clone $reconciliations)->count();
+        $unverifiedBankCount = (clone $reconciliations)->where('is_verified', false)->count();
+        $bankBalance = (float) (clone $reconciliations)->sum('aug_balance');
+        $division = Division::findOrFail($period->division_id);
+        $cashBalance = (float) app(AccCashflowReportService::class)
+            ->getCashflowReport($division, $period->period_month->format('Y-m-d'))['kpis']['ending_cash_balance'];
+        $variance = round(abs($bankBalance - $cashBalance), 2);
+
+        $checks = [
+            ['code' => 'journal_reviewed', 'label' => 'Jurnal siap ditinjau', 'passed' => $draftCount === 0, 'count' => $draftCount, 'message' => $draftCount === 0 ? 'Tidak ada jurnal aktif berstatus draf.' : "{$draftCount} jurnal masih berstatus draf."],
+            ['code' => 'attachments_complete', 'label' => 'Bukti transaksi lengkap', 'passed' => $missingAttachmentCount === 0, 'count' => $missingAttachmentCount, 'message' => $missingAttachmentCount === 0 ? 'Seluruh jurnal aktif memiliki lampiran.' : "{$missingAttachmentCount} jurnal belum memiliki lampiran."],
+            ['code' => 'bank_data_available', 'label' => 'Data rekening tersedia', 'passed' => $bankAccountCount > 0, 'count' => $bankAccountCount, 'message' => $bankAccountCount > 0 ? "{$bankAccountCount} rekening tercatat." : 'Belum ada saldo rekening untuk periode ini.'],
+            ['code' => 'bank_entries_verified', 'label' => 'Rekening sudah diverifikasi', 'passed' => $bankAccountCount > 0 && $unverifiedBankCount === 0, 'count' => $unverifiedBankCount, 'message' => $bankAccountCount > 0 && $unverifiedBankCount === 0 ? 'Seluruh rekening telah diverifikasi.' : "{$unverifiedBankCount} rekening belum diverifikasi."],
+            ['code' => 'cash_matches_bank', 'label' => 'Saldo kas dan bank cocok', 'passed' => $bankAccountCount > 0 && $variance <= 1.0, 'count' => $variance, 'message' => $bankAccountCount > 0 && $variance <= 1.0 ? 'Selisih berada dalam toleransi Rp1.' : 'Selisih kas dan bank masih perlu ditelusuri.'],
+        ];
+
+        return [
+            'periodId' => $period->id,
+            'transactionCount' => $transactionCount,
+            'draftTransactionCount' => $draftCount,
+            'missingAttachmentCount' => $missingAttachmentCount,
+            'bankAccountCount' => $bankAccountCount,
+            'unverifiedBankCount' => $unverifiedBankCount,
+            'bankBalance' => $bankBalance,
+            'cashBalance' => $cashBalance,
+            'variance' => $variance,
+            'readyForSubmission' => $draftCount === 0 && $missingAttachmentCount === 0,
+            'readyForClose' => collect($checks)->every(fn (array $check) => $check['passed']),
+            'checks' => $checks,
         ];
     }
 

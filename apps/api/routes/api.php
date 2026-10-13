@@ -155,6 +155,7 @@ Route::prefix('v1')->group(function () {
             Route::middleware(['capability:view:acc_report'])->group(function () {
                 Route::get('periods', [AccountingMasterController::class, 'listPeriods']);
                 Route::get('periods/{id}', [AccountingMasterController::class, 'getPeriod'])->middleware('capability:view:acc_detail');
+                Route::get('periods/{id}/readiness', [AccountingMasterController::class, 'getPeriodReadiness'])->middleware('capability:view:acc_detail');
             });
             Route::middleware(['capability:submit:acc_period'])->group(function () {
                 Route::post('periods', [AccountingMasterController::class, 'createPeriod']);
