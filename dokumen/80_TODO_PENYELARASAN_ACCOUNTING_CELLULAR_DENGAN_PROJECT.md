@@ -135,12 +135,12 @@ Sebuah halaman selesai apabila:
 - [ ] Uji navigasi keyboard, focus state, label form, dan keterbacaan tabel.
 - [ ] Uji isolasi divisi serta capability backend untuk setiap tindakan.
 - [ ] Pastikan tidak ada angka, tombol, filter, ekspor, atau status semu.
-- [ ] Jalankan regresi Accounting dan Cellular.
+- [x] Jalankan regresi teknis Accounting dan Cellular. Dokumen 97. UAT pengguna tetap terbuka.
 - [ ] Lakukan UAT per role dan catat bukti visual.
 
 ## Urutan eksekusi aktif
 
-1. Regresi lintas role dan UAT visual terang/gelap Accounting serta Cellular.
+1. UAT visual terang/gelap, desktop/mobile, dan walkthrough semua role bersama pengguna bisnis.
 2. Integrasi nilai persediaan ke HPP setelah metode penilaian ditetapkan perusahaan.
 3. Pengganti pejabat/delegasi setelah kebijakan perusahaan ditetapkan.
 

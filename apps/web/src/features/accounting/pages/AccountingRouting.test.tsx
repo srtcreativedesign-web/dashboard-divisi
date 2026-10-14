@@ -29,7 +29,7 @@ describe('Accounting Master Data CRUD isolation', () => {
   it('ACC user can access Master Data with CRUD actions', async () => {
     render(<App />);
     expect(await screen.findByRole('button', { name: /Tambah kategori/i })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
+    fireEvent.click(await screen.findByRole('tab', { name: /^Rekening \(0\)$/i }));
     expect(await screen.findByRole('button', { name: /Tambah rekening/i })).toBeInTheDocument();
   });
 
@@ -55,7 +55,7 @@ describe('Accounting Master Data form accessibility', () => {
     render(<App />);
     expect(await screen.findByRole('heading', { name: /Master akun & kategori/i })).toBeInTheDocument();
     expect(await screen.findByRole('button', { name: /Tambah kategori/i })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /^Rekening \(/i }));
+    fireEvent.click(await screen.findByRole('tab', { name: /^Rekening \(0\)$/i }));
     expect(await screen.findByRole('button', { name: /Tambah rekening/i })).toBeInTheDocument();
   });
 });
