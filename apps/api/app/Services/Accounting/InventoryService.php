@@ -30,6 +30,52 @@ class InventoryService
         return ['items' => $items, 'locations' => $locations, 'balances' => $balances];
     }
 
+    public function dashboard(string $month, array $user): array
+    {
+        $this->access($user);
+        $start = CarbonImmutable::createFromFormat('!Y-m', $month, 'Asia/Jakarta');
+        $documents = DB::table('acc_inventory_documents')
+            ->whereBetween('business_date', [$start->toDateString(), $start->endOfMonth()->toDateString()]);
+        $counts = array_fill_keys(['draft', 'correction', 'submitted', 'approved'], 0);
+        foreach ((clone $documents)->selectRaw('status, count(*) as total')->groupBy('status')->get() as $row) {
+            $counts[$row->status] = (int) $row->total;
+        }
+
+        $actionQuery = clone $documents;
+        if ($user['role'] === 'ADMIN_GUDANG') {
+            $actionQuery->where('created_by', $user['sub'])->whereIn('status', ['draft', 'correction']);
+        } elseif ($user['role'] === 'MANAGER') {
+            $actionQuery->where('status', 'submitted');
+        } else {
+            $actionQuery->whereRaw('1 = 0');
+        }
+
+        $actionCount = (clone $actionQuery)->count();
+        $actionItems = $actionQuery->orderByRaw("case when status = 'correction' then 0 else 1 end")
+            ->orderByDesc('business_date')->orderByDesc('created_at')->limit(5)
+            ->get(['id', 'document_number', 'kind', 'business_date', 'reference', 'status', 'review_note', 'version'])
+            ->map(fn ($row) => (array) $row)->all();
+
+        $lowStock = DB::table('acc_inventory_balances as b')
+            ->join('acc_inventory_items as i', 'i.id', '=', 'b.item_id')
+            ->where('i.active', true)->whereColumn('b.quantity', '<=', 'i.minimum_stock')->count();
+        $unreceivedPurchases = DB::table('acc_vouchers as v')
+            ->where('v.division_code', 'ACC')->where('v.type', 'PURCHASING')->where('v.status', 'approved')
+            ->whereBetween('v.voucher_date', [$start->toDateString(), $start->endOfMonth()->toDateString()])
+            ->whereNotExists(fn ($query) => $query->selectRaw('1')->from('acc_inventory_documents as d')->whereColumn('d.voucher_id', 'v.id'))
+            ->count();
+
+        return [
+            'month' => $month,
+            'as_of' => CarbonImmutable::now('Asia/Jakarta')->toIso8601String(),
+            'document_counts' => $counts,
+            'action_count' => $actionCount,
+            'action_items' => $actionItems,
+            'low_stock_count' => $lowStock,
+            'unreceived_purchase_voucher_count' => $unreceivedPurchases,
+        ];
+    }
+
     public function createItem(array $data, array $user): array
     {
         $this->access($user, 'write:inventory');
@@ -98,7 +144,7 @@ class InventoryService
             throw new ApiException('VALIDATION_ERROR', 'Lokasi persediaan tidak aktif atau tidak ditemukan.');
         }
 
-return $row;
+        return $row;
     }
 
     private function validateLocations(string $kind, ?object $source, ?object $destination): void
@@ -308,10 +354,10 @@ return $row;
             }
             $this->voucher($doc->kind, $doc->voucher_id);
             if ($action === 'approve') {
-                $this->post($doc,$user);
+                $this->post($doc, $user);
             }
             $status = ['submit' => 'submitted', 'approve' => 'approved', 'correction' => 'correction'][$action];
-            DB::table('acc_inventory_documents')->where('id',$id)->update(['status' => $status, 'reviewed_by' => $action === 'submit' ? null : $user['sub'], 'review_note' => $action === 'correction' ? trim($data['note']) : null, 'version' => $doc->version + 1, 'updated_at' => now()]);
+            DB::table('acc_inventory_documents')->where('id', $id)->update(['status' => $status, 'reviewed_by' => $action === 'submit' ? null : $user['sub'], 'review_note' => $action === 'correction' ? trim($data['note']) : null, 'version' => $doc->version + 1, 'updated_at' => now()]);
             $this->audit->logRequired(['actorId' => $user['sub'], 'actorRole' => $user['role'], 'entity' => 'AccountingInventoryDocument', 'entityId' => $id, 'divisionCode' => 'ACC', 'action' => 'accounting.inventory.'.$action, 'metadata' => ['from' => $doc->status, 'to' => $status]]);
 
             return $this->one($id);

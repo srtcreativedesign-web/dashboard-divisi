@@ -8,8 +8,10 @@ export interface InventoryLine {id:string;item_id:string;quantity:string|null;co
 export interface PurchaseVoucher {id:string;voucher_no:string;voucher_date:string;due_date:string;entity_name:string;source_reference:string;amount:string;outlet_name:string;source_division_code:string;receipt_count:number;posted_receipt_count:number}
 export interface InventoryDocument {id:string;document_number:string;kind:InventoryKind;source_location_id:string|null;destination_location_id:string|null;source_location_name:string|null;destination_location_name:string|null;voucher_id:string|null;voucher_no:string|null;voucher_entity_name:string|null;voucher_source_reference:string|null;voucher_amount:string|null;business_date:string;reference:string;notes:string|null;status:'draft'|'submitted'|'approved'|'correction';created_by:string;review_note:string|null;version:number;lines:InventoryLine[]}
 export interface InventoryCatalog {items:InventoryItem[];locations:InventoryLocation[];balances:InventoryBalance[]}
+export interface InventoryDashboard {month:string;as_of:string;document_counts:{draft:number;correction:number;submitted:number;approved:number};action_count:number;action_items:Array<Pick<InventoryDocument,'id'|'document_number'|'kind'|'business_date'|'reference'|'status'|'review_note'|'version'>>;low_stock_count:number;unreceived_purchase_voucher_count:number}
 export const inventoryApi={
  catalog:()=>api.get<InventoryCatalog>('/accounting/inventory/catalog'),
+ dashboard:(month:string)=>api.get<InventoryDashboard>('/accounting/inventory/dashboard',{month}),
  documents:(month:string)=>api.get<{items:InventoryDocument[];month:string}>('/accounting/inventory/documents',{month}),
  purchaseVouchers:(month:string)=>api.get<PurchaseVoucher[]>('/accounting/inventory/purchase-vouchers',{month}),
  createItem:(data:{sku:string;name:string;unit:string;minimum_stock:string})=>api.post<InventoryItem>('/accounting/inventory/items',data),

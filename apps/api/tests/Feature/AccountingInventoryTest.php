@@ -98,7 +98,35 @@ class AccountingInventoryTest extends TestCase
         $this->authenticated('accounting@dashboard.test')->getJson('/api/v1/accounting/inventory/catalog')->assertOk();
         $this->postJson('/api/v1/accounting/inventory/documents', ['kind' => 'RECEIPT'])->assertForbidden();
         $this->authenticated('manager.acc@dashboard.test')->postJson('/api/v1/accounting/inventory/items', ['sku' => 'DENIED'])->assertForbidden();
-        $this->assertDatabaseHas('acc_inventory_items',['id' => $item['id']]);
-        $this->assertDatabaseHas('acc_inventory_locations',['id' => $location['id']]);
+        $this->assertDatabaseHas('acc_inventory_items', ['id' => $item['id']]);
+        $this->assertDatabaseHas('acc_inventory_locations', ['id' => $location['id']]);
+    }
+
+    public function test_inventory_dashboard_uses_actual_role_queue_and_restricted_scope(): void
+    {
+        [$item, $location] = $this->master();
+        $receipt = $this->document($item, $location, 'RECEIPT', '1.000');
+        $receipt = $this->postJson('/api/v1/accounting/inventory/documents/'.$receipt['id'].'/submit', ['version' => 1])->assertOk()->json('data');
+        $this->authenticated('manager.acc@dashboard.test')->postJson('/api/v1/accounting/inventory/documents/'.$receipt['id'].'/approve', ['version' => $receipt['version']])->assertOk();
+        $this->admin();
+        $this->document($item, $location, 'RECEIPT', '2.000');
+        for ($i = 0; $i < 5; $i++) {
+            $this->document($item, $location, 'RECEIPT', '2.000');
+        }
+        $voucherId = $this->purchaseVoucher();
+        $month = now('Asia/Jakarta')->format('Y-m');
+
+        $this->getJson('/api/v1/accounting/inventory/dashboard?month='.$month)->assertOk()
+            ->assertJsonPath('data.document_counts.approved', 1)
+            ->assertJsonPath('data.document_counts.draft', 6)
+            ->assertJsonPath('data.action_count', 6)
+            ->assertJsonCount(5, 'data.action_items')
+            ->assertJsonPath('data.low_stock_count', 1)
+            ->assertJsonPath('data.unreceived_purchase_voucher_count', 1);
+        $this->assertDatabaseHas('acc_vouchers', ['id' => $voucherId]);
+
+        $this->authenticated('manager.cell@dashboard.test')->getJson('/api/v1/accounting/inventory/dashboard?month='.$month)->assertForbidden();
+        $this->authenticated('finance@dashboard.test')->getJson('/api/v1/accounting/inventory/dashboard?month='.$month)->assertForbidden();
+        $this->admin()->getJson('/api/v1/accounting/inventory/dashboard?month=2026-13')->assertStatus(400);
     }
 }

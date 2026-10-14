@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { accountingApi } from '../../../api/accounting';
 import AccountingDashboardPage from './AccountingDashboardPage';
+import { inventoryApi } from '../api/inventory';
 
 let role = 'HEAD_OPS';
 vi.mock('../../../session/AuthContext', () => ({ useAuth: () => ({ user: { role, divisionCode: 'ACC' } }) }));
@@ -39,6 +40,25 @@ describe('Dashboard ringkasan Accounting', () => {
     render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><MemoryRouter><AccountingDashboardPage /></MemoryRouter></QueryClientProvider>);
     expect(await screen.findByRole('link',{name:/Setoran Outlet/})).toHaveAttribute('href','/accounting/kas-bank/setoran');
     expect(screen.queryByRole('link',{name:/Cuti/})).not.toBeInTheDocument();
+  });
+  it('Admin Gudang mendapat dashboard tugas persediaan dari API tanpa meminta operasi voucher', async () => {
+    role = 'ADMIN_GUDANG';
+    vi.spyOn(accountingApi, 'periods').mockResolvedValue(envelope([]));
+    const inventory = vi.spyOn(inventoryApi, 'dashboard').mockResolvedValue(envelope({
+      month: '2026-10', as_of: '2026-10-14T10:00:00+07:00',
+      document_counts: { draft: 1, correction: 1, submitted: 2, approved: 4 }, action_count: 2,
+      low_stock_count: 3, unreceived_purchase_voucher_count: 1,
+      action_items: [{ id: 'doc-1', document_number: 'INV-001', kind: 'RECEIPT', business_date: '2026-10-13', reference: 'SJ-001', status: 'correction', review_note: 'Jumlah harus diperiksa kembali', version: 2 }],
+    }));
+    const operations = vi.spyOn(dashboardApi, 'operations');
+    mount();
+    expect(await screen.findByRole('heading', { name: 'Pusat Kendali Persediaan' })).toBeInTheDocument();
+    expect(await screen.findByText('Jumlah harus diperiksa kembali')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Meja kerja persediaan' })).toHaveTextContent('Jumlah harus diperiksa kembali');
+    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Buka kendali persediaan/ })).toHaveAttribute('href', '/accounting/operasional/persediaan');
+    expect(inventory).toHaveBeenCalledWith('2026-10');
+    expect(operations).not.toHaveBeenCalled();
   });
   it('mengganti periode ringkasan tanpa mengambil detail transaksi', async () => {
     vi.spyOn(accountingApi, 'periods').mockResolvedValue({ data: [

@@ -108,7 +108,7 @@ Sebuah halaman selesai apabila:
 ## Tahap 3 — Accounting
 
 - [x] Audit setiap halaman terhadap kerangka Project dan kebutuhan lima role: Manager, Admin, Accounting, Finance, Admin Gudang.
-- [ ] Selaraskan dashboard dan Pekerjaan Saya berdasarkan antrean dokumen aktual.
+- [x] Selaraskan dashboard dan Pekerjaan Saya berdasarkan antrean dokumen aktual, termasuk meja kerja persediaan khusus Admin Gudang dan antrean approval Manager. Dokumen 99.
 - [x] Selaraskan Omzet H+1 sebagai workbench operasional: antrean status, PIC berikutnya, tenggat H+1, indikator selisih, register terfilter, detail keputusan, dan form bertahap dengan pemeriksaan kesiapan.
 - [x] Selaraskan Voucher Pengeluaran sebagai workbench lintas role: ringkasan antrean, PIC, prioritas, jatuh tempo, sisa pembayaran, form bertahap, kesiapan dokumen, lampiran, keputusan, realisasi, dan audit trail.
 - [x] Selaraskan pencocokan dan jurnal sebagai rangkaian hilir dari omzet serta voucher tervalidasi.

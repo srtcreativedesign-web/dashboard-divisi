@@ -82,6 +82,7 @@ Route::prefix('v1')->group(function () {
             Route::get('dashboard/operations', [AccountingDashboardController::class, 'operations'])->middleware('capability:view:acc_detail');
             Route::prefix('inventory')->middleware('capability:view:inventory')->group(function () {
                 Route::get('catalog', [InventoryController::class, 'catalog']);
+                Route::get('dashboard', [InventoryController::class, 'dashboard']);
                 Route::post('items', [InventoryController::class, 'item'])->middleware('capability:write:inventory');
                 Route::post('locations', [InventoryController::class, 'location'])->middleware('capability:write:inventory');
                 Route::get('documents', [InventoryController::class, 'documents']);

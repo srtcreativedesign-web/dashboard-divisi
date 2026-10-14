@@ -1,7 +1,7 @@
 import { AccountingActionDesk } from '../ui/AccountingActionDesk';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowRight, ArrowUpRight, CalendarDays, ChartNoAxesCombined, ClipboardCheck, FileText, RefreshCw, Wallet } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CalendarDays, ChartNoAxesCombined, ClipboardCheck, FileText, PackageCheck, PackageSearch, RefreshCw, ShoppingCart, Warehouse, Wallet } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { accountingApi } from '../../../api/accounting';
 import { omzetApi } from '../../../api/omzet';
@@ -15,6 +15,7 @@ import { KPICard, KPICardGrid } from '../../../components/ui/primitives';
 import { Card, CardHeader } from '../../../components/ui/Card';
 import { AccountingPageHeader } from '../../../components/accounting/AccountingPageHeader';
 import { roleDisplay } from '../../../config/session';
+import { inventoryApi } from '../api/inventory';
 
 const monthLabel = (month: string) => new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(month.slice(0, 7) + '-01T00:00:00Z'));
 const currentMonth = () => {
@@ -31,6 +32,7 @@ const roleDashboardCopy: Record<string, { title: string; description: string }> 
   STAFF_ACCOUNTING: { title: 'Pusat Pemeriksaan Accounting', description: 'Periksa sumber transaksi, selisih, voucher, dan kesiapan dokumen sebelum diteruskan untuk keputusan.' },
   MANAGER: { title: 'Pusat Keputusan Accounting', description: 'Tinjau pengajuan, materialitas selisih, risiko jatuh tempo, dan keputusan yang menunggu persetujuan.' },
   FINANCE: { title: 'Kontrol Realisasi Keuangan', description: 'Pantau voucher yang telah disetujui, jadwal jatuh tempo, pembayaran, dan sisa realisasi.' },
+  ADMIN_GUDANG: { title: 'Pusat Kendali Persediaan', description: 'Selesaikan dokumen gudang milik Anda, tindak lanjuti koreksi, dan pantau stok yang perlu diisi kembali.' },
 };
 
 export default function AccountingDashboardPage() {
@@ -39,6 +41,8 @@ export default function AccountingDashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState('');
   const can = (capability: string) => Boolean(user && hasCapability(user.role, capability, user.divisionCode));
   const detail = can('view:acc_detail');
+  const canInventory = can('view:inventory');
+  const inventoryDesk = canInventory && (user?.role === 'ADMIN_GUDANG' || user?.role === 'MANAGER');
   const periods = useQuery({ queryKey: ['accounting', 'dashboard-periods'], queryFn: async () => (await accountingApi.periods()).data });
   const sortedPeriods = periods.data?.slice().sort((a, b) => b.periodMonth.localeCompare(a.periodMonth)) ?? [];
   const month = selectedMonth || sortedPeriods[0]?.periodMonth.slice(0, 7) || currentMonth();
@@ -46,6 +50,7 @@ export default function AccountingDashboardPage() {
   const report = useQuery({ queryKey: ['accounting', 'dashboard-cashflow-summary', month], enabled: Boolean(activePeriod), queryFn: async () => (await accountingApi.cashflowSummary({ period_month: month })).data });
   const operations = useQuery({ queryKey: ['accounting', 'dashboard-operations', month], enabled: detail && !periods.isLoading, queryFn: async () => (await dashboardApi.operations(month)).data });
   const annual = useQuery({ queryKey: ['accounting', 'dashboard-annual-omzet', month.slice(0, 4)], enabled: detail && !periods.isLoading, queryFn: async () => (await omzetApi.annual(Number(month.slice(0, 4)))).data });
+  const inventory = useQuery({ queryKey: ['accounting', 'dashboard-inventory', month], enabled: inventoryDesk && !periods.isLoading, queryFn: async () => (await inventoryApi.dashboard(month)).data });
   const data = operations.data?.counts ? operations.data : undefined;
   const monthTrend = annual.data?.months?.find(m => m.month === month);
   const previousDate = new Date(month + '-01T00:00:00Z'); previousDate.setUTCMonth(previousDate.getUTCMonth() - 1);
@@ -62,7 +67,7 @@ export default function AccountingDashboardPage() {
   const pending = queues.reduce((total, q) => total + q.count, 0);
   const monthOptions = [...new Set([currentMonth(), ...sortedPeriods.map(p => p.periodMonth.slice(0, 7)), ...Array.from({ length: 12 }, (_, i) => month.slice(0, 4) + '-' + String(i + 1).padStart(2, '0'))])].sort().reverse();
   const max = annual.data?.months?.reduce((n, m) => moneyCents(m.amount) > n ? moneyCents(m.amount) : n, 0n) ?? 0n;
-  const refresh = () => { if (detail) void queryClient.invalidateQueries({ queryKey: ['accounting-desk'] }); void periods.refetch(); if (activePeriod) void report.refetch(); if (detail) { void operations.refetch(); void annual.refetch(); } };
+  const refresh = () => { if (detail) void queryClient.invalidateQueries({ queryKey: ['accounting-desk'] }); void periods.refetch(); if (activePeriod) void report.refetch(); if (detail) { void operations.refetch(); void annual.refetch(); } if (inventoryDesk) void inventory.refetch(); };
   const linkTo = (status = '') => '/accounting/pengeluaran/voucher?month=' + month + (status ? '&status=' + status : '');
   const dashboardCopy = roleDashboardCopy[user?.role ?? ''] ?? { title: 'Dashboard Accounting', description: 'Pantau pekerjaan, pendapatan, pengeluaran, dan posisi keuangan sesuai kewenangan akun.' };
 
@@ -79,14 +84,29 @@ export default function AccountingDashboardPage() {
         {[
           { label: 'Periode kerja', value: monthLabel(month), note: activePeriod ? `Periode jurnal ${activePeriod.status === 'open' ? 'terbuka' : activePeriod.status}` : 'Belum ada periode jurnal' },
           { label: 'Peran aktif', value: user ? roleDisplay(user.role) : 'Pengguna', note: 'Tindakan mengikuti kewenangan akun' },
-          { label: 'Cakupan data', value: 'Lintas divisi', note: 'Accounting pusat · sumber outlet' },
-          { label: 'Register dokumen', value: detail ? 'Tersedia' : 'Ringkasan', note: detail ? 'Telusuri status dan penanggung jawab' : 'Detail dibatasi oleh kewenangan' },
+          { label: 'Cakupan data', value: user?.role === 'ADMIN_GUDANG' ? 'Gudang & outlet' : 'Lintas divisi', note: user?.role === 'ADMIN_GUDANG' ? 'Persediaan pusat · lokasi operasional' : 'Accounting pusat · sumber outlet' },
+          { label: 'Register dokumen', value: detail || canInventory ? 'Tersedia' : 'Ringkasan', note: detail || canInventory ? 'Telusuri status dan penanggung jawab' : 'Detail dibatasi oleh kewenangan' },
         ].map(item => <div key={item.label} className="bg-panel px-5 py-4"><p className="text-[10px] font-bold uppercase tracking-wider text-subtle">{item.label}</p><p className="mt-1.5 text-sm font-bold text-navy">{item.value}</p><p className="mt-1 text-xs leading-relaxed text-subtle">{item.note}</p></div>)}
       </div>
       {detail && <div className="flex justify-end border-t border-line bg-surface px-5 py-2.5"><Link className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300" to={'/accounting/dokumen/register?month=' + month}>Buka register dokumen <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" /></Link></div>}
     </section>
 
     <AccountingActionDesk key={month} month={month} />
+
+    {inventoryDesk && <section aria-label="Meja kerja persediaan" className="space-y-4">
+      {inventory.isLoading ? <LoadingState label="Memuat pekerjaan persediaan..." /> : inventory.error ? <ErrorState description={inventory.error.message} onRetry={() => { void inventory.refetch(); }} /> : inventory.data && <div className="overflow-hidden rounded-card-lg border border-line bg-panel shadow-card">
+        <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line px-5 py-5 sm:px-6"><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary-700 dark:text-primary-300">Pekerjaan Saya · Persediaan</p><h2 className="mt-1 text-xl font-bold tracking-tight text-navy">Antrean gudang yang perlu ditindaklanjuti</h2><p className="mt-2 text-xs leading-relaxed text-subtle">Angka berasal dari dokumen dan saldo persediaan pada database untuk {monthLabel(month)}.</p></div><Link to="/accounting/operasional/persediaan" className="inline-flex min-h-10 items-center gap-2 rounded-input bg-primary-700 px-4 text-xs font-semibold text-white hover:bg-primary-800">Buka kendali persediaan <ArrowRight aria-hidden="true" className="h-4 w-4" /></Link></header>
+        <div className="grid gap-px bg-line sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { label: 'Tugas untuk Anda', value: inventory.data.action_count, note: user?.role === 'MANAGER' ? 'Menunggu pemeriksaan & posting' : 'Draf atau koreksi milik Anda', icon: <ClipboardCheck aria-hidden="true" className="h-5 w-5 text-primary-700 dark:text-primary-300" /> },
+            { label: 'Menunggu persetujuan', value: inventory.data.document_counts.submitted, note: 'Dokumen belum mengubah saldo', icon: <PackageCheck aria-hidden="true" className="h-5 w-5 text-primary-700 dark:text-primary-300" /> },
+            { label: 'Stok perlu perhatian', value: inventory.data.low_stock_count, note: 'Saldo sama atau di bawah minimum', icon: <PackageSearch aria-hidden="true" className="h-5 w-5 text-primary-700 dark:text-primary-300" /> },
+            { label: 'Voucher belum diterima', value: inventory.data.unreceived_purchase_voucher_count, note: 'Pembelian approved tanpa dokumen penerimaan', icon: <ShoppingCart aria-hidden="true" className="h-5 w-5 text-primary-700 dark:text-primary-300" /> },
+          ].map(card => <article key={card.label} className="bg-panel p-5">{card.icon}<p className="mt-3 text-[10px] font-bold uppercase tracking-wider text-subtle">{card.label}</p><p className="mt-1 text-2xl font-bold tabular-nums text-navy">{card.value}</p><p className="mt-1 text-xs leading-relaxed text-subtle">{card.note}</p></article>)}
+        </div>
+        <div className="border-t border-line px-5 py-5 sm:px-6"><div className="mb-3 flex items-center justify-between gap-3"><div><h3 className="text-sm font-bold text-navy">Prioritas tindakan</h3><p className="mt-1 text-xs text-subtle">Koreksi ditampilkan lebih dahulu, lalu dokumen terbaru.</p></div><Warehouse aria-hidden="true" className="h-5 w-5 text-subtle" /></div>{inventory.data.action_items.length ? <ul className="divide-y divide-line">{inventory.data.action_items.map(item => <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="break-words text-sm font-semibold text-navy">{item.document_number} · {item.reference}</p><p className="mt-1 text-xs text-subtle">{formatDate(item.business_date)} · {item.kind.replace('_', ' ')} · {item.status === 'correction' ? 'Perlu koreksi' : item.status === 'submitted' ? 'Menunggu persetujuan' : 'Draf'}</p>{item.review_note && <p className="mt-1 text-xs text-danger dark:text-red-300">{item.review_note}</p>}</div><Link to="/accounting/operasional/persediaan" className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-primary-700 dark:text-primary-300">Tindak lanjuti <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" /></Link></li>)}</ul> : <p className="rounded-input bg-surface p-4 text-sm text-subtle">Tidak ada dokumen persediaan yang menjadi tindakan role Anda pada periode ini.</p>}</div>
+      </div>}
+    </section>}
 
     {detail && <section aria-label="Ringkasan operasional" className="space-y-3">
       {operations.isLoading || periods.isLoading ? <LoadingState label="Memuat ringkasan operasional..." /> : operations.error ? <ErrorState description={operations.error.message} onRetry={() => { void operations.refetch(); }} /> : data ? <>

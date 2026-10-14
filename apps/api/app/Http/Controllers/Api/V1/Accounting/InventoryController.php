@@ -33,6 +33,13 @@ class InventoryController extends Controller
         return response()->json($this->service->documents($d['month'], $r->attributes->get('user')));
     }
 
+    public function dashboard(Request $r)
+    {
+        $d = $r->validate(['month' => 'required|date_format:Y-m']);
+
+        return response()->json($this->service->dashboard($d['month'], $r->attributes->get('user')));
+    }
+
     public function purchaseVouchers(Request $r)
     {
         $d = $r->validate(['month' => 'required|date_format:Y-m']);
