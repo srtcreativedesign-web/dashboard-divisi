@@ -96,6 +96,7 @@ Sebuah halaman selesai apabila:
 - [x] Ganti panel kesiapan Tagihan & Settlement dengan workflow Finance → Accounting berbasis closing disetujui.
 - [x] Implementasikan settlement parsial tunai, QRIS, EDC, transfer, biaya kanal, tujuan dana, referensi, dan sisa rekonsiliasi.
 - [x] Terapkan maker-checker, scope outlet, optimistic version, idempotency referensi, audit, dan larangan settlement terverifikasi melebihi closing.
+- [x] Wajibkan bukti penerimaan dana settlement: storage privat, scanner, hash integritas, role/scope/version, unduh berizin, dan audit. Dokumen 98.
 - [x] Satukan penjualan posted, closing H+1, settlement, kontrol shift, dan stok ke Kontrol Accounting berbasis data database.
 - [x] Tampilkan readiness paket H+1, rekonsiliasi kanal, kontrol operasional, pengecualian, dan stok kritis per periode.
 - [x] Kembangkan Buku Persediaan menjadi register terfilter yang dapat ditelusuri ke transaksi, bukti sumber, alasan, dan pelaku.
@@ -147,7 +148,7 @@ Sebuah halaman selesai apabila:
 ## Pencapaian role terbaru
 
 - Admin Gudang Accounting: **93/100**, voucher pembelian approved kini dapat ditelusuri ke penerimaan, berita acara, posting, dan mutasi persediaan; perhitungan HPP tetap menunggu kebijakan perusahaan.
-- Finance Cellular: **91/100**, settlement dan rekonsiliasi kanal telah melewati quality gate; unggahan bukti mutasi bank menjadi peningkatan berikutnya.
+- Finance Cellular: **94/100**, settlement dan rekonsiliasi kanal memiliki bukti penerimaan privat, scanner, hash integritas, role/scope/version, serta audit; integrasi bank otomatis dan berita acara rekonsiliasi tetap terbuka.
 - Leader Cellular: **91/100**, checklist, PIC, tenggat, temuan, koreksi, dan antrean kerja tersedia.
 - SPV Cellular: **90/100**, verifikasi independen dan permintaan koreksi tersedia.
 - Head Operasional Cellular: **90/100**, penyelesaian dan eskalasi risiko tersedia.

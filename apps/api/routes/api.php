@@ -326,6 +326,8 @@ Route::prefix('v1')->group(function () {
                 Route::get('/', [SettlementController::class, 'index']);
                 Route::get('sources', [SettlementController::class, 'sources']);
                 Route::post('/', [SettlementController::class, 'store'])->middleware('capability:write:cellular_settlement');
+                Route::post('{id}/attachments', [SettlementController::class, 'uploadAttachment'])->whereUuid('id')->middleware(['capability:write:cellular_settlement', 'file.scan']);
+                Route::get('{id}/attachments/{attachmentId}/download', [SettlementController::class, 'downloadAttachment'])->whereUuid('id')->whereUuid('attachmentId');
                 Route::post('{id}/{action}', [SettlementController::class, 'transition'])->whereUuid('id')->whereIn('action', ['submit', 'reconcile', 'correction']);
             });
             Route::prefix('shift-controls')->middleware('capability:view:cellular_shift')->group(function () {
