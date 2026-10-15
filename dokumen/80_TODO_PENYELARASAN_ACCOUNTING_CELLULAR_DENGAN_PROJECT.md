@@ -122,6 +122,7 @@ Sebuah halaman selesai apabila:
 - [x] Lengkapi laporan cashflow penuh, termasuk drill-down sumber, perbandingan periode, kualitas data, dan ekspor. Dokumen 96.
 - [ ] Pisahkan pekerjaan input, pemeriksaan, persetujuan, realisasi, dan pemantauan berdasarkan role.
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
+- [x] Proyeksikan PIC berikutnya, aktivitas terakhir, waktu transisi, dan alasan dari event server ke register omzet/voucher tanpa membuka actor ID atau snapshot audit. Dokumen 100. Parent tetap terbuka untuk setoran, jurnal, HR, dan persediaan.
 - [x] Implementasikan Payment Run Finance berbasis voucher approved: prioritas, jatuh tempo, status realisasi, sisa, bukti, dan drill-down dokumen.
 - [x] Ubah antrean Manager menjadi Decision Inbox terfokus dengan nominal, indikator risiko, konteks sumber, maker-checker, dan keputusan beralasan.
 - [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.

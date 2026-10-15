@@ -67,12 +67,15 @@ describe('Ruang kerja Accounting dari transaksi persisten', () => {
     await waitFor(() => expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: 'validated', page: '1' })));
   });
   it('voucher membuka detail UUID dan tidak menganggap persetujuan sebagai pembayaran', async () => {
-    const voucher: VoucherRecord = { id: fixture.id, type: 'OPERATIONAL', outlet_id: fixture.outlet_id, outlet_name: fixture.outlet_name, source_division_code: 'CELL', voucher_date: '2026-09-04', due_date: '2026-10-04', entity_name: 'Penerima anonim', source_reference: 'Anonim', amount: '1000', description: 'Kebutuhan outlet', status: 'approved', version: 1, voucher_no: 'V/ANONIM', created_by: 'admin', reviewed_by: null, approved_by: null, review_notes: null, decision_notes: null, events: [] };
+    const voucher: VoucherRecord = { id: fixture.id, type: 'OPERATIONAL', outlet_id: fixture.outlet_id, outlet_name: fixture.outlet_name, source_division_code: 'CELL', voucher_date: '2026-09-04', due_date: '2026-10-04', entity_name: 'Penerima anonim', source_reference: 'Anonim', amount: '1000', description: 'Kebutuhan outlet', status: 'approved', version: 1, voucher_no: 'V/ANONIM', created_by: 'admin', reviewed_by: null, approved_by: null, review_notes: null, decision_notes: null, workflow: { next_role: 'FINANCE', last_action: 'decide', last_transition_at: '2026-10-05T09:30:00+07:00', reason: 'Dokumen lengkap' }, events: [] };
     vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [voucher], total: 1, current_page: 1, last_page: 1, summary: { ...emptyVoucherSummary, total_records: 1, status_counts: { ...emptyVoucherSummary.status_counts, approved: 1 }, awaiting_payment_count: 1, total_amount: '1000.00', remaining_amount: '1000.00' } }));
     mount(); fireEvent.click(screen.getByRole('button', { name: 'Voucher pengeluaran' }));
     fireEvent.click(await screen.findByRole('button', { name: /Disetujui/ }));
     expect(await screen.findByRole('link', { name: /Lihat hasil/ })).toHaveAttribute('href', expect.stringContaining('voucher=' + fixture.id));
     expect(screen.getByText(/Persetujuan berbeda dari pembayaran/)).toBeInTheDocument();
+    expect(screen.getAllByText('Staff Finance')).toHaveLength(2);
+    expect(screen.getByText('Diputuskan')).toBeInTheDocument();
+    expect(screen.getByText('Dokumen lengkap')).toBeInTheDocument();
     expect(screen.queryByText(/batas .*WIB/)).not.toBeInTheDocument();
   });
   it('request gagal tetap error dan tidak membuat jumlah nol palsu', async () => {

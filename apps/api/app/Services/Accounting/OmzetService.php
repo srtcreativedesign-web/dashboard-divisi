@@ -77,6 +77,24 @@ class OmzetService
         return array_merge($record->toArray(), $this->differences($record, $shiftLines), ['submission_window' => $this->window($record)]);
     }
 
+    private function workflow(OmzetRecord $record, ?object $event): array
+    {
+        $metadata = ! $event ? [] : (is_array($event->metadata) ? $event->metadata : json_decode($event->metadata, true));
+        $nextRole = match ($record->status) {
+            'draft', 'correction' => 'ADMIN',
+            'submitted' => 'ACCOUNTING',
+            'pending_approval' => 'MANAGER',
+            default => 'COMPLETED',
+        };
+
+        return [
+            'next_role' => $nextRole,
+            'last_action' => $event?->action ?? 'created',
+            'last_transition_at' => $event?->created_at ?? $record->updated_at?->toIso8601String() ?? $record->created_at?->toIso8601String(),
+            'reason' => $metadata['reason'] ?? null,
+        ];
+    }
+
     public function list(array $filters): array
     {
         $start = CarbonImmutable::createFromFormat('!Y-m', $filters['month'])->startOfMonth()->toDateString();
@@ -115,8 +133,10 @@ class OmzetService
         $recordIds = $page->getCollection()->pluck('id')->all();
         $shiftLines = DB::table('acc_omzet_shift_lines')->whereIn('record_id', $recordIds)->orderBy('shift_no')->get()
             ->groupBy('record_id')->map(fn ($lines) => $lines->map(fn ($line) => (array) $line)->all());
+        $latestEvents = DB::table('acc_omzet_events')->whereIn('record_id', $recordIds)->orderByDesc('id')->get()->groupBy('record_id')
+            ->map(fn ($events) => $events->first());
 
-        return ['items' => $page->getCollection()->map(fn ($record) => $this->present($record, $shiftLines->get($record->id, [])))->all(),
+        return ['items' => $page->getCollection()->map(fn ($record) => $this->present($record, $shiftLines->get($record->id, [])) + ['workflow' => $this->workflow($record, $latestEvents->get($record->id))])->all(),
             'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'summary' => $summary];
     }
 
@@ -134,7 +154,7 @@ class OmzetService
             return $event;
         });
 
-        return $this->present($record) + ['events' => $events,
+        return $this->present($record) + ['workflow' => $this->workflow($record, $events->last()), 'events' => $events,
             'unlock_requests' => DB::table('acc_omzet_unlock_requests')->where('record_id', $id)->orderByDesc('created_at')->get()];
     }
 

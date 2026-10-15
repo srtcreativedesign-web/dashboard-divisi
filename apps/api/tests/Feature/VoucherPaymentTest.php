@@ -55,7 +55,10 @@ class VoucherPaymentTest extends TestCase
         $this->v = $this->pay(['amount' => '849.75', 'reference' => 'TRANSFER-UJI-2'])->assertCreated()->json('data');
         $this->assertSame(['paid_amount' => '1000.00', 'remaining_amount' => '0.00', 'status' => 'PAID'], $this->v['payment_summary']);
         $this->pay(['amount' => '0.01', 'reference' => 'AFTER-PAID'])->assertStatus(409);
-        $this->getJson('/api/v1/accounting/vouchers?month=2026-10')->assertOk()->assertJsonPath('data.items.0.payment_summary.status', 'PAID');
+        $this->getJson('/api/v1/accounting/vouchers?month=2026-10')->assertOk()
+            ->assertJsonPath('data.items.0.payment_summary.status', 'PAID')
+            ->assertJsonPath('data.items.0.workflow.next_role', 'COMPLETED')
+            ->assertJsonPath('data.items.0.workflow.last_action', 'payment_recorded');
         $this->assertDatabaseCount('acc_voucher_payments', 2);
         $this->assertDatabaseCount('accounting_transactions', 0);
         $this->assertDatabaseHas('audit_events', ['action' => 'accounting.voucher.payment_recorded']);

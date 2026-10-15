@@ -1,5 +1,5 @@
 import { api, downloadFile } from './client';
-import type { OmzetOutlet } from './omzet';
+import type { OmzetOutlet, WorkflowProjection } from './omzet';
 
 export type VoucherStatus = 'draft' | 'submitted' | 'correction' | 'pending_approval' | 'approved';
 export interface VoucherInput {
@@ -30,6 +30,8 @@ export interface VoucherRecord extends VoucherInput {
   created_at?: string;
   reviewed_at?: string | null;
   approved_at?: string | null;
+  updated_at?: string;
+  workflow?: WorkflowProjection;
   attachments?: VoucherAttachment[];
   id: string;
   voucher_no: string;

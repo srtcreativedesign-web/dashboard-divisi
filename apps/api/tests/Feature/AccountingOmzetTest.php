@@ -70,7 +70,12 @@ class AccountingOmzetTest extends TestCase
         $this->authenticated('admin.acc@dashboard.test')->putJson('/api/v1/accounting/omzet/'.$record['id'], $this->payload(['version' => $validated['version'], 'cash_amount' => '0']))->assertStatus(409);
         $this->action($validated, 'review', 'reviewer.omzet@dashboard.test', ['decision' => 'validate'])->assertStatus(409);
         $this->assertCount(3, $validated['events']);
-        $summary = $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/omzet?month=2026-10')->assertOk()->json('data.summary');
+        $list = $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/omzet?month=2026-10')->assertOk()
+            ->assertJsonPath('data.items.0.workflow.next_role', 'COMPLETED')
+            ->assertJsonPath('data.items.0.workflow.last_action', 'review')
+            ->json('data');
+        $summary = $list['summary'];
+        $this->assertSame(['next_role', 'last_action', 'last_transition_at', 'reason'], array_keys($list['items'][0]['workflow']));
         $this->assertSame(1, $summary['validated_count']);
         $this->assertSame(1, $summary['total_records']);
         $this->assertSame(1, $summary['status_counts']['validated']);

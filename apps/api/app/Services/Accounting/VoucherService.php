@@ -33,6 +33,25 @@ class VoucherService
         return Voucher::where('division_code', 'ACC');
     }
 
+    private function workflow(Voucher $record, array $payment, ?object $event): array
+    {
+        $metadata = ! $event ? [] : (is_array($event->metadata) ? $event->metadata : json_decode($event->metadata, true));
+        $nextRole = match ($record->status) {
+            'draft', 'correction' => 'ADMIN',
+            'submitted' => 'ACCOUNTING',
+            'pending_approval' => 'MANAGER',
+            'approved' => VoucherPaymentService::cents($payment['remaining_amount']) > 0 ? 'FINANCE' : 'COMPLETED',
+            default => 'COMPLETED',
+        };
+
+        return [
+            'next_role' => $nextRole,
+            'last_action' => $event?->action ?? 'created',
+            'last_transition_at' => $event?->created_at ?? $record->updated_at?->toIso8601String() ?? $record->created_at?->toIso8601String(),
+            'reason' => $metadata['reason'] ?? null,
+        ];
+    }
+
     public function list(array $filters): array
     {
         $start = CarbonImmutable::createFromFormat('!Y-m', $filters['month'])->startOfMonth();
@@ -66,12 +85,16 @@ class VoucherService
             $query->where('status', $filters['status']);
         }
         $page = $query->withSum(['payments' => fn ($q) => $q->where('status', 'recorded')], 'amount_cents')->orderByDesc('voucher_date')->orderByDesc('created_at')->orderBy('id')->paginate(25);
+        $recordIds = $page->getCollection()->pluck('id')->all();
+        $latestEvents = DB::table('acc_voucher_events')->whereIn('voucher_id', $recordIds)->orderByDesc('id')->get()->groupBy('voucher_id')
+            ->map(fn ($events) => $events->first());
 
-        return ['items' => collect($page->items())->map(function ($record) {
+        return ['items' => collect($page->items())->map(function ($record) use ($latestEvents) {
             $data = $record->toArray();
             unset($data['payments_sum_amount_cents']);
+            $payment = VoucherPaymentService::summary($record);
 
-            return $data + ['payment_summary' => VoucherPaymentService::summary($record)];
+            return $data + ['payment_summary' => $payment, 'workflow' => $this->workflow($record, $payment, $latestEvents->get($record->id))];
         })->all(), 'total' => $page->total(), 'current_page' => $page->currentPage(), 'last_page' => $page->lastPage(), 'summary' => $summary];
     }
 
@@ -89,7 +112,9 @@ class VoucherService
             $data['bank_account'] = $record->bank_account;
         }
 
-        return $data + ['payment_summary' => VoucherPaymentService::summary($record), 'payments' => VoucherPayment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray(), 'events' => $events, 'attachments' => VoucherAttachment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray()];
+        $payment = VoucherPaymentService::summary($record);
+
+        return $data + ['payment_summary' => $payment, 'workflow' => $this->workflow($record, $payment, $events->last()), 'payments' => VoucherPayment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray(), 'events' => $events, 'attachments' => VoucherAttachment::where('voucher_id', $id)->orderBy('created_at')->orderBy('id')->get()->toArray()];
     }
 
     public function attach(string $id, int $version, UploadedFile $file, array $user): array

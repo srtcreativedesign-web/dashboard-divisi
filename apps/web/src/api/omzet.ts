@@ -17,12 +17,16 @@ export interface OmzetInput {
   notes: string;
 }
 export type OmzetStatus = 'draft' | 'submitted' | 'correction' | 'pending_approval' | 'validated';
+export interface WorkflowProjection { next_role: 'ADMIN' | 'ACCOUNTING' | 'MANAGER' | 'FINANCE' | 'COMPLETED'; last_action: string; last_transition_at: string | null; reason: string | null }
 export interface OmzetRecord extends OmzetInput {
   id: string;
   outlet_name: string;
   source_division_code: string;
   status: OmzetStatus;
   version: number;
+  created_at?: string;
+  updated_at?: string;
+  workflow?: WorkflowProjection;
   ap_amount: string | null;
   received_amount: string;
   payment_difference: string;

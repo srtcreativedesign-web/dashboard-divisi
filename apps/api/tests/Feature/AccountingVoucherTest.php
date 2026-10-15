@@ -56,6 +56,12 @@ class AccountingVoucherTest extends TestCase
         $this->assertNotSame($approved['created_by'], $approved['reviewed_by']);
         $this->assertNotSame($approved['reviewed_by'], $approved['approved_by']);
         $this->assertCount(4, $approved['events']);
+        $workflow = $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/vouchers?month=2026-10')->assertOk()
+            ->assertJsonPath('data.items.0.workflow.next_role', 'FINANCE')
+            ->assertJsonPath('data.items.0.workflow.last_action', 'decide')
+            ->assertJsonPath('data.items.0.workflow.reason', 'Dokumen dan kebutuhan telah disetujui')
+            ->json('data.items.0.workflow');
+        $this->assertSame(['next_role', 'last_action', 'last_transition_at', 'reason'], array_keys($workflow));
         $this->assertSame('1234.56', $approved['events'][0]['metadata']['snapshot']['amount']);
         $this->authenticated('admin.acc@dashboard.test')->putJson('/api/v1/accounting/vouchers/'.$record['id'], $this->payload(['version' => $approved['version'], 'amount' => '50']))->assertStatus(409);
         $this->action($approved, 'submit', 'admin.acc@dashboard.test')->assertStatus(409);

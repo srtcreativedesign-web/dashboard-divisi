@@ -14,6 +14,8 @@ export const currentWorkMonth = () => {
 };
 const isNonZero = (value: string | null | undefined) => Boolean(value && Number(value) !== 0);
 const localDate = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const ownerLabels: Record<string, string> = { ADMIN: 'Admin Accounting', ACCOUNTING: 'Staff Accounting', MANAGER: 'Manager Accounting', FINANCE: 'Staff Finance', COMPLETED: 'Selesai' };
+const ownerFor = (nextRole: string | undefined, fallback: string) => nextRole ? ownerLabels[nextRole] ?? fallback : fallback;
 export function useAccountingWork(kind: WorkKind, month: string, outlet: string, status: WorkStatus, page: number) {
   const { user } = useAuth();
   const can = (capability: string) => hasCapability(user?.role ?? '', capability, user?.divisionCode);
@@ -29,13 +31,15 @@ export function useAccountingWork(kind: WorkKind, month: string, outlet: string,
       return { ...data, items: data.items.map(r => {
         const apRisk = r.requires_ap && isNonZero(r.ap_difference);
         const paymentRisk = isNonZero(r.payment_difference);
-        return { id: r.id, date: r.business_date, context: `Shift ${r.shift}`, outlet: r.outlet_name, division: r.source_division_code, amount: r.outlet_amount, reference: r.source_reference, note: r.review_notes || r.decision_notes || r.notes, version: r.version, deadline: r.submission_window.deadline, canSubmit: r.submission_window.can_submit, requiresAp: r.requires_ap, paymentStatus: null as string | null, riskLevel: apRisk ? 'critical' : paymentRisk ? 'attention' : 'normal', riskNote: apRisk ? `Selisih laporan AP ${r.ap_difference}` : paymentRisk ? `Selisih kanal pembayaran ${r.payment_difference}` : r.requires_ap ? 'Laporan AP cocok' : 'Tanpa sumber AP' };
+        const fallbackOwner = state === 'draft' || state === 'correction' ? 'Admin Accounting' : state === 'submitted' ? 'Staff Accounting' : state === 'pending_approval' ? 'Manager Accounting' : 'Selesai';
+        return { id: r.id, date: r.business_date, context: `Shift ${r.shift}`, outlet: r.outlet_name, division: r.source_division_code, amount: r.outlet_amount, reference: r.source_reference, note: r.review_notes || r.decision_notes || r.notes, version: r.version, deadline: r.submission_window.deadline, canSubmit: r.submission_window.can_submit, requiresAp: r.requires_ap, paymentStatus: null as string | null, owner: ownerFor(r.workflow?.next_role, fallbackOwner), lastActivityAt: r.workflow?.last_transition_at ?? r.updated_at ?? r.created_at ?? null, lastAction: r.workflow?.last_action ?? 'status_recorded', transitionReason: r.workflow?.reason ?? null, riskLevel: apRisk ? 'critical' : paymentRisk ? 'attention' : 'normal', riskNote: apRisk ? `Selisih laporan AP ${r.ap_difference}` : paymentRisk ? `Selisih kanal pembayaran ${r.payment_difference}` : r.requires_ap ? 'Laporan AP cocok' : 'Tanpa sumber AP' };
       }) };
     }
     const { data } = await voucherApi.list({ month, outlet_id: outlet, status: actualStatus, type: '', page: String(requestedPage) });
     return { ...data, items: data.items.map(r => {
       const overdue = r.due_date < localDate(); const urgent = r.priority === 'URGENT';
-      return { id: r.id, date: r.voucher_date, context: r.voucher_no, outlet: r.outlet_name, division: r.source_division_code, amount: r.amount, reference: r.entity_name, note: r.review_notes || r.decision_notes || r.description, version: r.version, deadline: r.due_date, canSubmit: true, requiresAp: false, paymentStatus: r.payment_summary?.status ?? null, riskLevel: overdue || urgent ? 'critical' : r.payment_method === 'UNDECIDED' ? 'attention' : 'normal', riskNote: overdue ? 'Lewat jatuh tempo' : urgent ? 'Prioritas mendesak' : r.payment_method === 'UNDECIDED' ? 'Metode pembayaran belum ditetapkan' : `Rencana ${r.payment_method === 'BANK' ? 'bank' : 'tunai'}` };
+      const fallbackOwner = state === 'draft' || state === 'correction' ? 'Admin Accounting' : state === 'submitted' ? 'Staff Accounting' : state === 'pending_approval' ? 'Manager Accounting' : r.payment_summary?.status === 'PAID' ? 'Selesai' : 'Staff Finance';
+      return { id: r.id, date: r.voucher_date, context: r.voucher_no, outlet: r.outlet_name, division: r.source_division_code, amount: r.amount, reference: r.entity_name, note: r.review_notes || r.decision_notes || r.description, version: r.version, deadline: r.due_date, canSubmit: true, requiresAp: false, paymentStatus: r.payment_summary?.status ?? null, owner: ownerFor(r.workflow?.next_role, fallbackOwner), lastActivityAt: r.workflow?.last_transition_at ?? r.updated_at ?? r.created_at ?? null, lastAction: r.workflow?.last_action ?? 'status_recorded', transitionReason: r.workflow?.reason ?? null, riskLevel: overdue || urgent ? 'critical' : r.payment_method === 'UNDECIDED' ? 'attention' : 'normal', riskNote: overdue ? 'Lewat jatuh tempo' : urgent ? 'Prioritas mendesak' : r.payment_method === 'UNDECIDED' ? 'Metode pembayaran belum ditetapkan' : `Rencana ${r.payment_method === 'BANK' ? 'bank' : 'tunai'}` };
     }) };
   };
   const query = useQuery({ queryKey: ['accounting-work', kind, month, outlet, status, page], queryFn: () => list(status, page), enabled: allowed && validMonth });
