@@ -147,6 +147,7 @@ Sebuah halaman selesai apabila:
   - [x] Browser UAT Persediaan untuk Admin, Admin Gudang, Manager, Staff Accounting, dan Finance: tindakan maker-checker, pembaca, serta penolakan akses terpisah sesuai role/state. Dokumen 105.
   - [x] Browser UAT desktop terang/gelap dan mobile 390×844 untuk Rekap Kehadiran; mobile Persediaan dan urutan fokus awal sidebar. Dokumen 105.
   - [x] Browser UAT tablet 768×1024 Persediaan, nama aksesibel tindakan, serta error/retry Rekap Kehadiran dan Persediaan. Dokumen 105.
+  - [x] Browser UAT form dan register Omzet H+1 serta Voucher: desktop/mobile, urutan fokus awal, nama tindakan per dokumen, serta error/retry API. Dokumen 106.
   - [ ] Audit keyboard/focus menyeluruh untuk halaman Accounting dan Cellular lainnya.
 
 ## Urutan eksekusi aktif

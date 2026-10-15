@@ -38,7 +38,7 @@ describe('Alur rekap omzet sesuai role', () => {
     vi.mocked(omzetApi.save).mockResolvedValue(envelope(draft));
     vi.mocked(omzetApi.detail).mockResolvedValue(envelope(draft));
     mount();
-    await screen.findByRole('button', { name: 'Buka rekap' });
+    await screen.findByRole('button', { name: 'Buka rekap Laporan anonim' });
     fireEvent.click(screen.getByRole('button', { name: 'Buat rekap' }));
     const form = within(screen.getByRole('form', { name: 'Form rekap omzet' }));
     fireEvent.change(form.getByLabelText('Outlet'), { target: { value: 'outlet-1' } });
@@ -56,7 +56,7 @@ describe('Alur rekap omzet sesuai role', () => {
     identity.role = 'ACCOUNTING';
     vi.mocked(omzetApi.action).mockResolvedValue(envelope({ ...fixture, status: 'pending_approval', ap_amount: '950', ap_difference: '50', version: 3 }));
     mount();
-    fireEvent.click(await screen.findByRole('button', { name: 'Buka rekap' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Buka rekap Laporan anonim' }));
     fireEvent.change(await screen.findByLabelText('Omzet laporan Angkasa Pura (Rp)'), { target: { value: '950' } });
     fireEvent.change(screen.getByLabelText('Catatan / alasan tindakan'), { target: { value: 'Selisih laporan AP perlu ditinjau' } });
     fireEvent.click(screen.getByRole('button', { name: 'Validasi rekap' }));
@@ -69,7 +69,7 @@ describe('Alur rekap omzet sesuai role', () => {
     identity.role = 'MANAGER';
     vi.mocked(omzetApi.detail).mockResolvedValue(envelope({ ...fixture, status: 'pending_approval' }));
     mount();
-    fireEvent.click(await screen.findByRole('button', { name: 'Buka rekap' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Buka rekap Laporan anonim' }));
     const approve = await screen.findByRole('button', { name: 'Setujui rekap dengan selisih' });
     expect(approve).toBeDisabled();
     fireEvent.change(screen.getByLabelText('Catatan / alasan tindakan'), { target: { value: 'Bukti selisih sudah diperiksa' } });
@@ -81,7 +81,7 @@ describe('Alur rekap omzet sesuai role', () => {
   it('rekap tervalidasi tidak menawarkan perubahan kepada Admin', async () => {
     vi.mocked(omzetApi.detail).mockResolvedValue(envelope({ ...fixture, status: 'validated' }));
     mount();
-    fireEvent.click(await screen.findByRole('button', { name: 'Buka rekap' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Buka rekap Laporan anonim' }));
     await screen.findByRole('heading', { name: 'Riwayat perubahan' });
     expect(screen.queryByRole('button', { name: 'Edit draf' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Ajukan pemeriksaan' })).not.toBeInTheDocument();
@@ -103,7 +103,7 @@ it('tautan antrean membuka UUID rekap langsung; UUID palsu tidak memicu detail',
   await waitFor(() => expect(omzetApi.detail).toHaveBeenCalledWith(id));
   cleanup(); client.clear(); vi.mocked(omzetApi.detail).mockClear();
   mount('/accounting/pendapatan/rekap?rekap=private-path');
-  await screen.findByRole('button', { name: 'Buka rekap' });
+  await screen.findByRole('button', { name: 'Buka rekap Laporan anonim' });
   expect(omzetApi.detail).not.toHaveBeenCalled();
 });
 it('tautan buat membuka form draf hanya untuk Admin', async () => {
@@ -111,6 +111,17 @@ it('tautan buat membuka form draf hanya untuk Admin', async () => {
   expect(await screen.findByRole('form', { name: 'Form rekap omzet' })).toBeInTheDocument();
   cleanup(); client.clear(); identity.role = 'ACCOUNTING';
   mount('/accounting/pendapatan/rekap?new=1');
-  await screen.findByRole('button', { name: 'Buka rekap' });
+  await screen.findByRole('button', { name: 'Buka rekap Laporan anonim' });
   expect(screen.queryByRole('form', { name: 'Form rekap omzet' })).not.toBeInTheDocument();
+});
+
+it('register omzet dapat mencoba ulang ketika layanan gagal', async () => {
+  const request = vi.mocked(omzetApi.list)
+    .mockRejectedValueOnce(new Error('Register omzet belum tersedia'))
+    .mockResolvedValue(envelope({ items: [fixture], total: 1, current_page: 1, last_page: 1, summary: { validated_count: 0, total_records: 1, exception_count: 0, status_counts: { draft: 0, submitted: 1, correction: 0, pending_approval: 0, validated: 0 }, outlet_amount: '0', received_amount: '0', ap_difference: '0' } }));
+  mount();
+  expect(await screen.findByRole('alert')).toHaveTextContent('Register omzet belum tersedia');
+  fireEvent.click(screen.getByRole('button', { name: 'Coba Lagi' }));
+  expect(await screen.findByRole('button', { name: 'Buka rekap Laporan anonim' })).toBeInTheDocument();
+  expect(request).toHaveBeenCalledTimes(2);
 });
