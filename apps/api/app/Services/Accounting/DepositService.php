@@ -55,19 +55,33 @@ class DepositService
         return $r;
     }
 
-    private function present(object $r): array
+    private function workflow(object $r, int $received, ?object $event): array
+    {
+        return [
+            'next_role' => $r->status === 'voided' || $received >= (int) $r->amount_cents ? 'COMPLETED' : 'FINANCE',
+            'last_action' => $event?->action ?? 'created',
+            'last_transition_at' => $event?->created_at ? (string) $event->created_at : null,
+            'reason' => $event?->reason,
+        ];
+    }
+
+    private function present(object $r, ?object $source = null, ?int $received = null, ?object $event = null, bool $queryEvent = true): array
     {
         $a = (array) $r;
         unset($a['source_key']);
-        $received = (int) DB::table('acc_deposit_receipts')->where('deposit_id', $r->id)->where('status', 'recorded')->sum('amount_cents');
+        $received ??= (int) DB::table('acc_deposit_receipts')->where('deposit_id', $r->id)->where('status', 'recorded')->sum('amount_cents');
+        if ($queryEvent && ! $event) {
+            $event = DB::table('acc_deposit_events')->where('deposit_id', $r->id)->orderByDesc('version')->first();
+        }
         $a['amount'] = $this->money((int) $r->amount_cents);
         $a['received_amount'] = $this->money($received);
         $a['remaining_amount'] = $this->money($r->status === 'voided' ? 0 : (int) $r->amount_cents - $received);
         unset($a['amount_cents']);
-        $o = OmzetRecord::where('division_code', 'ACC')->findOrFail($r->omzet_id);
+        $o = $source ?? OmzetRecord::where('division_code', 'ACC')->findOrFail($r->omzet_id);
         $a['outlet_name'] = $o->outlet_name;
-        $a['business_date'] = $o->business_date->toDateString();
+        $a['business_date'] = $o->business_date instanceof \DateTimeInterface ? $o->business_date->format('Y-m-d') : (string) $o->business_date;
         $a['shift'] = $o->shift;
+        $a['workflow'] = $this->workflow($r, $received, $event);
 
         return $a;
     }
@@ -112,7 +126,23 @@ class DepositService
         $total = (clone $q)->count();
         $page = (int) ($f['page'] ?? 1);
 
-        return ['items' => $q->orderByDesc('deposit_date')->orderBy('id')->offset(($page - 1) * 50)->limit(50)->get()->map(fn ($r) => $this->present($r))->all(), 'total' => $total, 'page' => $page, 'source' => $source];
+        $rows = $q->orderByDesc('deposit_date')->orderBy('id')->offset(($page - 1) * 50)->limit(50)->get();
+        $depositIds = $rows->pluck('id');
+        $sources = OmzetRecord::where('division_code', 'ACC')->whereIn('id', $rows->pluck('omzet_id'))->get()->keyBy('id');
+        $received = DB::table('acc_deposit_receipts')->whereIn('deposit_id', $depositIds)->where('status', 'recorded')
+            ->select('deposit_id', DB::raw('SUM(amount_cents) as received_amount'))->groupBy('deposit_id')->pluck('received_amount', 'deposit_id');
+        $events = DB::table('acc_deposit_events')->whereIn('deposit_id', $depositIds)->orderByDesc('version')
+            ->get()->groupBy('deposit_id')->map(fn ($items) => $items->first());
+        $items = $rows->map(function ($row) use ($sources, $received, $events) {
+            $sourceRecord = $sources->get($row->omzet_id);
+            if (! $sourceRecord) {
+                throw new ApiException('RESOURCE_NOT_FOUND', 'Sumber omzet setoran tidak ditemukan.');
+            }
+
+            return $this->present($row, $sourceRecord, (int) ($received[$row->id] ?? 0), $events->get($row->id), false);
+        })->all();
+
+        return ['items' => $items, 'total' => $total, 'page' => $page, 'source' => $source];
     }
 
     public function reconciliation(array $f, array $u): array

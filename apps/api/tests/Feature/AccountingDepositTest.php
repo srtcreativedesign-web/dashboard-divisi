@@ -184,6 +184,27 @@ class AccountingDepositTest extends TestCase
         $this->assertDatabaseCount('acc_deposit_events', 4);
     }
 
+    public function test_register_exposes_safe_workflow_context_and_updates_next_owner(): void
+    {
+        $created = $this->postJson('/api/v1/accounting/deposits', $this->payload())->assertCreated()
+            ->assertJsonPath('data.workflow.next_role', 'FINANCE')
+            ->assertJsonPath('data.workflow.last_action', 'created')
+            ->json('data');
+        $keys = array_keys($created['workflow']);
+        sort($keys);
+        $this->assertSame(['last_action', 'last_transition_at', 'next_role', 'reason'], $keys);
+        $this->assertNotNull($created['workflow']['last_transition_at']);
+
+        $this->authenticated('finance@dashboard.test');
+        $this->postJson('/api/v1/accounting/deposits/'.$created['id'].'/receive', $this->receipt(1, '500.25'))
+            ->assertOk()->assertJsonPath('data.workflow.next_role', 'COMPLETED')->assertJsonPath('data.workflow.last_action', 'receive');
+        $listed = $this->getJson('/api/v1/accounting/deposits?month='.now('Asia/Jakarta')->format('Y-m').'&page=1')->assertOk()
+            ->assertJsonPath('data.items.0.workflow.next_role', 'COMPLETED')->assertJsonPath('data.items.0.workflow.last_action', 'receive')
+            ->json('data.items.0.workflow');
+        $this->assertArrayNotHasKey('actor_id', $listed);
+        $this->assertArrayNotHasKey('snapshot', $listed);
+    }
+
     public function test_allocation_reference_and_source_validation(): void
     {
         $d = $this->payload();
