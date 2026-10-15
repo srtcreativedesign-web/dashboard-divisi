@@ -101,6 +101,7 @@ class ProjectSeeder extends Seeder
                 'title' => 'Tahap Perencanaan',
                 'weight_percentage' => 20,
                 'payment_status' => true,
+                'start_date' => $project->start_date,
                 'due_date' => Carbon::parse($project->start_date)->addDays(14),
                 'status' => 'completed',
             ]);
@@ -111,6 +112,7 @@ class ProjectSeeder extends Seeder
                     'title' => 'Pekerjaan Fondasi',
                     'weight_percentage' => 30,
                     'payment_status' => $project->status === 'completed',
+                    'start_date' => Carbon::parse($project->start_date)->addDays(14),
                     'due_date' => Carbon::parse($project->start_date)->addMonths(1),
                     'status' => $project->status === 'completed' ? 'completed' : 'in_progress',
                 ]);

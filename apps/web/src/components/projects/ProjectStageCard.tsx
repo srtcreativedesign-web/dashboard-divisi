@@ -9,12 +9,13 @@ import {
   FileSpreadsheet,
   User,
   AlertCircle,
+  FolderKanban,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ProjectStageCardProps {
   project: Project;
-  onStageClick: (project: Project, milestone: ProjectMilestone) => void;
+  onStageClick: (project: Project, milestone: ProjectMilestone, stageKey?: string) => void;
   onDeleteProject?: (project: Project) => void;
   onRabClick?: (project: Project) => void;
 }
@@ -61,6 +62,7 @@ export function ProjectStageCard({
 
       if (found) {
         return {
+          key: std.key,
           milestone: found,
           stageTitle: found.title.startsWith(`${idx + 1}.`) ? found.title : std.title,
           status: found.status || 'pending',
@@ -82,6 +84,7 @@ export function ProjectStageCard({
       };
 
       return {
+        key: std.key,
         milestone: virtualMilestone,
         stageTitle: std.title,
         status: 'pending',
@@ -118,6 +121,17 @@ export function ProjectStageCard({
 
         {/* Right Badges & Actions */}
         <div className="flex items-center gap-2">
+          {/* Detail Button */}
+          <button
+            type="button"
+            onClick={() => navigate(`/projects/${project.id}`)}
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-primary-50 hover:bg-primary-100 text-primary-700 text-xs font-semibold border border-primary-200 transition-colors"
+            title="Buka halaman detail proyek dengan menu Tahapan, RAB, Termin, Time Plan, dan lainnya"
+          >
+            <FolderKanban className="h-3.5 w-3.5" />
+            <span>Detail</span>
+          </button>
+
           {/* RAB Badge */}
           <button
             type="button"
@@ -201,7 +215,7 @@ export function ProjectStageCard({
           return (
             <div
               key={sIdx}
-              onClick={() => onStageClick(project, stage.milestone)}
+              onClick={() => onStageClick(project, stage.milestone, stage.key)}
               className={`group/stage relative rounded-card p-3 border cursor-pointer transition-all ${
                 isCompleted
                   ? 'bg-emerald-50/70 border-emerald-300 hover:border-emerald-400 hover:bg-emerald-100/60 shadow-xs'

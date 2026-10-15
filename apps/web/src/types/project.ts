@@ -37,6 +37,7 @@ export interface ProjectMilestone {
   actual_percentage?: number;
   status: string;
   payment_status: boolean;
+  start_date?: string;
   due_date?: string;
   completion_date?: string;
   notes?: string;
@@ -167,6 +168,8 @@ export interface Project {
   documents?: ProjectDocument[];
   vendors?: ProjectVendor[];
   photos?: ProjectProgressPhoto[];
+  pettyCashes?: ProjectPettyCash[];
+  petty_cashes?: ProjectPettyCash[];
 }
 
 export interface PaginatedResponse<T> {

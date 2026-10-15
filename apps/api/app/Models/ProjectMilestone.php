@@ -16,6 +16,7 @@ class ProjectMilestone extends Model
         'status',
         'payment_status',
         'due_date',
+        'start_date',
         'actual_percentage',
         'completion_date',
         'notes',
@@ -27,6 +28,7 @@ class ProjectMilestone extends Model
         'actual_percentage' => 'float',
         'completion_date' => 'date:Y-m-d',
         'due_date' => 'date:Y-m-d',
+        'start_date' => 'date:Y-m-d',
     ];
 
     public function project()

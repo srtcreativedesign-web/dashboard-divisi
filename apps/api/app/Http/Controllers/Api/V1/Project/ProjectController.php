@@ -135,6 +135,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'weight_percentage' => 'required|numeric|min:0|max:100',
+            'start_date' => 'nullable|date',
             'due_date' => 'nullable|date',
             'notes' => 'nullable|string|max:500',
         ]);
@@ -144,6 +145,7 @@ class ProjectController extends Controller
             'weight_percentage' => $validated['weight_percentage'],
             'status' => 'pending',
             'payment_status' => false,
+            'start_date' => $validated['start_date'] ?? null,
             'due_date' => $validated['due_date'] ?? null,
             'notes' => $validated['notes'] ?? null,
         ]);
@@ -159,6 +161,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'status' => 'nullable|in:pending,in_progress,completed',
             'notes' => 'nullable|string|max:500',
+            'start_date' => 'nullable|date',
             'completion_date' => 'nullable|date',
             'actual_percentage' => 'nullable|numeric|min:0|max:100',
             'payment_status' => 'nullable|boolean',

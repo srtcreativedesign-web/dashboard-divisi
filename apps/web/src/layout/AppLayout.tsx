@@ -26,6 +26,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/budgeting': Calculator,
   '/cashflow': DollarSign,
   '/pnl': PieChart,
+  '/kalender': Calendar,
   // Accounting routes
   '/accounting': LayoutDashboard,
   '/accounting/omzet': TrendingUp,
@@ -38,6 +39,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/accounting/pemasukan': DollarSign,
   '/accounting/stok': Package,
   '/accounting/operasional/persediaan': Boxes,
+  '/accounting/kalender': Calendar,
   '/accounting/audit': ShieldAlert,
   '/accounting/komisi': Coins,
   '/accounting/jurnal': BookOpenText,
@@ -62,6 +64,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/projects/documents': FileText,
   '/projects/rab': Calculator,
   '/projects/timeline': Calendar,
+  '/projects/calendar': Calendar,
   '/projects/lpj': ClipboardCheck,
   // Cellular routes
   '/cellular': LayoutDashboard,
@@ -73,6 +76,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/cellular/laporan': BarChart3,
   '/cellular/produk': Package,
   '/cellular/persediaan': Boxes,
+  '/cellular/kalender': Calendar,
   '/cellular/integrasi': Database,
 };
 

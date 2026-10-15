@@ -30,6 +30,7 @@ const mockMilestone: ProjectMilestone = {
   status: 'pending',
   payment_status: false,
   notes: 'Survei lokasi',
+  start_date: '2026-03-05',
   created_at: '2026-03-01T00:00:00Z',
   updated_at: '2026-03-01T00:00:00Z',
 };
@@ -49,6 +50,7 @@ describe('MilestoneUpdateModal', () => {
     expect(screen.getByText('WO/MAINT/2026/038')).toBeInTheDocument();
     expect(screen.getByText('1. SURVEI')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Survei lokasi')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('2026-03-05')).toBeInTheDocument();
     expect(screen.getByText('Selesai')).toBeInTheDocument();
     expect(screen.getByText('Sedang Berjalan')).toBeInTheDocument();
   });
@@ -89,10 +91,57 @@ describe('MilestoneUpdateModal', () => {
         expect.objectContaining({
           status: 'completed',
           notes: 'Survei lokasi selesai disetujui',
+          start_date: '2026-03-05',
         })
       );
       expect(handleSuccess).toHaveBeenCalled();
       expect(handleClose).toHaveBeenCalled();
     });
+  });
+
+  it('menampilkan linimasa gantt proyek saat showTimeline aktif', () => {
+    const timelineProject: Project = {
+      ...mockProject,
+      start_date: '2026-03-01',
+      end_date: '2026-03-31',
+      milestones: [
+        { ...mockMilestone, due_date: '2026-03-10' },
+        {
+          ...mockMilestone,
+          id: 102,
+          title: '2. IZIN KERJA',
+          start_date: '2026-03-11',
+          due_date: '2026-03-20',
+        },
+      ],
+    };
+
+    render(
+      <MilestoneUpdateModal
+        isOpen={true}
+        onClose={vi.fn()}
+        project={timelineProject}
+        milestone={timelineProject.milestones![0]!}
+        showTimeline
+        onSuccess={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Linimasa Gantt Proyek')).toBeInTheDocument();
+    expect(screen.getByText('2. IZIN KERJA')).toBeInTheDocument();
+  });
+
+  it('tidak menampilkan gantt saat showTimeline tidak aktif', () => {
+    render(
+      <MilestoneUpdateModal
+        isOpen={true}
+        onClose={vi.fn()}
+        project={mockProject}
+        milestone={mockMilestone}
+        onSuccess={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByText('Linimasa Gantt Proyek')).not.toBeInTheDocument();
   });
 });

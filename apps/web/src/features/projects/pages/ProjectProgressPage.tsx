@@ -37,6 +37,7 @@ export default function ProjectProgressPage() {
   const [milestoneForm, setMilestoneForm] = useState({
     title: '',
     weight_percentage: 0,
+    start_date: '',
     due_date: '',
   });
 
@@ -122,13 +123,14 @@ export default function ProjectProgressPage() {
             await projectApi.addMilestone(project.id, {
               title: milestoneForm.title,
               weight_percentage: milestoneForm.weight_percentage,
+              start_date: milestoneForm.start_date || null,
               due_date: milestoneForm.due_date || null,
               actual_percentage: 0,
               status: 'pending',
             });
             await refreshProject();
             setShowAddMilestoneModal(false);
-            setMilestoneForm({ title: '', weight_percentage: 0, due_date: '' });
+            setMilestoneForm({ title: '', weight_percentage: 0, start_date: '', due_date: '' });
           } catch (err: any) {
             alert(err.message || 'Gagal menambah milestone');
           } finally {
@@ -422,7 +424,7 @@ export default function ProjectProgressPage() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
                           Bobot Pekerjaan (%) <span className="text-danger dark:text-red-300">*</span>
@@ -436,6 +438,18 @@ export default function ProjectProgressPage() {
                           value={milestoneForm.weight_percentage || ''}
                           onChange={(e) => setMilestoneForm({ ...milestoneForm, weight_percentage: parseFloat(e.target.value) || 0 })}
                           className="w-full rounded-input border border-line px-3.5 py-2 text-xs font-medium text-navy focus:outline-none focus:ring-1 focus:ring-primary-500 font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1.5">
+                          Tanggal Mulai
+                        </label>
+                        <input
+                          type="date"
+                          value={milestoneForm.start_date}
+                          onChange={(e) => setMilestoneForm({ ...milestoneForm, start_date: e.target.value })}
+                          className="w-full rounded-input border border-line px-3.5 py-2 text-xs font-medium text-navy focus:outline-none focus:ring-1 focus:ring-primary-500"
                         />
                       </div>
 
