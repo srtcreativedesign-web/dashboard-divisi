@@ -75,6 +75,13 @@ class AccTransactionService
             ->orderBy('id', 'asc')
             ->forPage($page, $perPage)
             ->get();
+        $latestHistories = AccountingMasterHistory::where('entity_type', 'TRANSACTION')
+            ->whereIn('entity_id', $items->pluck('id'))
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get()
+            ->groupBy('entity_id')
+            ->map(fn ($histories) => $histories->first());
 
         $runningBalance = 0;
         if (! empty($params['period_id']) || ! empty($params['account_id'])) {
@@ -88,7 +95,7 @@ class AccTransactionService
                 $credit = (int) $item->credit_amount;
                 $runningBalance = $runningBalance + $debit - $credit;
             }
-            $resource = $this->toResource($item);
+            $resource = $this->toResource($item, $latestHistories->get($item->id), false);
             $resource['runningBalance'] = $this->decimalString($runningBalance);
             $data[] = $resource;
         }
@@ -396,7 +403,7 @@ class AccTransactionService
                 'uploaded_by_id' => $user['sub'] ?? $user['id'] ?? null,
             ]);
 
-            $this->logHistory('TRANSACTION_ATTACHMENT', $attachment->id, 'CREATE', null, $user);
+            $this->logHistory('TRANSACTION', $tx->id, 'ATTACHMENT_ADD', null, $user);
 
             return $attachment;
         });
@@ -440,8 +447,36 @@ class AccTransactionService
         ];
     }
 
-    public function toResource(AccountingTransaction $tx): array
+    protected function workflow(AccountingTransaction $tx, ?AccountingMasterHistory $history): array
     {
+        $periodStatus = strtolower((string) $tx->period?->status);
+        $nextRole = match (true) {
+            $tx->cancelled_at !== null || $periodStatus === AccPeriodService::STATUS_CLOSED => 'COMPLETED',
+            in_array($periodStatus, [AccPeriodService::STATUS_PENDING, AccPeriodService::STATUS_APPROVED], true) => 'MANAGER',
+            default => 'ADMIN',
+        };
+        $lastAction = $history?->action ?? match (true) {
+            $tx->cancelled_at !== null => 'DEACTIVATE',
+            (int) $tx->version > 1 => 'UPDATE',
+            default => 'CREATE',
+        };
+        $transitionAt = $history?->created_at ?? $tx->updated_at;
+
+        return [
+            'next_role' => $nextRole,
+            'last_action' => $lastAction,
+            'last_transition_at' => $transitionAt instanceof Carbon ? $transitionAt->toISOString() : ($transitionAt ? (string) $transitionAt : null),
+            'reason' => $tx->cancelled_at !== null ? $tx->cancellation_reason : null,
+        ];
+    }
+
+    public function toResource(AccountingTransaction $tx, ?AccountingMasterHistory $history = null, bool $queryHistory = true): array
+    {
+        if ($queryHistory && ! $history) {
+            $history = AccountingMasterHistory::where('entity_type', 'TRANSACTION')->where('entity_id', $tx->id)
+                ->orderByDesc('created_at')->orderByDesc('id')->first();
+        }
+
         return [
             'id' => $tx->id,
             'divisionId' => $tx->division_id,
@@ -470,6 +505,7 @@ class AccTransactionService
             'updatedById' => $tx->updated_by_id,
             'createdAt' => $tx->created_at?->toISOString(),
             'updatedAt' => $tx->updated_at?->toISOString(),
+            'workflow' => $this->workflow($tx, $history),
         ];
     }
 
@@ -573,7 +609,7 @@ class AccTransactionService
             : (string) Str::uuid();
 
         AccountingMasterHistory::create([
-            'id' => (string) Str::uuid(),
+            'id' => (string) Str::orderedUuid(),
             'entity_type' => $entityType,
             'entity_id' => $entityId,
             'action' => $action,

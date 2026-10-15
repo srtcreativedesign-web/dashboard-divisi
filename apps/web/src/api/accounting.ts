@@ -5,7 +5,8 @@ export interface AccPeriodReadiness { periodId: string; transactionCount: number
 export interface AccCategory { id: string; code: string; name: string; parent?: string; isActive: boolean; requiresOutlet: boolean; aliases?: { aliasCode: string; normalizedAlias: string }[] }
 export interface AccAccount { id: string; code: string; displayName: string; type: string; isActive: boolean; categoryId?: string; description?: string; outletIds?: string[] }
 export interface AccAttachment { id: string; fileName: string; fileSize: number; mimeType: string }
-export interface AccTransaction { id: string; periodId: string; accountId: string; categoryId: string; outletId?: string; transactionDate: string; description: string; referenceNo?: string; debitAmount: number | string; creditAmount: number | string; runningBalance?: number | string; isDraft: boolean; isCancelled: boolean; cancellationReason?: string; version: number; attachments?: AccAttachment[] }
+export interface AccWorkflowProjection { next_role: 'ADMIN' | 'MANAGER' | 'COMPLETED'; last_action: string; last_transition_at: string | null; reason: string | null }
+export interface AccTransaction { id: string; periodId: string; accountId: string; categoryId: string; outletId?: string; transactionDate: string; description: string; referenceNo?: string; debitAmount: number | string; creditAmount: number | string; runningBalance?: number | string; isDraft: boolean; isCancelled: boolean; cancellationReason?: string; version: number; workflow?: AccWorkflowProjection; attachments?: AccAttachment[] }
 export interface AccSummary { periodId: string; periodMonth: string; status: string; totalTransactions: number; totalDebit: number | string; totalCredit: number | string; netBalance: number | string; missingAttachmentCount: number; isReadyForSubmission: boolean }
 
 export interface AccTransactionResponse {

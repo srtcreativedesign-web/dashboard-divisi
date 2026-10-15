@@ -103,6 +103,42 @@ class AccountingTransactionTest extends TestCase
         ]);
     }
 
+    public function test_journal_register_exposes_safe_workflow_context_across_period_states(): void
+    {
+        $payload = [
+            'period_id' => $this->draftPeriod->id,
+            'account_id' => $this->accountBank->id,
+            'category_id' => $this->categoryB->id,
+            'transaction_date' => '2026-08-06',
+            'description' => 'Jurnal workflow anonim',
+            'debit_amount' => 125000,
+            'credit_amount' => 0,
+            'is_draft' => true,
+        ];
+        $created = $this->authenticated('admin.acc@dashboard.test')->postJson('/api/v1/accounting/transactions', $payload)
+            ->assertCreated()->assertJsonPath('data.workflow.next_role', 'ADMIN')->assertJsonPath('data.workflow.last_action', 'CREATE')
+            ->json('data');
+        $this->assertSame(['next_role', 'last_action', 'last_transition_at', 'reason'], array_keys($created['workflow']));
+        $this->assertNotNull($created['workflow']['last_transition_at']);
+
+        $this->putJson('/api/v1/accounting/transactions/'.$created['id'], ['description' => 'Jurnal workflow diperbarui', 'version' => 1])
+            ->assertOk()->assertJsonPath('data.workflow.last_action', 'UPDATE');
+        $listed = $this->getJson('/api/v1/accounting/transactions?period_id='.$this->draftPeriod->id)->assertOk()
+            ->assertJsonPath('data.0.workflow.next_role', 'ADMIN')->assertJsonPath('data.0.workflow.last_action', 'UPDATE')
+            ->json('data.0.workflow');
+        $this->assertArrayNotHasKey('actor_id', $listed);
+        $this->assertArrayNotHasKey('changes', $listed);
+
+        $this->draftPeriod->update(['status' => 'pending_approval']);
+        $this->getJson('/api/v1/accounting/transactions?period_id='.$this->draftPeriod->id)->assertOk()
+            ->assertJsonPath('data.0.workflow.next_role', 'MANAGER');
+
+        $this->draftPeriod->update(['status' => 'draft']);
+        $this->postJson('/api/v1/accounting/transactions/'.$created['id'].'/cancel', ['cancellation_reason' => 'Referensi jurnal perlu dibuat ulang'])
+            ->assertOk()->assertJsonPath('data.workflow.next_role', 'COMPLETED')->assertJsonPath('data.workflow.last_action', 'DEACTIVATE')
+            ->assertJsonPath('data.workflow.reason', 'Referensi jurnal perlu dibuat ulang');
+    }
+
     public function test_transaction_creation_fails_if_both_debit_and_credit_are_provided()
     {
         $payload = [
@@ -310,6 +346,8 @@ class AccountingTransactionTest extends TestCase
 
         $uploadResponse->assertStatus(201);
         $this->assertEquals('nota_bca.pdf', $uploadResponse->json('data.fileName'));
+        $this->getJson('/api/v1/accounting/transactions?period_id='.$this->draftPeriod->id)->assertOk()
+            ->assertJsonPath('data.0.workflow.last_action', 'ATTACHMENT_ADD');
 
         $attachmentId = $uploadResponse->json('data.id');
 

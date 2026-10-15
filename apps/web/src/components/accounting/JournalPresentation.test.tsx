@@ -5,7 +5,7 @@ import { JournalFilterBar } from './JournalFilterBar';
 import type { AccTransaction } from '../../api/accounting';
 
 afterEach(cleanup);
-const transaction: AccTransaction = { id: 'j1', periodId: 'p1', accountId: 'a1', categoryId: 'c1', transactionDate: '2026-10-07', description: 'Jurnal uji', debitAmount: '9007199254740993.12', creditAmount: '0.00', isDraft: true, isCancelled: false, version: 1 };
+const transaction: AccTransaction = { id: 'j1', periodId: 'p1', accountId: 'a1', categoryId: 'c1', transactionDate: '2026-10-07', description: 'Jurnal uji', debitAmount: '9007199254740993.12', creditAmount: '0.00', isDraft: true, isCancelled: false, version: 2, workflow: { next_role: 'ADMIN', last_action: 'UPDATE', last_transition_at: '2026-10-07T14:15:00+07:00', reason: null } };
 const actions = { onEdit: vi.fn(), onCancel: vi.fn(), onUpload: vi.fn(), onDownload: vi.fn() };
 describe('Penyajian jurnal Accounting', () => {
   it('mempertahankan nominal besar dan tidak mengganti saldo yang tidak tersedia dengan nol', () => {
@@ -18,6 +18,14 @@ describe('Penyajian jurnal Accounting', () => {
     render(<JournalTable transactions={[{ ...transaction, runningBalance: '0.00' }]} canWrite={false} {...actions} page={1} setPage={vi.fn()} totalPages={1} totalEntries={1} />);
     expect(screen.queryByText('Belum tersedia')).not.toBeInTheDocument();
     expect(screen.getAllByText('Rp 0,00')).toHaveLength(4);
+  });
+  it('menampilkan status, aktivitas terakhir, waktu, dan PIC pada desktop serta mobile', () => {
+    render(<JournalTable transactions={[transaction]} canWrite={false} {...actions} page={1} setPage={vi.fn()} totalPages={1} totalEntries={1} />);
+    expect(screen.getAllByText('Jurnal diperbarui')).toHaveLength(2);
+    expect(screen.getAllByText('PIC: Admin Accounting')).toHaveLength(2);
+    expect(screen.getAllByText('7 Okt 2026, 14.15')).toHaveLength(2);
+    expect(screen.getAllByText('Draf')).toHaveLength(1);
+    expect(screen.getByText('Status: Draf')).toBeInTheDocument();
   });
   it('mencegah navigasi melewati halaman terakhir setelah jumlah data berkurang', () => {
     const setPage = vi.fn();

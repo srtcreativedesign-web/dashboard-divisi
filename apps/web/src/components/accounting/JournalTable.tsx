@@ -4,6 +4,10 @@ import { useTableNavigation } from "../../hooks/useTableNavigation";
 
 import { formatRupiah } from "../../utils/format";
 const money = (v: number | string | undefined) => v == null ? "Belum tersedia" : formatRupiah(v);
+const workflowActions: Record<string, string> = { CREATE: 'Jurnal dibuat', UPDATE: 'Jurnal diperbarui', ATTACHMENT_ADD: 'Bukti dilampirkan', DEACTIVATE: 'Jurnal dibatalkan' };
+const workflowOwner = (role: 'ADMIN' | 'MANAGER' | 'COMPLETED' | undefined) => role === 'MANAGER' ? 'Manager Accounting' : role === 'COMPLETED' ? 'Selesai' : 'Admin Accounting';
+const workflowTime = (value?: string | null) => value ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Jakarta' }).format(new Date(value)) : 'Waktu belum tersedia';
+const journalStatus = (tx: AccTransaction) => tx.isCancelled ? 'Dibatalkan' : tx.isDraft ? 'Draf' : 'Siap diajukan';
 
 interface JournalTableProps {
   transactions: AccTransaction[];
@@ -36,7 +40,7 @@ export function JournalTable({
     <div className="rounded-card border border-line bg-panel shadow-sm overflow-hidden flex flex-col">
       {/* Desktop Table View */}
       <div className="hidden md:block overflow-x-auto" ref={containerRef}>
-        <table className="min-w-[900px] w-full text-left text-sm relative">
+        <table className="min-w-[1100px] w-full text-left text-sm relative">
           <thead>
             <tr className="border-b border-line bg-surface">
               <th className="p-3 font-semibold text-muted sticky left-0 z-10 bg-surface shadow-[1px_0_0_0_#e2e8f0]">Tanggal</th>
@@ -45,6 +49,7 @@ export function JournalTable({
               <th className="text-right font-semibold text-muted">Kredit</th>
               <th className="text-right font-semibold text-muted">Saldo berjalan</th>
               <th className="font-semibold text-muted">Bukti</th>
+              <th className="font-semibold text-muted">Alur kerja</th>
               <th className="font-semibold text-muted text-center">Aksi</th>
             </tr>
           </thead>
@@ -103,6 +108,12 @@ export function JournalTable({
                     )}
                   </div>
                 </td>
+                <td className="min-w-52 py-3 pr-3 align-top">
+                  <p className="font-semibold text-navy">{workflowActions[tx.workflow?.last_action ?? 'CREATE'] ?? tx.workflow?.last_action ?? 'Jurnal dibuat'}</p>
+                  <p className="mt-1 text-xs text-subtle">{workflowTime(tx.workflow?.last_transition_at)}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5"><span className="rounded-pill border border-line bg-surface px-2 py-0.5 text-[11px] font-semibold text-navy">{journalStatus(tx)}</span><span className="rounded-pill bg-primary-50 px-2 py-0.5 text-[11px] font-semibold text-primary-700 dark:bg-primary-950 dark:text-primary-300">PIC: {workflowOwner(tx.workflow?.next_role)}</span></div>
+                  {tx.workflow?.reason && <p className="mt-2 max-w-64 text-xs text-danger dark:text-red-300">{tx.workflow.reason}</p>}
+                </td>
                 <td className="text-center">
                   <div className="flex justify-center items-center gap-2">
                     {canWrite && !tx.isCancelled && (
@@ -158,6 +169,12 @@ export function JournalTable({
                 <div className="text-xs text-subtle">Saldo berjalan</div>
                 <div className="font-mono font-semibold text-navy">{money(tx.runningBalance)}</div>
               </div>
+            </div>
+
+            <div className="rounded-card border border-line bg-surface p-3 text-sm">
+              <div className="flex flex-wrap items-start justify-between gap-2"><div><p className="font-semibold text-navy">{workflowActions[tx.workflow?.last_action ?? 'CREATE'] ?? tx.workflow?.last_action ?? 'Jurnal dibuat'}</p><p className="mt-1 text-xs text-subtle">{workflowTime(tx.workflow?.last_transition_at)}</p></div><span className="rounded-pill bg-primary-50 px-2 py-1 text-[11px] font-semibold text-primary-700 dark:bg-primary-950 dark:text-primary-300">PIC: {workflowOwner(tx.workflow?.next_role)}</span></div>
+              <p className="mt-2 text-xs font-semibold text-subtle">Status: {journalStatus(tx)}</p>
+              {tx.workflow?.reason && <p className="mt-2 text-xs text-danger dark:text-red-300">{tx.workflow.reason}</p>}
             </div>
 
             <div className="flex justify-between items-center mt-1">
