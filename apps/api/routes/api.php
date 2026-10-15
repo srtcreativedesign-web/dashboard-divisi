@@ -102,13 +102,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('{id}/receipts/{receiptId}/void', [DepositController::class, 'voidReceipt'])->whereUuid('id')->whereUuid('receiptId');
             });
             Route::prefix('hr')->middleware('capability:view:acc_hr')->group(function () {
-                Route::get('employees', [HrRecapController::class, 'employees']);
-                Route::post('employees', [HrRecapController::class, 'createEmployee'])->middleware('capability:manage:acc_employees');
                 Route::get('recaps', [HrRecapController::class, 'index']);
                 Route::get('recaps/{id}', [HrRecapController::class, 'show'])->whereUuid('id');
-                Route::post('recaps', [HrRecapController::class, 'store'])->middleware('capability:write:acc_hr');
-                Route::put('recaps/{id}', [HrRecapController::class, 'update'])->whereUuid('id')->middleware('capability:write:acc_hr');
-                Route::post('recaps/{id}/void', [HrRecapController::class, 'void'])->whereUuid('id')->middleware('capability:write:acc_hr');
             });
             Route::prefix('vouchers')->middleware('capability:view:acc_detail')->group(function () {
                 Route::post('{id}/payments', [VoucherPaymentController::class, 'store'])->whereUuid('id')->middleware(['capability:execute:payment', 'file.scan']);

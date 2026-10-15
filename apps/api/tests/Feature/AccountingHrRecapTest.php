@@ -4,138 +4,113 @@ namespace Tests\Feature;
 
 use App\Models\Employee;
 use App\Models\User;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class AccountingHrRecapTest extends TestCase
 {
-    private function leave(): array
+    private function record(string $kind = 'attendance', array $overrides = []): array
     {
-        $employee = Employee::create(['code' => 'HR-ANONIM', 'name' => 'Pegawai anonim', 'is_active' => true]);
+        $employee = Employee::create(['code' => 'HR-ANONIM-'.Str::random(5), 'name' => 'Pegawai anonim', 'is_active' => true]);
+        $id = (string) Str::uuid();
+        $date = '2026-10-06';
+        $base = [
+            'id' => $id,
+            'employee_id' => $employee->id,
+            'employee_code' => $employee->code,
+            'employee_name' => $employee->name,
+            'kind' => $kind,
+            'start_date' => $date,
+            'end_date' => $kind === 'leave' ? '2026-10-07' : $date,
+            'leave_type' => $kind === 'leave' ? 'Tahunan dari sumber' : null,
+            'source_days_hundredths' => $kind === 'leave' ? 150 : null,
+            'approval_reference' => $kind === 'leave' ? 'LEAVE-SOURCE-001' : null,
+            'attendance_status' => $kind === 'attendance' ? 'SICK' : null,
+            'schedule_reference' => $kind === 'attendance' ? 'SHIFT-SOURCE-001' : null,
+            'late_minutes' => $kind === 'attendance' ? 0 : null,
+            'source_reference' => strtoupper($kind).'-SOURCE-'.$id,
+            'source_key' => hash('sha256', $id),
+            'status' => 'recorded',
+            'version' => 1,
+            'created_by' => User::where('email', 'admin.acc@dashboard.test')->value('id'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+        DB::table('acc_hr_recaps')->insert(array_replace($base, $overrides));
+
+        return array_replace($base, $overrides);
+    }
+
+    public function test_register_is_read_only_and_exposes_attendance_source_contract(): void
+    {
+        $attendance = $this->record();
+        $this->record('leave');
         $this->authenticated('admin.acc@dashboard.test');
 
-        return ['kind' => 'leave', 'employee_id' => $employee->id, 'start_date' => '2026-10-06', 'end_date' => '2026-10-07',
-            'leave_type' => 'Tahunan sesuai sumber', 'source_days' => '1.50', 'source_reference' => 'CUTI-UJI-1', 'approval_reference' => 'PERSETUJUAN-UJI-1'];
+        $response = $this->getJson('/api/v1/accounting/hr/recaps?kind=attendance&month=2026-10')->assertOk()
+            ->assertJsonPath('data.total', 1)
+            ->assertJsonPath('data.items.0.id', $attendance['id'])
+            ->assertJsonPath('data.items.0.attendance_status', 'SICK')
+            ->assertJsonPath('data.source.mode', 'read_only')
+            ->assertJsonPath('data.source.system', 'attendance_api');
+        $item = $response->json('data.items.0');
+        $this->assertArrayNotHasKey('source_key', $item);
+        $this->assertArrayNotHasKey('created_by', $item);
+        $this->assertArrayNotHasKey('workflow', $item);
+        $this->assertArrayNotHasKey('events', $item);
     }
 
-    public function test_manual_leave_correction_version_and_void_preserve_history(): void
+    public function test_detail_contains_source_values_without_internal_hr_workflow(): void
     {
-        $data = $this->leave();
-        $response = $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertCreated()->assertJsonPath('data.source_days', '1.50');
-        $id = $response->json('data.id');
-        $correction = $data;
-        unset($correction['employee_id'],$correction['source_reference']);
-        $correction += ['version' => 1, 'reason' => 'Jumlah hari sesuai sumber koreksi'];
-        $correction['source_days'] = '1.25';
-        $this->putJson('/api/v1/accounting/hr/recaps/'.$id, $correction)->assertOk()->assertJsonPath('data.version', 2)->assertJsonPath('data.events.1.before.source_days', '1.50')->assertJsonPath('data.events.1.after.source_days', '1.25');
-        $this->putJson('/api/v1/accounting/hr/recaps/'.$id, $correction)->assertStatus(409);
-        $this->putJson('/api/v1/accounting/hr/recaps/'.$id, array_replace($correction, ['version' => 2, 'employee_id' => $data['employee_id']]))->assertStatus(400);
-        $this->putJson('/api/v1/accounting/hr/recaps/'.$id, array_replace($correction, ['version' => 2, 'source_reference' => 'GANTI']))->assertStatus(400);
-        $this->postJson('/api/v1/accounting/hr/recaps/'.$id.'/void', ['version' => 2, 'reason' => 'Sumber dibatalkan oleh pihak terkait'])->assertOk()->assertJsonPath('data.status', 'voided')->assertJsonCount(3, 'data.events');
-        $this->postJson('/api/v1/accounting/hr/recaps/'.$id.'/void', ['version' => 3, 'reason' => 'Pembatalan ulang sumber'])->assertStatus(409);
-        $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertStatus(409);
-        $this->assertDatabaseCount('acc_hr_recaps', 1);
-        $this->assertDatabaseCount('acc_hr_events', 3);
-    }
+        $leave = $this->record('leave');
+        $this->authenticated('accounting@dashboard.test');
 
-    public function test_register_exposes_safe_hr_workflow_context(): void
-    {
-        $data = $this->leave();
-        $created = $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertCreated()
-            ->assertJsonPath('data.workflow.next_role', 'ADMIN')->assertJsonPath('data.workflow.last_action', 'created')->json('data');
-        $this->assertSame(['next_role', 'last_action', 'last_transition_at', 'reason'], array_keys($created['workflow']));
-        $this->assertNotNull($created['workflow']['last_transition_at']);
-
-        $correction = $data;
-        unset($correction['employee_id'], $correction['source_reference']);
-        $correction += ['version' => 1, 'reason' => 'Jumlah hari diperbaiki sesuai sumber'];
-        $correction['source_days'] = '1.25';
-        $this->putJson('/api/v1/accounting/hr/recaps/'.$created['id'], $correction)->assertOk()
-            ->assertJsonPath('data.workflow.last_action', 'corrected')->assertJsonPath('data.workflow.reason', 'Jumlah hari diperbaiki sesuai sumber');
-        $listed = $this->getJson('/api/v1/accounting/hr/recaps?kind=leave&month=2026-10')->assertOk()
-            ->assertJsonPath('data.items.0.workflow.next_role', 'ADMIN')->assertJsonPath('data.items.0.workflow.last_action', 'corrected')
-            ->json('data.items.0.workflow');
-        $this->assertArrayNotHasKey('actor_id', $listed);
-        $this->assertArrayNotHasKey('before', $listed);
-        $this->assertArrayNotHasKey('after', $listed);
-
-        $this->postJson('/api/v1/accounting/hr/recaps/'.$created['id'].'/void', ['version' => 2, 'reason' => 'Dokumen sumber dibatalkan resmi'])->assertOk()
-            ->assertJsonPath('data.workflow.next_role', 'COMPLETED')->assertJsonPath('data.workflow.last_action', 'voided');
-    }
-
-    public function test_leave_overlap_range_and_days_are_checked_without_calendar_inference(): void
-    {
-        $data = $this->leave();
-        $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertCreated();
-        $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, ['source_reference' => 'CUTI-UJI-2', 'start_date' => '2026-10-07', 'end_date' => '2026-10-08']))->assertStatus(409);
-        foreach ([['end_date' => '2026-10-01'], ['source_days' => '0'], ['source_days' => '1.123'], ['approval_reference' => '']] as $bad) {
-            $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, $bad))->assertStatus(400);
+        $response = $this->getJson('/api/v1/accounting/hr/recaps/'.$leave['id'])->assertOk()
+            ->assertJsonPath('data.leave_type', 'Tahunan dari sumber')
+            ->assertJsonPath('data.source_days', '1.50')
+            ->assertJsonPath('data.approval_reference', 'LEAVE-SOURCE-001')
+            ->assertJsonPath('data.source.mode', 'read_only');
+        $data = $response->json('data');
+        foreach (['source_key', 'created_by', 'workflow', 'events'] as $field) {
+            $this->assertArrayNotHasKey($field, $data);
         }
-        $this->getJson('/api/v1/accounting/hr/recaps?kind=leave&month=2026-10')->assertOk()->assertJsonPath('data.total', 1);
-        $this->getJson('/api/v1/accounting/hr/recaps?kind=leave&month=2026-13')->assertStatus(400);
-        $this->getJson('/api/v1/accounting/hr/recaps?kind=leave&month=2026-10&page=0')->assertStatus(400);
     }
 
-    public function test_attendance_unique_date_and_future_validation(): void
+    public function test_public_hr_write_routes_and_manual_employee_route_are_closed(): void
     {
-        $base = $this->leave();
-        $data = ['kind' => 'attendance', 'employee_id' => $base['employee_id'], 'start_date' => now('Asia/Jakarta')->toDateString(),
-            'attendance_status' => 'PRESENT', 'schedule_reference' => 'JADWAL-UJI', 'late_minutes' => 5, 'source_reference' => 'ABSEN-UJI-1'];
-        $id = $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertCreated()->assertJsonPath('data.late_minutes', 5)->json('data.id');
-        $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, ['source_reference' => 'ABSEN-UJI-2']))->assertStatus(409);
-        $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, ['start_date' => now('Asia/Jakarta')->addDay()->toDateString()]))->assertStatus(400);
-        $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, ['late_minutes' => 1441]))->assertStatus(400);
-        $this->postJson('/api/v1/accounting/hr/recaps/'.$id.'/void', ['version' => 1, 'reason' => 'Catatan keliru pada sumber'])->assertOk();
-        $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, ['source_reference' => 'ABSEN-UJI-2', 'attendance_status' => 'OFF', 'late_minutes' => 0]))->assertCreated();
-        $this->assertDatabaseCount('acc_hr_recaps', 2);
+        $record = $this->record();
+        $this->authenticated('admin.acc@dashboard.test');
+
+        $this->postJson('/api/v1/accounting/hr/recaps', [])->assertStatus(405);
+        $this->putJson('/api/v1/accounting/hr/recaps/'.$record['id'], [])->assertStatus(405);
+        $this->postJson('/api/v1/accounting/hr/recaps/'.$record['id'].'/void', [])->assertNotFound();
+        $this->getJson('/api/v1/accounting/hr/employees')->assertNotFound();
+        $this->postJson('/api/v1/accounting/hr/employees', [])->assertNotFound();
+        $this->assertDatabaseHas('acc_hr_recaps', ['id' => $record['id'], 'version' => 1, 'status' => 'recorded']);
     }
 
-    public function test_personal_data_routes_are_separately_guarded_and_manager_cannot_edit_recaps(): void
+    public function test_personal_attendance_data_remains_scoped_to_authorized_accounting_roles(): void
     {
-        $data = $this->leave();
-        $id = $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertCreated()->json('data.id');
+        $record = $this->record();
         foreach (['FINANCE', 'HEAD_OPS', 'SPV', 'LEADER', 'ADMIN_GUDANG'] as $role) {
             User::where('email', 'manager.acc@dashboard.test')->update(['role' => $role]);
-            $this->authenticated('manager.acc@dashboard.test');
-            foreach (['/employees', '/recaps?kind=leave&month=2026-10', '/recaps/'.$id] as $path) {
-                $this->getJson('/api/v1/accounting/hr'.$path)->assertForbidden()->assertDontSee('Pegawai anonim');
-            }
-            $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertForbidden();
+            $this->authenticated('manager.acc@dashboard.test')
+                ->getJson('/api/v1/accounting/hr/recaps?kind=attendance&month=2026-10')
+                ->assertForbidden()->assertDontSee('Pegawai anonim');
         }
         foreach (['bod1@dashboard.test', 'manager.cell@dashboard.test', 'manager.project@dashboard.test'] as $email) {
-            $this->authenticated($email)->getJson('/api/v1/accounting/hr/employees')->assertForbidden();
+            $this->authenticated($email)->getJson('/api/v1/accounting/hr/recaps/'.$record['id'])->assertForbidden()->assertDontSee('Pegawai anonim');
         }
         User::where('email', 'manager.acc@dashboard.test')->update(['role' => 'MANAGER']);
-        foreach (['manager.acc@dashboard.test', 'accounting@dashboard.test'] as $email) {
-            $this->authenticated($email)->getJson('/api/v1/accounting/hr/recaps/'.$id)->assertOk();
-            $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertForbidden();
-        }
+        $this->authenticated('manager.acc@dashboard.test')->getJson('/api/v1/accounting/hr/recaps/'.$record['id'])->assertOk();
     }
 
-    public function test_master_registration_minimal_and_required_audit_failure_rolls_back(): void
+    public function test_filters_validate_kind_month_and_page(): void
     {
-        $this->authenticated('manager.acc@dashboard.test');
-        $employee = ['code' => 'hr-test', 'name' => 'Pegawai sumber anonim', 'source_reference' => 'MASTER-UJI'];
-        $this->postJson('/api/v1/accounting/hr/employees', $employee)->assertCreated()->assertJsonPath('data.code', 'HR-TEST')->assertJsonMissingPath('data.source_reference');
-        $this->postJson('/api/v1/accounting/hr/employees', $employee)->assertStatus(409);
-        Schema::drop('audit_events');
-        $this->postJson('/api/v1/accounting/hr/employees', array_replace($employee, ['code' => 'HR-ROLLBACK']))->assertStatus(500);
-        $this->assertDatabaseMissing('employees', ['code' => 'HR-ROLLBACK']);
-    }
-
-    public function test_audit_failure_rolls_back_recap_and_events_and_inactive_employee_can_be_voided(): void
-    {
-        $data = $this->leave();
-        $id = $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertCreated()->json('data.id');
-        Employee::whereKey($data['employee_id'])->update(['is_active' => false]);
-        $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, ['source_reference' => 'LAIN', 'start_date' => '2026-11-01', 'end_date' => '2026-11-02']))->assertNotFound();
-        Schema::drop('audit_events');
-        $this->postJson('/api/v1/accounting/hr/recaps/'.$id.'/void', ['version' => 1, 'reason' => 'Pembatalan saat pegawai tidak aktif'])->assertStatus(500);
-        $this->assertDatabaseHas('acc_hr_recaps', ['id' => $id, 'status' => 'recorded', 'version' => 1]);
-        $this->assertDatabaseCount('acc_hr_events', 1);
-        Employee::whereKey($data['employee_id'])->update(['is_active' => true]);
-        $this->postJson('/api/v1/accounting/hr/recaps', array_replace($data, ['source_reference' => 'SUMBER-AUDIT-GAGAL', 'start_date' => '2026-11-01', 'end_date' => '2026-11-02']))->assertStatus(500);
-        $this->assertDatabaseCount('acc_hr_recaps', 1);
-        $this->assertDatabaseCount('acc_hr_events', 1);
+        $this->authenticated('admin.acc@dashboard.test');
+        $this->getJson('/api/v1/accounting/hr/recaps?kind=other&month=2026-10')->assertStatus(400);
+        $this->getJson('/api/v1/accounting/hr/recaps?kind=attendance&month=2026-13')->assertStatus(400);
+        $this->getJson('/api/v1/accounting/hr/recaps?kind=attendance&month=2026-10&page=0')->assertStatus(400);
     }
 }

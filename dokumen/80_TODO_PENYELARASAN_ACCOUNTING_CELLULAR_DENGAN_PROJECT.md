@@ -115,7 +115,7 @@ Sebuah halaman selesai apabila:
 - [x] Rombak Pencocokan Omzet–Setoran menjadi workbench periode: progres sumber, nilai omzet/alokasi/penerimaan, pengecualian, PIC berikutnya, status per sumber, dan rincian kanal responsif.
 - [x] Rombak Jurnal menjadi workbench pembukuan: ringkasan periode, kelengkapan bukti, rujukan sumber, form bertahap, kesiapan draf, periode terkunci, koreksi berversi, dan pembatalan beralasan.
 - [x] Rombak Rekap Setoran menjadi register rekonsiliasi sumber omzet, batas kanal, bukti, penerimaan Finance, sisa, status, dan audit trail.
-- [x] Pisahkan Cuti dan Absensi sebagai dokumen kerja berbeda dengan register, form bertahap, detail, koreksi berversi, pembatalan beralasan, dan histori; persetujuan tetap berupa referensi eksternal sampai kebijakan approver internal ditetapkan.
+- [x] Koreksi Cuti dan Absensi menjadi rekap read-only dari API sistem absensi kantor; pertahankan pemisahan rekap harian dan riwayat cuti tanpa form, approval, koreksi, atau pembatalan HR di ERP.
 - [x] Selaraskan master data dan staging impor: outlet server, histori, periode terbuka, klasifikasi preview, pengakuan duplikat, dan capability commit. Dokumen 93.
 - [x] Selaraskan hutang-piutang dan proyeksi cashflow: AP/AR, pihak lawan, periode, jatuh tempo, maker–executor–controller, versioning, audit, dan scope Accounting. Dokumen 94.
 - [x] Selaraskan kontrol periode: state machine tunggal, PIC, alasan keputusan, readiness jurnal/lampiran/rekening/selisih, gate server, row lock, scope, dan audit. Dokumen 95.
@@ -125,7 +125,7 @@ Sebuah halaman selesai apabila:
 - [x] Proyeksikan PIC berikutnya, aktivitas terakhir, waktu transisi, dan alasan dari event server ke register omzet/voucher tanpa membuka actor ID atau snapshot audit. Dokumen 100.
 - [x] Terapkan konteks workflow aman yang sama pada Rekap Setoran, termasuk pergantian PIC Finance menjadi selesai setelah penerimaan penuh dan query daftar tanpa N+1. Dokumen 101.
 - [x] Terapkan status, PIC berbasis state periode, aktivitas/waktu terakhir, dan alasan koreksi pada register Jurnal; catat unggahan bukti sebagai aktivitas transaksi dan batch histori daftar. Dokumen 102.
-- [x] Terapkan PIC, aktivitas/waktu terakhir, dan alasan koreksi pada register/detail Cuti dan Absensi tanpa menciptakan approval internal yang belum ditetapkan. Dokumen 103. Parent tetap terbuka untuk persediaan, staging, dan UAT pengguna.
+- [x] Hapus konsep PIC dan workflow HR internal; tampilkan sumber data, status kehadiran, periode, referensi, KPI, dan detail read-only. Dokumen 103. Parent tetap terbuka untuk konektor API, persediaan, staging, dan UAT pengguna.
 - [x] Implementasikan Payment Run Finance berbasis voucher approved: prioritas, jatuh tempo, status realisasi, sisa, bukti, dan drill-down dokumen.
 - [x] Ubah antrean Manager menjadi Decision Inbox terfokus dengan nominal, indikator risiko, konteks sumber, maker-checker, dan keputusan beralasan.
 - [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.

@@ -8,7 +8,6 @@
         "approve:omzet",
         "approve:pnl",
         "approve:voucher",
-        "manage:acc_employees",
         "manage:acc_master",
         "manage:acc_period",
         "manage:omzet_unlock",
@@ -38,7 +37,6 @@
       "ADMIN": [
         "attach:voucher",
         "import:acc_transaction",
-        "manage:acc_employees",
         "preview:cellular_report",
         "submit:acc_period",
         "view:acc_deposits",
@@ -52,11 +50,8 @@
         "view:inventory",
         "write:acc_bank",
         "write:acc_deposits",
-        "write:acc_hr",
         "write:acc_outstanding",
         "write:acc_transaction",
-        "write:attendance",
-        "write:leave_records",
         "write:omzet",
         "write:stock",
         "write:voucher"

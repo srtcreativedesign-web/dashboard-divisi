@@ -180,9 +180,9 @@ Laporan harus menyertakan sumber, periode, tenant/outlet dan status data. Data t
 
 Pekerjaan delapan role lain di Accounting belum dijelaskan sedetail Admin/Staff Accounting. Keputusan Finance, Manager, HR dan Gudang harus mengikuti [pertanyaan terbuka](17_KEPUTUSAN_RISIKO_PERTANYAAN.md), bukan hanya policy yang kebetulan sudah ada.
 
-## Rekap HR manual — 6 Oktober 2026
+## Rekap kehadiran dari API — dikoreksi 15 Oktober 2026
 
-ACC-A01/ACC-A02 kini memiliki master pegawai minimal, rekap manual dan histori koreksi/void. Hak view:acc_hr terpisah dari view:acc_detail, terbatas Manager/Admin/Staff Accounting ACC; Admin menulis rekap, Manager/Admin mengelola master. Tidak menghitung hak cuti/gaji/bonus atau menganggap referensi persetujuan sebagai approval ERP. AC, sumber, batas, API dan bukti pada [dokumen 41](41_REKAP_CUTI_DAN_REALISASI_ABSENSI.md). Snapshot metadata/policy telah diperbarui.
+ACC-A01/ACC-A02 merupakan rekap read-only hasil API sistem absensi kantor, terbatas untuk Manager/Admin/Staff Accounting ACC melalui `view:acc_hr`. Pengajuan, perubahan, approval, master pegawai, dan pembatalan tidak dilakukan di ERP. Rekap mencakup hadir, sakit, cuti, tidak hadir, libur, keterlambatan, periode cuti, dan referensi sumber. Kontrak konektor aktual menunggu dokumentasi penyedia. Acuan aktif terdapat pada [dokumen 103](103_KONTEKS_WORKFLOW_CUTI_ABSENSI.md); [dokumen 41](41_REKAP_CUTI_DAN_REALISASI_ABSENSI.md) hanya histori implementasi manual lama.
 
 ## Pembaruan ACC-A10 tahap manual — 6 Oktober 2026
 

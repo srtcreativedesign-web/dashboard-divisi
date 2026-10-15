@@ -44,7 +44,7 @@ export const ACCOUNTING_NAV_GROUPS: AccountingNavGroup[] = [
     { path: '/accounting/kas-bank/cashflow', label: 'Laporan Cashflow', roles: MVP_ROLES, capability: 'view:acc_detail' },
   ] },
   { id: 'support', label: 'Operasional Pendukung', children: [
-    { path: '/accounting/administrasi/pegawai', label: 'Cuti & Absensi', roles: MVP_ROLES, capability: 'view:acc_hr' },
+    { path: '/accounting/administrasi/pegawai', label: 'Rekap Kehadiran', roles: MVP_ROLES, capability: 'view:acc_hr' },
     { path: '/accounting/operasional/persediaan', label: 'Persediaan & Gudang', roles: MVP_ROLES, capability: 'view:inventory' },
   ] },
   { id: 'data', label: 'Data & Integrasi', children: [

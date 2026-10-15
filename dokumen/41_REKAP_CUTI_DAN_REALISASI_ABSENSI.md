@@ -1,5 +1,7 @@
 # Rekap cuti dan realisasi absensi Accounting
 
+> **Digantikan pada 15 Oktober 2026.** Dokumen ini adalah catatan implementasi manual lama dan tidak lagi menjadi acuan produk. Keputusan aktif terdapat pada [dokumen 103](103_KONTEKS_WORKFLOW_CUTI_ABSENSI.md): ERP hanya membaca rekap dari API sistem absensi kantor dan tidak menyediakan input, koreksi, pembatalan, approval, atau master pegawai HR.
+
 Tanggal: 6 Oktober 2026. Peran: Senior Product Manager, Senior Product Designer, Application Security Engineer dan Senior Fullstack Programmer.
 
 ## Scope dan sumber

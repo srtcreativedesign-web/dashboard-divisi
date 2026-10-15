@@ -6,70 +6,37 @@ import { hrApi, type HrRecord } from '../api/hr';
 
 const auth=vi.hoisted(()=>({role:'ADMIN',divisionCode:'ACC'}));
 vi.mock('../../../session/AuthContext',()=>({useAuth:()=>({user:auth})}));
-vi.mock('../api/hr',()=>({hrApi:{employees:vi.fn(),createEmployee:vi.fn(),list:vi.fn(),detail:vi.fn(),create:vi.fn(),correct:vi.fn(),void:vi.fn()}}));
-const record:HrRecord={id:'r',employee_id:'e',employee_code:'HR-1',employee_name:'Pegawai anonim',kind:'leave',start_date:'2026-10-06',end_date:'2026-10-07',leave_type:'Tahunan',source_days:'1.50',source_reference:'CUTI-1',approval_reference:'SETUJU-1',status:'recorded',version:2,workflow:{next_role:'ADMIN',last_action:'corrected',last_transition_at:'2026-10-07T14:15:00+07:00',reason:'Jumlah hari disesuaikan sumber'}};
-afterEach(()=>{cleanup();vi.resetAllMocks();});
-function show(role:string, rows:HrRecord[]=[]){
-  auth.role=role;auth.divisionCode='ACC';
-  vi.mocked(hrApi.employees).mockResolvedValue({data:[{id:'e',code:'HR-1',name:'Pegawai anonim',is_active:true}],meta:{trace_id:'t'}});
-  vi.mocked(hrApi.list).mockResolvedValue({data:{items:rows,total:rows.length,page:1,per_page:50},meta:{trace_id:'t'}});
-  vi.mocked(hrApi.detail).mockResolvedValue({data:record,meta:{trace_id:'t'}});
-  render(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0}}})}><AccountingHrPage/></QueryClientProvider>);
+vi.mock('../api/hr',()=>({hrApi:{list:vi.fn(),detail:vi.fn()}}));
+const base:HrRecord={id:'attendance-1',employee_id:'employee-1',employee_code:'EMP-001',employee_name:'Pegawai anonim',kind:'attendance',start_date:'2026-10-06',end_date:'2026-10-06',attendance_status:'PRESENT',schedule_reference:'SHIFT-PAGI',late_minutes:15,source_reference:'ATT-001',status:'recorded',version:1,created_at:'2026-10-06T08:00:00+07:00',updated_at:'2026-10-06T09:00:00+07:00'};
+const attendance:HrRecord[]=[base,{...base,id:'attendance-2',employee_id:'employee-2',employee_code:'EMP-002',employee_name:'Pegawai sakit',attendance_status:'SICK',late_minutes:0,source_reference:'ATT-002'},{...base,id:'attendance-3',employee_id:'employee-3',employee_code:'EMP-003',employee_name:'Pegawai cuti',attendance_status:'LEAVE',late_minutes:0,source_reference:'ATT-003'}];
+const leave:HrRecord={...base,id:'leave-1',kind:'leave',start_date:'2026-10-10',end_date:'2026-10-12',attendance_status:null,schedule_reference:null,late_minutes:null,leave_type:'Tahunan',source_days:'3.00',approval_reference:'LEAVE-SOURCE-001',source_reference:'CUTI-001'};
+
+function envelope(items:HrRecord[]){return {data:{items,total:items.length,page:1,per_page:50,source:{mode:'read_only' as const,system:'attendance_api' as const}},meta:{trace_id:'test'}};}
+function show(role='ADMIN'){
+ auth.role=role;auth.divisionCode='ACC';
+ vi.mocked(hrApi.list).mockImplementation(async(kind)=>envelope(kind==='leave'?[leave]:attendance));
+ vi.mocked(hrApi.detail).mockResolvedValue({data:{...base,source:{mode:'read_only',system:'attendance_api'}},meta:{trace_id:'test'}});
+ render(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0}}})}><AccountingHrPage/></QueryClientProvider>);
 }
-it('Finance tidak meminta data HR dan Staff Accounting hanya membaca',async()=>{
-  show('FINANCE');expect(screen.getByRole('alert')).toHaveTextContent('Akses rekap kepegawaian tidak tersedia');expect(hrApi.employees).not.toHaveBeenCalled();expect(hrApi.list).not.toHaveBeenCalled();
-  cleanup();show('ACCOUNTING',[record]);await screen.findByText('CUTI-1');expect(screen.queryByRole('form',{name:'Catat rekap'})).not.toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Buka CUTI-1'}));await screen.findByText('Histori perubahan');expect(screen.queryByRole('button',{name:'Koreksi dokumen'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Batalkan dokumen'})).not.toBeInTheDocument();
-});
-it('register menampilkan aktivitas, waktu, alasan, dan penanggung jawab workflow',async()=>{
-  show('ACCOUNTING',[record]);const row=await screen.findByRole('row',{name:/Pegawai anonim/});expect(within(row).getByText('Dokumen dikoreksi')).toBeInTheDocument();expect(within(row).getByText('Admin Accounting')).toBeInTheDocument();expect(within(row).getByText('7 Okt 2026, 14.15')).toBeInTheDocument();expect(within(row).getByText('Jumlah hari disesuaikan sumber')).toBeInTheDocument();
-});
-it('Admin menyimpan jumlah hari sumber desimal dan mempertahankan input saat gagal',async()=>{
-  vi.mocked(hrApi.create).mockRejectedValueOnce(new Error('Rentang cuti bertumpang tindih.')).mockResolvedValueOnce({data:record,meta:{trace_id:'t'}});
-  show('ADMIN');fireEvent.click(screen.getByRole('button',{name:'Catat cuti'}));await screen.findByRole('option',{name:'HR-1 — Pegawai anonim'});
-  fireEvent.change(screen.getByLabelText('Pegawai'),{target:{value:'e'}});
-  for(const [label,value] of [['Referensi sumber','CUTI-1'],['Jenis cuti sesuai sumber','Tahunan'],['Jumlah hari menurut sumber','1.50'],['Referensi persetujuan cuti','SETUJU-1']])fireEvent.change(screen.getByLabelText(label!),{target:{value}});
-  fireEvent.submit(screen.getByRole('form',{name:'Catat rekap'}));expect(await screen.findByRole('alert')).toHaveTextContent('Rentang cuti bertumpang tindih.');expect(screen.getByLabelText('Jumlah hari menurut sumber')).toHaveValue('1.50');expect(screen.queryByText('Data berhasil disimpan.')).not.toBeInTheDocument();
-  expect(hrApi.create).toHaveBeenCalledWith(expect.objectContaining({employee_id:'e',source_days:'1.50',source_reference:'CUTI-1'}));
-  fireEvent.submit(screen.getByRole('form',{name:'Catat rekap'}));expect(await screen.findByText('Data berhasil disimpan.')).toBeInTheDocument();expect(screen.queryByRole('form',{name:'Catat rekap'})).not.toBeInTheDocument();
-});
-it('koreksi membawa versi dan alasan tanpa mengganti pegawai atau referensi sumber',async()=>{
-  vi.mocked(hrApi.correct).mockRejectedValue(new Error('Versi sudah berubah.'));show('ADMIN',[record]);
-  fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Koreksi dokumen'}));expect(screen.getByLabelText('Pegawai')).toBeDisabled();expect(screen.getByLabelText('Referensi sumber')).toBeDisabled();
-  fireEvent.change(screen.getByLabelText('Alasan koreksi'),{target:{value:'Jumlah hari dikoreksi sesuai sumber'}});
-  fireEvent.change(screen.getByLabelText('Jumlah hari menurut sumber'),{target:{value:'1.25'}});
-  fireEvent.submit(screen.getByRole('form',{name:'Koreksi rekap'}));expect(await screen.findByRole('alert')).toHaveTextContent('Versi sudah berubah.');
-  expect(hrApi.correct).toHaveBeenCalledWith(record,expect.objectContaining({kind:'leave',source_days:'1.25'}),'Jumlah hari dikoreksi sesuai sumber');expect(screen.getByLabelText('Jumlah hari menurut sumber')).toHaveValue('1.25');
-});
-it('pembatalan dilakukan dari detail dan tetap membawa versi serta alasan',async()=>{
- vi.mocked(hrApi.void).mockResolvedValue({data:{...record,status:'voided',version:3},meta:{trace_id:'t'}});show('ADMIN',[record]);
- fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Batalkan dokumen'}));
- fireEvent.change(screen.getByLabelText('Alasan pembatalan'),{target:{value:'Dokumen sumber dibatalkan oleh pihak terkait'}});fireEvent.submit(screen.getByRole('form',{name:'Batalkan rekap'}));
- expect(await screen.findByText('Rekap dibatalkan; histori tetap tersimpan.')).toBeInTheDocument();expect(hrApi.void).toHaveBeenCalledWith(record,'Dokumen sumber dibatalkan oleh pihak terkait');
-});
-it('absensi mencatat status, jadwal dan menit dari sumber tanpa hari cuti',async()=>{
-  vi.mocked(hrApi.create).mockResolvedValue({data:record,meta:{trace_id:'t'}});show('ADMIN');
-  fireEvent.click(screen.getByRole('button',{name:/Realisasi absensi/}));fireEvent.click(screen.getByRole('button',{name:'Catat absensi'}));await screen.findByRole('option',{name:'HR-1 — Pegawai anonim'});
-  fireEvent.change(screen.getByLabelText('Pegawai'),{target:{value:'e'}});
-  fireEvent.change(screen.getByLabelText('Referensi sumber'),{target:{value:'ABSEN-1'}});
-  fireEvent.change(screen.getByLabelText('Referensi jadwal'),{target:{value:'JADWAL-1'}});
-  fireEvent.change(screen.getByLabelText('Menit terlambat menurut sumber'),{target:{value:'15'}});
-  fireEvent.submit(screen.getByRole('form',{name:'Catat rekap'}));await screen.findByText('Data berhasil disimpan.');
-  expect(hrApi.create).toHaveBeenCalledWith(expect.objectContaining({kind:'attendance',attendance_status:'PRESENT',late_minutes:15,schedule_reference:'JADWAL-1'}));
-  expect(vi.mocked(hrApi.create).mock.calls[0]?.[0]).not.toHaveProperty('source_days');
+afterEach(()=>{cleanup();vi.resetAllMocks();});
+
+it('menolak role di luar pembaca Accounting tanpa meminta data',()=>{
+ show('FINANCE');expect(screen.getByRole('alert')).toHaveTextContent('Akses rekap kehadiran tidak tersedia');expect(hrApi.list).not.toHaveBeenCalled();
 });
 
-it('perubahan bulan membersihkan koreksi dan detail sebelumnya',async()=>{
- show('ADMIN',[record]);fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Koreksi dokumen'}));
- expect(screen.getByRole('form',{name:'Koreksi rekap'})).toBeInTheDocument();
- fireEvent.change(screen.getByLabelText('Bulan rekap'),{target:{value:'2026-09'}});
- expect(screen.queryByRole('form',{name:'Koreksi rekap'})).not.toBeInTheDocument();expect(screen.queryByText('Histori perubahan')).not.toBeInTheDocument();expect(hrApi.void).not.toHaveBeenCalled();
+it('menjelaskan batas read-only dan tidak menyediakan input atau approval HR',async()=>{
+ show();expect(await screen.findByText('ERP tidak memproses pengajuan kepegawaian')).toBeInTheDocument();expect(screen.getByText(/hanya menampilkan data yang diterima melalui integrasi API/)).toBeInTheDocument();
+ expect(screen.queryByRole('button',{name:/catat/i})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:/koreksi/i})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:/setujui/i})).not.toBeInTheDocument();
 });
-it('histori bisa ditutup tanpa mengubah rekap',async()=>{
- show('ACCOUNTING',[record]);fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));await screen.findByText('Histori perubahan');
- fireEvent.click(screen.getByRole('button',{name:'Tutup panel'}));expect(screen.queryByText('Histori perubahan')).not.toBeInTheDocument();expect(hrApi.correct).not.toHaveBeenCalled();
+
+it('meringkas hadir, sakit, cuti, dan terlambat dari data sumber',async()=>{
+ show();await screen.findByText('ATT-001');const summary=screen.getByRole('region',{name:'Ringkasan kehadiran'});expect(within(summary).getByText('Hadir')).toBeInTheDocument();expect(within(summary).getByText('Sakit')).toBeInTheDocument();expect(within(summary).getByText('Cuti')).toBeInTheDocument();expect(within(summary).getByText('Terlambat')).toBeInTheDocument();expect(within(summary).getAllByText('1')).toHaveLength(4);
 });
-it('filter bulan dikunci selama koreksi berlangsung',async()=>{
- vi.mocked(hrApi.correct).mockImplementation(()=>new Promise(()=>{}));show('ADMIN',[record]);fireEvent.click(await screen.findByRole('button',{name:'Buka CUTI-1'}));fireEvent.click(await screen.findByRole('button',{name:'Koreksi dokumen'}));
- fireEvent.change(screen.getByLabelText('Alasan koreksi'),{target:{value:'Koreksi sumber yang diverifikasi'}}); fireEvent.submit(screen.getByRole('form',{name:'Koreksi rekap'}));
- for(const button of await screen.findAllByRole('button',{name:'Menyimpan...'}))expect(button).toBeDisabled();expect(screen.getByLabelText('Bulan rekap')).toBeDisabled();expect(screen.getByRole('button',{name:/Realisasi absensi/})).toBeDisabled();
+
+it('memisahkan riwayat cuti dari absensi harian',async()=>{
+ show();await screen.findByText('ATT-001');fireEvent.click(screen.getByRole('button',{name:/Riwayat cuti/}));expect(await screen.findByText('CUTI-001')).toBeInTheDocument();expect(screen.getByText('Tahunan')).toBeInTheDocument();expect(hrApi.list).toHaveBeenLastCalledWith('leave',expect.any(String),1);
+});
+
+it('detail hanya menampilkan hasil sumber dan arahan koreksi di sistem absensi',async()=>{
+ show();fireEvent.click(await screen.findByRole('button',{name:'Buka ATT-001'}));expect(await screen.findByText('Data dari sistem sumber')).toBeInTheDocument();expect(screen.getByText('Tidak dapat diubah dari ERP')).toBeInTheDocument();expect(screen.getByText(/perbaikan dilakukan pada sistem absensi kantor/)).toBeInTheDocument();expect(screen.queryByText('Histori perubahan')).not.toBeInTheDocument();
 });
