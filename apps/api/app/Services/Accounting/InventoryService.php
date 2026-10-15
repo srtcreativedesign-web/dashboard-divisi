@@ -13,6 +13,25 @@ class InventoryService
 {
     public function __construct(private PolicyService $policy, private AuditService $audit) {}
 
+    private function workflow(array $document): array
+    {
+        return [
+            'next_role' => match ($document['status']) {
+                'draft', 'correction' => 'ADMIN_GUDANG',
+                'submitted' => 'MANAGER',
+                'approved' => 'COMPLETED',
+            },
+            'last_action' => match ($document['status']) {
+                'draft' => 'draft_saved',
+                'submitted' => 'submitted',
+                'correction' => 'correction_requested',
+                'approved' => 'approved_and_posted',
+            },
+            'last_transition_at' => (string) $document['updated_at'],
+            'reason' => $document['review_note'] ?: null,
+        ];
+    }
+
     private function access(array $user, string $capability = 'view:inventory'): void
     {
         $this->policy->assertDivisionScope($user, 'ACC', $capability !== 'view:inventory');
@@ -116,6 +135,7 @@ class InventoryService
         return ['items' => $rows->map(function ($r) use ($lines) {
             $a = (array) $r;
             $a['lines'] = ($lines[$r->id] ?? collect())->map(fn ($x) => (array) $x)->values()->all();
+            $a['workflow'] = $this->workflow($a);
 
             return $a;
         })->all(), 'month' => $month];
@@ -223,6 +243,7 @@ class InventoryService
             throw new ApiException('RESOURCE_NOT_FOUND', 'Dokumen persediaan tidak ditemukan.');
         } $a = (array) $r;
         $a['lines'] = DB::table('acc_inventory_document_lines as x')->join('acc_inventory_items as i', 'i.id', '=', 'x.item_id')->where('x.document_id', $id)->select('x.*', 'i.sku', 'i.name as item_name', 'i.unit')->get()->map(fn ($x) => (array) $x)->all();
+        $a['workflow'] = $this->workflow($a);
 
         return $a;
     }

@@ -69,6 +69,28 @@ class AccountingInventoryTest extends TestCase
         $this->postJson('/api/v1/accounting/inventory/documents/'.$doc['id'].'/approve', ['version' => $approved['version'] - 1])->assertStatus(409);
     }
 
+    public function test_register_exposes_safe_inventory_workflow_context(): void
+    {
+        [$item, $location] = $this->master();
+        $created = $this->document($item, $location);
+        $this->assertSame(['next_role', 'last_action', 'last_transition_at', 'reason'], array_keys($created['workflow']));
+        $this->assertSame('ADMIN_GUDANG', $created['workflow']['next_role']);
+        $this->assertSame('draft_saved', $created['workflow']['last_action']);
+        $this->assertNotNull($created['workflow']['last_transition_at']);
+
+        $submitted = $this->postJson('/api/v1/accounting/inventory/documents/'.$created['id'].'/submit', ['version' => 1])->assertOk()
+            ->assertJsonPath('data.workflow.next_role', 'MANAGER')->assertJsonPath('data.workflow.last_action', 'submitted')->json('data');
+        $reason = 'Perbaiki jumlah sesuai surat jalan';
+        $this->authenticated('manager.acc@dashboard.test')->postJson('/api/v1/accounting/inventory/documents/'.$created['id'].'/correction', ['version' => $submitted['version'], 'note' => $reason])->assertOk()
+            ->assertJsonPath('data.workflow.next_role', 'ADMIN_GUDANG')->assertJsonPath('data.workflow.last_action', 'correction_requested')->assertJsonPath('data.workflow.reason', $reason);
+
+        $workflow = $this->admin()->getJson('/api/v1/accounting/inventory/documents?month='.now('Asia/Jakarta')->format('Y-m'))->assertOk()
+            ->assertJsonPath('data.items.0.workflow.reason', $reason)->json('data.items.0.workflow');
+        $this->assertArrayNotHasKey('actor_id', $workflow);
+        $this->assertArrayNotHasKey('reviewed_by', $workflow);
+        $this->assertArrayNotHasKey('created_by', $workflow);
+    }
+
     public function test_correction_can_be_edited_by_owner_and_negative_stock_rolls_back(): void
     {
         [$item,$location] = $this->master();

@@ -126,6 +126,7 @@ Sebuah halaman selesai apabila:
 - [x] Terapkan konteks workflow aman yang sama pada Rekap Setoran, termasuk pergantian PIC Finance menjadi selesai setelah penerimaan penuh dan query daftar tanpa N+1. Dokumen 101.
 - [x] Terapkan status, PIC berbasis state periode, aktivitas/waktu terakhir, dan alasan koreksi pada register Jurnal; catat unggahan bukti sebagai aktivitas transaksi dan batch histori daftar. Dokumen 102.
 - [x] Hapus konsep PIC dan workflow HR internal; tampilkan sumber data, status kehadiran, periode, referensi, KPI, dan detail read-only. Dokumen 103. Parent tetap terbuka untuk konektor API, persediaan, staging, dan UAT pengguna.
+- [x] Terapkan aktivitas terakhir, waktu WIB, PIC berbasis state, dan alasan koreksi pada register serta Berita Acara Persediaan tanpa membuka actor ID atau snapshot audit. Dokumen 104. Parent tetap terbuka untuk konektor absensi, staging, dan UAT pengguna.
 - [x] Implementasikan Payment Run Finance berbasis voucher approved: prioritas, jatuh tempo, status realisasi, sisa, bukti, dan drill-down dokumen.
 - [x] Ubah antrean Manager menjadi Decision Inbox terfokus dengan nominal, indikator risiko, konteks sumber, maker-checker, dan keputusan beralasan.
 - [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.
