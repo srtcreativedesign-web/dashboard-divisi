@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Wrench,
+  FolderKanban,
 } from 'lucide-react';
 import { LoadingState, EmptyState } from '../../../components/states';
 import { CreateProjectModal } from '../../../components/projects/CreateProjectModal';
@@ -615,8 +616,20 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
                     <td className="px-5 py-3.5 text-center text-slate-600 font-medium">
                       {project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID') : '-'}
                     </td>
-                    <td className="px-5 py-3.5 text-right text-slate-400">
-                      <ChevronRight className="h-4 w-4 inline-block" />
+                    <td className="px-5 py-3.5 text-right">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/projects/${project.id}`);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-primary-50 hover:bg-primary-100 text-primary-700 text-xs font-semibold border border-primary-200 transition-colors"
+                        title="Buka halaman detail proyek"
+                      >
+                        <FolderKanban className="h-3.5 w-3.5" />
+                        Detail
+                      </button>
+                      <ChevronRight className="h-4 w-4 inline-block ml-1 text-slate-400" />
                     </td>
                   </tr>
                 ))}

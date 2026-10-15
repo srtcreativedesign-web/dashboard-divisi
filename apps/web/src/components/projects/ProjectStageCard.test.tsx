@@ -134,4 +134,19 @@ describe('ProjectStageCard', () => {
       'EXECUTION'
     );
   });
+
+  it('exposes tombol Detail yang mengarah ke halaman detail proyek', () => {
+    render(
+      <BrowserRouter>
+        <ProjectStageCard
+          project={mockProject}
+          onStageClick={vi.fn()}
+        />
+      </BrowserRouter>
+    );
+
+    const detailBtn = screen.getByTitle('Buka halaman detail proyek dengan menu Tahapan, RAB, Termin, Time Plan, dan lainnya');
+    expect(detailBtn).toBeInTheDocument();
+    expect(detailBtn).toHaveTextContent('Detail');
+  });
 });

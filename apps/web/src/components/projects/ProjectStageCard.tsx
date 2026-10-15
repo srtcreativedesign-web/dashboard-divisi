@@ -9,6 +9,7 @@ import {
   FileSpreadsheet,
   User,
   AlertCircle,
+  FolderKanban,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -120,6 +121,17 @@ export function ProjectStageCard({
 
         {/* Right Badges & Actions */}
         <div className="flex items-center gap-2">
+          {/* Detail Button */}
+          <button
+            type="button"
+            onClick={() => navigate(`/projects/${project.id}`)}
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-primary-50 hover:bg-primary-100 text-primary-700 text-xs font-semibold border border-primary-200 transition-colors"
+            title="Buka halaman detail proyek dengan menu Tahapan, RAB, Termin, Time Plan, dan lainnya"
+          >
+            <FolderKanban className="h-3.5 w-3.5" />
+            <span>Detail</span>
+          </button>
+
           {/* RAB Badge */}
           <button
             type="button"

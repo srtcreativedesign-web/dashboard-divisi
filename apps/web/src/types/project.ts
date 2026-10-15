@@ -168,6 +168,8 @@ export interface Project {
   documents?: ProjectDocument[];
   vendors?: ProjectVendor[];
   photos?: ProjectProgressPhoto[];
+  pettyCashes?: ProjectPettyCash[];
+  petty_cashes?: ProjectPettyCash[];
 }
 
 export interface PaginatedResponse<T> {

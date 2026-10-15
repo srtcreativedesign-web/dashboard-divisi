@@ -15,6 +15,7 @@ import { queryClient } from './api/queryClient';
 
 const DashboardPage = lazy(() => import('./pages/core/DashboardPage'));
 const LoginPage = lazy(() => import('./pages/core/LoginPage'));
+const CalendarSchedulePage = lazy(() => import('./pages/core/CalendarSchedulePage'));
 
 // Accounting
 const AccountingDepositsPage = lazy(() => import('./features/accounting/pages/AccountingDepositsPage'));
@@ -104,6 +105,14 @@ export default function App() {
                       </RouteGuard>
                     }
                   />
+                  <Route
+                    path="/kalender"
+                    element={
+                      <RouteGuard>
+                        <RouteSuspense><CalendarSchedulePage /></RouteSuspense>
+                      </RouteGuard>
+                    }
+                  />
 
                   {/* Accounting Routes */}
                   <Route path="/accounting/kas-bank/setoran" element={<RouteGuard capability="view:acc_deposits" divisionCode="ACC"><RouteSuspense><AccountingDepositsPage /></RouteSuspense></RouteGuard>} />
@@ -143,6 +152,7 @@ export default function App() {
                   <Route path="/accounting/periode" element={<AccountingLegacyRedirect to="/accounting/pembukuan/periode" />} />
                   <Route path="/accounting/pembukuan/master" element={<RouteGuard capability="view:acc_master" divisionCode="ACC"><RouteSuspense><AccountingMasterPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/accounting/master" element={<AccountingLegacyRedirect to="/accounting/pembukuan/master" />} />
+                  <Route path="/accounting/kalender" element={<RouteGuard capability="view:acc_detail" divisionCode="ACC"><RouteSuspense><CalendarSchedulePage defaultDivision="ACC" /></RouteSuspense></RouteGuard>} />
 
                   {/* Project Routes */}
                   <Route path="/projects" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDashboardPage /></RouteSuspense></RouteGuard>} />
@@ -156,6 +166,7 @@ export default function App() {
                   <Route path="/projects/rab" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectRabPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/petty-cash" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectPettyCashPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/timeline" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectTimelinePage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/projects/calendar" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><CalendarSchedulePage defaultDivision="PROJECT" /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/lpj" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectLpjPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/projects/:id" element={<RouteGuard capability="view:projects" divisionCode="PROJECT"><RouteSuspense><ProjectDetailPage /></RouteSuspense></RouteGuard>} />
 
@@ -169,6 +180,7 @@ export default function App() {
                   <Route path="/cellular/pembukuan" element={<RouteGuard capability="view:cellular_accounting" divisionCode="CELL"><RouteSuspense><CellularAccountingControlPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/laporan" element={<RouteGuard capability="view:cellular_sales" divisionCode="CELL"><RouteSuspense><CellularAnalyticsPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/integrasi" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularWorkspacePage /></RouteSuspense></RouteGuard>} />
+                  <Route path="/cellular/kalender" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CalendarSchedulePage defaultDivision="CELL" /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/operasional" element={<Navigate to="/cellular/produk" replace />} />
                   <Route path="/cellular" element={<RouteGuard capability="view:cellular" divisionCode="CELL"><RouteSuspense><CellularDashboardPage /></RouteSuspense></RouteGuard>} />
                   <Route path="/cellular/dashboard" element={<Navigate to="/cellular" replace />} />

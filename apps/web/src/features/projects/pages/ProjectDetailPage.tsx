@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -8,27 +8,20 @@ import {
   CreditCard,
   Calculator,
   FileText,
-  Plus,
-  Building2,
-  MapPin,
-  Calendar,
-  DollarSign,
   FileSpreadsheet,
-  Layers,
-  ChevronRight,
   ExternalLink,
+  ChevronRight,
+  TrendingUp,
+  Receipt,
+  Download,
 } from 'lucide-react';
 import { projectApi } from '../../../api/projects';
 import { Project } from '../../../types/project';
 import { LoadingState, EmptyState } from '../../../components/states';
-import { useAuth } from '../../../session/AuthContext';
-import { hasCapability } from '../../../session/capability';
 import { Button } from '../../../components/ui/Button';
 import { ProjectRabDetailModal } from '../../../components/projects/ProjectRabDetailModal';
 
 export default function ProjectDetailPage() {
-  const { user } = useAuth();
-  const canManage = Boolean(user && hasCapability(user.role, 'manage:projects', user.divisionCode));
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
@@ -37,20 +30,6 @@ export default function ProjectDetailPage() {
 
   // RAB Detail Modal
   const [showRabDetailModal, setShowRabDetailModal] = useState(false);
-
-  // RAB Add Modal
-  const [showRabModal, setShowRabModal] = useState(false);
-  const [rabForm, setRabForm] = useState({ item_name: '', category: 'Material', volume: 1, unit: 'ls', unit_price: 0 });
-  const [submittingRab, setSubmittingRab] = useState(false);
-
-  // Document State
-  const [uploadingDoc, setUploadingDoc] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Milestone State
-  const [showMilestoneModal, setShowMilestoneModal] = useState(false);
-  const [milestoneForm, setMilestoneForm] = useState({ title: '', weight_percentage: 0, start_date: '', due_date: '' });
-  const [submittingMilestone, setSubmittingMilestone] = useState(false);
 
   useEffect(() => {
     fetchProject();
@@ -67,80 +46,6 @@ export default function ProjectDetailPage() {
       setError(err instanceof Error ? err.message : 'Gagal memuat detail proyek');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleAddRab = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    try {
-      setSubmittingRab(true);
-      await projectApi.addRab(Number(id), rabForm);
-      await fetchProject();
-      setShowRabModal(false);
-      setRabForm({ item_name: '', category: 'Material', volume: 1, unit: 'ls', unit_price: 0 });
-    } catch {
-      alert('Gagal menambah RAB');
-    } finally {
-      setSubmittingRab(false);
-    }
-  };
-
-  const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!id || !e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('document_type', 'General');
-    formData.append('title', file.name);
-
-    try {
-      setUploadingDoc(true);
-      await projectApi.uploadDocument(Number(id), formData);
-      await fetchProject();
-    } catch {
-      alert('Gagal mengunggah dokumen');
-    } finally {
-      setUploadingDoc(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleDeleteDocument = async (docId: number) => {
-    if (!id) return;
-    if (!confirm('Hapus dokumen ini?')) return;
-    try {
-      await projectApi.deleteDocument(Number(id), docId);
-      await fetchProject();
-    } catch {
-      alert('Gagal menghapus dokumen');
-    }
-  };
-
-  const handleAddMilestone = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    try {
-      setSubmittingMilestone(true);
-      await projectApi.addMilestone(Number(id), milestoneForm);
-      await fetchProject();
-      setShowMilestoneModal(false);
-      setMilestoneForm({ title: '', weight_percentage: 0, start_date: '', due_date: '' });
-    } catch {
-      alert('Gagal menambah termin/milestone');
-    } finally {
-      setSubmittingMilestone(false);
-    }
-  };
-
-  const handleTogglePayment = async (milestoneId: number, currentStatus: boolean) => {
-    if (!id || !canManage) return;
-    try {
-      await projectApi.togglePayment(Number(id), milestoneId, !currentStatus);
-      await fetchProject();
-    } catch {
-      alert('Gagal memperbarui status pembayaran');
     }
   };
 
@@ -275,7 +180,7 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* SECTION 1: OVERVIEW & INFORMASI PROYEK */}
+      {/* SECTION 1: OVERVIEW & INFORMASI PROYEK (VIEW ONLY) */}
       <section id="sec-overview" className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="rounded-card-lg border border-line p-5 bg-white shadow-card">
@@ -304,18 +209,17 @@ export default function ProjectDetailPage() {
 
           <div className="rounded-card-lg border border-line p-5 bg-white shadow-card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-bold text-navy">Milestone Progress</h3>
-              {canManage && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setShowMilestoneModal(true)}
-                  className="text-xs"
-                >
-                  <Plus className="h-3.5 w-3.5 mr-1" />
-                  Tambah Milestone
-                </Button>
-              )}
+              <div>
+                <h3 className="text-base font-bold text-navy">Milestone Progress</h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">Ringkasan capaian fisik pekerjaan</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`/projects/progress?project_id=${project.id}`)}
+                className="text-xs font-bold text-primary-600 hover:underline flex items-center gap-1"
+              >
+                Halaman Progres <ExternalLink className="h-3 w-3" />
+              </button>
             </div>
             {project.milestones && project.milestones.length > 0 ? (
               <div className="space-y-3">
@@ -345,20 +249,20 @@ export default function ProjectDetailPage() {
         </div>
       </section>
 
-      {/* SECTION 2: PEMBAYARAN & STATUS TERMIN */}
+      {/* SECTION 2: PEMBAYARAN & STATUS TERMIN (VIEW ONLY) */}
       <section id="sec-payment" className="space-y-4">
         <div className="rounded-card-lg border border-line bg-white shadow-card overflow-hidden">
           <div className="p-4 border-b border-line bg-surface flex justify-between items-center">
             <div>
               <h3 className="text-sm font-bold text-navy">Pembayaran & Termin</h3>
-              <p className="text-xs text-slate-500">Status penyelesaian termin dan penagihan</p>
+              <p className="text-xs text-slate-500">Status penyelesaian termin dan penagihan (View Only)</p>
             </div>
             <button
               type="button"
               onClick={() => navigate(`/projects/payments?project_id=${project.id}`)}
               className="text-xs font-bold text-primary-600 hover:underline flex items-center gap-1"
             >
-              Halaman Pembayaran <ExternalLink className="h-3 w-3" />
+              Kelola di Halaman Pembayaran <ExternalLink className="h-3 w-3" />
             </button>
           </div>
           <div className="overflow-x-auto">
@@ -381,23 +285,9 @@ export default function ProjectDetailPage() {
                         <td className="px-5 py-3 text-center font-mono font-bold text-slate-700">{ms.weight_percentage}%</td>
                         <td className="px-5 py-3 text-right font-bold text-navy">Rp {amount.toLocaleString('id-ID')}</td>
                         <td className="px-5 py-3 text-center">
-                          {canManage ? (
-                            <label className="inline-flex items-center gap-2 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={ms.payment_status}
-                                onChange={() => handleTogglePayment(ms.id, ms.payment_status)}
-                                className="rounded border-slate-300 text-primary-600 focus:ring-primary-500 h-4 w-4"
-                              />
-                              <span className={`text-xs font-semibold ${ms.payment_status ? 'text-emerald-700' : 'text-slate-500'}`}>
-                                {ms.payment_status ? 'Lunas' : 'Belum ditandai selesai'}
-                              </span>
-                            </label>
-                          ) : (
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-pill text-[11px] font-semibold ${ms.payment_status ? 'bg-emerald-50 text-emerald-700' : 'bg-surface text-slate-500 border border-line'}`}>
-                              {ms.payment_status ? 'Sudah Dibayar' : 'Belum ditandai selesai'}
-                            </span>
-                          )}
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-pill text-[11px] font-semibold ${ms.payment_status ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-surface text-slate-500 border border-line'}`}>
+                            {ms.payment_status ? 'Lunas' : 'Belum ditandai selesai'}
+                          </span>
                         </td>
                       </tr>
                     );
@@ -413,13 +303,13 @@ export default function ProjectDetailPage() {
         </div>
       </section>
 
-      {/* SECTION 3: RAB & ANGGARAN */}
+      {/* SECTION 3: RAB & ANGGARAN (VIEW ONLY) */}
       <section id="sec-rab" className="space-y-4">
         <div className="rounded-card-lg border border-line bg-white shadow-card overflow-hidden">
           <div className="p-4 border-b border-line bg-surface flex justify-between items-center">
             <div>
               <h3 className="text-sm font-bold text-navy">Rencana Anggaran Biaya (RAB) Detail</h3>
-              <p className="text-xs text-slate-500">Estimasi alokasi pengeluaran per item pekerjaan dan material</p>
+              <p className="text-xs text-slate-500">Estimasi alokasi pengeluaran per item pekerjaan dan material (View Only)</p>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -431,17 +321,13 @@ export default function ProjectDetailPage() {
                 <FileSpreadsheet className="h-3.5 w-3.5 mr-1" />
                 Spreadsheet & Unduh PDF
               </Button>
-              {canManage && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setShowRabModal(true)}
-                  className="text-xs"
-                >
-                  <Plus className="h-3.5 w-3.5 mr-1" />
-                  Tambah Item
-                </Button>
-              )}
+              <button
+                type="button"
+                onClick={() => navigate(`/projects/rab?project_id=${project.id}`)}
+                className="text-xs font-bold text-primary-600 hover:underline flex items-center gap-1 ml-2"
+              >
+                Kelola di Menu RAB <ExternalLink className="h-3 w-3" />
+              </button>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -477,32 +363,21 @@ export default function ProjectDetailPage() {
         </div>
       </section>
 
-      {/* SECTION 4: DOKUMENTASI */}
+      {/* SECTION 4: DOKUMENTASI (VIEW ONLY) */}
       <section id="sec-docs" className="space-y-4">
         <div className="rounded-card-lg border border-line bg-white shadow-card p-5">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h3 className="text-sm font-bold text-navy">Berkas Dokumen & Arsip</h3>
-              <p className="text-xs text-slate-500">File SPK, BAST, surat jalan, dan foto dokumentasi</p>
+              <p className="text-xs text-slate-500">File SPK, BAST, surat jalan, dan berkas proyek (View & Download Only)</p>
             </div>
-            {canManage && (
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleUploadDocument}
-                  className="hidden"
-                  id="doc-upload-input"
-                />
-                <label
-                  htmlFor="doc-upload-input"
-                  className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-input bg-primary-600 text-white text-xs font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Unggah
-                </label>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => navigate(`/projects/documents?project_id=${project.id}`)}
+              className="text-xs font-bold text-primary-600 hover:underline flex items-center gap-1"
+            >
+              Kelola di Menu Dokumen <ExternalLink className="h-3 w-3" />
+            </button>
           </div>
 
           {project.documents && project.documents.length > 0 ? (
@@ -522,20 +397,11 @@ export default function ProjectDetailPage() {
                     <button
                       type="button"
                       onClick={() => void projectApi.downloadDocument(project.id, doc)}
-                      className="px-2.5 py-1 text-xs font-semibold text-primary-600 hover:text-primary-800 border border-line bg-surface rounded-input transition-colors"
+                      className="px-2.5 py-1 text-xs font-semibold text-primary-600 hover:text-primary-800 border border-line bg-surface rounded-input transition-colors flex items-center gap-1"
                     >
+                      <Download className="h-3 w-3" />
                       Unduh
                     </button>
-                    {canManage && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteDocument(doc.id)}
-                        className="text-slate-400 hover:text-rose-600 text-base font-bold px-1"
-                        title="Hapus dokumen"
-                      >
-                        &times;
-                      </button>
-                    )}
                   </div>
                 </div>
               ))}
@@ -554,116 +420,6 @@ export default function ProjectDetailPage() {
           onClose={() => setShowRabDetailModal(false)}
           onSuccess={fetchProject}
         />
-      )}
-
-      {/* MODAL TAMBAH ITEM RAB SATUAN */}
-      {showRabModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-card-lg bg-white border border-line shadow-card-hover p-6">
-            <h3 className="text-base font-bold text-navy mb-4">Tambah Item RAB</h3>
-            <form onSubmit={handleAddRab} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Nama Item Pekerjaan</label>
-                <input
-                  type="text"
-                  required
-                  value={rabForm.item_name}
-                  onChange={(e) => setRabForm({ ...rabForm, item_name: e.target.value })}
-                  className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Volume</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={rabForm.volume}
-                    onChange={(e) => setRabForm({ ...rabForm, volume: Number(e.target.value) })}
-                    className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Satuan</label>
-                  <input
-                    type="text"
-                    value={rabForm.unit}
-                    onChange={(e) => setRabForm({ ...rabForm, unit: e.target.value })}
-                    className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Harga Satuan (Rp)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={rabForm.unit_price}
-                  onChange={(e) => setRabForm({ ...rabForm, unit_price: Number(e.target.value) })}
-                  className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="secondary" size="sm" onClick={() => setShowRabModal(false)}>Batal</Button>
-                <Button type="submit" variant="primary" size="sm" disabled={submittingRab}>Simpan</Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL TAMBAH MILESTONE */}
-      {showMilestoneModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/60 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-card-lg bg-white border border-line shadow-card-hover p-6">
-            <h3 className="text-base font-bold text-navy mb-4">Tambah Milestone</h3>
-            <form onSubmit={handleAddMilestone} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Judul Tahapan</label>
-                <input
-                  type="text"
-                  required
-                  value={milestoneForm.title}
-                  onChange={(e) => setMilestoneForm({ ...milestoneForm, title: e.target.value })}
-                  className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Bobot Persentase (%)</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={milestoneForm.weight_percentage}
-                  onChange={(e) => setMilestoneForm({ ...milestoneForm, weight_percentage: Number(e.target.value) })}
-                  className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Tanggal Mulai</label>
-                <input
-                  type="date"
-                  value={milestoneForm.start_date}
-                  onChange={(e) => setMilestoneForm({ ...milestoneForm, start_date: e.target.value })}
-                  className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Target Selesai (Due Date)</label>
-                <input
-                  type="date"
-                  value={milestoneForm.due_date}
-                  onChange={(e) => setMilestoneForm({ ...milestoneForm, due_date: e.target.value })}
-                  className="w-full rounded-input border border-line bg-surface px-3 py-2 text-xs"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button type="button" variant="secondary" size="sm" onClick={() => setShowMilestoneModal(false)}>Batal</Button>
-                <Button type="submit" variant="primary" size="sm" disabled={submittingMilestone}>Simpan</Button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
     </div>
   );
