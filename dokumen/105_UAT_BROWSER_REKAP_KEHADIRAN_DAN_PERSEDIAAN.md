@@ -80,13 +80,23 @@ Hasil tambahan: **lulus untuk pembaca Staff Accounting dan penolakan Staff Finan
 - Rekap Kehadiran lulus pemeriksaan visual desktop pada tema gelap dan terang; transisi tema memerlukan waktu render singkat tetapi berakhir pada palet yang benar.
 - Rekap Kehadiran dan Persediaan lulus pemeriksaan viewport mobile 390×844: header berubah menjadi menu hamburger, konten menjadi satu kolom, kartu tetap terbaca, dan tidak ada overflow horizontal pada area yang diperiksa.
 - Sidebar mobile menempatkan fokus awal pada tombol tutup, lalu `Tab` berpindah ke Dashboard Accounting. Label `Buka menu` dan `Tutup panel` tersedia untuk pembaca layar.
+- Persediaan lulus pemeriksaan tablet 768×1024. Tabel mempertahankan lebar 1080 piksel di dalam pembungkus `overflow-x-auto`, sehingga kolom tindakan tetap dapat dijangkau tanpa mendorong keseluruhan halaman.
+- Audit kontrol keyboard menemukan tombol `Berita acara` memiliki nama aksesibel yang sama. Tombol kini diberi label unik `Berita acara {nomor dokumen}` dan hasilnya diverifikasi pada browser serta tes komponen.
+- Rekap Kehadiran dan Persediaan mempunyai state kegagalan dengan `role=alert` serta tindakan `Coba Lagi`. Tes membuktikan retry memuat data kembali tanpa kehilangan struktur halaman.
 
 ## Batas dan pekerjaan tersisa
 
 - Belum ada sign-off pemilik proses.
 - UAT role utama Rekap Kehadiran dan Persediaan telah dijalankan; validasi perangkat, tema, keyboard, dan error state masih terbuka.
-- Tablet, penelusuran keyboard seluruh halaman, seluruh focus state, serta error jaringan masih terbuka. Pemeriksaan desktop terang/gelap dan mobile dua halaman sudah tercatat.
+- Penelusuran keyboard dan focus state seluruh halaman di luar dua modul ini masih terbuka. Pemeriksaan desktop terang/gelap, tablet/mobile, akses role, dan error/retry dua halaman sudah tercatat.
 - Integrasi API absensi, mapping identitas pegawai, cursor sinkronisasi, retry, idempotency, dan rekonsiliasi sumber ditunda sampai kontrak API tersedia.
 - Metode nilai persediaan/HPP tetap menunggu kebijakan perusahaan.
 
 Dokumen ini mencatat hasil aktual dan tidak mengubah status pekerjaan yang belum diuji menjadi selesai.
+
+## Bukti teknis tambahan
+
+- `AccountingInventoryPage.test.tsx`: 5 tes lulus.
+- `AccountingHrPage.test.tsx`: 6 tes lulus.
+- Seluruh suite frontend Accounting, typecheck, dan ESLint scoped lulus.
+- Build produksi Vite lulus; peringatan komentar anotasi berasal dari dependensi Zod dan tidak menggagalkan build.

@@ -40,3 +40,14 @@ it('memisahkan riwayat cuti dari absensi harian',async()=>{
 it('detail hanya menampilkan hasil sumber dan arahan koreksi di sistem absensi',async()=>{
  show();fireEvent.click(await screen.findByRole('button',{name:'Buka ATT-001'}));expect(await screen.findByText('Data dari sistem sumber')).toBeInTheDocument();expect(screen.getByText('Tidak dapat diubah dari ERP')).toBeInTheDocument();expect(screen.getByText(/perbaikan dilakukan pada sistem absensi kantor/)).toBeInTheDocument();expect(screen.queryByText('Histori perubahan')).not.toBeInTheDocument();
 });
+
+it('menyediakan retry ketika rekap sumber gagal dimuat',async()=>{
+ auth.role='ACCOUNTING';auth.divisionCode='ACC';
+ vi.mocked(hrApi.list).mockRejectedValueOnce(new Error('Rekap sumber belum tersedia')).mockResolvedValue(envelope(attendance));
+ vi.mocked(hrApi.detail).mockResolvedValue({data:{...base,source:{mode:'read_only',system:'attendance_api'}},meta:{trace_id:'test'}});
+ render(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false,gcTime:0}}})}><AccountingHrPage/></QueryClientProvider>);
+ expect(await screen.findByRole('alert')).toHaveTextContent('Rekap sumber belum tersedia');
+ fireEvent.click(screen.getByRole('button',{name:'Coba Lagi'}));
+ expect(await screen.findByText('ATT-001')).toBeInTheDocument();
+ expect(hrApi.list).toHaveBeenCalledTimes(2);
+});

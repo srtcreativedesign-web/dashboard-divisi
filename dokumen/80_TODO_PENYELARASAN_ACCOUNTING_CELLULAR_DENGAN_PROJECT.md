@@ -146,7 +146,8 @@ Sebuah halaman selesai apabila:
   - [x] Browser UAT Rekap Kehadiran untuk Admin, Manager, Staff Accounting, dan Finance: read-only untuk pembaca serta penolakan role di luar cakupan tanpa tindakan HR internal. Dokumen 105.
   - [x] Browser UAT Persediaan untuk Admin, Admin Gudang, Manager, Staff Accounting, dan Finance: tindakan maker-checker, pembaca, serta penolakan akses terpisah sesuai role/state. Dokumen 105.
   - [x] Browser UAT desktop terang/gelap dan mobile 390×844 untuk Rekap Kehadiran; mobile Persediaan dan urutan fokus awal sidebar. Dokumen 105.
-  - [ ] Browser UAT tablet, keyboard/focus menyeluruh, dan error state.
+  - [x] Browser UAT tablet 768×1024 Persediaan, nama aksesibel tindakan, serta error/retry Rekap Kehadiran dan Persediaan. Dokumen 105.
+  - [ ] Audit keyboard/focus menyeluruh untuk halaman Accounting dan Cellular lainnya.
 
 ## Urutan eksekusi aktif
 

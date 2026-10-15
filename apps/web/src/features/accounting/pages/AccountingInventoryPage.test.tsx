@@ -17,7 +17,7 @@ afterEach(()=>{cleanup();vi.restoreAllMocks();session={id:'warehouse-user',role:
 it('Admin Gudang melihat KPI, koreksi, saldo kritis, dan form yang dapat dikerjakan',async()=>{
  vi.spyOn(inventoryApi,'catalog').mockResolvedValue(envelope(catalog)); vi.spyOn(inventoryApi,'documents').mockResolvedValue(envelope({month:'2026-10',items:[document]})); vi.spyOn(inventoryApi,'purchaseVouchers').mockResolvedValue(envelope(vouchers)); mount();
  expect(await screen.findByText('INV-UJI')).toBeInTheDocument(); expect(screen.getByText('Manager meminta koreksi')).toBeInTheDocument(); expect(screen.getByText(/PIC Admin Gudang/)).toBeInTheDocument(); fireEvent.click(screen.getByRole('button',{name:'Saldo per lokasi'})); expect(screen.getByText('Perlu restok')).toBeInTheDocument(); fireEvent.click(screen.getByRole('button',{name:'Dokumen & persetujuan'}));
- fireEvent.click(screen.getByRole('button',{name:'Edit'})); expect(screen.getByRole('heading',{name:'Perbaiki dokumen persediaan'})).toBeInTheDocument(); expect(screen.getByDisplayValue('REQ-UJI')).toBeInTheDocument(); fireEvent.click(screen.getByRole('button',{name:'Tambah baris'})); expect(screen.getByRole('button',{name:'Hapus baris 2'})).toBeEnabled(); fireEvent.click(screen.getByRole('button',{name:'Tutup'})); fireEvent.click(screen.getByRole('button',{name:'Berita acara'})); expect(screen.getByRole('heading',{name:'Berita Acara Persediaan'})).toBeInTheDocument(); expect(screen.getByRole('button',{name:'Cetak / simpan PDF'})).toBeInTheDocument();
+ fireEvent.click(screen.getByRole('button',{name:'Edit'})); expect(screen.getByRole('heading',{name:'Perbaiki dokumen persediaan'})).toBeInTheDocument(); expect(screen.getByDisplayValue('REQ-UJI')).toBeInTheDocument(); fireEvent.click(screen.getByRole('button',{name:'Tambah baris'})); expect(screen.getByRole('button',{name:'Hapus baris 2'})).toBeEnabled(); fireEvent.click(screen.getByRole('button',{name:'Tutup'})); fireEvent.click(screen.getByRole('button',{name:'Berita acara INV-UJI'})); expect(screen.getByRole('heading',{name:'Berita Acara Persediaan'})).toBeInTheDocument(); expect(screen.getByRole('button',{name:'Cetak / simpan PDF'})).toBeInTheDocument();
 });
 
 it('Manager hanya memperoleh keputusan pada dokumen submitted',async()=>{
@@ -37,4 +37,16 @@ it('Admin Gudang menghubungkan penerimaan ke voucher approved tanpa menghitung H
  expect(screen.getByDisplayValue('PO-UJI-01')).toBeInTheDocument();
  expect(screen.getByText(/belum menghitung HPP/)).toBeInTheDocument();
  expect(screen.getByRole('option',{name:/VCH-BELI-01.*1 penerimaan/})).toBeInTheDocument();
+});
+
+it('menampilkan error yang dapat dicoba ulang tanpa menghilangkan struktur halaman',async()=>{
+ const catalogRequest=vi.spyOn(inventoryApi,'catalog').mockRejectedValueOnce(new Error('Layanan persediaan belum tersedia')).mockResolvedValue(envelope(catalog));
+ vi.spyOn(inventoryApi,'documents').mockResolvedValue(envelope({month:'2026-10',items:[]}));
+ vi.spyOn(inventoryApi,'purchaseVouchers').mockResolvedValue(envelope(vouchers));
+ mount();
+ expect(await screen.findByRole('alert')).toHaveTextContent('Layanan persediaan belum tersedia');
+ fireEvent.click(screen.getByRole('button',{name:'Coba Lagi'}));
+ fireEvent.click(screen.getByRole('button',{name:'Saldo per lokasi'}));
+ expect(await screen.findByText('GDG · Gudang Uji')).toBeInTheDocument();
+ expect(catalogRequest).toHaveBeenCalledTimes(2);
 });
