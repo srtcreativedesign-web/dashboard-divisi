@@ -124,7 +124,8 @@ Sebuah halaman selesai apabila:
 - [ ] Pastikan workflow Admin → Accounting → Manager → Finance memiliki PIC, status, waktu, alasan koreksi, dan audit trail.
 - [x] Proyeksikan PIC berikutnya, aktivitas terakhir, waktu transisi, dan alasan dari event server ke register omzet/voucher tanpa membuka actor ID atau snapshot audit. Dokumen 100.
 - [x] Terapkan konteks workflow aman yang sama pada Rekap Setoran, termasuk pergantian PIC Finance menjadi selesai setelah penerimaan penuh dan query daftar tanpa N+1. Dokumen 101.
-- [x] Terapkan status, PIC berbasis state periode, aktivitas/waktu terakhir, dan alasan koreksi pada register Jurnal; catat unggahan bukti sebagai aktivitas transaksi dan batch histori daftar. Dokumen 102. Parent tetap terbuka untuk HR, persediaan, staging, dan UAT pengguna.
+- [x] Terapkan status, PIC berbasis state periode, aktivitas/waktu terakhir, dan alasan koreksi pada register Jurnal; catat unggahan bukti sebagai aktivitas transaksi dan batch histori daftar. Dokumen 102.
+- [x] Terapkan PIC, aktivitas/waktu terakhir, dan alasan koreksi pada register/detail Cuti dan Absensi tanpa menciptakan approval internal yang belum ditetapkan. Dokumen 103. Parent tetap terbuka untuk persediaan, staging, dan UAT pengguna.
 - [x] Implementasikan Payment Run Finance berbasis voucher approved: prioritas, jatuh tempo, status realisasi, sisa, bukti, dan drill-down dokumen.
 - [x] Ubah antrean Manager menjadi Decision Inbox terfokus dengan nominal, indikator risiko, konteks sumber, maker-checker, dan keputusan beralasan.
 - [x] Implementasikan workflow Persediaan & Gudang: master, dokumen, approval, saldo, mutasi, role, versioning, audit, dan seed database.

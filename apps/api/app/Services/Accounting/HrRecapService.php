@@ -31,6 +31,16 @@ class HrRecapService
         return $data;
     }
 
+    private function workflow(object $record, ?object $event): array
+    {
+        return [
+            'next_role' => $record->status === 'voided' ? 'COMPLETED' : 'ADMIN',
+            'last_action' => $event?->action ?? 'created',
+            'last_transition_at' => $event?->created_at ? (string) $event->created_at : ($record->updated_at ? (string) $record->updated_at : null),
+            'reason' => $event?->reason,
+        ];
+    }
+
     public function list(array $filters, array $user): array
     {
         $this->access($user);
@@ -40,7 +50,11 @@ class HrRecapService
         $total = (clone $query)->count();
         $page = (int) ($filters['page'] ?? 1);
 
-        return ['items' => $query->orderByDesc('start_date')->orderBy('id')->offset(($page - 1) * 50)->limit(50)->get()->map(fn ($r) => $this->present($r))->all(), 'total' => $total, 'page' => $page, 'per_page' => 50];
+        $rows = $query->orderByDesc('start_date')->orderBy('id')->offset(($page - 1) * 50)->limit(50)->get();
+        $events = DB::table('acc_hr_events')->whereIn('record_id', $rows->pluck('id'))->orderByDesc('version')
+            ->get()->groupBy('record_id')->map(fn ($items) => $items->first());
+
+        return ['items' => $rows->map(fn ($row) => $this->present($row) + ['workflow' => $this->workflow($row, $events->get($row->id))])->all(), 'total' => $total, 'page' => $page, 'per_page' => 50];
     }
 
     public function get(string $id, array $user): array
@@ -51,7 +65,9 @@ class HrRecapService
             throw new ApiException('RESOURCE_NOT_FOUND', 'Rekap tidak ditemukan.');
         }
         $data = $this->present($row);
-        $data['events'] = DB::table('acc_hr_events')->where('record_id', $id)->orderBy('version')->get()->map(function ($event) {
+        $events = DB::table('acc_hr_events')->where('record_id', $id)->orderBy('version')->get();
+        $data['workflow'] = $this->workflow($row, $events->last());
+        $data['events'] = $events->map(function ($event) {
             $event->before = $event->before === null ? null : json_decode($event->before, true);
             $event->after = json_decode($event->after, true);
 

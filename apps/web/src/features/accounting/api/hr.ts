@@ -1,7 +1,8 @@
 import { api } from '../../../api/client';
 export interface HrEmployee { id: string; code: string; name: string; is_active: boolean }
 export interface HrValues { kind: 'leave' | 'attendance'; start_date: string; end_date?: string; leave_type?: string; source_days?: string; approval_reference?: string; attendance_status?: string; schedule_reference?: string; late_minutes?: number }
-export interface HrRecord extends HrValues { id: string; employee_id: string; employee_code: string; employee_name: string; source_reference: string; status: 'recorded' | 'voided'; version: number; events?: { id: string; action: string; actor_role: string; reason: string | null; created_at: string; before: HrRecord | null; after: HrRecord }[] }
+export interface HrWorkflow { next_role: 'ADMIN' | 'COMPLETED'; last_action: string; last_transition_at: string | null; reason: string | null }
+export interface HrRecord extends HrValues { id: string; employee_id: string; employee_code: string; employee_name: string; source_reference: string; status: 'recorded' | 'voided'; version: number; workflow?: HrWorkflow; events?: { id: string; action: string; actor_role: string; reason: string | null; created_at: string; before: HrRecord | null; after: HrRecord }[] }
 export interface HrList { items: HrRecord[]; total: number; page: number; per_page: number }
 export const hrApi = {
   employees: () => api.get<HrEmployee[]>('/accounting/hr/employees'),

@@ -38,6 +38,31 @@ class AccountingHrRecapTest extends TestCase
         $this->assertDatabaseCount('acc_hr_events', 3);
     }
 
+    public function test_register_exposes_safe_hr_workflow_context(): void
+    {
+        $data = $this->leave();
+        $created = $this->postJson('/api/v1/accounting/hr/recaps', $data)->assertCreated()
+            ->assertJsonPath('data.workflow.next_role', 'ADMIN')->assertJsonPath('data.workflow.last_action', 'created')->json('data');
+        $this->assertSame(['next_role', 'last_action', 'last_transition_at', 'reason'], array_keys($created['workflow']));
+        $this->assertNotNull($created['workflow']['last_transition_at']);
+
+        $correction = $data;
+        unset($correction['employee_id'], $correction['source_reference']);
+        $correction += ['version' => 1, 'reason' => 'Jumlah hari diperbaiki sesuai sumber'];
+        $correction['source_days'] = '1.25';
+        $this->putJson('/api/v1/accounting/hr/recaps/'.$created['id'], $correction)->assertOk()
+            ->assertJsonPath('data.workflow.last_action', 'corrected')->assertJsonPath('data.workflow.reason', 'Jumlah hari diperbaiki sesuai sumber');
+        $listed = $this->getJson('/api/v1/accounting/hr/recaps?kind=leave&month=2026-10')->assertOk()
+            ->assertJsonPath('data.items.0.workflow.next_role', 'ADMIN')->assertJsonPath('data.items.0.workflow.last_action', 'corrected')
+            ->json('data.items.0.workflow');
+        $this->assertArrayNotHasKey('actor_id', $listed);
+        $this->assertArrayNotHasKey('before', $listed);
+        $this->assertArrayNotHasKey('after', $listed);
+
+        $this->postJson('/api/v1/accounting/hr/recaps/'.$created['id'].'/void', ['version' => 2, 'reason' => 'Dokumen sumber dibatalkan resmi'])->assertOk()
+            ->assertJsonPath('data.workflow.next_role', 'COMPLETED')->assertJsonPath('data.workflow.last_action', 'voided');
+    }
+
     public function test_leave_overlap_range_and_days_are_checked_without_calendar_inference(): void
     {
         $data = $this->leave();

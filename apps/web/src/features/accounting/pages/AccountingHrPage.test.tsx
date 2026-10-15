@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, it, vi } from 'vitest';
 import AccountingHrPage from './AccountingHrPage';
@@ -7,7 +7,7 @@ import { hrApi, type HrRecord } from '../api/hr';
 const auth=vi.hoisted(()=>({role:'ADMIN',divisionCode:'ACC'}));
 vi.mock('../../../session/AuthContext',()=>({useAuth:()=>({user:auth})}));
 vi.mock('../api/hr',()=>({hrApi:{employees:vi.fn(),createEmployee:vi.fn(),list:vi.fn(),detail:vi.fn(),create:vi.fn(),correct:vi.fn(),void:vi.fn()}}));
-const record:HrRecord={id:'r',employee_id:'e',employee_code:'HR-1',employee_name:'Pegawai anonim',kind:'leave',start_date:'2026-10-06',end_date:'2026-10-07',leave_type:'Tahunan',source_days:'1.50',source_reference:'CUTI-1',approval_reference:'SETUJU-1',status:'recorded',version:2};
+const record:HrRecord={id:'r',employee_id:'e',employee_code:'HR-1',employee_name:'Pegawai anonim',kind:'leave',start_date:'2026-10-06',end_date:'2026-10-07',leave_type:'Tahunan',source_days:'1.50',source_reference:'CUTI-1',approval_reference:'SETUJU-1',status:'recorded',version:2,workflow:{next_role:'ADMIN',last_action:'corrected',last_transition_at:'2026-10-07T14:15:00+07:00',reason:'Jumlah hari disesuaikan sumber'}};
 afterEach(()=>{cleanup();vi.resetAllMocks();});
 function show(role:string, rows:HrRecord[]=[]){
   auth.role=role;auth.divisionCode='ACC';
@@ -19,6 +19,9 @@ function show(role:string, rows:HrRecord[]=[]){
 it('Finance tidak meminta data HR dan Staff Accounting hanya membaca',async()=>{
   show('FINANCE');expect(screen.getByRole('alert')).toHaveTextContent('Akses rekap kepegawaian tidak tersedia');expect(hrApi.employees).not.toHaveBeenCalled();expect(hrApi.list).not.toHaveBeenCalled();
   cleanup();show('ACCOUNTING',[record]);await screen.findByText('CUTI-1');expect(screen.queryByRole('form',{name:'Catat rekap'})).not.toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Buka CUTI-1'}));await screen.findByText('Histori perubahan');expect(screen.queryByRole('button',{name:'Koreksi dokumen'})).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Batalkan dokumen'})).not.toBeInTheDocument();
+});
+it('register menampilkan aktivitas, waktu, alasan, dan penanggung jawab workflow',async()=>{
+  show('ACCOUNTING',[record]);const row=await screen.findByRole('row',{name:/Pegawai anonim/});expect(within(row).getByText('Dokumen dikoreksi')).toBeInTheDocument();expect(within(row).getByText('Admin Accounting')).toBeInTheDocument();expect(within(row).getByText('7 Okt 2026, 14.15')).toBeInTheDocument();expect(within(row).getByText('Jumlah hari disesuaikan sumber')).toBeInTheDocument();
 });
 it('Admin menyimpan jumlah hari sumber desimal dan mempertahankan input saat gagal',async()=>{
   vi.mocked(hrApi.create).mockRejectedValueOnce(new Error('Rentang cuti bertumpang tindih.')).mockResolvedValueOnce({data:record,meta:{trace_id:'t'}});
