@@ -154,7 +154,8 @@ Sebuah halaman selesai apabila:
     - [x] Detail rekonsiliasi Analitik Cellular memakai dialog native bersama, menangani Escape, scroll lock, dan pemulihan fokus ke tombol pemicu. Dokumen 107.
     - [x] Form Settlement Finance memakai panel kerja aksesibel dengan fokus awal eksplisit dan pemulihan fokus ke tindakan sumber. Dokumen 107.
     - [x] Detail Closing H+1 dan alasan izin/koreksi memakai panel native bersama; alasan menerima fokus awal dan detail mengembalikan fokus ke baris sumber. Dokumen 107.
-    - [ ] Migrasikan overlay mentah lain pada Kontrol Shift, penjualan, dan persediaan ke dialog bersama atau dialog native setara.
+    - [x] Form dan detail Kontrol Shift memakai panel native bersama; detail memperlihatkan checklist, PIC, tenggat, prioritas, temuan, catatan pemeriksa, serta versi. Dokumen 107.
+    - [ ] Migrasikan overlay mentah lain pada penjualan dan persediaan ke dialog bersama atau dialog native setara.
 
 ## Urutan eksekusi aktif
 
