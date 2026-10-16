@@ -1,8 +1,9 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowDownToLine, BadgeCheck, Banknote, CheckCircle2, Clock3, Download, Paperclip, Plus, Search, Upload, WalletCards } from 'lucide-react';
 import { DivisionPageHeader } from '../../../components/ui/DivisionPageHeader';
 import { Button } from '../../../components/ui/Button';
+import { DetailSheet } from '../../../components/ui/DetailSheet';
 import { ErrorState, LoadingState } from '../../../components/states';
 import { useAuth } from '../../../session/AuthContext';
 import { cellularApi, type Settlement, type SettlementAttachment, type SettlementSource } from '../api';
@@ -21,6 +22,7 @@ export default function CellularSettlementPage() {
   const { user } = useAuth(); const qc = useQueryClient(); const role = user?.role ?? '';
   const [month, setMonth] = useState(jakartaToday().slice(0, 7)); const [search, setSearch] = useState(''); const [tab, setTab] = useState<'reconciliation' | 'register'>('reconciliation');
   const [showForm, setShowForm] = useState(false); const [form, setForm] = useState<Form>(emptyForm); const [note, setNote] = useState<Record<string, string>>({});
+  const settlementSourceRef = useRef<HTMLSelectElement>(null);
   const sources = useQuery({ queryKey: ['cellular', 'settlement-sources', month], queryFn: () => cellularApi.settlementSources(month) });
   const settlements = useQuery({ queryKey: ['cellular', 'settlements', month], queryFn: () => cellularApi.settlements(month) });
   const refresh = async () => { await Promise.all([qc.invalidateQueries({ queryKey: ['cellular', 'settlement-sources'] }), qc.invalidateQueries({ queryKey: ['cellular', 'settlements'] })]); };
@@ -49,20 +51,20 @@ export default function CellularSettlementPage() {
       <Metric label="Biaya kanal" value={money(metrics.fees)} note="Dari settlement terverifikasi" icon={<Banknote />} />
     </div>
 
-    {showForm && role === 'FINANCE' && <form onSubmit={submit} className="rounded-card border border-line bg-panel p-5 shadow-card">
-      <div className="mb-5 flex items-start justify-between"><div><h2 className="font-bold text-navy">{form.id ? 'Perbaiki settlement' : 'Catat dana masuk'}</h2><p className="mt-1 text-xs text-subtle">Pilih kanal dari closing yang disetujui. Nilai neto dihitung otomatis dari bruto dikurangi biaya.</p></div><button type="button" className="text-sm text-subtle" onClick={() => setShowForm(false)}>Tutup</button></div>
-      <div className="grid gap-4 md:grid-cols-3">
-        <Field label="Sumber closing & kanal"><select required disabled={Boolean(form.id)} className={field} value={`${form.daily_closing_id}|${form.channel}`} onChange={e => { const [daily_closing_id, channel] = e.target.value.split('|') as [string, SettlementSource['channel']]; const row = sourceRows.find(item => item.daily_closing_id === daily_closing_id && item.channel === channel); setForm({ ...form, daily_closing_id, channel, gross: row?.remaining ?? '' }); }}><option value="|cash">Pilih closing</option>{sourceRows.filter(row => Number(row.remaining) > 0).map(row => <option key={`${row.daily_closing_id}-${row.channel}`} value={`${row.daily_closing_id}|${row.channel}`}>{row.business_date} · {row.outlet_name} · {channelLabel[row.channel]} · sisa {money(row.remaining)}</option>)}</select></Field>
-        <Field label="Tanggal dana diterima"><input required type="date" max={jakartaToday()} className={field} value={form.settlement_date} onChange={e => setForm({ ...form, settlement_date: e.target.value })} /></Field>
-        <Field label="Tujuan bank / kas"><input required className={field} placeholder="Contoh: BCA Operasional" value={form.destination} onChange={e => setForm({ ...form, destination: e.target.value })} /></Field>
-        <Field label="Nilai bruto"><input required inputMode="decimal" pattern="\d{1,12}(\.\d{1,2})?" className={field} value={form.gross} onChange={e => setForm({ ...form, gross: e.target.value })} /></Field>
-        <Field label="Biaya kanal"><input required inputMode="decimal" pattern="\d{1,12}(\.\d{1,2})?" className={field} value={form.fee} onChange={e => setForm({ ...form, fee: e.target.value })} /></Field>
-        <Field label="Referensi bank / batch"><input required className={field} placeholder="Contoh: QRIS-SET-001" value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} /></Field>
-      </div>
-      <div className="mt-4 rounded-input border border-primary-100 bg-primary-50 p-3 text-sm text-primary-800"><span className="font-semibold">Dana neto:</span> {money(Math.max(0, Number(form.gross || 0) - Number(form.fee || 0)))}</div>
-      {save.error && <p role="alert" className="mt-4 rounded-input bg-danger-light p-3 text-sm text-danger">{save.error.message}</p>}
-      <div className="mt-5 flex justify-end"><Button disabled={save.isPending} type="submit">{save.isPending ? 'Menyimpan...' : 'Simpan draf'}</Button></div>
-    </form>}
+    <DetailSheet isOpen={showForm && role === 'FINANCE'} onClose={() => { if (!save.isPending) setShowForm(false); }} title={form.id ? 'Perbaiki settlement' : 'Catat dana masuk'} subtitle="Pilih kanal dari closing yang disetujui. Nilai neto dihitung otomatis dari bruto dikurangi biaya." icon={WalletCards} size="xl" initialFocusRef={settlementSourceRef} footer={<div className="flex w-full justify-end gap-2"><Button type="button" variant="secondary" disabled={save.isPending} onClick={() => setShowForm(false)}>Batal</Button><Button form="cellular-settlement-form" disabled={save.isPending} type="submit">{save.isPending ? 'Menyimpan...' : 'Simpan draf'}</Button></div>}>
+      <form id="cellular-settlement-form" onSubmit={submit}>
+        <fieldset disabled={save.isPending} className="grid gap-4 md:grid-cols-2">
+          <Field label="Sumber closing & kanal"><select ref={settlementSourceRef} required disabled={Boolean(form.id)} className={field} value={`${form.daily_closing_id}|${form.channel}`} onChange={e => { const [daily_closing_id, channel] = e.target.value.split('|') as [string, SettlementSource['channel']]; const row = sourceRows.find(item => item.daily_closing_id === daily_closing_id && item.channel === channel); setForm({ ...form, daily_closing_id, channel, gross: row?.remaining ?? '' }); }}><option value="|cash">Pilih closing</option>{sourceRows.filter(row => Number(row.remaining) > 0).map(row => <option key={`${row.daily_closing_id}-${row.channel}`} value={`${row.daily_closing_id}|${row.channel}`}>{row.business_date} · {row.outlet_name} · {channelLabel[row.channel]} · sisa {money(row.remaining)}</option>)}</select></Field>
+          <Field label="Tanggal dana diterima"><input required type="date" max={jakartaToday()} className={field} value={form.settlement_date} onChange={e => setForm({ ...form, settlement_date: e.target.value })} /></Field>
+          <Field label="Tujuan bank / kas"><input required className={field} placeholder="Contoh: BCA Operasional" value={form.destination} onChange={e => setForm({ ...form, destination: e.target.value })} /></Field>
+          <Field label="Referensi bank / batch"><input required className={field} placeholder="Contoh: QRIS-SET-001" value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} /></Field>
+          <Field label="Nilai bruto"><input required inputMode="decimal" pattern="\d{1,12}(\.\d{1,2})?" className={field} value={form.gross} onChange={e => setForm({ ...form, gross: e.target.value })} /></Field>
+          <Field label="Biaya kanal"><input required inputMode="decimal" pattern="\d{1,12}(\.\d{1,2})?" className={field} value={form.fee} onChange={e => setForm({ ...form, fee: e.target.value })} /></Field>
+        </fieldset>
+        <div className="mt-5 rounded-input border border-primary-100 bg-primary-50 p-4 text-sm text-primary-800 dark:border-primary-900 dark:bg-primary-950/30 dark:text-primary-200"><span className="font-semibold">Dana neto:</span> {money(Math.max(0, Number(form.gross || 0) - Number(form.fee || 0)))}</div>
+        {save.error && <p role="alert" className="mt-4 rounded-input bg-danger-light p-3 text-sm text-danger">{save.error.message}</p>}
+      </form>
+    </DetailSheet>
 
     <section className="overflow-hidden rounded-card border border-line bg-panel shadow-card">
       <div className="flex flex-col gap-4 border-b border-line p-5 lg:flex-row lg:items-center lg:justify-between">

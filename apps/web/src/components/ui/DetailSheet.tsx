@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -16,11 +16,12 @@ export interface DetailSheetProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  initialFocusRef?: RefObject<HTMLElement | null>;
 }
 
 const widths = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-xl', xl: 'max-w-3xl', full: 'max-w-none' };
 
-export function DetailSheet({ isOpen, onClose, title, subtitle, badge, icon: Icon, children, footer, size = 'md' }: DetailSheetProps) {
+export function DetailSheet({ isOpen, onClose, title, subtitle, badge, icon: Icon, children, footer, size = 'md', initialFocusRef }: DetailSheetProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const descriptionId = useId();
@@ -32,12 +33,13 @@ export function DetailSheet({ isOpen, onClose, title, subtitle, badge, icon: Ico
     document.body.style.overflow = 'hidden';
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', '');
+    initialFocusRef?.current?.focus();
     return () => {
       if (typeof dialog.close === 'function') dialog.close();
       document.body.style.overflow = overflow;
       if (previousFocus instanceof HTMLElement) previousFocus.focus();
     };
-  }, [isOpen]);
+  }, [initialFocusRef, isOpen]);
   if (!isOpen) return null;
   return createPortal(
     <dialog ref={ref} aria-labelledby={titleId} aria-describedby={subtitle ? descriptionId : undefined}

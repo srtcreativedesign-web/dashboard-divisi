@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cellularApi, type Settlement } from '../api';
 import CellularSettlementPage from './CellularSettlementPage';
@@ -18,9 +19,10 @@ describe('Settlement Kanal Cellular', () => {
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
   it('memberi Finance kontrol sisa penerimaan dan formulir settlement', async () => {
-    page(); expect(await screen.findByRole('heading', { name: 'Settlement Kanal Pembayaran' })).toBeInTheDocument();
-    expect(screen.getAllByText(/600\.000/).length).toBeGreaterThan(0); fireEvent.click(screen.getByRole('button', { name: 'Catat dana' }));
-    expect(screen.getByRole('heading', { name: 'Catat dana masuk' })).toBeInTheDocument(); expect(screen.getByLabelText('Nilai bruto')).toHaveValue('600000.00');
+    const user = userEvent.setup(); page(); expect(await screen.findByRole('heading', { name: 'Settlement Kanal Pembayaran' })).toBeInTheDocument();
+    expect(screen.getAllByText(/600\.000/).length).toBeGreaterThan(0); const trigger = screen.getByRole('button', { name: 'Catat dana' }); await user.click(trigger);
+    expect(screen.getByRole('dialog', { name: 'Catat dana masuk' })).toBeInTheDocument(); expect(screen.getByLabelText('Nilai bruto')).toHaveValue('600000.00'); expect(screen.getByLabelText('Sumber closing & kanal')).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: 'Tutup panel' })); expect(screen.queryByRole('dialog', { name: 'Catat dana masuk' })).not.toBeInTheDocument(); expect(trigger).toHaveFocus();
   });
 
   it('memberi Accounting tindakan rekonsiliasi dan koreksi', async () => {
