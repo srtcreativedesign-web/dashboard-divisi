@@ -25,7 +25,11 @@ export default function AccountingWorkPage({ mode }: { mode?: AccountingWorkMode
   const isManager = hasCapability(user?.role ?? '', 'approve:voucher', user?.divisionCode);
   const defaultStatus: WorkStatus = mode === 'finance' || isFinance ? 'done' : mode === 'manager' ? 'pending_approval' : isWriter ? 'correction' : isReviewer ? 'submitted' : 'pending_approval';
   const [params, setParams] = useSearchParams();
-  const [kind, setKind] = useState<WorkKind>(() => mode === 'finance' || isFinance ? 'voucher' : params.get('kind') === 'voucher' ? 'voucher' : 'omzet');
+  const [kind, setKind] = useState<WorkKind>(() => {
+    const requestedKind = params.get('kind');
+    if (requestedKind === 'omzet' || requestedKind === 'voucher') return requestedKind;
+    return mode === 'finance' || mode === 'manager' || isFinance ? 'voucher' : 'omzet';
+  });
   const [month, setMonth] = useState(() => /^20\d{2}-(0[1-9]|1[0-2])$/.test(params.get('month') ?? '') ? params.get('month')! : currentWorkMonth());
   const [outlet, setOutlet] = useState(params.get('outlet') ?? '');
   const [status, setStatus] = useState<WorkStatus>(() => mode === 'finance' ? 'done' : mode === 'manager' ? 'pending_approval' : workStatuses.includes(params.get('status') as WorkStatus) ? params.get('status') as WorkStatus : defaultStatus);

@@ -49,13 +49,16 @@ describe('Ruang kerja Accounting dari transaksi persisten', () => {
     expect(screen.queryByRole('link', { name: 'Buat rekap' })).not.toBeInTheDocument();
   });
   it('Decision Inbox Manager fokus pada pending approval dan menampilkan konteks risiko tanpa ambang materialitas palsu', async () => {
+    const voucher: VoucherRecord = { id: fixture.id, type: 'OPERATIONAL', outlet_id: fixture.outlet_id, outlet_name: fixture.outlet_name, source_division_code: 'CELL', voucher_date: '2026-10-04', due_date: '2026-10-18', entity_name: 'Penerima anonim', source_reference: 'Anonim', amount: '1000', description: 'Kebutuhan outlet', status: 'pending_approval', version: 1, voucher_no: 'V/ANONIM', created_by: 'admin', reviewed_by: 'accounting', approved_by: null, review_notes: 'Dokumen lengkap', decision_notes: null, events: [] };
+    vi.mocked(voucherApi.list).mockResolvedValue(envelope({ items: [voucher], total: 1, current_page: 1, last_page: 1, summary: { ...emptyVoucherSummary, total_records: 1, status_counts: { ...emptyVoucherSummary.status_counts, pending_approval: 1 }, total_amount: '1000.00' } }));
     identity.role = 'MANAGER'; mountManagerInbox();
     expect(await screen.findByRole('heading', { name: 'Decision Inbox Manager' })).toBeInTheDocument();
     expect(screen.getByText('Ambang materialitas perusahaan belum ditetapkan.')).toBeInTheDocument();
-    expect(await screen.findByText('Tanpa sumber AP')).toBeInTheDocument();
+    expect(await screen.findByText('V/ANONIM')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Voucher pengeluaran' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: /Menunggu Manager/ })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.queryByRole('button', { name: /Perlu koreksi/ })).not.toBeInTheDocument();
-    expect(omzetApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: 'pending_approval' }));
+    expect(voucherApi.list).toHaveBeenCalledWith(expect.objectContaining({ status: 'pending_approval' }));
   });
   it('filter mengubah API dan mengembalikan pagination ke halaman pertama', async () => {
     mount(); fireEvent.click(await screen.findByRole('button', { name: 'Berikutnya' }));
