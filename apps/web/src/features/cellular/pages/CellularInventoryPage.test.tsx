@@ -49,4 +49,15 @@ describe('Kontrol Persediaan Cellular', () => {
     fireEvent.change(screen.getByLabelText('Cari dokumen persediaan'), { target: { value: 'SJ-001' } });
     expect(screen.getByText('CEL-INV-202610-0001')).toBeInTheDocument();
   });
+
+  it('memfilter posisi stok berdasarkan produk, outlet, dan kondisi', async () => {
+    renderPage();
+    expect(await screen.findByText('TSEL-10')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Cari posisi stok'), { target: { value: 'Cellular T3' } });
+    expect(screen.getByText('1 dari 1 posisi')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Filter kondisi stok'), { target: { value: 'critical' } });
+    expect(screen.getByText('Posisi stok tidak ditemukan')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Filter kondisi stok'), { target: { value: 'available' } });
+    expect(screen.getByText('TSEL-10')).toBeInTheDocument();
+  });
 });
