@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Wrench,
+  FolderKanban,
 } from 'lucide-react';
 import { LoadingState, EmptyState } from '../../../components/states';
 import { CreateProjectModal } from '../../../components/projects/CreateProjectModal';
@@ -49,6 +50,7 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
   const [activeMilestoneModal, setActiveMilestoneModal] = useState<{
     project: Project;
     milestone: ProjectMilestone;
+    showTimeline?: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -84,7 +86,8 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
     }
   };
 
-  const handleStageClick = async (project: Project, milestone: ProjectMilestone) => {
+  const handleStageClick = async (project: Project, milestone: ProjectMilestone, stageKey?: string) => {
+    const showTimeline = stageKey === 'EXECUTION';
     if (milestone.id < 0) {
       try {
         const fresh = await projectApi.syncStandardMilestones(project.id);
@@ -95,13 +98,13 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
           fresh.find((m) =>
             m.title.toUpperCase().includes(milestone.title.replace(/^\d+\.\s*/, '').toUpperCase())
           ) || fresh[0] || milestone;
-        setActiveMilestoneModal({ project, milestone: target });
+        setActiveMilestoneModal({ project: { ...project, milestones: fresh }, milestone: target, showTimeline });
       } catch (e) {
         console.error(e);
-        setActiveMilestoneModal({ project, milestone });
+        setActiveMilestoneModal({ project, milestone, showTimeline });
       }
     } else {
-      setActiveMilestoneModal({ project, milestone });
+      setActiveMilestoneModal({ project, milestone, showTimeline });
     }
   };
 
@@ -613,8 +616,20 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
                     <td className="px-5 py-3.5 text-center text-slate-600 font-medium">
                       {project.end_date ? new Date(project.end_date).toLocaleDateString('id-ID') : '-'}
                     </td>
-                    <td className="px-5 py-3.5 text-right text-slate-400">
-                      <ChevronRight className="h-4 w-4 inline-block" />
+                    <td className="px-5 py-3.5 text-right">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/projects/${project.id}`);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-primary-50 hover:bg-primary-100 text-primary-700 text-xs font-semibold border border-primary-200 transition-colors"
+                        title="Buka halaman detail proyek"
+                      >
+                        <FolderKanban className="h-3.5 w-3.5" />
+                        Detail
+                      </button>
+                      <ChevronRight className="h-4 w-4 inline-block ml-1 text-slate-400" />
                     </td>
                   </tr>
                 ))}
@@ -641,6 +656,7 @@ export default function ProjectListPage({ forcedClassification }: { forcedClassi
           isOpen={!!activeMilestoneModal}
           project={activeMilestoneModal.project}
           milestone={activeMilestoneModal.milestone}
+          showTimeline={activeMilestoneModal.showTimeline}
           onClose={() => setActiveMilestoneModal(null)}
           onSuccess={handleMilestoneUpdated}
         />

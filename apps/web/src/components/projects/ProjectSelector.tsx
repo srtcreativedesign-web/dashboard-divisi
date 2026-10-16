@@ -42,7 +42,7 @@ export function ProjectSelector({ selectedProjectId, onSelectProject }: ProjectS
           disabled={loading}
           className="w-full appearance-none rounded-input border border-line bg-panel py-2 pl-9 pr-9 text-xs sm:text-sm font-semibold text-navy shadow-card transition-all focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 cursor-pointer"
         >
-          <option value="" disabled>-- Pilih Proyek Aktif --</option>
+          <option value="">-- Ringkasan Semua Proyek (Summary) --</option>
           {projects.map((p) => (
             <option key={p.id} value={p.id}>
               {p.project_code ? `[${p.project_code}] ` : ''}{p.name} {p.client_name ? `• ${p.client_name}` : ''}
