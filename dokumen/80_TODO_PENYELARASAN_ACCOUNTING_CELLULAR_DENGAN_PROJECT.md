@@ -149,6 +149,10 @@ Sebuah halaman selesai apabila:
   - [x] Browser UAT tablet 768×1024 Persediaan, nama aksesibel tindakan, serta error/retry Rekap Kehadiran dan Persediaan. Dokumen 105.
   - [x] Browser UAT form dan register Omzet H+1 serta Voucher: desktop/mobile, urutan fokus awal, nama tindakan per dokumen, serta error/retry API. Dokumen 106.
   - [ ] Audit keyboard/focus menyeluruh untuk halaman Accounting dan Cellular lainnya.
+    - [x] Rekap Kehadiran mempunyai pencarian/filter berlabel, jumlah hasil live, dan detail read-only melalui dialog native bersama.
+    - [x] Persediaan Cellular mempunyai filter dokumen serta posisi stok berlabel dan keadaan kosong yang membedakan sumber kosong dari hasil filter kosong.
+    - [x] Detail rekonsiliasi Analitik Cellular memakai dialog native bersama, menangani Escape, scroll lock, dan pemulihan fokus ke tombol pemicu. Dokumen 107.
+    - [ ] Migrasikan overlay mentah lain pada Closing H+1, Kontrol Shift, Settlement, penjualan, dan persediaan ke dialog bersama atau dialog native setara.
 
 ## Urutan eksekusi aktif
 
