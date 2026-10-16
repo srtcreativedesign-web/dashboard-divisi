@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -23,19 +24,45 @@ describe('Kontrol Persediaan Cellular', () => {
   afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
   it('memberi Admin Gudang pembuatan dokumen tanpa hak persetujuan', async () => {
+    const user = userEvent.setup();
     renderPage();
     expect(await screen.findByRole('heading', { name: 'Kontrol Persediaan' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Buat dokumen/ })).toBeInTheDocument();
+    const trigger = screen.getByRole('button', { name: /Buat dokumen/ });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Buat dokumen persediaan' });
+    expect(screen.getByRole('form', { name: 'Form dokumen persediaan' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Jenis dokumen')).toHaveFocus();
+    await user.click(within(dialog).getByRole('button', { name: 'Tutup panel' }));
+    expect(trigger).toHaveFocus();
     expect(await screen.findByText('CEL-INV-202610-0001')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Setujui/ })).not.toBeInTheDocument();
   });
 
   it('memberi Manager antrean persetujuan tanpa form pembuat', async () => {
+    const user = userEvent.setup();
     session.role = 'MANAGER';
     renderPage();
     expect(await screen.findByRole('button', { name: /Setujui/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Koreksi/ })).toBeInTheDocument();
+    const trigger = screen.getByRole('button', { name: /Koreksi/ });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Minta perbaikan dokumen' });
+    expect(screen.getByRole('form', { name: 'Kembalikan dokumen untuk koreksi' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Catatan koreksi')).toHaveFocus();
+    await user.click(within(dialog).getByRole('button', { name: 'Tutup panel' }));
+    expect(trigger).toHaveFocus();
     expect(screen.queryByRole('button', { name: /Buat dokumen/ })).not.toBeInTheDocument();
+  });
+
+  it('menampilkan detail dokumen tanpa identifier internal dan memulihkan fokus', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const trigger = await screen.findByRole('button', { name: 'Lihat CEL-INV-202610-0001' });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Detail dokumen persediaan' });
+    expect(dialog).toHaveTextContent('Penerimaan kartu perdana Telkomsel.');
+    expect(dialog).not.toHaveTextContent('warehouse-1');
+    await user.click(within(dialog).getByRole('button', { name: 'Tutup panel' }));
+    expect(trigger).toHaveFocus();
   });
 
   it('memfilter register berdasarkan nomor, referensi, outlet, dan jenis dokumen', async () => {
