@@ -31,6 +31,12 @@ class Project extends Model
         'end_date',
     ];
 
+    protected $casts = [
+        'start_date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
+        'contract_value' => 'decimal:2',
+    ];
+
     public function milestones()
     {
         return $this->hasMany(ProjectMilestone::class);

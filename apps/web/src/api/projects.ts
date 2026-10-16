@@ -227,6 +227,34 @@ export const projectApi = {
     link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   },
+
+  getReportPreview: async (start?: string, end?: string) => {
+    const res = await api.get<import('./bod').ProjectReportPreview>('/projects/reports/preview', {
+      period_start: start,
+      period_end: end,
+    });
+    return res.data;
+  },
+
+  submitReport: async (data: { period_start: string; period_end: string; metrics?: unknown[]; breakdowns?: unknown[] }) => {
+    const res = await api.post<import('./bod').BodDivisionReportItem>('/projects/reports/submit', data);
+    return res.data;
+  },
+
+  approveReport: async (id: string) => {
+    const res = await api.post<import('./bod').BodDivisionReportItem>(`/projects/reports/${id}/approve`);
+    return res.data;
+  },
+
+  returnReport: async (id: string, notes: string) => {
+    const res = await api.post<import('./bod').BodDivisionReportItem>(`/projects/reports/${id}/return`, { notes });
+    return res.data;
+  },
+
+  getReportDetail: async (id: string) => {
+    const res = await api.get<import('./bod').BodDivisionReportItem>(`/projects/reports/${id}`);
+    return res.data;
+  },
 };
 
 export const vendorApi = {

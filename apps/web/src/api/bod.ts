@@ -29,6 +29,61 @@ export interface PnlComparisonData {
   }[];
 }
 
+export interface BodReportMetric {
+  id?: string;
+  category: 'FINANCIAL' | 'PROGRESS' | 'VOLUME' | string;
+  metric_key: string;
+  metric_label: string;
+  metric_value: number;
+  unit: string;
+  display_order: number;
+}
+
+export interface BodReportBreakdown {
+  id?: string;
+  entity_code: string;
+  entity_name: string;
+  figures: Record<string, number | string>;
+  display_order: number;
+}
+
+export interface BodDivisionReportItem {
+  id: string;
+  division_code: string;
+  period_start: string;
+  period_end: string;
+  status: 'PENDING' | 'REVISION' | 'SUBMITTED' | 'ACKNOWLEDGED' | string;
+  submitted_by?: string | null;
+  submitted_at?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  acknowledged_by?: string | null;
+  acknowledged_at?: string | null;
+  notes?: string | null;
+  metrics: BodReportMetric[];
+  breakdowns?: BodReportBreakdown[];
+  submitter?: { id: string; name: string; email: string } | null;
+  reviewer?: { id: string; name: string; email: string } | null;
+  acknowledger?: { id: string; name: string; email: string } | null;
+}
+
+export interface ProjectReportPreview {
+  id?: string;
+  division_code: string;
+  period_start: string;
+  period_end: string;
+  is_already_submitted: boolean;
+  status: 'PENDING' | 'REVISION' | 'SUBMITTED' | 'ACKNOWLEDGED' | string;
+  submitted_at?: string | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
+  reviewer_name?: string | null;
+  acknowledged_at?: string | null;
+  notes?: string | null;
+  metrics: BodReportMetric[];
+  breakdowns: BodReportBreakdown[];
+}
+
 export const bodApi = {
   overview: (from?: string, to?: string) => api.get<BodOverviewItem[]>('/bod/overview', { from, to }),
   executive: () => api.get<ExecutiveItem[]>('/bod/executive-read-model'),
@@ -42,4 +97,11 @@ export const bodApi = {
     if (outlets) outlets.forEach((o, i) => params[`outlets[${i}]`] = o);
     return api.get<PnlComparisonData[]>('/bod/pnl-comparison', params);
   },
+  getReports: (division?: string, status?: string) =>
+    api.get<{ data: BodDivisionReportItem[]; current_page: number; total: number }>('/bod/reports', {
+      division,
+      status,
+    }),
+  getReportDetail: (id: string) => api.get<BodDivisionReportItem>(`/bod/reports/${id}`),
+  acknowledgeReport: (id: string) => api.post<BodDivisionReportItem>(`/bod/reports/${id}/acknowledge`),
 };

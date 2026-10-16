@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\V1\Project\ProjectExpenseController;
 use App\Http\Controllers\Api\V1\Project\ProjectInvoiceController;
 use App\Http\Controllers\Api\V1\Project\ProjectPettyCashController;
 use App\Http\Controllers\Api\V1\Project\ProjectRabController;
+use App\Http\Controllers\Api\V1\Project\ProjectReportController;
 use App\Http\Controllers\Api\V1\Project\ProjectVendorController;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,9 @@ Route::prefix('v1')->group(function () {
             Route::get('bod/executive-read-model', [BodController::class, 'executiveReadModel']);
             Route::get('bod/kpi-compatibility', [BodController::class, 'checkCompatibility']);
             Route::get('bod/overview', [BodController::class, 'overview']);
+            Route::get('bod/reports', [BodController::class, 'reports']);
+            Route::get('bod/reports/{id}', [BodController::class, 'reportDetail'])->whereUuid('id');
+            Route::post('bod/reports/{id}/acknowledge', [BodController::class, 'acknowledgeReport'])->whereUuid('id');
             Route::get('division-configs', [DivisionConfigController::class, 'getAll']);
         });
 
@@ -258,8 +262,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/{projectId}/invoices', [ProjectInvoiceController::class, 'index']);
             Route::get('/{projectId}/expenses', [ProjectExpenseController::class, 'index']);
             Route::get('/{projectId}/rab', [ProjectRabController::class, 'index']);
+            Route::get('reports/preview', [ProjectReportController::class, 'preview']);
+            Route::get('reports/{id}', [ProjectReportController::class, 'show'])->whereUuid('id');
 
             Route::middleware(['capability:manage:projects'])->group(function () {
+                Route::post('reports/submit', [ProjectReportController::class, 'submit']);
+                Route::post('reports/{id}/approve', [ProjectReportController::class, 'approve'])->whereUuid('id');
+                Route::post('reports/{id}/return', [ProjectReportController::class, 'returnReport'])->whereUuid('id');
                 Route::post('/', [ProjectController::class, 'store']);
                 Route::put('/{id}', [ProjectController::class, 'update']);
                 Route::delete('/{id}', [ProjectController::class, 'destroy']);

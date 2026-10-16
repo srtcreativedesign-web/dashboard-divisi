@@ -1,8 +1,8 @@
 import { AccountingNavigation } from '../components/accounting/AccountingNavigation';
 import { Fragment, useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, ShieldCheck, ShieldAlert, CreditCard, PanelLeftClose, PanelLeftOpen, Moon, Sun, FileText, CheckSquare, Package, Coins, FolderKanban, ClipboardCheck, Wallet, FolderPlus, Wrench, ReceiptText, Boxes } from 'lucide-react';
-import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, PROJECT_MENU_ITEMS, CELLULAR_MENU_ITEMS } from '../config/menus';
+import { NavLink, Outlet, useLocation, Navigate, Link } from 'react-router-dom';
+import { LayoutDashboard, TrendingUp, Target, Award, Users, ClipboardList, BarChart3, Settings, Menu, Calendar, Store, Calculator, DollarSign, PieChart, BookOpenText, Database, UploadCloud, ShieldCheck, ShieldAlert, CreditCard, PanelLeftClose, PanelLeftOpen, Moon, Sun, FileText, CheckSquare, Package, Coins, FolderKanban, ClipboardCheck, Wallet, FolderPlus, Wrench, ReceiptText, Boxes, ArrowLeft } from 'lucide-react';
+import { ACCOUNTING_MENU_ITEMS, MENU_ITEMS, BOD_MENU_ITEMS, PROJECT_MENU_ITEMS, CELLULAR_MENU_ITEMS } from '../config/menus';
 import { roleDisplay } from '../config/session';
 import { useAuth } from '../session/AuthContext';
 import LogoutButton from '../components/LogoutButton';
@@ -66,6 +66,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   '/projects/timeline': Calendar,
   '/projects/calendar': Calendar,
   '/projects/lpj': ClipboardCheck,
+  '/projects/report-to-bod': ClipboardCheck,
   // Cellular routes
   '/cellular': LayoutDashboard,
   '/cellular/pekerjaan': ClipboardCheck,
@@ -121,26 +122,38 @@ export function AppLayout() {
   if (authLoading) return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
   if (!user) return <Navigate to="/login" replace />;
 
+  const isBod = user.role === 'BOD';
   const normalizedDiv = normalizeDivisionCode(user.divisionCode);
-  const isAccounting = location.pathname.startsWith('/accounting') || (normalizedDiv === 'ACC' && location.pathname === '/dashboard');
-  const isProject = location.pathname.startsWith('/projects') || (normalizedDiv === 'PROJECT' && location.pathname === '/dashboard');
-  const isCellular = location.pathname.startsWith('/cellular') || ((normalizedDiv === 'CELL' || normalizedDiv === 'CELLULAR') && location.pathname === '/dashboard');
-  const menuItems = isAccounting ? ACCOUNTING_MENU_ITEMS : isProject ? PROJECT_MENU_ITEMS : isCellular ? CELLULAR_MENU_ITEMS : MENU_ITEMS;
+  const isAccounting = !isBod && (location.pathname.startsWith('/accounting') || (normalizedDiv === 'ACC' && location.pathname === '/dashboard'));
+  const isProject = !isBod && (location.pathname.startsWith('/projects') || (normalizedDiv === 'PROJECT' && location.pathname === '/dashboard'));
+  const isCellular = !isBod && (location.pathname.startsWith('/cellular') || ((normalizedDiv === 'CELL' || normalizedDiv === 'CELLULAR') && location.pathname === '/dashboard'));
+  const menuItems = isBod ? BOD_MENU_ITEMS : isAccounting ? ACCOUNTING_MENU_ITEMS : isProject ? PROJECT_MENU_ITEMS : isCellular ? CELLULAR_MENU_ITEMS : MENU_ITEMS;
   const moduleCode = (itemPath: string) => itemPath.startsWith('/accounting') ? 'ACC' : itemPath.startsWith('/projects') ? 'PROJECT' : itemPath.startsWith('/cellular') ? 'CELL' : null;
-  const rawList = (isProject || isAccounting || isCellular) ? menuItems : [{ path: '/dashboard', label: 'Workspace ERP', roles: [user.role], capability: undefined, group: undefined }, ...menuItems.filter(item => item.path !== '/dashboard')];
+  const rawList = isBod ? BOD_MENU_ITEMS : (isProject || isAccounting || isCellular) ? menuItems : [{ path: '/dashboard', label: 'Workspace ERP', roles: [user.role], capability: undefined, group: undefined }, ...menuItems.filter(item => item.path !== '/dashboard')];
   const visibleMenu = rawList.filter(item => item.roles.includes(user.role as never) && canAccessDivision(user, moduleCode(item.path)) && (!item.capability || hasCapability(user.role as never, item.capability, user.divisionCode)));
   const activeMenu = menuItems.find(item => item.path === location.pathname);
   const roleLabel = roleDisplay(user.role);
   const scopeLabel = normalizeDivisionCode(user.divisionCode) ?? 'Semua modul MVP';
+
+  const isItemActive = (itemPath: string, navLinkActive: boolean) => {
+    if (!isBod) return navLinkActive;
+    if (itemPath === '/dashboard') return location.pathname === '/dashboard';
+    const segment = itemPath.split('/')[1];
+    return segment ? location.pathname.startsWith(`/${segment}`) : navLinkActive;
+  };
+
   const navigation = (compact = false) => isAccounting ? <AccountingNavigation user={user} compact={compact} onNavigate={() => setDrawerOpen(false)} /> : (
     <nav aria-label="Navigasi utama" className="space-y-1 px-3">
       {visibleMenu.map((item,index) => {
         const Icon = ICON_MAP[item.path] ?? LayoutDashboard;
         return <Fragment key={item.path}>
           {!compact && item.group && item.group !== visibleMenu[index-1]?.group && <p className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{item.group}</p>}
-          <NavLink to={item.path} end onClick={() => setDrawerOpen(false)}
+          <NavLink to={item.path} end={item.path === '/dashboard'} onClick={() => setDrawerOpen(false)}
           title={compact ? item.label : undefined}
-          className={({ isActive }) => `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${compact ? 'justify-center' : ''} ${isActive ? 'bg-primary-50 font-semibold text-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-navy'}`}>
+          className={({ isActive }) => {
+            const isCurrentActive = isItemActive(item.path, isActive);
+            return `flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${compact ? 'justify-center' : ''} ${isCurrentActive ? 'bg-primary-50 font-semibold text-primary-800 dark:bg-primary-950 dark:text-primary-200' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-navy'}`;
+          }}>
           <Icon aria-hidden="true" className="h-[18px] w-[18px] shrink-0" />
           <span className={compact ? 'sr-only' : ''}>{item.label}</span>
         </NavLink></Fragment>;
@@ -159,7 +172,7 @@ export function AppLayout() {
       <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-line bg-white dark:bg-slate-900 lg:flex ${sidebarCollapsed ? 'w-20' : 'w-64'}`}>
         <div className="flex h-20 items-center gap-3 px-5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-700 text-xs font-bold text-white">{scopeLabel === 'Semua divisi' ? 'DD' : scopeLabel.slice(0, 2)}</div>
-          {!sidebarCollapsed && <div><p className="text-sm font-bold tracking-tight">Dashboard Divisi</p><p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{isAccounting ? 'Accounting workspace' : isProject ? 'Manajemen proyek' : scopeLabel}</p></div>}
+          {!sidebarCollapsed && <div><p className="text-sm font-bold tracking-tight">Dashboard Divisi</p><p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{isBod ? 'Dewan Direksi (BOD)' : isAccounting ? 'Accounting workspace' : isProject ? 'Manajemen proyek' : scopeLabel}</p></div>}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto pb-5">{navigation(sidebarCollapsed)}</div>
         {profile(sidebarCollapsed)}
@@ -172,7 +185,27 @@ export function AppLayout() {
           <div className="flex min-w-0 items-center gap-3">
             <button type="button" aria-label="Buka menu" aria-expanded={drawerOpen} onClick={() => setDrawerOpen(true)} className="rounded-lg p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden"><Menu className="h-5 w-5" /></button>
             <button type="button" aria-label={sidebarCollapsed ? 'Perbesar sidebar' : 'Kecilkan sidebar'} title="Ctrl+B" onClick={() => setSidebarCollapsed(value => !value)} className="hidden rounded-lg p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 lg:block">{sidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}</button>
-            <p className="truncate text-sm font-medium text-slate-600 dark:text-slate-300">{activeMenu?.label ?? 'Dashboard Divisi'}</p>
+            <p className="truncate text-sm font-medium text-slate-600 dark:text-slate-300">
+              {isBod
+                ? (location.pathname === '/dashboard'
+                    ? 'Workspace ERP'
+                    : location.pathname.startsWith('/projects')
+                    ? 'Laporan Proyek ke BOD'
+                    : location.pathname.startsWith('/accounting')
+                    ? 'Laporan Accounting ke BOD'
+                    : location.pathname.startsWith('/cellular')
+                    ? 'Laporan Cellular ke BOD'
+                    : activeMenu?.label ?? 'Dashboard Divisi')
+                : (activeMenu?.label ?? 'Dashboard Divisi')}
+            </p>
+            {isBod && location.pathname !== '/dashboard' && (
+              <Link
+                to="/dashboard"
+                className="ml-2 inline-flex items-center gap-1.5 rounded-lg border border-line bg-slate-50 px-2.5 py-1 text-xs font-semibold text-navy transition-colors hover:bg-slate-100 hover:text-primary dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Kembali ke Dashboard
+              </Link>
+            )}
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <span className="hidden text-xs text-slate-500 dark:text-slate-400 sm:inline">{roleLabel} · {scopeLabel}</span>

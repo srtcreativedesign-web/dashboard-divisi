@@ -9,14 +9,20 @@ interface RouteGuardProps {
   children: ReactNode;
   capability?: string;
   divisionCode?: string | null;
+  disallowRoles?: readonly string[];
+  redirectTo?: string;
   fallback?: ReactNode;
 }
 
-export function RouteGuard({ children, capability, divisionCode, fallback }: RouteGuardProps) {
+export function RouteGuard({ children, capability, divisionCode, disallowRoles, redirectTo, fallback }: RouteGuardProps) {
   const { user, loading: authLoading } = useAuth();
 
   if (authLoading) return <EmptyState title="Memuat sesi..." description="Menunggu verifikasi token" />;
   if (!user) return <Navigate to="/login" replace />;
+
+  if (disallowRoles && disallowRoles.includes(user.role)) {
+    return <Navigate to={redirectTo ?? '/dashboard'} replace />;
+  }
 
   if (capability && !hasCapability(user.role as never, capability, user.divisionCode)) {
     return fallback ?? <NoAccessState description={`Role ${user.role} tidak memiliki izin ${capability}.`} />;

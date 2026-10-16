@@ -1,5 +1,11 @@
-import { afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
+import { afterEach, vi } from 'vitest';
+
+globalThis.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 // Mock fetch untuk test tanpa BE real — kembalikan envelope mock
 const mockBodOverview = [
@@ -50,6 +56,12 @@ globalThis.fetch = async (input: RequestInfo | URL, _init?: RequestInit) => {
   }
   if (url.includes('/targets/current-month')) {
     return new Response(JSON.stringify({ data: [{ id: 't1', outlet_id: 'out-1', amount: 100, status: 'draft', period_month: '2026-09' }], meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/bod/reports')) {
+    return new Response(JSON.stringify({ data: { data: [], current_page: 1, total: 0 }, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  if (url.includes('/projects/reports/preview')) {
+    return new Response(JSON.stringify({ data: { division_code: 'PROJECT', period_start: '2026-10-01', period_end: '2026-10-31', is_already_submitted: false, status: 'DRAFT', metrics: [], breakdowns: [] }, meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
   if (url.includes('/revenue/daily') || url.includes('/reports/') || url.includes('/org/')) {
     return new Response(JSON.stringify({ data: [], meta: { trace_id: 'test-trace' } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
