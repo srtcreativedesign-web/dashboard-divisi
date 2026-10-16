@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -21,11 +22,33 @@ function renderPage(role: string, rows: Sale[] = [], path = '/cellular/produk', 
 }
 describe('Operasional Cellular', () => {
   it('membuka halaman kerja sesuai route menu Cellular', async () => {
+    const user = userEvent.setup();
     renderPage('ADMIN', [], '/cellular/penjualan');
     expect(await screen.findByRole('heading', { name: 'Penjualan Cellular' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Register penjualan' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Catat penjualan' }));
+    const trigger = screen.getByRole('button', { name: 'Catat penjualan' });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Catat penjualan outlet' });
     expect(screen.getByRole('form', { name: 'Catat penjualan' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Outlet')).toHaveFocus();
+    await user.click(within(dialog).getByRole('button', { name: 'Tutup panel' }));
+    expect(trigger).toHaveFocus();
+  });
+  it('menjaga fokus saat Manager membuka dan menutup koreksi penjualan', async () => {
+    const user = userEvent.setup();
+    const sale: Sale = { id: 's', outlet_id: 'o', outlet_name: 'Outlet uji', product_name: 'Kartu uji', business_date: '2026-10-07', quantity: 1, unit_price: '10000', total_amount: '10000', source_reference: 'JUAL-FOCUS', status: 'posted', version: 1, void_reason: null };
+    renderPage('MANAGER', [sale], '/cellular/penjualan');
+    const openDetail = await screen.findByRole('button', { name: 'Buka' });
+    await user.click(openDetail);
+    const detail = screen.getByRole('dialog', { name: 'Detail penjualan Cellular' });
+    const voidTrigger = within(detail).getByRole('button', { name: 'Batalkan transaksi' });
+    await user.click(voidTrigger);
+    const correction = screen.getByRole('dialog', { name: 'Batalkan penjualan' });
+    expect(screen.getByLabelText('Alasan pembatalan')).toHaveFocus();
+    await user.click(within(correction).getByRole('button', { name: 'Tutup panel' }));
+    expect(voidTrigger).toHaveFocus();
+    await user.click(within(detail).getByRole('button', { name: 'Tutup panel' }));
+    expect(openDetail).toHaveFocus();
   });
   it('memfilter register penjualan berdasarkan pencarian dan status', async () => {
     const posted: Sale = { id: 'posted', outlet_id: 'o', outlet_name: 'Outlet T3', product_name: 'Kartu Telkomsel', business_date: '2026-10-07', quantity: 1, unit_price: '10000', total_amount: '10000', source_reference: 'REF-POSTED', status: 'posted', version: 1, void_reason: null };
