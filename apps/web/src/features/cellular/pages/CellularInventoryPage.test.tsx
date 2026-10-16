@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,5 +36,17 @@ describe('Kontrol Persediaan Cellular', () => {
     expect(await screen.findByRole('button', { name: /Setujui/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Koreksi/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Buat dokumen/ })).not.toBeInTheDocument();
+  });
+
+  it('memfilter register berdasarkan nomor, referensi, outlet, dan jenis dokumen', async () => {
+    renderPage();
+    expect(await screen.findByText('CEL-INV-202610-0001')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Cari dokumen persediaan'), { target: { value: 'Cellular T3' } });
+    expect(screen.getByText('1 dari 1 dokumen')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Filter jenis dokumen'), { target: { value: 'TRANSFER' } });
+    expect(screen.getByText('Dokumen tidak ditemukan')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Filter jenis dokumen'), { target: { value: 'RECEIPT' } });
+    fireEvent.change(screen.getByLabelText('Cari dokumen persediaan'), { target: { value: 'SJ-001' } });
+    expect(screen.getByText('CEL-INV-202610-0001')).toBeInTheDocument();
   });
 });
