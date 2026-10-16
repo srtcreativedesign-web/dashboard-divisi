@@ -20,6 +20,18 @@ it('Admin Gudang melihat KPI, koreksi, saldo kritis, dan form yang dapat dikerja
  fireEvent.click(screen.getByRole('button',{name:'Edit'})); expect(screen.getByRole('heading',{name:'Perbaiki dokumen persediaan'})).toBeInTheDocument(); expect(screen.getByDisplayValue('REQ-UJI')).toBeInTheDocument(); fireEvent.click(screen.getByRole('button',{name:'Tambah baris'})); expect(screen.getByRole('button',{name:'Hapus baris 2'})).toBeEnabled(); fireEvent.click(screen.getByRole('button',{name:'Tutup'})); fireEvent.click(screen.getByRole('button',{name:'Berita acara INV-UJI'})); expect(screen.getByRole('heading',{name:'Berita Acara Persediaan'})).toBeInTheDocument(); expect(screen.getByRole('button',{name:'Cetak / simpan PDF'})).toBeInTheDocument();
 });
 
+it('memfilter register dokumen berdasarkan pencarian, jenis, dan status',async()=>{
+ const receipt={...document,id:'receipt',document_number:'INV-TERIMA',kind:'RECEIPT' as const,reference:'SJ-VENDOR-01',status:'approved' as const,source_location_id:null,source_location_name:null,destination_location_id:'location',destination_location_name:'Gudang Uji',workflow:{next_role:'COMPLETED' as const,last_action:'approved_and_posted' as const,last_transition_at:'2026-10-11T10:15:00+07:00',reason:null}};
+ vi.spyOn(inventoryApi,'catalog').mockResolvedValue(envelope(catalog)); vi.spyOn(inventoryApi,'documents').mockResolvedValue(envelope({month:'2026-10',items:[document,receipt]})); vi.spyOn(inventoryApi,'purchaseVouchers').mockResolvedValue(envelope(vouchers)); mount();
+ expect(await screen.findByText('INV-UJI')).toBeInTheDocument(); expect(screen.getByText('INV-TERIMA')).toBeInTheDocument();
+ fireEvent.change(screen.getByLabelText('Cari dokumen persediaan'),{target:{value:'SJ-VENDOR'}});
+ expect(screen.queryByText('INV-UJI')).not.toBeInTheDocument(); expect(screen.getByText('INV-TERIMA')).toBeInTheDocument(); expect(screen.getByText('1 dari 2 dokumen')).toBeInTheDocument();
+ fireEvent.change(screen.getByLabelText('Status dokumen persediaan'),{target:{value:'correction'}});
+ expect(screen.getByText('Dokumen persediaan tidak ditemukan')).toBeInTheDocument();
+ fireEvent.change(screen.getByLabelText('Cari dokumen persediaan'),{target:{value:''}}); fireEvent.change(screen.getByLabelText('Jenis dokumen persediaan'),{target:{value:'ISSUE'}});
+ expect(screen.getByText('INV-UJI')).toBeInTheDocument(); expect(screen.queryByText('INV-TERIMA')).not.toBeInTheDocument();
+});
+
 it('Manager hanya memperoleh keputusan pada dokumen submitted',async()=>{
  session={id:'manager',role:'MANAGER',divisionCode:'ACC'}; vi.spyOn(inventoryApi,'catalog').mockResolvedValue(envelope(catalog)); vi.spyOn(inventoryApi,'documents').mockResolvedValue(envelope({month:'2026-10',items:[{...document,status:'submitted',review_note:null,workflow:{next_role:'MANAGER',last_action:'submitted',last_transition_at:'2026-10-10T11:00:00+07:00',reason:null}}]})); vi.spyOn(inventoryApi,'purchaseVouchers').mockResolvedValue(envelope(vouchers)); mount();
  expect(await screen.findByRole('button',{name:'Setujui & posting'})).toBeInTheDocument(); expect(screen.getByText(/PIC Manager Accounting/)).toBeInTheDocument(); expect(screen.getByRole('button',{name:'Minta koreksi'})).toBeInTheDocument(); expect(screen.queryByRole('button',{name:'Dokumen baru'})).not.toBeInTheDocument();
