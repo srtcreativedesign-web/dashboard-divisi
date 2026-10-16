@@ -15,11 +15,11 @@ export interface DetailSheetProps {
   icon?: React.ElementType;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   initialFocusRef?: RefObject<HTMLElement | null>;
 }
 
-const widths = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-xl', xl: 'max-w-3xl', full: 'max-w-none' };
+const widths = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-xl', xl: 'max-w-3xl', '2xl': 'max-w-5xl', full: 'max-w-none' };
 
 export function DetailSheet({ isOpen, onClose, title, subtitle, badge, icon: Icon, children, footer, size = 'md', initialFocusRef }: DetailSheetProps) {
   const ref = useRef<HTMLDialogElement>(null);

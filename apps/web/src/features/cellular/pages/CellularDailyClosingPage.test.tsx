@@ -22,9 +22,13 @@ describe('Pusat Closing H+1 Cellular', () => {
     expect(await screen.findByRole('heading', { name: 'Pusat Closing dan Penerimaan Harian' })).toBeInTheDocument();
     expect(screen.getByText('Izin dibutuhkan')).toBeInTheDocument();
     expect(screen.getAllByText('Admin Cellular').length).toBeGreaterThan(0);
-    await user.click(screen.getByRole('button', { name: 'Buka' }));
+    const trigger = screen.getByRole('button', { name: 'Buka' });
+    await user.click(trigger);
     expect(screen.getByRole('dialog', { name: 'Detail closing H+1' })).toBeInTheDocument();
     expect(screen.getByText('Draf disimpan')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Tutup panel' }));
+    expect(screen.queryByRole('dialog', { name: 'Detail closing H+1' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 
   it('mewajibkan alasan sebelum Admin meminta izin terlambat', async () => {
@@ -32,7 +36,8 @@ describe('Pusat Closing H+1 Cellular', () => {
     await user.click(screen.getByRole('button', { name: 'Minta izin' }));
     const submit = screen.getByRole('button', { name: 'Kirim permintaan' });
     expect(submit).toBeDisabled();
-    await user.type(screen.getByLabelText('Alasan'), 'Rekap kanal terlambat diterima');
+    const reason = screen.getByLabelText('Alasan'); expect(reason).toHaveFocus();
+    await user.type(reason, 'Rekap kanal terlambat diterima');
     await user.click(submit);
     expect(cellularApi.transitionDailyClosing).toHaveBeenCalledWith(row, 'request-late', 'Rekap kanal terlambat diterima');
   });
