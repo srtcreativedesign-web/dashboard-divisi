@@ -52,6 +52,10 @@ Penjualan Cellular sekarang memakai panel kerja yang sama untuk tiga konteks dal
 
 Capability, validasi stok, idempotency referensi, optimistic version, dan audit backend tidak diubah atau dilewati oleh penyelarasan UI ini.
 
+Alur Persediaan Cellular juga selesai dimigrasikan. Form mutasi manual mengarahkan fokus ke produk dan membagi konteks saldo dari bukti posting. Detail mutasi menampilkan dampak jumlah, saldo sesudah, sumber, waktu, serta alasan tanpa menampilkan UUID pelaku.
+
+Editor Dokumen Persediaan memisahkan konteks dokumen, bukti operasional, dan rincian barang. Detail dokumen mempertahankan berita acara, status, rute, item, catatan koreksi, serta pemisahan tugas tanpa mengekspos UUID pembuat atau pemeriksa. Form koreksi Manager mengarahkan fokus ke catatan wajib dan mengembalikan fokus ke tindakan sumber ketika ditutup.
+
 ## Perspektif peran
 
 - **Senior Product Manager:** memprioritaskan penelusuran data operasional dan mempertahankan batas produk HR read-only.
@@ -68,9 +72,10 @@ Capability, validasi stok, idempotency referensi, optimistic version, dan audit 
 - Closing H+1, Settlement, dan Analitik: 7 tes regresi lulus, termasuk pemulihan fokus detail serta fokus awal alasan izin; lint dan typecheck lulus.
 - Kontrol Shift, Closing H+1, Settlement, dan Analitik: 12 tes regresi lulus; lint dan typecheck lulus.
 - Penjualan, Kontrol Shift, Closing H+1, Settlement, dan Analitik: 24 tes regresi lulus. Dua belas tes Penjualan mencakup fokus awal form, pemulihan fokus panel bertingkat, validasi stok, role, kegagalan API, dan reset konteks. Lint file yang diubah serta typecheck lulus.
+- Penjualan, Buku Persediaan, Dokumen Persediaan, Kontrol Shift, Closing H+1, Settlement, dan Analitik: 30 tes regresi lulus. Inventaris sumber memastikan tidak ada lagi `role="dialog"` manual di fitur Cellular; seluruh dialog memakai komponen native bersama.
 - `git diff --check` lulus pada setiap commit.
 - Divisi Project tidak diubah.
 
 ## Batas berikutnya
 
-Audit keyboard/focus belum selesai untuk seluruh aplikasi. Overlay manual Cellular yang masih tersisa berada pada alur persediaan dan harus dimigrasikan serta diuji tanpa mengubah aturan posting stok.
+Audit keyboard/focus belum selesai untuk seluruh aplikasi, tetapi migrasi overlay manual pada fitur Cellular telah ditutup. Tahap berikutnya adalah audit visual nyata tema terang/gelap dan breakpoint desktop, tablet, serta mobile bersama setiap role bisnis.
