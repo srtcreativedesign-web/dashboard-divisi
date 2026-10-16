@@ -37,6 +37,16 @@ it('memisahkan riwayat cuti dari absensi harian',async()=>{
  show();await screen.findByText('ATT-001');fireEvent.click(screen.getByRole('button',{name:/Riwayat cuti/}));expect(await screen.findByText('CUTI-001')).toBeInTheDocument();expect(screen.getByText('Tahunan')).toBeInTheDocument();expect(hrApi.list).toHaveBeenLastCalledWith('leave',expect.any(String),1);
 });
 
+it('memfilter rekap berdasarkan pegawai, referensi, dan status sumber',async()=>{
+ show();await screen.findByText('ATT-001');
+ fireEvent.change(screen.getByLabelText('Cari rekap kehadiran'),{target:{value:'Pegawai sakit'}});
+ expect(screen.getByText('ATT-002')).toBeInTheDocument();expect(screen.queryByText('ATT-001')).not.toBeInTheDocument();expect(screen.getByText('1 dari 3 catatan')).toBeInTheDocument();
+ fireEvent.change(screen.getByLabelText('Status rekap kehadiran'),{target:{value:'PRESENT'}});
+ expect(screen.getByText('Rekap tidak ditemukan')).toBeInTheDocument();
+ fireEvent.change(screen.getByLabelText('Cari rekap kehadiran'),{target:{value:''}});
+ expect(screen.getByText('ATT-001')).toBeInTheDocument();expect(screen.queryByText('ATT-002')).not.toBeInTheDocument();
+});
+
 it('detail hanya menampilkan hasil sumber dan arahan koreksi di sistem absensi',async()=>{
  show();fireEvent.click(await screen.findByRole('button',{name:'Buka ATT-001'}));expect(await screen.findByText('Data dari sistem sumber')).toBeInTheDocument();expect(screen.getByText('Tidak dapat diubah dari ERP')).toBeInTheDocument();expect(screen.getByText(/perbaikan dilakukan pada sistem absensi kantor/)).toBeInTheDocument();expect(screen.queryByText('Histori perubahan')).not.toBeInTheDocument();
 });
