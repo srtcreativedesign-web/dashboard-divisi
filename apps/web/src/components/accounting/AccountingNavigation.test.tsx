@@ -11,7 +11,7 @@ describe('Submenu Accounting menurut role dan scope', () => {
     expect(screen.getByRole('link', { name: 'Draf & Koreksi Saya' })).toHaveAttribute('href', '/accounting/dokumen/pengajuan');
     for (const name of ['Antrean Pemeriksaan', 'Decision Inbox', 'Payment Run']) expect(screen.queryByRole('link', { name })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Operasional Pendukung' }));
-    expect(screen.getByRole('link', { name: 'Cuti & Absensi' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Rekap Kehadiran' })).toBeInTheDocument();
   });
   it.each([['ACCOUNTING', 'Antrean Pemeriksaan'], ['MANAGER', 'Decision Inbox'], ['FINANCE', 'Payment Run']])('%s mendapat submenu tugasnya', (role, name) => {
     mount(role); expect(screen.getByRole('link', { name })).toBeInTheDocument();

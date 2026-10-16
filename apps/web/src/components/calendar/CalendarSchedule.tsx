@@ -404,7 +404,6 @@ export function CalendarSchedule({ initialDivision = 'ALL', embedded = false }: 
               {calendarCells.map((cell) => {
                 const isSelected = cell.dateStr === selectedDate;
                 const isCurrent = cell.isCurrentMonth;
-                const hasEvents = cell.events.length > 0;
 
                 return (
                   <div

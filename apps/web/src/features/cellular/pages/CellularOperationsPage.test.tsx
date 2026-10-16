@@ -27,6 +27,21 @@ describe('Operasional Cellular', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Catat penjualan' }));
     expect(screen.getByRole('form', { name: 'Catat penjualan' })).toBeInTheDocument();
   });
+  it('memfilter register penjualan berdasarkan pencarian dan status', async () => {
+    const posted: Sale = { id: 'posted', outlet_id: 'o', outlet_name: 'Outlet T3', product_name: 'Kartu Telkomsel', business_date: '2026-10-07', quantity: 1, unit_price: '10000', total_amount: '10000', source_reference: 'REF-POSTED', status: 'posted', version: 1, void_reason: null };
+    const voided: Sale = { ...posted, id: 'voided', outlet_name: 'Outlet T2', product_name: 'Kartu Indosat', source_reference: 'REF-VOID', status: 'voided', void_reason: 'Salah pencatatan outlet' };
+    renderPage('MANAGER', [posted, voided], '/cellular/penjualan');
+    expect(await screen.findByText('REF-POSTED')).toBeInTheDocument();
+    expect(screen.getByText('REF-VOID')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Cari transaksi penjualan'), { target: { value: 'Indosat' } });
+    expect(screen.queryByText('REF-POSTED')).not.toBeInTheDocument();
+    expect(screen.getByText('REF-VOID')).toBeInTheDocument();
+    expect(screen.getByText('1 dari 2 transaksi')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('Status penjualan'), { target: { value: 'posted' } });
+    expect(screen.getByText('Penjualan tidak ditemukan')).toBeInTheDocument();
+  });
   it('menyembunyikan laporan finansial dan form mutasi dari reader operasional', async () => {
     renderPage('LEADER');
     expect(await screen.findByText('Kartu uji')).toBeInTheDocument();

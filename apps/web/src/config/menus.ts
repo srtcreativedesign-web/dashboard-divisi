@@ -13,7 +13,6 @@ const MVP_ROLES: readonly Role[] = ['BOD', 'MANAGER', 'HEAD_OPS', 'SPV', 'LEADER
 
 export const MENU_ITEMS: MenuItem[] = [
   { path: '/dashboard', label: 'Workspace ERP', roles: MVP_ROLES },
-  { path: '/kalender', label: 'Kalender Jadwal', roles: MVP_ROLES },
   ...MVP_MODULES.map(module => ({ path: module.path, label: module.name, roles: MVP_ROLES, capability: module.capability })),
 ];
 
@@ -47,7 +46,6 @@ export const ACCOUNTING_NAV_GROUPS: AccountingNavGroup[] = [
   { id: 'support', label: 'Operasional Pendukung', children: [
     { path: '/accounting/administrasi/pegawai', label: 'Rekap Kehadiran', roles: MVP_ROLES, capability: 'view:acc_hr' },
     { path: '/accounting/operasional/persediaan', label: 'Persediaan & Gudang', roles: MVP_ROLES, capability: 'view:inventory' },
-    { path: '/accounting/kalender', label: 'Kalender Jadwal', roles: MVP_ROLES, capability: 'view:acc_detail' },
   ] },
   { id: 'data', label: 'Data & Integrasi', children: [
     { path: '/accounting/pendapatan/sumber', label: 'Sumber Laporan Cellular', roles: MVP_ROLES, capability: 'preview:cellular_report' },
@@ -92,7 +90,6 @@ export const CELLULAR_MENU_ITEMS: MenuItem[] = [
   { path: '/cellular/laporan', label: 'Kinerja Cellular', group: 'Laporan & Analitik', roles: MVP_ROLES, capability: 'view:cellular_sales' },
   { path: '/cellular/produk', label: 'Produk & Paket', group: 'Operasional Pendukung', roles: MVP_ROLES, capability: 'view:cellular' },
   { path: '/cellular/persediaan', label: 'Stok & Mutasi', group: 'Operasional Pendukung', roles: MVP_ROLES, capability: 'view:cellular' },
-  { path: '/cellular/kalender', label: 'Kalender Jadwal', group: 'Operasional Pendukung', roles: MVP_ROLES, capability: 'view:cellular' },
   { path: '/cellular/integrasi', label: 'Sumber & Integrasi', group: 'Data & Integrasi', roles: MVP_ROLES, capability: 'view:cellular' },
 ];
 
