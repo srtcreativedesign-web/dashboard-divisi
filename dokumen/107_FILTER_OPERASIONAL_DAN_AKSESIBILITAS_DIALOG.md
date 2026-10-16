@@ -44,6 +44,14 @@ Detail Closing H+1 dan form alasan izin terlambat/koreksi juga memakai `DetailSh
 
 Kontrol Shift sekarang membuka form Leader sebagai panel kerja dengan fokus awal pada outlet. Register mendapat tindakan `Buka` yang menampilkan detail status, PIC, tenggat, prioritas, versi, seluruh checklist, temuan Leader, dan catatan pemeriksa. Penutupan form maupun detail mengembalikan fokus ke tombol pemicu.
 
+Penjualan Cellular sekarang memakai panel kerja yang sama untuk tiga konteks dalam satu alur transaksi:
+
+- form posting mengarahkan fokus ke outlet, membagi isian menjadi konteks transaksi serta produk dan nilai, dan menampilkan dampak stok, total, omzet, serta closing H+1 sebelum posting;
+- detail transaksi menampilkan status, referensi, pelaku, waktu, nilai, dan dampaknya pada stok serta laporan;
+- koreksi Manager dibuka sebagai panel bertingkat, mengarahkan fokus ke alasan pembatalan, mempertahankan minimum 10 karakter, dan mengembalikan fokus ke tindakan sumber setelah ditutup.
+
+Capability, validasi stok, idempotency referensi, optimistic version, dan audit backend tidak diubah atau dilewati oleh penyelarasan UI ini.
+
 ## Perspektif peran
 
 - **Senior Product Manager:** memprioritaskan penelusuran data operasional dan mempertahankan batas produk HR read-only.
@@ -59,9 +67,10 @@ Kontrol Shift sekarang membuka form Leader sebagai panel kerja dengan fokus awal
 - Settlement Cellular dan regresi Analitik: 5 tes lulus, termasuk fokus awal form Finance serta pemulihan fokus; lint dan typecheck lulus.
 - Closing H+1, Settlement, dan Analitik: 7 tes regresi lulus, termasuk pemulihan fokus detail serta fokus awal alasan izin; lint dan typecheck lulus.
 - Kontrol Shift, Closing H+1, Settlement, dan Analitik: 12 tes regresi lulus; lint dan typecheck lulus.
+- Penjualan, Kontrol Shift, Closing H+1, Settlement, dan Analitik: 24 tes regresi lulus. Dua belas tes Penjualan mencakup fokus awal form, pemulihan fokus panel bertingkat, validasi stok, role, kegagalan API, dan reset konteks. Lint file yang diubah serta typecheck lulus.
 - `git diff --check` lulus pada setiap commit.
 - Divisi Project tidak diubah.
 
 ## Batas berikutnya
 
-Audit keyboard/focus belum selesai untuk seluruh aplikasi. Overlay manual masih tersedia pada alur penjualan dan persediaan Cellular. Keduanya harus dimigrasikan dan diuji secara bertahap agar perubahan fokus tidak merusak transaksi.
+Audit keyboard/focus belum selesai untuk seluruh aplikasi. Overlay manual Cellular yang masih tersisa berada pada alur persediaan dan harus dimigrasikan serta diuji tanpa mengubah aturan posting stok.
