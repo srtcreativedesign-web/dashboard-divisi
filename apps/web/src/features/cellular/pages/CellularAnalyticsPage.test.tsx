@@ -33,9 +33,13 @@ describe('Kinerja dan Rekonsiliasi Cellular', () => {
     expect(await screen.findByRole('heading', { name: 'Kinerja dan Rekonsiliasi Cellular' })).toBeInTheDocument();
     expect(screen.getAllByText(/10\.000/).length).toBeGreaterThan(0);
     expect(screen.getByText(/bukan otomatis dianggap laba/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Periksa' }));
+    const trigger = screen.getByRole('button', { name: 'Periksa' });
+    await user.click(trigger);
     expect(screen.getByRole('dialog', { name: 'Detail rekonsiliasi harian' })).toBeInTheDocument();
     expect(screen.getByText(/Status closing:/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Tutup panel' }));
+    expect(screen.queryByRole('dialog', { name: 'Detail rekonsiliasi harian' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 
   it('menampilkan sumber yang belum tersedia tanpa menggantinya dengan angka nol', async () => {
