@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cellularApi, type ShiftControl } from '../api';
@@ -13,6 +14,7 @@ function page(){const client=new QueryClient({defaultOptions:{queries:{retry:fal
 describe('Kontrol Shift Cellular',()=>{
   beforeEach(()=>{session.role='LEADER';vi.spyOn(cellularApi,'outlets').mockResolvedValue(response([{id:'outlet-1',code:'T3',name:'Data Cellular T3'}]));vi.spyOn(cellularApi,'shiftControls').mockResolvedValue(response([row('draft'),row('submitted'),row('reviewed'),row('escalated')]));vi.spyOn(cellularApi,'saveShiftControl').mockResolvedValue(response(row('draft')));vi.spyOn(cellularApi,'transitionShiftControl').mockResolvedValue(response(row('submitted')));});
   afterEach(()=>{cleanup();vi.restoreAllMocks();});
-  it('memberi Leader form checklist dan tindakan pengajuan',async()=>{page();expect(await screen.findByRole('heading',{name:'Kontrol Shift Outlet'})).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Kontrol baru'}));expect(screen.getByRole('heading',{name:'Checklist shift baru'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Ajukan ke SPV'})).toBeInTheDocument();});
+  it('memberi Leader form checklist aksesibel dan tindakan pengajuan',async()=>{const user=userEvent.setup();page();expect(await screen.findByRole('heading',{name:'Kontrol Shift Outlet'})).toBeInTheDocument();const trigger=screen.getByRole('button',{name:'Kontrol baru'});await user.click(trigger);expect(screen.getByRole('dialog',{name:'Checklist shift baru'})).toBeInTheDocument();expect(screen.getByLabelText('Outlet')).toHaveFocus();await user.click(screen.getByRole('button',{name:'Tutup panel'}));expect(trigger).toHaveFocus();expect(screen.getByRole('button',{name:'Ajukan ke SPV'})).toBeInTheDocument();});
+  it('membuka rincian checklist dan mengembalikan fokus ke baris sumber',async()=>{const user=userEvent.setup();page();await screen.findByRole('heading',{name:'Kontrol Shift Outlet'});const trigger=screen.getAllByRole('button',{name:'Buka detail Data Cellular T3 SHIFT-1'})[0]!;await user.click(trigger);const dialog=screen.getByRole('dialog',{name:'Detail kontrol shift'});expect(dialog).toHaveTextContent('Hitung stok selesai');expect(dialog).toHaveTextContent('Selisih closing');await user.click(screen.getByRole('button',{name:'Tutup panel'}));expect(trigger).toHaveFocus();});
   it.each([['SPV','Verifikasi'],['HEAD_OPS','Selesaikan'],['MANAGER','Putuskan selesai']])('menampilkan tindakan %s yang tepat',async(role,label)=>{session.role=role;page();await screen.findByRole('heading',{name:'Kontrol Shift Outlet'});expect(screen.getByRole('button',{name:label})).toBeInTheDocument();});
 });
