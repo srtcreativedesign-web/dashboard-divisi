@@ -36,6 +36,10 @@ Detail rekonsiliasi pada Analitik Cellular dipindahkan dari overlay manual ke `D
 - penguncian scroll halaman;
 - pemulihan fokus ke tombol `Periksa` setelah dialog ditutup.
 
+Form pencatatan Settlement Finance sebelumnya disisipkan sebagai kartu di antara KPI dan register. Form sekarang dibuka sebagai panel kerja `DetailSheet` sehingga konteks halaman tidak bergeser. Fokus awal diarahkan ke sumber closing dan kanal; tombol simpan tetap mengirim form melalui atribut `form`; ketika panel ditutup, fokus kembali ke tombol `Catat dana` yang membukanya.
+
+`DetailSheet` menerima `initialFocusRef` opsional. Komponen merekam elemen pemicu sebelum memindahkan fokus ke isian pertama, sehingga pemulihan fokus tidak salah merekam elemen di dalam dialog.
+
 ## Perspektif peran
 
 - **Senior Product Manager:** memprioritaskan penelusuran data operasional dan mempertahankan batas produk HR read-only.
@@ -48,9 +52,10 @@ Detail rekonsiliasi pada Analitik Cellular dipindahkan dari overlay manual ke `D
 - Rekap Kehadiran: 7 tes lulus, lint dan typecheck lulus, pencarian diuji di browser terhadap 28 catatan database.
 - Persediaan Cellular: 4 tes lulus, lint dan typecheck lulus.
 - Analitik Cellular: 2 tes lulus, termasuk penutupan dialog dan pemulihan fokus; lint dan typecheck lulus.
+- Settlement Cellular dan regresi Analitik: 5 tes lulus, termasuk fokus awal form Finance serta pemulihan fokus; lint dan typecheck lulus.
 - `git diff --check` lulus pada setiap commit.
 - Divisi Project tidak diubah.
 
 ## Batas berikutnya
 
-Audit keyboard/focus belum selesai untuk seluruh aplikasi. Overlay manual masih tersedia pada beberapa alur Cellular seperti Closing H+1, Kontrol Shift, Settlement, penjualan, dan persediaan. Masing-masing harus dimigrasikan dan diuji secara bertahap agar perubahan fokus tidak merusak alur transaksi.
+Audit keyboard/focus belum selesai untuk seluruh aplikasi. Overlay manual masih tersedia pada beberapa alur Cellular seperti Closing H+1, Kontrol Shift, penjualan, dan persediaan. Masing-masing harus dimigrasikan dan diuji secara bertahap agar perubahan fokus tidak merusak alur transaksi.
