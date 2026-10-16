@@ -115,6 +115,16 @@ describe('Operasional Cellular', () => {
     expect(screen.queryByRole('button', { name: 'Penjualan' })).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByText('Mutasi tidak ditemukan')).toBeInTheDocument());
   });
+  it('mengarahkan dan memulihkan fokus pada form mutasi persediaan', async () => {
+    const user = userEvent.setup();
+    renderPage('ADMIN_GUDANG', [], '/cellular/persediaan');
+    const trigger = await screen.findByRole('button', { name: 'Catat mutasi' });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Catat mutasi manual' });
+    expect(screen.getByLabelText('Produk')).toHaveFocus();
+    await user.click(within(dialog).getByRole('button', { name: 'Tutup panel' }));
+    expect(trigger).toHaveFocus();
+  });
   it('menampilkan buku persediaan yang dapat ditelusuri ke bukti sumber', async () => {
     const movement: Movement = { id: 'm1', product_id: 'p', outlet_id: 'o', sku: 'SIM-1', name: 'Kartu uji', provider: 'Provider uji', variant: '10GB', quantity_delta: 10, quantity_after: 10, kind: 'ADJUSTMENT', reference: 'SJ-001', reason: 'Penerimaan dari pemasok utama', source_key: 'hash', source_document_type: 'Bukti eksternal', source_document_id: null, actor_id: 'user-1', created_at: '2026-10-10T03:00:00Z' };
     renderPage('ADMIN_GUDANG', [], '/cellular/persediaan', [movement]);
@@ -123,6 +133,7 @@ describe('Operasional Cellular', () => {
     const dialog = screen.getByRole('dialog', { name: 'Detail mutasi persediaan' });
     expect(dialog).toHaveTextContent('Penerimaan dari pemasok utama');
     expect(within(dialog).getAllByText('Bukti eksternal').length).toBeGreaterThan(0);
+    expect(dialog).not.toHaveTextContent('user-1');
   });
 });
 
